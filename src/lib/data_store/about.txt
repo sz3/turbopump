@@ -1,0 +1,3 @@
+Responsible for storing files, where-ever they come from. (DFS will live atop, looking at the CHR and deciding where to put stuff)
+
+Supports write, read, deletes of data. Stores and summarizes data, so that equilibrium/cohesion can detect and fix problems.

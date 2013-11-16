@@ -1,0 +1,8 @@
+/build
+/CMakeFiles
+/Testing
+/CMakeCache.txt
+/CMakeLists.txt.user
+/Makefile
+/*.cmake
+/*.cbp

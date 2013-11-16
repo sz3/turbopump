@@ -1,0 +1,44 @@
+cmake_minimum_required(VERSION 2.6)
+
+project(standup_test)
+
+set (SOURCES
+	test.cpp
+	StartupTest.cpp
+)
+
+include_directories(
+	${corelib_SOURCE_DIR}/test
+	${dynamo_SOURCE_DIR}/test/lib
+)
+
+add_executable (
+	standup_test
+	${SOURCES}
+)
+
+add_test(standup_test standup_test)
+
+target_link_libraries(standup_test
+-Wl,--start-group
+	actions
+	cohesion
+	common
+	consistent_hashing
+	data_store
+	main
+	membership
+	programmable
+	wan_server
+	user_control
+
+	command_line
+	event
+	file
+	serialize
+	socket
+-Wl,--end-group
+
+	pthread
+)
+
