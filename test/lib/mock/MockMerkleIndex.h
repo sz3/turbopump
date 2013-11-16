@@ -12,7 +12,7 @@ public:
 	std::deque<MerklePoint> diff(const MerklePoint& point) const;
 
 public:
-	CallHistory _history;
+	mutable CallHistory _history;
 
 	std::deque<MerklePoint> _diff;
 };

@@ -28,7 +28,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _synchronizer(_membership, _peers, _merkleIndex, _corrector)
 	, _callbacks(instruct)
 {
-	_callbacks.initialize(_membership, _peers);
+	_callbacks.initialize(_membership, _peers, _merkleIndex);
 }
 
 void TurboPumpApp::run()

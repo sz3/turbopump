@@ -7,11 +7,11 @@ using std::vector;
 TEST_CASE( "HashRingTest/testHash", "default" )
 {
 	// Tiger -> base64
-	REQUIRE( "ECjsTyiCEvexJ1xX4Bjs4MkzK0epOKO6\n" == HashRing::hash("foo") );
-	REQUIRE( "MeNRjt+Y9fNwNBdWLdvc8TyTj8EES9Lw\n" == HashRing::hash("bar") );
-	REQUIRE( "2Ok5EtCP5L0BO2S1lrG9C1U4x/a0mU03\n" == HashRing::hash("one") );
-	REQUIRE( "QWvKlLwjsuwwU3DcZdYtCBBWoLu0a8Oz\n" == HashRing::hash("two") );
-	REQUIRE( "1jN1njgiq71DV2buECVBL5uJ+C4zTUZX\n" == HashRing::hash("three") );
+	REQUIRE( "ECjsTyiCEvexJ1xX4Bjs4MkzK0epOKO6" == HashRing::hash("foo") );
+	REQUIRE( "MeNRjt+Y9fNwNBdWLdvc8TyTj8EES9Lw" == HashRing::hash("bar") );
+	REQUIRE( "2Ok5EtCP5L0BO2S1lrG9C1U4x/a0mU03" == HashRing::hash("one") );
+	REQUIRE( "QWvKlLwjsuwwU3DcZdYtCBBWoLu0a8Oz" == HashRing::hash("two") );
+	REQUIRE( "1jN1njgiq71DV2buECVBL5uJ+C4zTUZX" == HashRing::hash("three") );
 }
 
 TEST_CASE( "HashRingTest/testDefault", "default" )

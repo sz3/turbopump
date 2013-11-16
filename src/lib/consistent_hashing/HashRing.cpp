@@ -1,8 +1,6 @@
 #include "HashRing.h"
 
-#include <cryptopp/base64.h>
-#include <cryptopp/filters.h>
-#include <cryptopp/hex.h>
+#include "base64.h"
 #include <cryptopp/tiger.h>
 using std::vector;
 
@@ -12,9 +10,7 @@ string HashRing::hash(const string& str)
 	result.resize(CryptoPP::Tiger::DIGESTSIZE);
 	CryptoPP::Tiger().CalculateDigest((unsigned char*)(&result[0]), (unsigned char*)(&str[0]), str.size());
 
-	string base64d;
-	CryptoPP::StringSource(result, true, new CryptoPP::Base64Encoder(new CryptoPP::StringSink(base64d)));
-	return base64d;
+	return base64_encode((const unsigned char*)result.data(), result.size());
 }
 
 // TODO: rather than updating the structure directly, it may be beneficial to implement a copy-on-write strategy to handle changes.
