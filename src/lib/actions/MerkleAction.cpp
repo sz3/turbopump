@@ -1,9 +1,9 @@
 #include "MerkleAction.h"
 
 #include "cohesion/ISynchronize.h"
-#include "cohesion/MerklePoint.h"
 
 #include "common/DataBuffer.h"
+#include "common/MerklePoint.h"
 #include "serialize/StringUtil.h"
 
 using std::string;

@@ -4,10 +4,8 @@ set(SOURCES
 	ICorrectSkew.h
 	IMerkleIndex.h
 	ISynchronize.h
-	MerkleIndex.h
 	MerkleIndex.cpp
-	MerklePoint.h
-	MerklePoint.cpp
+	MerkleIndex.h
 	SkewCorrector.cpp
 	SkewCorrector.h
 	Synchronizer.cpp

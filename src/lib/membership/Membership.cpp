@@ -11,6 +11,11 @@ using std::string;
 using std::unordered_map;
 using namespace std::placeholders;
 
+// membership will eventually consist of:
+//  * permanent worker ID => used to sign record. Also basis of the hash ring.
+//  * ip:port (list)
+//  * public key for encryption (will cycle on reboots, or on a time interval to stop the sequence number from climbing too high)
+
 // "How do I talk to a worker ID?" => check membership for his (ed25519 signed) ip:port pair
 // "How do I find the worker ID from a socket?" => look at membership.
 // "How do I find the worker ID from a fictional (raw) socket?" => PeerTracker should track these somehow?

@@ -2,9 +2,9 @@
 
 #include "ICorrectSkew.h"
 #include "IMerkleIndex.h"
-#include "MerklePoint.h"
 
 #include "common/DataBuffer.h"
+#include "common/MerklePoint.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 #include "wan_server/IPeerTracker.h"

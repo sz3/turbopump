@@ -35,17 +35,17 @@ PeerTracker::PeerTracker(const UdpServer& server)
 
 std::shared_ptr<PeerConnection> PeerTracker::track(const Peer& peer)
 {
+	IpAddress address;
+	if (!address.fromString(peer.address()))
+	{
+		std::cerr << "BADNESS! Membership has invalid ip address information on peer " << peer.uid << "!!!" << std::endl;
+		return NULL;
+	}
+
 	std::pair<unordered_map<string,std::shared_ptr<PeerConnection> >::iterator, bool> pear = _peers.insert( std::pair<string,std::shared_ptr<PeerConnection> >(peer.uid, NULL) );
 	std::shared_ptr<PeerConnection>& peerPtr = pear.first->second;
 	if (pear.second == true)
 	{
-		IpAddress address;
-		if (!address.fromString(peer.address()))
-		{
-			std::cerr << "BADNESS! Membership has invalid ip address information on peer " << peer.uid << "!!!" << std::endl;
-			return peerPtr;
-		}
-
 		// maybe a weakptr... with the target as a separate data strucure
 		std::shared_ptr<IIpSocket> sock(_server.sock());
 		sock->setTarget(address);

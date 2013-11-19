@@ -3,9 +3,10 @@
 #include "WanPacketHandler.h"
 
 #include "membership/Peer.h"
+#include "mock/MockIpSocket.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
-#include "mock/MockIpSocket.h"
+#include "mock/MockSynchronize.h"
 #include "mock/TestableDataStore.h"
 #include "socket/IpAddress.h"
 #include "socket/UdpSocket.h"
@@ -16,7 +17,8 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 	MockMembership membership;
 	MockPeerTracker peers;
 	TestableDataStore dataStore;
-	WanPacketHandler handler(membership, peers, dataStore);
+	MockSynchronize sync;
+	WanPacketHandler handler(membership, peers, dataStore, sync);
 
 	UdpSocket sock(-1);
 	sock.setTarget(IpAddress("1.2.3.4", 10));

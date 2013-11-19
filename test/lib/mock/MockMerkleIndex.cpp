@@ -1,6 +1,6 @@
 #include "MockMerkleIndex.h"
 
-#include "cohesion/MerklePoint.h"
+#include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
 void MockMerkleIndex::add(const std::string& id)

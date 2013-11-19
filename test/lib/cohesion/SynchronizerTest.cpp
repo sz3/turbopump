@@ -2,15 +2,16 @@
 
 #include "Synchronizer.h"
 
-#include "MerklePoint.h"
+#include "common/MerklePoint.h"
 #include "membership/Peer.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMerkleIndex.h"
 #include "mock/MockPeerTracker.h"
 #include "mock/MockIpSocket.h"
 #include "mock/MockSkewCorrector.h"
-#include "socket/IpAddress.h"
 #include "wan_server/PeerConnection.h"
+
+#include "socket/IpAddress.h"
 
 TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 {

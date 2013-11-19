@@ -2,6 +2,7 @@
 
 #include "IPeerTracker.h"
 #include "PeerConnection.h"
+#include "actions/MerkleAction.h"
 #include "actions/ReadAction.h"
 #include "actions/WriteAction.h"
 
@@ -20,10 +21,11 @@ using std::string;
 using std::shared_ptr;
 
 // TODO: Lots of member objects, ala IDataStore&?
-WanPacketHandler::WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore)
+WanPacketHandler::WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync)
 	: _membership(membership)
 	, _peers(peers)
 	, _dataStore(dataStore)
+	, _sync(sync)
 {
 }
 
@@ -48,6 +50,7 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 	// if decryption fails,
 	// return false
 
+	// maybe we're the only one that ever uses _peers, e.g. it is single-threaded?
 	std::shared_ptr<PeerConnection> conn = _peers.track(*peer);
 	if (!conn)
 		return false; // TODO: log error or something
@@ -56,7 +59,7 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 	ActionParser parser;
 	DataBuffer buff(decryptedBuffer.data(), decryptedBuffer.size());
 	if (parser.parse(buff))
-		conn->setAction( newAction(parser.action(), parser.params()) );
+		conn->setAction( newAction(*peer, parser.action(), parser.params()) );
 
 	if (!conn->action() || !conn->action()->good())
 		return false;
@@ -65,13 +68,15 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 	return true;
 }
 
-std::shared_ptr<IAction> WanPacketHandler::newAction(const string& cmdname, const std::map<string,string>& params)
+std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const string& cmdname, const std::map<string,string>& params)
 {
 	std::shared_ptr<IAction> action;
 	if (cmdname == "write")
 		action.reset(new WriteAction(_dataStore));
-	else if (cmdname == "ip")
-		; //action.reset(new IpUpdateAction());
+	else if (cmdname == "merkle")
+		action.reset(new MerkleAction(peer, _sync));
+	//else if (cmdname == "ip")
+		//action.reset(new IpUpdateAction());
 	else
 		return action;
 

@@ -5,6 +5,8 @@ set(SOURCES
 	ActionParser.h
 	DataBuffer.cpp
 	DataBuffer.h
+	MerklePoint.cpp
+	MerklePoint.h
 )
 
 include_directories(

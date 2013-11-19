@@ -17,7 +17,7 @@ IpAddress PeerConnection::peer() const
 	return _sock->getTarget();
 }
 
-int PeerConnection::write(const DataBuffer& data)
+int PeerConnection::send(const DataBuffer& data)
 {
 	// NOTE: maybe some day do slow start / flow control here!
 	// would enable us to correlate peers across sockets...

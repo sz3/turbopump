@@ -1,6 +1,6 @@
 #include "MerkleIndex.h"
 
-#include "MerklePoint.h"
+#include "common/MerklePoint.h"
 
 void MerkleIndex::add(const std::string& id)
 {

@@ -7,7 +7,9 @@ class IIpSocket;
 class IpAddress;
 
 // role of this class
-// * to persist information about a conversation with a peer across multiple (small) packets
+// * to persist information about a conversation with a peer across multiple (small) packets (by holding the IAction)
+// * (eventually) to encrypt outgoing communications?
+// * to maintain a sequence number?
 
 // TODO: will eventually need virtual connections to share physical fds.
 // first pass is to restablish a connection everytime (since there's no NAT or encryption yet, this amounts to the client calling socket() again)
@@ -21,7 +23,7 @@ public:
 	PeerConnection(const std::shared_ptr<IIpSocket>& sock);
 
 	IpAddress peer() const;
-	int write(const DataBuffer& data);
+	int send(const DataBuffer& data);
 
 	void setAction(const std::shared_ptr<IAction>& action);
 	const std::shared_ptr<IAction>& action() const;

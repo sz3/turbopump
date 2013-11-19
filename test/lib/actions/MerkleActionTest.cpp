@@ -1,8 +1,8 @@
 #include "unittest.h"
 
 #include "MerkleAction.h"
-#include "cohesion/MerklePoint.h"
 #include "common/DataBuffer.h"
+#include "common/MerklePoint.h"
 #include "membership/Peer.h"
 #include "mock/MockSynchronize.h"
 using std::string;

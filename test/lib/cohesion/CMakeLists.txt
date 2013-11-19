@@ -4,7 +4,6 @@ project(cohesion_test)
 
 set (SOURCES
 	test.cpp
-	MerklePointTest.cpp
 	SynchronizerTest.cpp
 )
 

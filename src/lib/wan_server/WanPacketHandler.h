@@ -6,9 +6,11 @@
 
 class IAction;
 class IDataStore;
+class IIpSocket;
 class IMembership;
 class IPeerTracker;
-class IIpSocket;
+class ISynchronize;
+class Peer;
 
 // receiving (UdpSocket&, string& buff),
 // 1) negotiate connections as necessary
@@ -16,15 +18,16 @@ class IIpSocket;
 class WanPacketHandler
 {
 public:
-	WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore);
+	WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync);
 
 	bool onPacket(const IIpSocket& socket, const std::string& buffer);
 
 protected:
-	std::shared_ptr<IAction> newAction(const std::string& cmdname, const std::map<std::string,std::string>& params);
+	std::shared_ptr<IAction> newAction(const Peer& peer, const std::string& cmdname, const std::map<std::string,std::string>& params);
 
 protected:
 	const IMembership& _membership;
 	IPeerTracker&  _peers;
 	IDataStore& _dataStore;
+	ISynchronize& _sync;
 };

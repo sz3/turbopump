@@ -22,5 +22,5 @@ int ThrottledWriteStream::read(char* buffer, unsigned length)
 
 int ThrottledWriteStream::write(const char* buffer, unsigned length)
 {
-	return _conn.write(DataBuffer(buffer, length));
+	return _conn.send(DataBuffer(buffer, length));
 }

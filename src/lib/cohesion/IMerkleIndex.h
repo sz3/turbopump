@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MerklePoint.h"
+#include "common/MerklePoint.h"
 #include <deque>
 #include <string>
 

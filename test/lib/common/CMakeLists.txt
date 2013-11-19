@@ -6,6 +6,7 @@ set (SOURCES
 	test.cpp
 	ActionParserTest.cpp
 	DataBufferTest.cpp
+	MerklePointTest
 )
 
 include_directories(
