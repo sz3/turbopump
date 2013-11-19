@@ -19,7 +19,7 @@ ForwardToPeer::ForwardToPeer(const IMembership& membership, IPeerTracker& peers)
 bool ForwardToPeer::run(std::string filename, IDataStoreReader::ptr contents)
 {
 	shared_ptr<Peer> peer;
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 5; ++i)
 	{
 		peer = _membership.randomPeer();
 		if (peer && peer != _membership.self())

@@ -14,6 +14,8 @@ public:
 	PeerTracker(const UdpServer& server);
 
 	std::shared_ptr<PeerConnection> track(const Peer& peer);
+	bool decode(const Peer& peer, const std::string& encoded, std::shared_ptr<PeerConnection>& conn, std::string& decoded);
+
 	std::string list() const;
 
 protected:

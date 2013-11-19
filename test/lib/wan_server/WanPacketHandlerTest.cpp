@@ -31,7 +31,9 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 
 	membership._ips["1.2.3.4:10"].reset(new Peer("someguid"));
 	assertFalse( handler.onPacket(sock, "foo") );
-	assertEquals( "track(someguid)", peers._history.calls() );
+	assertEquals( "decode(someguid,foo)", peers._history.calls() );
+
+	peers._history.clear();
 
 	// first write, second write
 	assertTrue( handler.onPacket(sock, "write|name=foo|i am a file") );
@@ -40,7 +42,8 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 	// second write flushes first write
 	assertEquals( "i am a file", *dataStore._store["foo"] );
 	assertEquals( NULL, dataStore._store["bar"].get() );
-	assertEquals( "track(someguid)|track(someguid)|track(someguid)", peers._history.calls() );
+	assertEquals( "decode(someguid,write|name=foo|i am a file)|"
+				  "decode(someguid,write|name=bar|i am another file)", peers._history.calls() );
 
 	// more for second write + empty string to flush
 	assertTrue( handler.onPacket(sock, " across two packets!") );

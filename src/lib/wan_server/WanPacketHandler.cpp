@@ -43,16 +43,10 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 		return false;
 	}
 
-	// is the message unmodified and from the peer we think it is? (i.e. does it decrypt?)
-	// TODO: interface for encryption + decryption.
-	// also, who should manage the allocation of this buffer?
-	string decryptedBuffer = buffer;
-	// if decryption fails,
-	// return false
-
-	// maybe we're the only one that ever uses _peers, e.g. it is single-threaded?
-	std::shared_ptr<PeerConnection> conn = _peers.track(*peer);
-	if (!conn)
+	// need the PeerTracker to do the decryption -- because he needs the sequence number, and he has it.
+	std::shared_ptr<PeerConnection> conn;
+	string decryptedBuffer;
+	if (!_peers.decode(*peer, buffer, conn, decryptedBuffer) || !conn)
 		return false; // TODO: log error or something
 
 	// TODO: this is currently a hackjob. if there's an action, we clobber our existing one.

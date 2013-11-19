@@ -28,6 +28,8 @@ using std::unordered_map;
 // "How do I find the worker ID from a socket?" => look at membership.
 // "How do I find the worker ID from a fictional (raw) socket?" => PeerTracker should track these somehow?
 
+using peerit = unordered_map<string,std::shared_ptr<PeerConnection>>::iterator;
+
 PeerTracker::PeerTracker(const UdpServer& server)
 	: _server(server)
 {
@@ -42,16 +44,42 @@ std::shared_ptr<PeerConnection> PeerTracker::track(const Peer& peer)
 		return NULL;
 	}
 
-	std::pair<unordered_map<string,std::shared_ptr<PeerConnection> >::iterator, bool> pear = _peers.insert( std::pair<string,std::shared_ptr<PeerConnection> >(peer.uid, NULL) );
-	std::shared_ptr<PeerConnection>& peerPtr = pear.first->second;
-	if (pear.second == true)
+	std::shared_ptr<IIpSocket> sock(_server.sock());
+	sock->setTarget(address);
+	std::pair<peerit, bool> pear = _peers.insert( std::pair<string,std::shared_ptr<PeerConnection> >(peer.uid, std::shared_ptr<PeerConnection>(new PeerConnection(sock))) );
+	return pear.first->second;
+}
+
+bool PeerTracker::decode(const Peer& peer, const std::string& encoded, std::shared_ptr<PeerConnection>& conn, std::string& decoded)
+{
+	IpAddress address;
+	if (!address.fromString(peer.address()))
 	{
-		// maybe a weakptr... with the target as a separate data strucure
+		std::cerr << "BADNESS! Membership has invalid ip address information on peer " << peer.uid << "!!!" << std::endl;
+		return false;
+	}
+
+	peerit it = _peers.find(peer.uid);
+	if (it == _peers.end())
+	{
+		// do decryption with sequence number 1
+		decoded = encoded;
+
+		// if decryption succeeds, allocate new PeerConnection and insert it
 		std::shared_ptr<IIpSocket> sock(_server.sock());
 		sock->setTarget(address);
-		peerPtr.reset( new PeerConnection(sock) );
+
+		std::pair<peerit, bool> pear = _peers.insert( std::pair<string,std::shared_ptr<PeerConnection>>(peer.uid, std::shared_ptr<PeerConnection>(new PeerConnection(sock))) );
+		conn = pear.first->second;
 	}
-	return peerPtr;
+	else
+	{
+		conn = it->second;
+
+		// decrypt based on connection's sequence number
+		decoded = encoded;
+	}
+	return true;
 }
 
 std::string PeerTracker::list() const
