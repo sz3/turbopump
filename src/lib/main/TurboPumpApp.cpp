@@ -25,7 +25,8 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1))
 	, _udpPacketHandler(_membership, _peers, _localDataStore, _synchronizer)
 	, _udpServer(port, std::bind(&WanPacketHandler::onPacket, &_udpPacketHandler, _1, _2))
-	, _synchronizer(_membership, _peers, _merkleIndex, _corrector)
+	, _messenger(_peers)
+	, _synchronizer(_membership, _merkleIndex, _messenger, _corrector)
 	, _callbacks(instruct)
 {
 	_callbacks.initialize(_membership, _peers, _merkleIndex);

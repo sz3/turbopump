@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cohesion/MerkleIndex.h"
+#include "cohesion/MessageSender.h"
 #include "cohesion/SkewCorrector.h"
 #include "cohesion/Synchronizer.h"
 #include "data_store/LocalDataStore.h"
@@ -34,6 +35,7 @@ protected:
 	WanPacketHandler _udpPacketHandler;
 	UdpServer _udpServer;
 
+	MessageSender _messenger;
 	SchedulerThread _scheduler;
 
 	Callbacks _callbacks;

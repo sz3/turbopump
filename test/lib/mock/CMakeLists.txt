@@ -7,6 +7,8 @@ set(SOURCES
 	MockMembership.h
 	MockMerkleIndex.cpp
 	MockMerkleIndex.h
+	MockMessageSender.cpp
+	MockMessageSender.h
 	MockPeerTracker.cpp
 	MockPeerTracker.h
 	MockSkewCorrector.cpp

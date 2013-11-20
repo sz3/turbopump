@@ -13,5 +13,6 @@ public:
 	virtual void add(const std::string& id) = 0;
 	virtual void remove(const std::string& id) = 0;
 
+	virtual MerklePoint top() const = 0;
 	virtual std::deque<MerklePoint> diff(const MerklePoint& point) const = 0;
 };

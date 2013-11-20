@@ -25,6 +25,7 @@ public:
 	void add(const std::string& id);
 	void remove(const std::string& id);
 
+	MerklePoint top() const;
 	std::deque<MerklePoint> diff(const MerklePoint& point) const;
 
 protected:

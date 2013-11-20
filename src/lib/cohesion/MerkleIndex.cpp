@@ -14,6 +14,11 @@ void MerkleIndex::remove(const std::string& id)
 	_tree.remove(keyhash);
 }
 
+MerklePoint MerkleIndex::top() const
+{
+	return _tree.top();
+}
+
 std::deque<MerklePoint> MerkleIndex::diff(const MerklePoint& point) const
 {
 	return _tree.diff(point.location, point.hash);

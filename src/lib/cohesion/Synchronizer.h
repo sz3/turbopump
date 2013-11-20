@@ -5,22 +5,21 @@
 class ICorrectSkew;
 class IMembership;
 class IMerkleIndex;
-class IPeerTracker;
+class IMessageSender;
 
+// this probably should be the "high level" interface overseeing synchronization.
+// that means it probably shouldn't be sending packets itself, but rather delegating to pieces that do?
 class Synchronizer : public ISynchronize
 {
 public:
-	Synchronizer(const IMembership& membership, IPeerTracker& peers, const IMerkleIndex& index, ICorrectSkew& corrector);
+	Synchronizer(const IMembership& membership, const IMerkleIndex& index, IMessageSender& messenger, ICorrectSkew& corrector);
 
 	void pingRandomPeer();
 	void compare(const Peer& peer, const MerklePoint& point);
 
 protected:
-	bool sendMessage(const Peer& peer, const std::string& message);
-
-protected:
 	const IMembership& _membership;
-	IPeerTracker& _peers;
 	const IMerkleIndex& _index;
+	IMessageSender& _messenger;
 	ICorrectSkew& _corrector;
 };

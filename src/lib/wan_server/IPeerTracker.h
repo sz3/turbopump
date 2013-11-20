@@ -5,6 +5,7 @@
 class Peer;
 class PeerConnection;
 
+// IActivePeers ?
 class IPeerTracker
 {
 public:

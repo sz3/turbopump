@@ -1,33 +1,33 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(cohesion_test)
+project(programmable_test)
 
 set (SOURCES
 	test.cpp
-	MessageSenderTest.cpp
-	SynchronizerTest.cpp
+	ForwardToPeerTest.cpp
 )
 
 include_directories(
 	${corelib_SOURCE_DIR}/test
 	${dynamo_SOURCE_DIR}/test/lib
-	${dynamo_SOURCE_DIR}/src/lib/cohesion
+	${dynamo_SOURCE_DIR}/src/lib/programmable
 )
 
 add_executable (
-	cohesion_test
+	programmable_test
 	${SOURCES}
 )
 
-add_test(cohesion_test cohesion_test)
+add_test(programmable_test programmable_test)
 
-target_link_libraries(cohesion_test
+target_link_libraries(programmable_test
 -Wl,--start-group
-	cohesion
+	programmable
 
 	common
-	membership
+	data_store
 	mock
+	membership
 	wan_server
 
 	serialize

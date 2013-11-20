@@ -6,7 +6,7 @@ class SkewCorrector : public ICorrectSkew
 {
 public:
 	void healKey(const Peer& peer, unsigned long long key);
-	void requestKeyRange(const Peer& peer, unsigned long long first, unsigned long long last);
+	void pushKeyRange(const Peer& peer, unsigned long long first, unsigned long long last);
 
 protected:
 };

@@ -4,10 +4,10 @@
 
 void MockSkewCorrector::healKey(const Peer& peer, unsigned long long key)
 {
-	_history.call("healKey", peer.toString(), key);
+	_history.call("healKey", peer.uid, key);
 }
 
-void MockSkewCorrector::requestKeyRange(const Peer& peer, unsigned long long first, unsigned long long last)
+void MockSkewCorrector::pushKeyRange(const Peer& peer, unsigned long long first, unsigned long long last)
 {
-	_history.call("requestKeyRange", peer.toString(), first, last);
+	_history.call("pushKeyRange", peer.uid, first, last);
 }

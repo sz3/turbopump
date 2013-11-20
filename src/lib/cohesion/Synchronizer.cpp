@@ -2,35 +2,21 @@
 
 #include "ICorrectSkew.h"
 #include "IMerkleIndex.h"
+#include "IMessageSender.h"
 
-#include "common/DataBuffer.h"
 #include "common/MerklePoint.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
-#include "wan_server/IPeerTracker.h"
-#include "wan_server/PeerConnection.h"
-#include "wan_server/ThrottledWriteStream.h"
 #include <deque>
 #include <iostream>
 using std::shared_ptr;
 
-Synchronizer::Synchronizer(const IMembership& membership, IPeerTracker& peers, const IMerkleIndex& index, ICorrectSkew& corrector)
+Synchronizer::Synchronizer(const IMembership& membership, const IMerkleIndex& index, IMessageSender& messenger, ICorrectSkew& corrector)
 	: _membership(membership)
-	, _peers(peers)
 	, _index(index)
+	, _messenger(messenger)
 	, _corrector(corrector)
 {
-}
-
-bool Synchronizer::sendMessage(const Peer& peer, const std::string& message)
-{
-	shared_ptr<PeerConnection> peerConn = _peers.track(peer);
-	if (!peerConn)
-		return false;
-
-	ThrottledWriteStream writer(*peerConn);
-	writer.write(message.data(), message.size());
-	return true;
 }
 
 void Synchronizer::pingRandomPeer()
@@ -38,12 +24,19 @@ void Synchronizer::pingRandomPeer()
 	shared_ptr<Peer> peer = _membership.randomPeer();
 	if (!peer)
 		return;
-
-	sendMessage(*peer, "ping||");
+	_messenger.merklePing(*peer, _index.top());
 }
 
 void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 {
+	if (point == MerklePoint::null())
+	{
+		if (_index.top() == MerklePoint::null())
+			return;
+		_corrector.pushKeyRange(peer, 0, ~0);
+		return;
+	}
+
 	std::deque<MerklePoint> diffs = _index.diff(point);
 
 	// 0 == no diff
@@ -57,16 +50,12 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 		if (diff.location.keybits == point.location.keybits)
 			_corrector.healKey(peer, diff.location.key);
 		else
-			_corrector.requestKeyRange(peer, diff.location.key, diff.location.key);
+			_messenger.requestKeyRange(peer, diff.location.key, diff.location.key);
 	}
 
 	else if (diffs.size() >= 2)
 	{
 		// respond!
-		std::string message = "merkle||";
-		message += MerklePointSerializer::toString(diffs.front());
-		for (auto it = ++diffs.begin(); it != diffs.end(); ++it)
-			message += "|" + MerklePointSerializer::toString(*it);
-		sendMessage(peer, message);
+		_messenger.merklePing(peer, diffs);
 	}
 }
