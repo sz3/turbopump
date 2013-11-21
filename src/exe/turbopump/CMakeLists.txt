@@ -14,6 +14,7 @@ add_executable (
 target_link_libraries(turbopump
 -Wl,--start-group
 	actions
+	actions_req
 	cohesion
 	common
 	consistent_hashing

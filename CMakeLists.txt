@@ -28,6 +28,8 @@ set (PROJECTS
 
    src/lib/actions
    test/lib/actions
+   src/lib/actions_req
+   test/lib/actions_req
    src/lib/cohesion
    test/lib/cohesion
    src/lib/common

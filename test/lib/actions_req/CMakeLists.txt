@@ -1,45 +1,37 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(standup_test)
+project(actions_req_test)
 
 set (SOURCES
 	test.cpp
-	StartupTest.cpp
+	WriteActionSenderTest.cpp
 )
 
 include_directories(
 	${corelib_SOURCE_DIR}/test
 	${dynamo_SOURCE_DIR}/test/lib
+	${dynamo_SOURCE_DIR}/src/lib/actions_req
 )
 
 add_executable (
-	standup_test
+	actions_req_test
 	${SOURCES}
 )
 
-add_test(standup_test standup_test)
+add_test(actions_req_test actions_req_test)
 
-target_link_libraries(standup_test
+target_link_libraries(actions_req_test
 -Wl,--start-group
-	actions
 	actions_req
-	cohesion
-	common
-	consistent_hashing
-	data_store
-	main
-	membership
-	programmable
-	wan_server
-	user_control
 
-	command_line
-	event
-	file
+	common
+	data_store
+	membership
+	mock
+	wan_server
+
 	serialize
 	socket
 -Wl,--end-group
-
-	pthread
 )
 

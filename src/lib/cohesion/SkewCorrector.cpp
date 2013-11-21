@@ -10,4 +10,7 @@ void SkewCorrector::healKey(const Peer& peer, unsigned long long key)
 void SkewCorrector::pushKeyRange(const Peer& peer, unsigned long long first, unsigned long long last)
 {
 	std::cout << "how does SkewCorrector pushKeyRange? :(" << std::endl;
+
+	// need to find all files in the key ranges, and write them to peer.
+
 }
