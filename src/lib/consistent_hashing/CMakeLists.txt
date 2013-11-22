@@ -4,9 +4,11 @@ set(SOURCES
 	base64.cpp
 	base64.h
 	circular_map.h
-	IHashRing.h
+	Hash.cpp
+	Hash.h	
 	HashRing.cpp
 	HashRing.h
+	IHashRing.h
 )
 
 include_directories(

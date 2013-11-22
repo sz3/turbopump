@@ -5,7 +5,7 @@
 void MerkleIndex::add(const std::string& id)
 {
 	unsigned long long keyhash = *(unsigned long long*)id.data();
-	_tree.insert(keyhash, keyhash);
+	_tree.insert({keyhash, keyhash});
 }
 
 void MerkleIndex::remove(const std::string& id)

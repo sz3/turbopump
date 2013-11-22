@@ -22,7 +22,7 @@ std::shared_ptr<IDataStoreWriter> LocalDataStore::write(const string& filename)
   L o c a l  D a t a  S t o r e  ::  W r i t e r
   ******************************************
 */
-LocalDataStore::Writer::Writer(const std::string& filename, LocalDataStore& store)
+LocalDataStore::Writer::Writer(std::string filename, LocalDataStore& store)
 	: _filename(std::move(filename))
 	, _store(store)
 {
@@ -61,7 +61,7 @@ IDataStoreReader::ptr LocalDataStore::commit(Writer& writer)
 
 shared_ptr<IDataStoreReader> LocalDataStore::read(const string& filename)
 {
-	unordered_map< string, shared_ptr<string> >::const_iterator it = _store.find(filename);
+	data_map_type::const_iterator it = _store.find(filename);
 	if (it == _store.end())
 		return NULL;
 
@@ -105,17 +105,16 @@ int LocalDataStore::Reader::read(IByteStream& out)
   </end child class>
 */
 
-void LocalDataStore::erase(const string& filename, const std::function<void(bool)>& callback)
+bool LocalDataStore::erase(const string& filename)
 {
-	size_t num = _store.erase(filename);
-	callback(num > 0);
+	return _store.erase(filename) > 0;
 }
 
 std::string LocalDataStore::toString() const
 {
 	std::stringstream report;
 	report << "*** " << _store.size() << " keys ***" << std::endl;
-	for (unordered_map< string, shared_ptr<string> >::const_iterator it = _store.begin(); it != _store.end(); ++it)
+	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
 		report << " (" + it->first + ")=>" << *it->second << std::endl;
 	report << "*** done ***" << std::endl;
 	return report.str();

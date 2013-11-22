@@ -1,15 +1,12 @@
 #include "HashRing.h"
 
 #include "base64.h"
-#include <cryptopp/tiger.h>
+#include "Hash.h"
 using std::vector;
 
 string HashRing::hash(const string& str)
 {
-	std::string result;
-	result.resize(CryptoPP::Tiger::DIGESTSIZE);
-	CryptoPP::Tiger().CalculateDigest((unsigned char*)(&result[0]), (unsigned char*)(&str[0]), str.size());
-
+	std::string result(Hash::compute(str).bytes());
 	return base64_encode((const unsigned char*)result.data(), result.size());
 }
 

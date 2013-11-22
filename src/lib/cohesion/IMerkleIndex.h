@@ -5,6 +5,18 @@
 #include <string>
 
 // need to account for the future with multiple merkle trees contained herein
+// for the sake of everyone's sanity (e.g. mine), we'll need a standard approach for what
+// part of the cyptographic hash to use to organize the merkle tree.
+// notably, with DHT buckets using the high-end bits to distribute keys, it may be important to use
+// low end bits for synchonization and in memory/on disk key organization. That way we can use the high
+// bits for cross-worker organization, and the low bits for better on-worker distribution.
+// (and a semi-random distribution will be very important for the merkle tree)
+
+// the DataStore will use a separate hashing algorithm, because (I'm hoping) iterating it in order
+// will not be necessary or beneficial. Operations will be on a per-key basis regardless, so
+// order is hopefully irrelevant. That will be the assumption going forward, to allow us to
+// prioritize performance over other concerns in that area of the system.
+
 class IMerkleIndex
 {
 public:

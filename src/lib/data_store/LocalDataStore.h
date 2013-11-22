@@ -13,7 +13,7 @@ protected:
 	class Writer : public IDataStoreWriter
 	{
 	public:
-		Writer(const std::string& filename, LocalDataStore& store);
+		Writer(std::string filename, LocalDataStore& store);
 
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();
@@ -42,7 +42,7 @@ protected:
 public:
 	std::shared_ptr<IDataStoreWriter> write(const std::string& filename);
 	std::shared_ptr<IDataStoreReader> read(const std::string& filename);
-	void erase(const std::string& filename, const std::function<void(bool)>& callback);
+	bool erase(const std::string& filename);
 
 	std::string toString() const;
 
@@ -50,6 +50,7 @@ protected:
 	IDataStoreReader::ptr commit(Writer& writer);
 
 protected:
-	std::unordered_map< std::string, std::shared_ptr<std::string> > _store;
+	using data_map_type = std::unordered_map< std::string, std::shared_ptr<std::string> >;
+	data_map_type _store;
 };
 
