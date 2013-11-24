@@ -17,18 +17,6 @@ Future optimizations include:
 #include "IMerkleIndex.h"
 #include "data_structures/merkle_tree.h"
 
-struct MerkleTuple : public merkle_pair<unsigned long long, unsigned long long>
-{
-	using merkle_pair<unsigned long long, unsigned long long>::merkle_pair; // constructors
-
-	MerkleTuple(unsigned long long first, unsigned long long second, std::string filename)
-		: merkle_pair<unsigned long long, unsigned long long>(first, second)
-		, filename(filename)
-	{}
-
-	std::string filename;
-};
-
 class MerkleIndex : public IMerkleIndex
 {
 public:
@@ -41,5 +29,5 @@ public:
 	std::deque<MerklePoint> diff(const MerklePoint& point) const;
 
 protected:
-	merkle_tree<unsigned long long, unsigned long long, MerkleTuple> _tree;
+	merkle_tree<unsigned long long, unsigned long long, std::string> _tree;
 };
