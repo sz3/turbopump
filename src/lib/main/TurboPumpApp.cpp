@@ -20,16 +20,16 @@ namespace {
 }
 
 TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
-	: _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())
+	: _callbacks(instruct)
+	, _corrector(_merkleIndex, _localDataStore, _writeActionSender)
+	, _synchronizer(_membership, _merkleIndex, _messenger, _corrector)
+	, _messenger(_peers)
+	, _writeActionSender(_peers)
+	, _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())
 	, _peers(_udpServer)
 	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1))
 	, _udpPacketHandler(_membership, _peers, _localDataStore, _synchronizer, _callbacks)
 	, _udpServer(port, std::bind(&WanPacketHandler::onPacket, &_udpPacketHandler, _1, _2))
-	, _messenger(_peers)
-	, _writeActionSender(_peers)
-	, _corrector(_merkleIndex, _localDataStore, _writeActionSender)
-	, _synchronizer(_membership, _merkleIndex, _messenger, _corrector)
-	, _callbacks(instruct)
 {
 	_callbacks.initialize(_membership, _peers, _merkleIndex);
 }

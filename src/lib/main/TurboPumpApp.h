@@ -27,26 +27,26 @@ public:
 	void onClientConnect(int fd);
 
 protected:
-	// core. Membership, connection tracking, data store...
-	Membership _membership;
-	PeerTracker _peers;
-	LocalDataStore _localDataStore;
-
-	// servers!
-	LocalStreamSocketServer _localServer;
-	WanPacketHandler _udpPacketHandler;
-	UdpServer _udpServer;
-
-	// thread scheduling and helpers
-	MessageSender _messenger;
-	WriteActionSender _writeActionSender;
-	SchedulerThread _scheduler;
+	// plugins
+	Callbacks _callbacks;
 
 	// healing
 	MerkleIndex _merkleIndex;
 	SkewCorrector _corrector;
 	Synchronizer _synchronizer;
 
-	// plugins
-	Callbacks _callbacks;
+	// thread scheduling and helpers
+	MessageSender _messenger;
+	WriteActionSender _writeActionSender;
+	SchedulerThread _scheduler;
+
+	// core. Membership, connection tracking, data store...
+	Membership _membership;
+	LocalDataStore _localDataStore;
+	PeerTracker _peers;
+
+	// servers!
+	LocalStreamSocketServer _localServer;
+	WanPacketHandler _udpPacketHandler;
+	UdpServer _udpServer;
 };
