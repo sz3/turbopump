@@ -5,7 +5,6 @@
 
 void MerkleIndex::add(const std::string& id)
 {
-	std::cout << "MerkleIndex add of " << id << std::endl;
 	// TODO: worry about endianness of keyhash.
 	// if different architectures can't agree on where a file hashes to... we're in trouble.
 	// right now, it's derived from a char*, so it's mostly ok...
