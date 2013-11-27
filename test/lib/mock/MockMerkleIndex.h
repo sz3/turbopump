@@ -11,10 +11,12 @@ public:
 
 	MerklePoint top() const;
 	std::deque<MerklePoint> diff(const MerklePoint& point) const;
+	std::deque<std::string> enumerate(unsigned long long first, unsigned long long last) const;
 
 public:
 	mutable CallHistory _history;
 
 	MerklePoint _top;
 	std::deque<MerklePoint> _diff;
+	std::deque<std::string> _enumerate;
 };

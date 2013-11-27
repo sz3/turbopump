@@ -3,6 +3,7 @@
 #include "main/TurboPumpApp.h"
 
 #include "command_line/CommandLine.h"
+#include "serialize/StringUtil.h"
 #include <functional>
 #include <memory>
 #include <string>
@@ -58,12 +59,38 @@ TEST_CASE( "StartupTest/testDefault", "default" )
 	assertEquals( "one 127.0.0.1:9001\n"
 				  "two 127.0.0.1:9002", response );
 
-	response = CommandLine::run("echo 'write|name=foo|hello' | nc -U /tmp/workerTwo");
-	assertEquals( "", response );
+	for (unsigned i = 0; i < 5; ++i)
+	{
+		string num = StringUtil::str(i);
+		response = CommandLine::run("echo 'write|name=one" + num + "|one hello" + num + "' | nc -U /tmp/workerOne");
+		assertEquals( "", response );
+	}
+	for (unsigned i = 0; i < 5; ++i)
+	{
+		string num = StringUtil::str(i);
+		response = CommandLine::run("echo 'write|name=two" + num + "|two hello" + num + "' | nc -U /tmp/workerTwo");
+		assertEquals( "", response );
+	}
 
 	CommandLine::run("sleep 10");
 
+	string expected = "*** 10 keys ***\n"
+					  " (one3)=>one hello3\n\n"
+					  " (one1)=>one hello1\n\n"
+					  " (one2)=>one hello2\n\n"
+					  " (two4)=>two hello4\n\n"
+					  " (two3)=>two hello3\n\n"
+					  " (one0)=>one hello0\n\n"
+					  " (two1)=>two hello1\n\n"
+					  " (one4)=>one hello4\n\n"
+					  " (two2)=>two hello2\n\n"
+					  " (two0)=>two hello0\n\n"
+					  "*** done ***\n";
+
+	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerTwo");
+	assertEquals( expected, response );
+
 	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerOne");
-	assertEquals( "hi", response );
+	assertEquals( expected, response );
 }
 

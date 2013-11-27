@@ -24,3 +24,9 @@ std::deque<MerklePoint> MockMerkleIndex::diff(const MerklePoint& point) const
 	_history.call("diff", MerklePointSerializer::toString(point));
 	return _diff;
 }
+
+std::deque<std::string> MockMerkleIndex::enumerate(unsigned long long first, unsigned long long last) const
+{
+	_history.call("enumerate", first, last);
+	return _enumerate;
+}

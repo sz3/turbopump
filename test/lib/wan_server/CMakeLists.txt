@@ -28,6 +28,7 @@ target_link_libraries(wan_server_test
 	data_store
 	membership
 	mock
+	programmable
 
 	serialize
 	socket

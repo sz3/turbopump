@@ -1,12 +1,9 @@
 #pragma once
 
-#include "data_store/IDataStoreReader.h"
-#include <string>
-
+#include "IWriteActionSender.h"
 class IPeerTracker;
-class Peer;
 
-class WriteActionSender
+class WriteActionSender : public IWriteActionSender
 {
 public:
 	WriteActionSender(IPeerTracker& peers);

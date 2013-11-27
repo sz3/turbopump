@@ -41,7 +41,7 @@ protected:
 	};
 public:
 	std::shared_ptr<IDataStoreWriter> write(const std::string& filename);
-	std::shared_ptr<IDataStoreReader> read(const std::string& filename);
+	std::shared_ptr<IDataStoreReader> read(const std::string& filename) const;
 	bool erase(const std::string& filename);
 
 	std::string toString() const;

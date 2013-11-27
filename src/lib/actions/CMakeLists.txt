@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
 	IAction.h
+	KeyReqAction.cpp
+	KeyReqAction.h
 	LocalListAction.cpp
 	LocalListAction.h
 	MerkleAction.cpp

@@ -59,7 +59,7 @@ IDataStoreReader::ptr LocalDataStore::commit(Writer& writer)
 	return IDataStoreReader::ptr(new Reader(data));
 }
 
-shared_ptr<IDataStoreReader> LocalDataStore::read(const string& filename)
+shared_ptr<IDataStoreReader> LocalDataStore::read(const string& filename) const
 {
 	data_map_type::const_iterator it = _store.find(filename);
 	if (it == _store.end())

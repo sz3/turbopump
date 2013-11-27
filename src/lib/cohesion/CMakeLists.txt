@@ -3,12 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	ICorrectSkew.h
 	IMerkleIndex.h
-	IMessageSender.h
 	ISynchronize.h
 	MerkleIndex.cpp
 	MerkleIndex.h
-	MessageSender.cpp
-	MessageSender.h
 	SkewCorrector.cpp
 	SkewCorrector.h
 	Synchronizer.cpp

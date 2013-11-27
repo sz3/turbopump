@@ -2,6 +2,7 @@
 
 #include "IPeerTracker.h"
 #include "PeerConnection.h"
+#include "actions/KeyReqAction.h"
 #include "actions/MerkleAction.h"
 #include "actions/ReadAction.h"
 #include "actions/WriteAction.h"
@@ -11,6 +12,7 @@
 #include "data_store/IDataStore.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
+#include "programmable/Callbacks.h"
 #include "socket/IpAddress.h"
 #include "socket/UdpSocket.h"
 
@@ -21,11 +23,12 @@ using std::string;
 using std::shared_ptr;
 
 // TODO: Lots of member objects, ala IDataStore&?
-WanPacketHandler::WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync)
+WanPacketHandler::WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks)
 	: _membership(membership)
 	, _peers(peers)
 	, _dataStore(dataStore)
 	, _sync(sync)
+	, _callbacks(callbacks)
 {
 }
 
@@ -66,9 +69,11 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 {
 	std::shared_ptr<IAction> action;
 	if (cmdname == "write")
-		action.reset(new WriteAction(_dataStore));
+		action.reset(new WriteAction(_dataStore, _callbacks.when_remote_write_finishes));
 	else if (cmdname == "merkle")
 		action.reset(new MerkleAction(peer, _sync));
+	else if (cmdname == "key-req")
+		action.reset(new KeyReqAction(peer, _sync));
 	//else if (cmdname == "ip")
 		//action.reset(new IpUpdateAction());
 	else

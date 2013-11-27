@@ -4,7 +4,7 @@
 
 #include "common/DataBuffer.h"
 #include "data_store/IDataStoreReader.h"
-#include "data_store/LocalDataStore.h"
+#include "mock/TestableDataStore.h"
 #include "util/CallHistory.h"
 #include <iostream>
 #include <string>
@@ -13,19 +13,13 @@
 
 using std::string;
 
-class TestableLocalDataStore : public LocalDataStore
-{
-public:
-	using LocalDataStore::_store;
-};
-
 namespace {
 	CallHistory _history;
 }
 
 TEST_CASE( "WriteActionTest/testDefault", "default" )
 {
-	TestableLocalDataStore dataStore;
+	TestableDataStore dataStore;
 	{
 		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
 		assertFalse( action.good() );
@@ -49,7 +43,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
 {
 	_history.clear();
-	TestableLocalDataStore dataStore;
+	TestableDataStore dataStore;
 	{
 		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
 
@@ -69,7 +63,7 @@ TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
 TEST_CASE( "WriteActionTest/testZeroByteWrite", "default" )
 {
 	_history.clear();
-	TestableLocalDataStore dataStore;
+	TestableDataStore dataStore;
 	{
 		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
 

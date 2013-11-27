@@ -8,6 +8,8 @@
 #include "mock/MockPeerTracker.h"
 #include "mock/MockSynchronize.h"
 #include "mock/TestableDataStore.h"
+#include "programmable/Callbacks.h"
+#include "programmable/TurboApi.h"
 #include "socket/IpAddress.h"
 #include "socket/UdpSocket.h"
 #include "wan_server/PeerConnection.h"
@@ -18,7 +20,8 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 	MockPeerTracker peers;
 	TestableDataStore dataStore;
 	MockSynchronize sync;
-	WanPacketHandler handler(membership, peers, dataStore, sync);
+	Callbacks callbacks;
+	WanPacketHandler handler(membership, peers, dataStore, sync, callbacks);
 
 	UdpSocket sock(-1);
 	sock.setTarget(IpAddress("1.2.3.4", 10));

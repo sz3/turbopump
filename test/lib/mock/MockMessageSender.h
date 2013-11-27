@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cohesion/IMessageSender.h"
+#include "actions_req/IMessageSender.h"
 #include "util/CallHistory.h"
 
 class MockMessageSender : public IMessageSender

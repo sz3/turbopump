@@ -27,6 +27,7 @@ public:
 
 	MerklePoint top() const;
 	std::deque<MerklePoint> diff(const MerklePoint& point) const;
+	std::deque<std::string> enumerate(unsigned long long first, unsigned long long last) const;
 
 protected:
 	merkle_tree<unsigned long long, unsigned long long, std::string> _tree;

@@ -4,7 +4,8 @@ project(cohesion_test)
 
 set (SOURCES
 	test.cpp
-	MessageSenderTest.cpp
+	MerkleIndexTest.cpp
+	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
 )
 
@@ -26,6 +27,8 @@ target_link_libraries(cohesion_test
 	cohesion
 
 	common
+	consistent_hashing
+	data_store
 	membership
 	mock
 	wan_server

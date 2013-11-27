@@ -20,7 +20,7 @@ TEST_CASE( "MerkleActionTest/testOne", "default" )
 
 	string data = MerklePointSerializer::toString(point);
 	assertTrue( action.run(DataBuffer(data.data(), data.size())) );
-	assertEquals( "compare(fooid none,1337 32 8000)", sync._history.calls() );
+	assertEquals( "compare(fooid,1337 32 8000)", sync._history.calls() );
 }
 
 TEST_CASE( "MerkleActionTest/testMany", "default" )
@@ -42,9 +42,9 @@ TEST_CASE( "MerkleActionTest/testMany", "default" )
 	}
 
 	assertTrue( action.run(DataBuffer(data.data(), data.size())) );
-	assertEquals( "compare(fooid none,1 1 10)|"
-				  "compare(fooid none,2 2 20)|"
-				  "compare(fooid none,3 3 30)", sync._history.calls() );
+	assertEquals( "compare(fooid,1 1 10)|"
+				  "compare(fooid,2 2 20)|"
+				  "compare(fooid,3 3 30)", sync._history.calls() );
 }
 
 

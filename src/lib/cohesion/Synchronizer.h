@@ -16,6 +16,7 @@ public:
 
 	void pingRandomPeer();
 	void compare(const Peer& peer, const MerklePoint& point);
+	void pushKeyRange(const Peer& peer, unsigned long long first, unsigned long long last);
 
 protected:
 	const IMembership& _membership;

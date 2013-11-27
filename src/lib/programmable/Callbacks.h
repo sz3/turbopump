@@ -10,6 +10,7 @@ class IPeerTracker;
 class Callbacks : public TurboApi
 {
 public:
+	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
 	void initialize(const IMembership& membership, IPeerTracker& peers, IMerkleIndex& merkleIndex);

@@ -101,6 +101,14 @@ shared_ptr<Peer> Membership::randomPeer() const
 	unordered_map< string,shared_ptr<Peer> >::const_iterator it = Random::select(_ips.begin(), _ips.end(), _ips.size());
 	if (it == _ips.end())
 		return NULL;
+
+	// try not to return myself.
+	if (it->second == self())
+	{
+		++it;
+		if (it == _ips.end())
+			it = _ips.begin();
+	}
 	return it->second;
 }
 

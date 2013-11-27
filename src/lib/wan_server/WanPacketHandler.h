@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+class Callbacks;
 class IAction;
 class IDataStore;
 class IIpSocket;
@@ -18,7 +19,7 @@ class Peer;
 class WanPacketHandler
 {
 public:
-	WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync);
+	WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks);
 
 	bool onPacket(const IIpSocket& socket, const std::string& buffer);
 
@@ -30,4 +31,5 @@ protected:
 	IPeerTracker&  _peers;
 	IDataStore& _dataStore;
 	ISynchronize& _sync;
+	const Callbacks& _callbacks;
 };

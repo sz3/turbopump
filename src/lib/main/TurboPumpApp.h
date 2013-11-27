@@ -1,7 +1,8 @@
 #pragma once
 
+#include "actions_req/MessageSender.h"
+#include "actions_req/WriteActionSender.h"
 #include "cohesion/MerkleIndex.h"
-#include "cohesion/MessageSender.h"
 #include "cohesion/SkewCorrector.h"
 #include "cohesion/Synchronizer.h"
 #include "data_store/LocalDataStore.h"
@@ -26,20 +27,26 @@ public:
 	void onClientConnect(int fd);
 
 protected:
+	// core. Membership, connection tracking, data store...
 	Membership _membership;
 	PeerTracker _peers;
 	LocalDataStore _localDataStore;
-	MerkleIndex _merkleIndex;
 
+	// servers!
 	LocalStreamSocketServer _localServer;
 	WanPacketHandler _udpPacketHandler;
 	UdpServer _udpServer;
 
+	// thread scheduling and helpers
 	MessageSender _messenger;
+	WriteActionSender _writeActionSender;
 	SchedulerThread _scheduler;
 
-	Callbacks _callbacks;
+	// healing
+	MerkleIndex _merkleIndex;
 	SkewCorrector _corrector;
 	Synchronizer _synchronizer;
 
+	// plugins
+	Callbacks _callbacks;
 };

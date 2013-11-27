@@ -134,14 +134,14 @@ TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	index._diff.push_back( whatsThePoint(3) );
+	index._diff.push_back( whatsThePoint(32) );
 
 	Synchronizer sinkro(membership, index, messenger, corrector);
 	sinkro.compare(Peer("fooid"), whatsThePoint(10));
 
 	assertEquals( "diff(10 10 100)", index._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,3,3)", messenger._history.calls() );
+	assertEquals( "requestKeyRange(fooid,32,18446744069414584352)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
