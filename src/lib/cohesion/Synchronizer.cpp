@@ -2,13 +2,13 @@
 
 #include "ICorrectSkew.h"
 #include "IMerkleIndex.h"
+#include "MerkleRange.h"
 
 #include "actions_req/IMessageSender.h"
 #include "common/MerklePoint.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 #include <deque>
-#include <endian.h>
 #include <iostream>
 using std::shared_ptr;
 
@@ -47,21 +47,9 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 	if (diffs.size() == 1)
 	{
 		MerklePoint& diff = diffs.front();
-		// 1 = leaf disagreement Need to do proper "healing" operation comparing two files to figure out how to fix it.
-		if (diff.location.keybits == point.location.keybits)
-			_corrector.healKey(peer, diff.location.key);
-		else
-		{
-			// TODO: maybe move this logic into a utility class?
-			// merkle_tree imposes big endianness on its keys (because it treats them as char*s)
-			// which means any and all fancy maths on MerklePoint needs to keep this big endianness in mind.
-			unsigned shift = (sizeof(diff.location.key)<<3) - diff.location.keybits;
-			unsigned long long first = htobe64(diff.location.key);
-			first = (first >> shift) << shift;
-			unsigned long long last = first xor (~0ULL >> diff.location.keybits);
-
-			_messenger.requestKeyRange(peer, be64toh(first), be64toh(last));
-		}
+		// TODO: address case for multiple workers having same key
+		MerkleRange range(diff.location);
+		_messenger.requestKeyRange(peer, range.first(), range.last());
 	}
 
 	else if (diffs.size() >= 2)

@@ -11,6 +11,7 @@ void MerkleIndex::add(const std::string& id)
 	//  except that the merkle_point::keybits don't act how you might expect...
 	unsigned long long keyhash = Hash::compute(id).integer();
 	_tree.insert(keyhash, keyhash, id);
+	//std::cout << "MerkleIndex::add " << id << ", " << keyhash << std::endl;
 }
 
 void MerkleIndex::remove(const std::string& id)

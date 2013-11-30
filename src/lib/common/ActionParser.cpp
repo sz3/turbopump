@@ -22,7 +22,6 @@ bool ActionParser::parse(DataBuffer& buff)
 		return setError("no action specified");
 
 	_action = string(buffer, actionEnd);
-	std::cout << "running action " << _action << std::endl;
 	bytes -= (actionEnd+1-buffer);
 
 	const char* paramEnd = std::char_traits<char>::find(actionEnd+1, bytes, '|');
@@ -38,7 +37,6 @@ bool ActionParser::parse(DataBuffer& buff)
 
 	for (vector<string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
 	{
-		std::cout << "token: " << *it << std::endl;
 		size_t pos = it->find('=');
 		if (pos == string::npos)
 			continue;

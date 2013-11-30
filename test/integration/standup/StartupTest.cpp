@@ -74,18 +74,16 @@ TEST_CASE( "StartupTest/testDefault", "default" )
 
 	CommandLine::run("sleep 10");
 
-	string expected = "*** 10 keys ***\n"
-					  " (one3)=>one hello3\n\n"
-					  " (one1)=>one hello1\n\n"
-					  " (one2)=>one hello2\n\n"
-					  " (two4)=>two hello4\n\n"
-					  " (two3)=>two hello3\n\n"
-					  " (one0)=>one hello0\n\n"
-					  " (two1)=>two hello1\n\n"
-					  " (one4)=>one hello4\n\n"
-					  " (two2)=>two hello2\n\n"
-					  " (two0)=>two hello0\n\n"
-					  "*** done ***\n";
+	string expected = "(one0)=>one hello0\n\n"
+					  "(one1)=>one hello1\n\n"
+					  "(one2)=>one hello2\n\n"
+					  "(one3)=>one hello3\n\n"
+					  "(one4)=>one hello4\n\n"
+					  "(two0)=>two hello0\n\n"
+					  "(two1)=>two hello1\n\n"
+					  "(two2)=>two hello2\n\n"
+					  "(two3)=>two hello3\n\n"
+					  "(two4)=>two hello4\n";
 
 	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerTwo");
 	assertEquals( expected, response );

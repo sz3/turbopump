@@ -1,8 +1,10 @@
 #include "LocalDataStore.h"
 
 #include "IDataStoreWriter.h"
+#include "serialize/StringUtil.h"
 #include "socket/IByteStream.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -112,10 +114,9 @@ bool LocalDataStore::erase(const string& filename)
 
 std::string LocalDataStore::toString() const
 {
-	std::stringstream report;
-	report << "*** " << _store.size() << " keys ***" << std::endl;
+	std::vector<string> report;
 	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
-		report << " (" + it->first + ")=>" << *it->second << std::endl;
-	report << "*** done ***" << std::endl;
-	return report.str();
+		report.push_back("(" + it->first + ")=>" + *it->second);
+	std::sort(report.begin(), report.end());
+	return StringUtil::stlJoin(report, '\n');
 }

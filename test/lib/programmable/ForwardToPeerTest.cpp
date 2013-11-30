@@ -42,7 +42,7 @@ TEST_CASE( "ForwardToPeerTest/testDefault", "[unit]" )
 
 	assertTrue( command.run("file", reader) );
 
-	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()|self()", membership._history.calls() );
+	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
 	assertEquals( "track(dude)", peers._history.calls() );
 	assertEquals( "send(write|name=file|)|send(contents)|send()", mockSock->_history.calls() );
 }

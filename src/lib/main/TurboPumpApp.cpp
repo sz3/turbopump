@@ -53,7 +53,7 @@ void TurboPumpApp::run()
 		::exit(-1);
 	}
 
-	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_synchronizer), 4000);
+	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_synchronizer), 3000);
 
 	_shutdown.wait();
 

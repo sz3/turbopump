@@ -6,6 +6,8 @@ set(SOURCES
 	ISynchronize.h
 	MerkleIndex.cpp
 	MerkleIndex.h
+	MerkleRange.cpp
+	MerkleRange.h
 	SkewCorrector.cpp
 	SkewCorrector.h
 	Synchronizer.cpp

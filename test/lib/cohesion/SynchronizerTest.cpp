@@ -72,7 +72,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 
 	assertEquals( "diff(10 10 100)", index._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,0,0)", messenger._history.calls() );
+	assertEquals( ("requestKeyRange(fooid,0," + StringUtil::str(~0ULL) + ")"), messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
@@ -122,8 +122,8 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 	sinkro.compare(Peer("fooid"), whatsThePoint(10));
 
 	assertEquals( "diff(10 10 100)", index._history.calls() );
-	assertEquals( "healKey(fooid,10)", corrector._history.calls() );
-	assertEquals( "", messenger._history.calls() );
+	assertEquals( "", corrector._history.calls() );
+	assertEquals( "requestKeyRange(fooid,10,18446744073709494026)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
@@ -141,7 +141,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 
 	assertEquals( "diff(10 10 100)", index._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,32,18446744069414584352)", messenger._history.calls() );
+	assertEquals( "requestKeyRange(fooid,32,18446743519658770464)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
