@@ -47,7 +47,23 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 	if (diffs.size() == 1)
 	{
 		MerklePoint& diff = diffs.front();
-		// TODO: address case for multiple workers having same key
+		/*
+		 * TODO:
+		 *  what we know here is that we did a diff and got a mismatched leaf back. It might
+		 *  1) be a missing branch (empty hash), matching the keybits in point.location. This is the standard requestKeyRange case.
+		 *  OR
+		 *  2) be a leaf node, meaning returned keybits is maxkeybits
+		 *     a) we have the nearest match -- i.e, point location doesn't match
+		 *     OR
+		 *     b) we have an incomplete range because there are many keys and we only have the one
+		 *     OR
+		 *     c) we have conflicting values for the same key
+		 */
+
+		//if (diff.location.keybits == maxkeybits)
+		//	_corrector.healKey(peer, diff.location.key);
+
+		// else
 		MerkleRange range(diff.location);
 		_messenger.requestKeyRange(peer, range.first(), range.last());
 	}
