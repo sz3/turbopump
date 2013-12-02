@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	MockDataStore.cpp
+	MockDataStore.h
 	MockIpSocket.cpp
 	MockIpSocket.h
 	MockMembership.cpp
@@ -17,7 +19,6 @@ set(SOURCES
 	MockSynchronize.h
 	MockWriteActionSender.cpp
 	MockWriteActionSender.h
-	TestableDataStore.h
 )
 
 include_directories(

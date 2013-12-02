@@ -21,16 +21,17 @@ add_executable (
 add_test(wan_server_test wan_server_test)
 
 target_link_libraries(wan_server_test
+-Wl,--start-group
 	wan_server
 
 	actions
 	common
-	data_store
 	membership
 	mock
 	programmable
 
 	serialize
 	socket
+-Wl,--end-group
 )
 

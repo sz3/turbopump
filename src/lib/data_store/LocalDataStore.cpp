@@ -12,7 +12,6 @@ using namespace std::placeholders;
 using std::bind;
 using std::shared_ptr;
 using std::string;
-using std::unordered_map;
 
 std::shared_ptr<IDataStoreWriter> LocalDataStore::write(const string& filename)
 {
@@ -109,7 +108,9 @@ int LocalDataStore::Reader::read(IByteStream& out)
 
 bool LocalDataStore::erase(const string& filename)
 {
-	return _store.erase(filename) > 0;
+	// TODO: reader/writer locks.
+	// this is the only "writer"
+	return _store.unsafe_erase(filename) > 0;
 }
 
 std::string LocalDataStore::toString() const

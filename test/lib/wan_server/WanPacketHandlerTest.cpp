@@ -3,11 +3,11 @@
 #include "WanPacketHandler.h"
 
 #include "membership/Peer.h"
+#include "mock/MockDataStore.h"
 #include "mock/MockIpSocket.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
 #include "mock/MockSynchronize.h"
-#include "mock/TestableDataStore.h"
 #include "programmable/Callbacks.h"
 #include "programmable/TurboApi.h"
 #include "socket/IpAddress.h"
@@ -18,7 +18,7 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 {
 	MockMembership membership;
 	MockPeerTracker peers;
-	TestableDataStore dataStore;
+	MockDataStore dataStore;
 	MockSynchronize sync;
 	Callbacks callbacks;
 	WanPacketHandler handler(membership, peers, dataStore, sync, callbacks);
@@ -43,13 +43,13 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 	assertTrue( handler.onPacket(sock, "write|name=bar|i am another file") );
 
 	// second write flushes first write
-	assertEquals( "i am a file", *dataStore._store["foo"] );
-	assertEquals( NULL, dataStore._store["bar"].get() );
+	assertEquals( "i am a file", dataStore._store["foo"] );
+	assertEquals( "", dataStore._store["bar"] );
 	assertEquals( "decode(someguid,write|name=foo|i am a file)|"
 				  "decode(someguid,write|name=bar|i am another file)", peers._history.calls() );
 
 	// more for second write + empty string to flush
 	assertTrue( handler.onPacket(sock, " across two packets!") );
 	assertTrue( handler.onPacket(sock, "") );
-	assertEquals( "i am another file across two packets!", *dataStore._store["bar"] );
+	assertEquals( "i am another file across two packets!", dataStore._store["bar"] );
 }

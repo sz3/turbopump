@@ -4,7 +4,7 @@
 
 #include "common/DataBuffer.h"
 #include "data_store/IDataStoreReader.h"
-#include "mock/TestableDataStore.h"
+#include "mock/MockDataStore.h"
 #include "util/CallHistory.h"
 #include <iostream>
 #include <string>
@@ -19,7 +19,7 @@ namespace {
 
 TEST_CASE( "WriteActionTest/testDefault", "default" )
 {
-	TestableDataStore dataStore;
+	MockDataStore dataStore;
 	{
 		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
 		assertFalse( action.good() );
@@ -36,14 +36,14 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 		assertTrue( action.finished() );
 		assertFalse( action.run(DataBuffer("closed", 6)) );
 	}
-	assertEquals( "0123456789abcde", *dataStore._store["foobar.txt"] );
+	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
 {
 	_history.clear();
-	TestableDataStore dataStore;
+	MockDataStore dataStore;
 	{
 		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
 
@@ -56,14 +56,14 @@ TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
 
 		assertTrue( action.run(DataBuffer("0123456789", 10)) );
 	}
-	assertEquals( "0123456789", *dataStore._store["foobar.txt"] );
+	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testZeroByteWrite", "default" )
 {
 	_history.clear();
-	TestableDataStore dataStore;
+	MockDataStore dataStore;
 	{
 		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
 
@@ -80,7 +80,7 @@ TEST_CASE( "WriteActionTest/testZeroByteWrite", "default" )
 		assertTrue( action.finished() );
 		assertFalse( action.run(DataBuffer::Null()) );
 	}
-	assertEquals( "", *dataStore._store["foobar.txt"] );
+	assertEquals( "", dataStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
 }
 

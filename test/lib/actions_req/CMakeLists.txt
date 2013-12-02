@@ -26,7 +26,6 @@ target_link_libraries(actions_req_test
 	actions_req
 
 	common
-	data_store
 	membership
 	mock
 	wan_server

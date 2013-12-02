@@ -5,6 +5,15 @@
 #include "socket/IpAddress.h"
 #include <utility>
 
+// manage buffers.
+/*
+ * udp server -> pushes buffer (concurrent_queue) into connection
+ * udp server -> atomic notify (check lock, if thread is running it should be held). If thread is not running, schedule work
+ * running thread -> reads next buffer
+ *
+ * ... in this way, we can keep work for a given operation on the same thread.
+ */
+
 // TODO: expiry! Seriously, how?
 // TODO: virtual connections.
 PeerConnection::PeerConnection(const std::shared_ptr<IIpSocket>& sock)

@@ -27,7 +27,6 @@ target_link_libraries(actions_test
 	actions
 	cohesion
 	common
-	data_store
 	membership
 	mock
 

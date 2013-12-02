@@ -41,5 +41,6 @@ target_link_libraries(standup_test
 -Wl,--end-group
 
 	pthread
+	tbb
 )
 

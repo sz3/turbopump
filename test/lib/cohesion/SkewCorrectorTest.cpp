@@ -3,24 +3,24 @@
 #include "SkewCorrector.h"
 
 #include "membership/Peer.h"
+#include "mock/MockDataStore.h"
 #include "mock/MockMerkleIndex.h"
 #include "mock/MockWriteActionSender.h"
-#include "mock/TestableDataStore.h"
 
 using std::string;
 
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 {
 	MockMerkleIndex index;
-	TestableDataStore store;
+	MockDataStore store;
 	MockWriteActionSender writer;
 	SkewCorrector corrector(index, store, writer);
 
 	index._enumerate.push_back("file1");
 	index._enumerate.push_back("badfile");
 	index._enumerate.push_back("file3");
-	store._store["file1"].reset(new string("I am file 1"));
-	store._store["file3"].reset(new string("I am file 3"));
+	store._store["file1"] = "I am file 1";
+	store._store["file3"] = "I am file 3";
 
 	corrector.pushKeyRange(Peer("fooid"), 0, 1234567890);
 
@@ -31,7 +31,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )
 {
 	MockMerkleIndex index;
-	TestableDataStore store;
+	MockDataStore store;
 	MockWriteActionSender writer;
 	SkewCorrector corrector(index, store, writer);
 
@@ -44,7 +44,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 {
 	MockMerkleIndex index;
-	TestableDataStore store;
+	MockDataStore store;
 	MockWriteActionSender writer;
 	SkewCorrector corrector(index, store, writer);
 
@@ -53,8 +53,8 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 	index._enumerate.push_back("file1");
 	index._enumerate.push_back("badfile");
 	index._enumerate.push_back("file3");
-	store._store["file1"].reset(new string("I am file 1"));
-	store._store["file3"].reset(new string("I am file 3"));
+	store._store["file1"] = "I am file 1";
+	store._store["file3"]= "I am file 3";
 
 	corrector.pushKeyRange(Peer("fooid"), 0, 1234567890);
 

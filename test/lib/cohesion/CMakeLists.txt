@@ -23,18 +23,15 @@ add_executable (
 add_test(cohesion_test cohesion_test)
 
 target_link_libraries(cohesion_test
--Wl,--start-group
+
 	cohesion
 
 	common
 	consistent_hashing
-	data_store
 	membership
 	mock
 	wan_server
 
 	serialize
-	socket
--Wl,--end-group
 )
 

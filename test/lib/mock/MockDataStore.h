@@ -1,44 +1,45 @@
 #pragma once
 
-#include "IDataStore.h"
-#include "IDataStoreReader.h"
-#include "IDataStoreWriter.h"
-// local RAM.
+#include "data_store/IDataStore.h"
+#include "data_store/IDataStoreReader.h"
+#include "data_store/IDataStoreWriter.h"
 
-#include "tbb/concurrent_unordered_map.h"
+#include "util/CallHistory.h"
+#include <map>
 
-class LocalDataStore : public IDataStore
+class MockDataStore : public IDataStore
 {
 protected:
 	class Writer : public IDataStoreWriter
 	{
 	public:
-		Writer(std::string filename, LocalDataStore& store);
+		Writer(std::string filename, MockDataStore& store);
 
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();
 
-		std::string&& filename();
-		std::string&& buffer();
-
-	protected:
+	public:
 		std::string _filename;
 		std::string _buffer;
-		LocalDataStore& _store;
+		MockDataStore& _store;
 	};
 
 	class Reader : public IDataStoreReader
 	{
 	public:
-		Reader(const std::shared_ptr<std::string>& data);
+		Reader(const std::string& data);
 
 		bool seek(unsigned long long offset);
 		int read(IByteStream& out);
 
-	protected:
-		std::shared_ptr<std::string> _data;
+	public:
+		std::string _data;
 		unsigned long long _offset;
 	};
+
+protected:
+	IDataStoreReader::ptr commit(Writer& writer);
+
 public:
 	std::shared_ptr<IDataStoreWriter> write(const std::string& filename);
 	std::shared_ptr<IDataStoreReader> read(const std::string& filename) const;
@@ -46,11 +47,10 @@ public:
 
 	std::string toString() const;
 
-protected:
-	IDataStoreReader::ptr commit(Writer& writer);
-
-protected:
-	using data_map_type = tbb::concurrent_unordered_map< std::string, std::shared_ptr<std::string> >;
+public:
+	using data_map_type = std::map< std::string, std::string >;
 	data_map_type _store;
+
+	mutable CallHistory _history;
 };
 
