@@ -10,6 +10,7 @@
 #include "common/ActionParser.h"
 #include "common/DataBuffer.h"
 #include "data_store/IDataStore.h"
+#include "event/IExecutor.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 #include "programmable/Callbacks.h"
@@ -18,13 +19,15 @@
 
 #include <iostream>
 #include <memory>
+#include <thread>
 #include <utility>
 using std::string;
 using std::shared_ptr;
 
 // TODO: Lots of member objects, ala IDataStore&?
-WanPacketHandler::WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks)
-	: _membership(membership)
+WanPacketHandler::WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks)
+	: _executor(executor)
+	, _membership(membership)
 	, _peers(peers)
 	, _dataStore(dataStore)
 	, _sync(sync)
@@ -46,23 +49,59 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 		return false;
 	}
 
-	// need the PeerTracker to do the decryption -- because he needs the sequence number, and he has it.
-	std::shared_ptr<PeerConnection> conn;
-	string decryptedBuffer;
-	if (!_peers.decode(*peer, buffer, conn, decryptedBuffer) || !conn)
+	// is the message unmodified and from the peer we think it is? (i.e. does it decrypt?)
+	// TODO: interface for encryption + decryption.
+	// We need three components to decrypt:
+	//  1) the peer's encryption key (public), which we have in hand
+	//  2) our own private encryption key, which the encryption interface ought to have access to (secure RAM?)
+	//  3) the nonce, which should be randomly generated as the first 24 bits (3 bytes) of the incoming buffer.
+	string decryptedBuffer = buffer;
+	// if decryption fails,
+	// return false
+
+	// maybe we're the only one that ever uses _peers, e.g. it is single-threaded?
+	std::shared_ptr<PeerConnection> conn = _peers.track(*peer);
+	if (!conn)
 		return false; // TODO: log error or something
 
-	// TODO: this is currently a hackjob. if there's an action, we clobber our existing one.
-	ActionParser parser;
-	DataBuffer buff(decryptedBuffer.data(), decryptedBuffer.size());
-	if (parser.parse(buff))
-		conn->setAction( newAction(*peer, parser.action(), parser.params()) );
-
-	if (!conn->action() || !conn->action()->good())
-		return false;
-	std::cerr << "received packet '" << decryptedBuffer << "' from " << socket.getTarget().toString() << ". Calling " << conn->action()->name() << std::endl;
-	conn->action()->run(buff);
+	conn->pushRecv(std::move(decryptedBuffer));
+	if (conn->begin_processing())
+		_executor.execute(std::bind(&WanPacketHandler::doWork, this, std::weak_ptr<Peer>(peer), std::weak_ptr<PeerConnection>(conn)));
 	return true;
+}
+
+// potentially move this elsewhere.
+void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerConnection> weakConn)
+{
+	std::shared_ptr<Peer> peer = weakPeer.lock();
+	if (!peer)
+		return;
+	std::shared_ptr<PeerConnection> conn = weakConn.lock();
+	if (!conn)
+		return;
+
+	std::cout << "   WanPacketHandler::doWork(" << std::this_thread::get_id() << ") for " << peer->uid << " with socket peer " << conn->peer().toString() << std::endl;
+
+	std::string buffer;
+	while (conn->popRecv(buffer))
+	{
+		ActionParser parser;
+		DataBuffer buff(buffer.data(), buffer.size());
+		if (parser.parse(buff))
+			conn->setAction( newAction(*peer, parser.action(), parser.params()) );
+
+		if (!conn->action() || !conn->action()->good())
+			return;
+		std::cout << "received packet '" << buffer << "' from " << conn->peer().toString() << ". Calling " << conn->action()->name() << std::endl;
+		conn->action()->run(buff);
+	}
+	conn->end_processing();
+
+	if (conn->begin_processing())
+	{
+		std::cout << "rescheduling WanPacketHandler::doWork!" << std::endl;
+		doWork(weakPeer, weakConn);
+	}
 }
 
 std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const string& cmdname, const std::map<string,string>& params)

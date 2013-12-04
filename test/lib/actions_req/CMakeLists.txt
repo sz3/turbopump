@@ -33,5 +33,7 @@ target_link_libraries(actions_req_test
 	serialize
 	socket
 -Wl,--end-group
+
+	tbb
 )
 

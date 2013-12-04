@@ -53,6 +53,9 @@ TEST_CASE( "StartupTest/testDefault", "default" )
 	TurboPumpApp workerTwo(api, "/tmp/workerTwo", 9002);
 	TurboRunner runnerTwo(workerTwo);
 
+	// need some events to signal when we're running...
+	CommandLine::run("sleep 1");
+
 	// test stuff!
 
 	string response = CommandLine::run("echo 'membership||' | nc -U /tmp/workerOne");

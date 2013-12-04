@@ -5,7 +5,7 @@ enable_testing()
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC")
 	# -ftime-report
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX)

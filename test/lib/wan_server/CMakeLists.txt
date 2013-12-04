@@ -30,8 +30,11 @@ target_link_libraries(wan_server_test
 	mock
 	programmable
 
+	event
 	serialize
 	socket
 -Wl,--end-group
+
+	tbb
 )
 

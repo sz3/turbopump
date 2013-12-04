@@ -50,38 +50,6 @@ std::shared_ptr<PeerConnection> PeerTracker::track(const Peer& peer)
 	return pear.first->second;
 }
 
-bool PeerTracker::decode(const Peer& peer, const std::string& encoded, std::shared_ptr<PeerConnection>& conn, std::string& decoded)
-{
-	IpAddress address;
-	if (!address.fromString(peer.address()))
-	{
-		std::cerr << "BADNESS! Membership has invalid ip address information on peer " << peer.uid << "!!!" << std::endl;
-		return false;
-	}
-
-	peerit it = _peers.find(peer.uid);
-	if (it == _peers.end())
-	{
-		// do decryption with sequence number 1
-		decoded = encoded;
-
-		// if decryption succeeds, allocate new PeerConnection and insert it
-		std::shared_ptr<IIpSocket> sock(_server.sock());
-		sock->setTarget(address);
-
-		std::pair<peerit, bool> pear = _peers.insert( std::pair<string,std::shared_ptr<PeerConnection>>(peer.uid, std::shared_ptr<PeerConnection>(new PeerConnection(sock))) );
-		conn = pear.first->second;
-	}
-	else
-	{
-		conn = it->second;
-
-		// decrypt based on connection's sequence number
-		decoded = encoded;
-	}
-	return true;
-}
-
 std::string PeerTracker::list() const
 {
 	std::stringstream ss;

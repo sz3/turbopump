@@ -10,18 +10,21 @@
 #include "mock/MockSynchronize.h"
 #include "programmable/Callbacks.h"
 #include "programmable/TurboApi.h"
+#include "wan_server/PeerConnection.h"
+
+#include "event/SimpleExecutor.h"
 #include "socket/IpAddress.h"
 #include "socket/UdpSocket.h"
-#include "wan_server/PeerConnection.h"
 
 TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 {
+	SimpleExecutor executor;
 	MockMembership membership;
 	MockPeerTracker peers;
 	MockDataStore dataStore;
 	MockSynchronize sync;
 	Callbacks callbacks;
-	WanPacketHandler handler(membership, peers, dataStore, sync, callbacks);
+	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
 	UdpSocket sock(-1);
 	sock.setTarget(IpAddress("1.2.3.4", 10));
@@ -33,23 +36,30 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 	assertEquals( "", peers._history.calls() );
 
 	membership._ips["1.2.3.4:10"].reset(new Peer("someguid"));
-	assertFalse( handler.onPacket(sock, "foo") );
-	assertEquals( "decode(someguid,foo)", peers._history.calls() );
+	assertTrue( handler.onPacket(sock, "foo") );
+	assertEquals( "track(someguid)", peers._history.calls() );
 
 	peers._history.clear();
 
-	// first write, second write
+	// first write.
+	// since we're using our own thread as the executor,
+	// if we don't call end_processing beforehand, write will be queued but not processed.
 	assertTrue( handler.onPacket(sock, "write|name=foo|i am a file") );
+	assertEquals( "", dataStore._store["foo"] );
+
+	// second write. Clear the connection's processing flag so we do some work (processing both write|foo, and the first part of write|bar)
+	peers._conn->end_processing();
 	assertTrue( handler.onPacket(sock, "write|name=bar|i am another file") );
 
-	// second write flushes first write
+	// second write finishes and flushes first write
 	assertEquals( "i am a file", dataStore._store["foo"] );
 	assertEquals( "", dataStore._store["bar"] );
-	assertEquals( "decode(someguid,write|name=foo|i am a file)|"
-				  "decode(someguid,write|name=bar|i am another file)", peers._history.calls() );
+	assertEquals( "track(someguid)|track(someguid)", peers._history.calls() );
 
-	// more for second write + empty string to flush
+	// more for second write + empty string to signify EOF
 	assertTrue( handler.onPacket(sock, " across two packets!") );
+
+	peers._conn->end_processing();
 	assertTrue( handler.onPacket(sock, "") );
 	assertEquals( "i am another file across two packets!", dataStore._store["bar"] );
 }

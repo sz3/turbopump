@@ -1,6 +1,7 @@
 #include "Peer.h"
 
 #include "serialize/StringUtil.h"
+#include <iostream>
 using std::string;
 using std::vector;
 
@@ -13,7 +14,7 @@ string Peer::address() const
 {
 	if (ips.empty())
 		return "";
-	return *ips.begin();
+	return ips.front();
 }
 
 string Peer::toString() const

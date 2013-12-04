@@ -7,11 +7,13 @@
 class Callbacks;
 class IAction;
 class IDataStore;
+class IExecutor;
 class IIpSocket;
 class IMembership;
 class IPeerTracker;
 class ISynchronize;
 class Peer;
+class PeerConnection;
 
 // receiving (UdpSocket&, string& buff),
 // 1) negotiate connections as necessary
@@ -19,14 +21,16 @@ class Peer;
 class WanPacketHandler
 {
 public:
-	WanPacketHandler(const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks);
+	WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks);
 
 	bool onPacket(const IIpSocket& socket, const std::string& buffer);
+	void doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerConnection> weakConn);
 
 protected:
 	std::shared_ptr<IAction> newAction(const Peer& peer, const std::string& cmdname, const std::map<std::string,std::string>& params);
 
 protected:
+	IExecutor& _executor;
 	const IMembership& _membership;
 	IPeerTracker&  _peers;
 	IDataStore& _dataStore;

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <atomic>
 #include <memory>
+#include "tbb/concurrent_queue.h"
 class DataBuffer;
 class IAction;
 class IIpSocket;
@@ -25,10 +27,18 @@ public:
 	IpAddress peer() const;
 	int send(const DataBuffer& data);
 
+	bool begin_processing();
+	void end_processing();
+
+	void pushRecv(std::string buff);
+	bool popRecv(std::string& buff);
+
 	void setAction(const std::shared_ptr<IAction>& action);
 	const std::shared_ptr<IAction>& action() const;
 
 protected:
+	std::atomic_flag _processing;
+	tbb::concurrent_queue<std::string> _incoming;
 	std::shared_ptr<IIpSocket> _sock;
 	std::shared_ptr<IAction> _action;
 };

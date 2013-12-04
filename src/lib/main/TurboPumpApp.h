@@ -12,6 +12,7 @@
 #include "wan_server/WanPacketHandler.h"
 
 #include "event/SchedulerThread.h"
+#include "event/MultiThreadedExecutor.h"
 #include "socket/LocalStreamSocketServer.h"
 #include "socket/UdpServer.h"
 #include <string>
@@ -47,6 +48,7 @@ protected:
 
 	// servers!
 	LocalStreamSocketServer _localServer;
+	MultiThreadedExecutor _udpExecutor;
 	WanPacketHandler _udpPacketHandler;
 	UdpServer _udpServer;
 };
