@@ -4,7 +4,6 @@
 
 #include <string>
 #include <unordered_map>
-
 class PeerConnection;
 class UdpServer;
 
@@ -13,6 +12,7 @@ class PeerTracker : public IPeerTracker
 public:
 	PeerTracker(const UdpServer& server);
 
+	std::unique_ptr<BufferedSocketWriter> getWriter(const Peer& peer) const;
 	std::shared_ptr<PeerConnection> track(const Peer& peer);
 
 	std::string list() const;

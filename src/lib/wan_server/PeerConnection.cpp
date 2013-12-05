@@ -1,10 +1,5 @@
 #include "PeerConnection.h"
 
-#include "common/DataBuffer.h"
-#include "socket/IIpSocket.h"
-#include "socket/IpAddress.h"
-#include <utility>
-
 // manage buffers.
 /*
  * udp server -> pushes buffer (concurrent_queue) into connection
@@ -15,24 +10,7 @@
  */
 
 // TODO: expiry! Seriously, how?
-// TODO: virtual connections.
-PeerConnection::PeerConnection(const std::shared_ptr<IIpSocket>& sock)
-	: _sock(sock)
-{
-}
-
-IpAddress PeerConnection::peer() const
-{
-	return _sock->getTarget();
-}
-
-int PeerConnection::send(const DataBuffer& data)
-{
-	// NOTE: maybe some day do slow start / flow control here!
-	// would enable us to correlate peers across sockets...
-	// for now, use underlying socket (UDT) to do it.
-	return _sock->send(data.buffer(), data.size());
-}
+// TODO: virtual connection map for actions
 
 bool PeerConnection::begin_processing()
 {

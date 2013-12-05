@@ -4,7 +4,6 @@
 
 #include "membership/Peer.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockIpSocket.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
 #include "mock/MockSynchronize.h"
@@ -28,9 +27,7 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 
 	UdpSocket sock(-1);
 	sock.setTarget(IpAddress("1.2.3.4", 10));
-
-	std::shared_ptr<IIpSocket> mockSock(new MockIpSocket());
-	peers._conn.reset(new PeerConnection(mockSock));
+	peers._conn.reset(new PeerConnection);
 
 	assertFalse( handler.onPacket(sock, "foo") );
 	assertEquals( "", peers._history.calls() );

@@ -80,7 +80,7 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 	if (!conn)
 		return;
 
-	std::cout << "   WanPacketHandler::doWork(" << std::this_thread::get_id() << ") for " << peer->uid << " with socket peer " << conn->peer().toString() << std::endl;
+	std::cout << "   WanPacketHandler::doWork(" << std::this_thread::get_id() << ") for " << peer->uid << std::endl;
 
 	std::string buffer;
 	while (conn->popRecv(buffer))
@@ -92,7 +92,7 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 
 		if (!conn->action() || !conn->action()->good())
 			return;
-		std::cout << "received packet '" << buffer << "' from " << conn->peer().toString() << ". Calling " << conn->action()->name() << std::endl;
+		std::cout << "received packet '" << buffer << "' from " << peer->uid << ". Calling " << conn->action()->name() << std::endl;
 		conn->action()->run(buff);
 	}
 	conn->end_processing();

@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	BufferedSocketWriter.cpp
+	BufferedSocketWriter.h
 	IPeerTracker.h
 	PeerConnection.cpp
 	PeerConnection.h
 	PeerTracker.cpp
 	PeerTracker.h
-	ThrottledWriteStream.cpp
-	ThrottledWriteStream.h
 	WanPacketHandler.cpp
 	WanPacketHandler.h
 )

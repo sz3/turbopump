@@ -7,7 +7,6 @@
 #include "mock/MockIpSocket.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
-#include "wan_server/PeerConnection.h"
 #include "util/CallHistory.h"
 #include <string>
 
@@ -31,13 +30,12 @@ TEST_CASE( "ForwardToPeerTest/testDefault", "[unit]" )
 
 	// output
 	MockIpSocket* mockSock = new MockIpSocket();
-	std::shared_ptr<IIpSocket> sock(mockSock);
-	peers._conn.reset(new PeerConnection(sock));
+	peers._writerSocket.reset(mockSock);
 
 	assertTrue( command.run("file", reader) );
 
 	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
-	assertEquals( "track(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", peers._history.calls() );
 	assertEquals( "send(write|name=file|)|send(contents)|send()", mockSock->_history.calls() );
 }
 

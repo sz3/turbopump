@@ -1,8 +1,9 @@
 #include "PeerTracker.h"
 
+#include "BufferedSocketWriter.h"
 #include "PeerConnection.h"
-
 #include "membership/Peer.h"
+#include "socket/IIpSocket.h"
 #include "socket/IpAddress.h"
 #include "socket/UdpServer.h"
 #include <iostream>
@@ -35,7 +36,7 @@ PeerTracker::PeerTracker(const UdpServer& server)
 {
 }
 
-std::shared_ptr<PeerConnection> PeerTracker::track(const Peer& peer)
+std::unique_ptr<BufferedSocketWriter> PeerTracker::getWriter(const Peer& peer) const
 {
 	IpAddress address;
 	if (!address.fromString(peer.address()))
@@ -46,7 +47,13 @@ std::shared_ptr<PeerConnection> PeerTracker::track(const Peer& peer)
 
 	std::shared_ptr<IIpSocket> sock(_server.sock());
 	sock->setTarget(address);
-	std::pair<peerit, bool> pear = _peers.insert( std::pair<string,std::shared_ptr<PeerConnection> >(peer.uid, std::shared_ptr<PeerConnection>(new PeerConnection(sock))) );
+
+	return std::unique_ptr<BufferedSocketWriter>(new BufferedSocketWriter(sock));
+}
+
+std::shared_ptr<PeerConnection> PeerTracker::track(const Peer& peer)
+{
+	std::pair<peerit, bool> pear = _peers.insert( std::pair<string,std::shared_ptr<PeerConnection> >(peer.uid, std::shared_ptr<PeerConnection>(new PeerConnection)) );
 	return pear.first->second;
 }
 
@@ -54,6 +61,6 @@ std::string PeerTracker::list() const
 {
 	std::stringstream ss;
 	for (auto it = _peers.begin(); it != _peers.end(); ++it)
-		ss << it->first << " : " << it->second->peer().toString() << std::endl;
+		ss << it->first << std::endl;
 	return ss.str();
 }

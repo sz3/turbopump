@@ -1,12 +1,11 @@
 #include "MessageSender.h"
 
 #include "common/MerklePoint.h"
+#include "wan_server/BufferedSocketWriter.h"
 #include "wan_server/IPeerTracker.h"
-#include "wan_server/PeerConnection.h"
-#include "wan_server/ThrottledWriteStream.h"
 #include <memory>
 #include <sstream>
-using std::shared_ptr;
+using std::unique_ptr;
 
 MessageSender::MessageSender(IPeerTracker& peers)
 	: _peers(peers)
@@ -15,12 +14,11 @@ MessageSender::MessageSender(IPeerTracker& peers)
 
 bool MessageSender::sendMessage(const Peer& peer, const std::string& message)
 {
-	shared_ptr<PeerConnection> peerConn = _peers.track(peer);
-	if (!peerConn)
+	unique_ptr<BufferedSocketWriter> writer(_peers.getWriter(peer));
+	if (!writer)
 		return false;
 
-	ThrottledWriteStream writer(*peerConn);
-	writer.write(message.data(), message.size());
+	writer->write(message.data(), message.size());
 	return true;
 }
 
