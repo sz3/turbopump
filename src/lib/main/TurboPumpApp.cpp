@@ -3,7 +3,7 @@
 #include "user_control/Switchboard.h"
 
 #include "event/Event.h"
-#include "socket/ConnectionByteStream.h"
+#include "socket/FileByteStream.h"
 #include "socket/IpAddress.h"
 #include <functional>
 #include <iostream>
@@ -77,7 +77,7 @@ void TurboPumpApp::shutdown()
 // TODO: split into server class.
 void TurboPumpApp::onClientConnect(int fd)
 {
-	ConnectionByteStream stream(fd);
+	FileByteStream stream(fd);
 	Switchboard switcher(stream, _localDataStore, _localDataStore, _membership, _callbacks);
 	switcher.run();
 }

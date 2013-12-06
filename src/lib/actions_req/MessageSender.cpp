@@ -1,7 +1,7 @@
 #include "MessageSender.h"
 
 #include "common/MerklePoint.h"
-#include "wan_server/BufferedSocketWriter.h"
+#include "wan_server/ConnectionWriteStream.h"
 #include "wan_server/IPeerTracker.h"
 #include <memory>
 #include <sstream>
@@ -14,7 +14,7 @@ MessageSender::MessageSender(IPeerTracker& peers)
 
 bool MessageSender::sendMessage(const Peer& peer, const std::string& message)
 {
-	unique_ptr<BufferedSocketWriter> writer(_peers.getWriter(peer));
+	unique_ptr<ConnectionWriteStream> writer(_peers.getWriter(peer));
 	if (!writer)
 		return false;
 

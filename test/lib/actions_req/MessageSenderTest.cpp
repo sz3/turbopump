@@ -6,6 +6,7 @@
 #include "membership/Peer.h"
 #include "mock/MockPeerTracker.h"
 #include "mock/MockIpSocket.h"
+#include "wan_server/BufferedConnectionWriter.h"
 
 #include "socket/IpAddress.h"
 
@@ -13,7 +14,7 @@ TEST_CASE( "MessageSenderTest/testMerklePing", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writerSocket.reset(mockSock);
+	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
 
 	MessageSender messenger(peers);
 
@@ -31,7 +32,7 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Null", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writerSocket.reset(mockSock);
+	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
 
 	MessageSender messenger(peers);
 	messenger.merklePing(Peer("dude"), MerklePoint::null());
@@ -44,7 +45,7 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writerSocket.reset(mockSock);
+	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
 
 	MessageSender messenger(peers);
 
@@ -67,7 +68,7 @@ TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writerSocket.reset(mockSock);
+	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
 
 	MessageSender messenger(peers);
 	messenger.requestKeyRange(Peer("foo"), 1234, 5678);

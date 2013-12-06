@@ -1,6 +1,7 @@
 #include "PeerTracker.h"
 
-#include "BufferedSocketWriter.h"
+#include "BufferedConnectionWriter.h"
+#include "ConnectionWriteStream.h"
 #include "PeerConnection.h"
 #include "membership/Peer.h"
 #include "socket/IIpSocket.h"
@@ -9,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <utility>
+using std::shared_ptr;
 using std::string;
 using std::unordered_map;
 
@@ -29,6 +31,7 @@ using std::unordered_map;
 // "How do I find the worker ID from a socket?" => look at membership.
 // "How do I find the worker ID from a fictional (raw) socket?" => PeerTracker should track these somehow?
 
+using writerit = tbb::concurrent_unordered_map<string,std::shared_ptr<BufferedConnectionWriter>>::iterator;
 using peerit = unordered_map<string,std::shared_ptr<PeerConnection>>::iterator;
 
 PeerTracker::PeerTracker(const UdpServer& server)
@@ -36,7 +39,7 @@ PeerTracker::PeerTracker(const UdpServer& server)
 {
 }
 
-std::unique_ptr<BufferedSocketWriter> PeerTracker::getWriter(const Peer& peer) const
+std::unique_ptr<ConnectionWriteStream> PeerTracker::getWriter(const Peer& peer)
 {
 	IpAddress address;
 	if (!address.fromString(peer.address()))
@@ -45,10 +48,11 @@ std::unique_ptr<BufferedSocketWriter> PeerTracker::getWriter(const Peer& peer) c
 		return NULL;
 	}
 
-	std::shared_ptr<IIpSocket> sock(_server.sock());
+	shared_ptr<IIpSocket> sock(_server.sock());
 	sock->setTarget(address);
+	std::pair<writerit, bool> pear = _writers.insert( std::pair<string,shared_ptr<BufferedConnectionWriter> >(peer.uid, shared_ptr<BufferedConnectionWriter>(new BufferedConnectionWriter(sock))) );
 
-	return std::unique_ptr<BufferedSocketWriter>(new BufferedSocketWriter(sock));
+	return std::unique_ptr<ConnectionWriteStream>(new ConnectionWriteStream(pear.first->second, peer.nextActionId()));
 }
 
 std::shared_ptr<PeerConnection> PeerTracker::track(const Peer& peer)

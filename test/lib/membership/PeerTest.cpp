@@ -29,3 +29,14 @@ TEST_CASE( "PeerTest/testSerializationNoIps", "default" )
 	assertEquals( 0, other.ips.size() );
 }
 
+TEST_CASE( "PeerTest/testActionId", "default" )
+{
+	Peer one("one");
+	assertEquals( 0, one.nextActionId() );
+	assertEquals( 1, one.nextActionId() );
+	assertEquals( 2, one.nextActionId() );
+
+	for (unsigned char i = 3; i != 1; ++i)
+		assertEquals( i, one.nextActionId() );
+}
+

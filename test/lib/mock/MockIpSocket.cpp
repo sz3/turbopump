@@ -1,5 +1,7 @@
 #include "MockIpSocket.h"
 
+#include "serialize/StringUtil.h"
+
 bool MockIpSocket::setTarget(const IpAddress& address)
 {
 	_history.call("setTarget", address.toString());
@@ -15,7 +17,15 @@ IpAddress MockIpSocket::getTarget() const
 
 int MockIpSocket::send(const char* buffer, unsigned size) const
 {
-	_history.call("send", std::string(buffer, size));
+	std::string prettyBuffer;
+	for (unsigned i = 0; i < size; ++i)
+	{
+		if (buffer[i] < 32)
+			prettyBuffer += "{" + StringUtil::str((unsigned)(buffer[i])) + "}";
+		else
+			prettyBuffer += buffer[i];
+	}
+	_history.call("send", prettyBuffer);
 	return size;
 }
 

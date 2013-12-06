@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	BufferedSocketWriter.cpp
-	BufferedSocketWriter.h
+	BufferedConnectionWriter.cpp
+	BufferedConnectionWriter.h
+	ConnectionWriteStream.cpp
+	ConnectionWriteStream.h
 	IPeerTracker.h
 	PeerConnection.cpp
 	PeerConnection.h

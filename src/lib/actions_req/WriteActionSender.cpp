@@ -1,7 +1,7 @@
 #include "WriteActionSender.h"
 
 #include "membership/Peer.h"
-#include "wan_server/BufferedSocketWriter.h"
+#include "wan_server/ConnectionWriteStream.h"
 #include "wan_server/IPeerTracker.h"
 #include <memory>
 using std::string;
@@ -14,7 +14,7 @@ WriteActionSender::WriteActionSender(IPeerTracker& peers)
 
 bool WriteActionSender::store(const Peer& peer, const string& filename, IDataStoreReader::ptr contents)
 {
-	unique_ptr<BufferedSocketWriter> writer(_peers.getWriter(peer));
+	unique_ptr<ConnectionWriteStream> writer(_peers.getWriter(peer));
 	if (!writer)
 		return false;
 
@@ -22,6 +22,6 @@ bool WriteActionSender::store(const Peer& peer, const string& filename, IDataSto
 	writer->write(buff.data(), buff.size());
 	contents->read(*writer);
 	writer->write(NULL, 0);
-
+	writer->flush();
 	return true;
 }

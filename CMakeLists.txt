@@ -3,9 +3,10 @@ cmake_minimum_required(VERSION 2.6)
 project ( dynamo )
 enable_testing()
 
+# gdwarf-3 to help older gdbs
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC -gdwarf-3")
 	# -ftime-report
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX)

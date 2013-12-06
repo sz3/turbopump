@@ -7,6 +7,8 @@
 #include "mock/MockDataStore.h"
 #include "mock/MockIpSocket.h"
 #include "mock/MockPeerTracker.h"
+#include "wan_server/BufferedConnectionWriter.h"
+
 #include "util/CallHistory.h"
 #include <string>
 
@@ -28,7 +30,7 @@ TEST_CASE( "WriteActionSenderTest/testDefault", "[unit]" )
 
 	// output
 	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writerSocket.reset(mockSock);
+	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
 
 	assertTrue( client.store(Peer("dude"), "file", reader) );
 

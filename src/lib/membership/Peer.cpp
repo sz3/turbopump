@@ -1,12 +1,21 @@
 #include "Peer.h"
 
 #include "serialize/StringUtil.h"
+#include <atomic>
 #include <iostream>
 using std::string;
 using std::vector;
 
 Peer::Peer(const string& uid)
 	: uid(uid)
+	, _actionId(0)
+{
+}
+
+Peer::Peer(const Peer& peer)
+	: uid(peer.uid)
+	, ips(peer.ips)
+	, _actionId(0)
 {
 }
 
@@ -16,6 +25,13 @@ string Peer::address() const
 		return "";
 	return ips.front();
 }
+
+// does atomic_increment on in-memory value
+unsigned char Peer::nextActionId() const
+{
+	return _actionId++;
+}
+
 
 string Peer::toString() const
 {
