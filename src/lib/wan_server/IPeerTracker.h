@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-class ConnectionWriteStream;
+class IBufferedConnectionWriter;
 class Peer;
 class PeerConnection;
 
@@ -10,6 +10,6 @@ class IPeerTracker
 {
 public:
 	virtual ~IPeerTracker() {}
-	virtual std::unique_ptr<ConnectionWriteStream> getWriter(const Peer& peer) = 0;
+	virtual std::shared_ptr<IBufferedConnectionWriter> getWriter(const Peer& peer) = 0;
 	virtual std::shared_ptr<PeerConnection> track(const Peer& peer) = 0;
 };

@@ -1,10 +1,10 @@
 #include "ConnectionWriteStream.h"
 
-#include "BufferedConnectionWriter.h"
+#include "IBufferedConnectionWriter.h"
 
 // TODO: do virtual connections here?
 // maybe only for buffered writes?
-ConnectionWriteStream::ConnectionWriteStream(const std::shared_ptr<BufferedConnectionWriter>& writer, unsigned char virtid)
+ConnectionWriteStream::ConnectionWriteStream(const std::shared_ptr<IBufferedConnectionWriter>& writer, unsigned char virtid)
 	: _writer(writer)
 	, _virtid(virtid)
 {

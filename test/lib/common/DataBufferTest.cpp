@@ -10,7 +10,18 @@ TEST_CASE( "DataBufferTest/testConstructors", "default" )
 		DataBuffer buff("0123456789", 10);
 		assertEquals( "0123456789", buff.str() );
 		assertEquals( "0123456789", std::string(buff.buffer(), buff.size()) );
+		assertEquals( 10, buff.size() );
 	}
+}
+
+TEST_CASE( "DataBufferTest/testSet", "default" )
+{
+	DataBuffer buff("0123456789", 10);
+	assertEquals( "0123456789", buff.str() );
+
+	DataBuffer other(DataBuffer::Null());
+	other = buff;
+	assertEquals( "0123456789", buff.str() );
 }
 
 TEST_CASE( "DataBufferTest/testRead", "default" )

@@ -1,6 +1,7 @@
 #include "WanPacketHandler.h"
 
 #include "IPeerTracker.h"
+#include "PacketParser.h"
 #include "PeerConnection.h"
 #include "actions/KeyReqAction.h"
 #include "actions/MerkleAction.h"
@@ -85,15 +86,25 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 	std::string buffer;
 	while (conn->popRecv(buffer))
 	{
-		ActionParser parser;
-		DataBuffer buff(buffer.data(), buffer.size());
-		if (parser.parse(buff))
-			conn->setAction( newAction(*peer, parser.action(), parser.params()) );
+		DataBuffer unparsed(buffer.data(), buffer.size());
+		PacketParser packetGrabber(unparsed);
 
-		if (!conn->action() || !conn->action()->good())
-			return;
-		std::cout << "received packet '" << buffer << "' from " << peer->uid << ". Calling " << conn->action()->name() << std::endl;
-		conn->action()->run(buff);
+		DataBuffer buff(DataBuffer::Null());
+		while (unparsed.size() > 0)
+		{
+			unsigned char virtid;
+			if (!packetGrabber.getNext(virtid, buff))
+				break;
+
+			ActionParser parser;
+			if (parser.parse(buff))
+				conn->setAction( newAction(*peer, parser.action(), parser.params()) );
+
+			if (!conn->action() || !conn->action()->good())
+				return;
+			std::cout << "received packet '" << buffer << "' from " << peer->uid << ". Calling " << conn->action()->name() << std::endl;
+			conn->action()->run(buff);
+		}
 	}
 	conn->end_processing();
 
@@ -108,7 +119,7 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 {
 	std::shared_ptr<IAction> action;
 	if (cmdname == "write")
-		action.reset(new WriteAction(_dataStore, _callbacks.when_remote_write_finishes));
+		action.reset(new WriteAction(_dataStore, _callbacks.when_mirror_write_finishes));
 	else if (cmdname == "merkle")
 		action.reset(new MerkleAction(peer, _sync));
 	else if (cmdname == "key-req")

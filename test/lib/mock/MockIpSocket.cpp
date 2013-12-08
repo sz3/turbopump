@@ -17,15 +17,7 @@ IpAddress MockIpSocket::getTarget() const
 
 int MockIpSocket::send(const char* buffer, unsigned size) const
 {
-	std::string prettyBuffer;
-	for (unsigned i = 0; i < size; ++i)
-	{
-		if (buffer[i] < 32)
-			prettyBuffer += "{" + StringUtil::str((unsigned)(buffer[i])) + "}";
-		else
-			prettyBuffer += buffer[i];
-	}
-	_history.call("send", prettyBuffer);
+	_history.call("send", std::string(buffer, size));
 	return size;
 }
 

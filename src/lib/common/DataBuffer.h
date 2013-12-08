@@ -8,6 +8,7 @@ public:
 	static DataBuffer Null();
 
 	DataBuffer(const char* buff, unsigned size);
+	DataBuffer& operator=(const DataBuffer& other);
 
 	std::string str() const;
 	const char* buffer() const;

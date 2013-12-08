@@ -3,12 +3,14 @@
 #include "socket/IIpSocket.h"
 #include <arpa/inet.h>
 #include <iostream>
+using std::recursive_mutex;
+using std::lock_guard;
 
 // TODO: do virtual connections here?
 // maybe only for buffered writes?
 BufferedConnectionWriter::BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize)
 	: _sock(sock)
-	, _capacity(packetsize-3) // will be -6 when encrypted?
+	, _capacity(packetsize) // will be -3 when encrypted?
 {
 	_buffer.reserve(packetsize);
 }
@@ -20,8 +22,6 @@ unsigned BufferedConnectionWriter::capacity() const
 
 void BufferedConnectionWriter::pushBytes(unsigned char virtid, const char* buff, unsigned length)
 {
-	std::cout << "pushBytes : " << (unsigned)virtid << ": " << (size_t)buff << ":" << length << std::endl;
-	std::cout << "pushBytes again " << std::string(buff, length) << std::endl;
 	unsigned short netlen = htons(length+1);
 	_buffer.append( (const char*)&netlen, 2 );
 	_buffer += virtid;
@@ -30,19 +30,21 @@ void BufferedConnectionWriter::pushBytes(unsigned char virtid, const char* buff,
 
 int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsigned length)
 {
+	lock_guard<recursive_mutex> lock(_mutex);
 	// [6 0 data1][12 1 data2-part1]
 	// [34 1 data2-part2]
 	// [30 1 data2-part3]
 
+	unsigned maxBufferSize = capacity()-3;
 	int res = 0;
-	if (_buffer.size() > 0 && _buffer.size() + length > capacity())
+	if (_buffer.size() > 0 && _buffer.size() + length > maxBufferSize)
 		res = flush();
 	while(true)
 	{
 		unsigned packetSize = _buffer.size() + length;
-		if (packetSize >= capacity())
+		if (packetSize >= maxBufferSize)
 		{
-			packetSize = capacity();
+			packetSize = maxBufferSize;
 			pushBytes(virtid, buff, packetSize);
 			res = flush();
 		}
@@ -57,13 +59,12 @@ int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsi
 		if (length == 0)
 			break;
 	}
-
 	return res;
 }
 
-
 int BufferedConnectionWriter::flush()
 {
+	lock_guard<recursive_mutex> lock(_mutex);
 	int res = _sock->send(_buffer.data(), _buffer.size());
 	_buffer.clear();
 	return res;

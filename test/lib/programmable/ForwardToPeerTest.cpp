@@ -3,11 +3,10 @@
 #include "ForwardToPeer.h"
 
 #include "data_store/IDataStoreReader.h"
+#include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockIpSocket.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
-#include "wan_server/BufferedConnectionWriter.h"
 
 #include "util/CallHistory.h"
 #include <string>
@@ -31,13 +30,13 @@ TEST_CASE( "ForwardToPeerTest/testDefault", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy");
 
 	// output
-	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
 
 	assertTrue( command.run("file", reader) );
 
 	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "send({0}{17}{}write|name=file|{0}{9}{0}contents{0}{1}{0})", mockSock->_history.calls() );
+	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 

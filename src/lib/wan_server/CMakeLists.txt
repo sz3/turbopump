@@ -5,7 +5,10 @@ set(SOURCES
 	BufferedConnectionWriter.h
 	ConnectionWriteStream.cpp
 	ConnectionWriteStream.h
+	IBufferedConnectionWriter.h
 	IPeerTracker.h
+	PacketParser.cpp
+	PacketParser.h
 	PeerConnection.cpp
 	PeerConnection.h
 	PeerTracker.cpp

@@ -1,11 +1,12 @@
 #include "MessageSender.h"
 
 #include "common/MerklePoint.h"
-#include "wan_server/ConnectionWriteStream.h"
+#include "membership/Peer.h"
+#include "wan_server/IBufferedConnectionWriter.h"
 #include "wan_server/IPeerTracker.h"
 #include <memory>
 #include <sstream>
-using std::unique_ptr;
+using std::shared_ptr;
 
 MessageSender::MessageSender(IPeerTracker& peers)
 	: _peers(peers)
@@ -14,11 +15,11 @@ MessageSender::MessageSender(IPeerTracker& peers)
 
 bool MessageSender::sendMessage(const Peer& peer, const std::string& message)
 {
-	unique_ptr<ConnectionWriteStream> writer(_peers.getWriter(peer));
+	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
 	if (!writer)
 		return false;
 
-	writer->write(message.data(), message.size());
+	writer->write(peer.nextActionId(), message.data(), message.size());
 	return true;
 }
 

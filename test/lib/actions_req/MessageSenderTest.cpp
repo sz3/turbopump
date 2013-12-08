@@ -4,17 +4,16 @@
 
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
+#include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockPeerTracker.h"
-#include "mock/MockIpSocket.h"
-#include "wan_server/BufferedConnectionWriter.h"
 
 #include "socket/IpAddress.h"
 
 TEST_CASE( "MessageSenderTest/testMerklePing", "[unit]" )
 {
 	MockPeerTracker peers;
-	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
 
@@ -25,27 +24,27 @@ TEST_CASE( "MessageSenderTest/testMerklePing", "[unit]" )
 	messenger.merklePing(Peer("dude"), point);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "send(merkle||1 2 3)", mockSock->_history.calls() );
+	assertEquals( "write(0,merkle||1 2 3)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testMerklePing.Null", "[unit]" )
 {
 	MockPeerTracker peers;
-	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
 	messenger.merklePing(Peer("dude"), MerklePoint::null());
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "send(merkle||0 65535 0)", mockSock->_history.calls() );
+	assertEquals( "write(0,merkle||0 65535 0)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
 {
 	MockPeerTracker peers;
-	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
 
@@ -61,18 +60,18 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
 	messenger.merklePing(Peer("dude"), points);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "send(merkle||1 1 10|2 2 20|3 3 30)", mockSock->_history.calls() );
+	assertEquals( "write(0,merkle||1 1 10|2 2 20|3 3 30)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
 {
 	MockPeerTracker peers;
-	MockIpSocket* mockSock = new MockIpSocket();
-	peers._writer.reset(new BufferedConnectionWriter(std::shared_ptr<IIpSocket>(mockSock)));
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
 	messenger.requestKeyRange(Peer("foo"), 1234, 5678);
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "send(key-req|first=1234 last=5678|)", mockSock->_history.calls() );
+	assertEquals( "write(0,key-req|first=1234 last=5678|)", writer->_history.calls() );
 }

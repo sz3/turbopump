@@ -37,8 +37,8 @@ void Callbacks::initialize(const IMembership& membership, IPeerTracker& peers, I
 		};
 	}
 	{
-		auto userFun = when_remote_write_finishes;
-		when_remote_write_finishes = [&merkleIndex,userFun] (std::string filename, IDataStoreReader::ptr contents)
+		auto userFun = when_mirror_write_finishes;
+		when_mirror_write_finishes = [&merkleIndex,userFun] (std::string filename, IDataStoreReader::ptr contents)
 		{
 			merkleIndex.add(filename);
 			if (userFun)

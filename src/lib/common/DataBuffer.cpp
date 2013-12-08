@@ -14,6 +14,13 @@ DataBuffer::DataBuffer(const char* buff, unsigned size)
 {
 }
 
+DataBuffer& DataBuffer::operator=(const DataBuffer& other)
+{
+	_buffer = other._buffer;
+	_size = other._size;
+	return *this;
+}
+
 string DataBuffer::str() const
 {
 	return string(_buffer, _size);

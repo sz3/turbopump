@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	MockBufferedConnectionWriter.cpp
+	MockBufferedConnectionWriter.h
 	MockDataStore.cpp
 	MockDataStore.h
 	MockIpSocket.cpp
