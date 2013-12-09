@@ -20,6 +20,7 @@ bool MessageSender::sendMessage(const Peer& peer, const std::string& message)
 		return false;
 
 	writer->write(peer.nextActionId(), message.data(), message.size());
+	writer->flush();
 	return true;
 }
 

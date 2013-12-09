@@ -24,7 +24,7 @@ TEST_CASE( "MessageSenderTest/testMerklePing", "[unit]" )
 	messenger.merklePing(Peer("dude"), point);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle||1 2 3)", writer->_history.calls() );
+	assertEquals( "write(0,merkle||1 2 3)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testMerklePing.Null", "[unit]" )
@@ -37,7 +37,7 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Null", "[unit]" )
 	messenger.merklePing(Peer("dude"), MerklePoint::null());
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle||0 65535 0)", writer->_history.calls() );
+	assertEquals( "write(0,merkle||0 65535 0)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
@@ -60,7 +60,7 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
 	messenger.merklePing(Peer("dude"), points);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle||1 1 10|2 2 20|3 3 30)", writer->_history.calls() );
+	assertEquals( "write(0,merkle||1 1 10|2 2 20|3 3 30)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
@@ -73,5 +73,5 @@ TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
 	messenger.requestKeyRange(Peer("foo"), 1234, 5678);
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "write(0,key-req|first=1234 last=5678|)", writer->_history.calls() );
+	assertEquals( "write(0,key-req|first=1234 last=5678|)|flush()", writer->_history.calls() );
 }
