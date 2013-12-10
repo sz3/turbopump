@@ -25,7 +25,6 @@ add_subdirectory(${CORELIB} ${CORELIB})
 set (PROJECTS
    src/exe/turbopump
    src/lib/main
-   test/integration/standup
 
    src/lib/actions
    test/lib/actions
@@ -46,6 +45,9 @@ set (PROJECTS
    src/lib/user_control
    src/lib/wan_server
    test/lib/wan_server
+
+   test/integration/standup
+   test/integration/load
 
    test/lib/mock
 )

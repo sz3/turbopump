@@ -14,7 +14,7 @@ int main(int argc, const char** argv)
 	opt.footer = "turbopump 0.01";
 
 	opt.add("", false, 0, 0, "Display usage instructions.", "-h", "--help");
-	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-u", "--usepath");
+	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-d", "--dataChannel");
 	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
 
 	opt.parse(argc, argv);
@@ -29,7 +29,7 @@ int main(int argc, const char** argv)
 	OptionGroup* og;
 
 	string turbopath;
-	if ((og = opt.get("--usepath")) != NULL)
+	if ((og = opt.get("--dataChannel")) != NULL)
 		og->getString(turbopath);
 
 	short port;

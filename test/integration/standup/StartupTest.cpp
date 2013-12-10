@@ -42,7 +42,7 @@ namespace {
 	}
 }
 
-TEST_CASE( "StartupTest/testDefault", "default" )
+TEST_CASE( "StartupTest/testDefault", "[integration]" )
 {
 	createMemberFile();
 
