@@ -63,9 +63,20 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 		//if (diff.location.keybits == maxkeybits)
 		//	_corrector.healKey(peer, diff.location.key);
 
-		// else
-		MerkleRange range(diff.location);
-		_messenger.requestKeyRange(peer, range.first(), range.last());
+		if (diff == MerklePoint::null())
+			_messenger.requestKeyRange(peer, 0, ~0ULL);
+		else if (diff.location.keybits > point.location.keybits)
+		{
+			MerkleRange myRange(diff.location);
+			MerkleRange wideRange(point.location);
+			_messenger.requestKeyRange(peer, wideRange.first(), myRange.first());
+			_messenger.requestKeyRange(peer, myRange.last(), wideRange.last());
+		}
+		else
+		{
+			MerkleRange range(diff.location);
+			_messenger.requestKeyRange(peer, range.first(), range.last());
+		}
 	}
 
 	else if (diffs.size() >= 2)

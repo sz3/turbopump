@@ -66,6 +66,7 @@ namespace
 		else if (diffs.size() == 1)
 		{
 			MerkleRange range(diffs[0].location);
+			std::cout << "found exciting thing at " << MerklePointSerializer::toString(diffs[0]) << std::endl;
 			return next.enumerate(range.first(), range.last());
 		}
 		else
@@ -166,6 +167,13 @@ TEST_CASE( "MerkleIndexTest/testTraverse_Case2", "[unit]" )
 	indexTwo.remove("86");
 
 	indexOne.print(2);
+
+	MerklePoint point;
+	point.location.key = 1455069594437219180ULL;
+	point.location.keybits = 64;
+	point.hash = 1455069594437219180ULL;
+	MerkleRange range(point.location);
+	std::cout << "what? " << StringUtil::stlJoin( indexOne.enumerate(1455069594437219180ULL, 1455069594437219180ULL) ) << std::endl;
 
 	assertEquals( "83 86", StringUtil::stlJoin(traverseForFileDiff(indexOne.top(), indexTwo, indexOne)) );
 }

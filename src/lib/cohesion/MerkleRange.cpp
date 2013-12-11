@@ -9,6 +9,12 @@ MerkleRange::MerkleRange(const merkle_location<unsigned long long>& location)
 
 void MerkleRange::fromLocation(const merkle_location<unsigned long long>& location)
 {
+	if (location.keybits >= 63)
+	{
+		_first = _last = location.key;
+		return;
+	}
+
 	unsigned shift = (sizeof(location.key)<<3) - location.keybits-1;
 	_first = htobe64(location.key);
 	_first = (_first >> shift) << shift;

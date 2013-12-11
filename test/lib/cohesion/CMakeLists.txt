@@ -5,6 +5,7 @@ project(cohesion_test)
 set (SOURCES
 	test.cpp
 	MerkleIndexTest.cpp
+	MerkleRangeTest.cpp
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
 )

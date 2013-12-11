@@ -3,6 +3,7 @@
 #include "actions_req/IWriteActionSender.h"
 #include "data_store/IDataStore.h"
 #include "membership/Peer.h"
+#include "serialize/StringUtil.h"
 #include <deque>
 #include <iostream>
 
@@ -24,6 +25,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, unsigned long long first, uns
 {
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files =_index.enumerate(first, last);
+	std::cout << "pushing " << files.size() << " keys to peer " << peer.uid << ": " << StringUtil::stlJoin(files) << std::endl;
 	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
 	{
 		std::cout << "attempting to push file " << *it << " to peer " << peer.uid << std::endl;
