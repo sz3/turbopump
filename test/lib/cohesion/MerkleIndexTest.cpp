@@ -56,7 +56,29 @@ TEST_CASE( "MerkleIndexTest/testTop", "[unit]" )
 	assertEquals( (hash1 xor hash2 xor hash3), top.hash );
 }
 
-TEST_CASE( "MerkleIndexTest/testBadness", "[unit]" )
+namespace
+{
+	deque<string> traverseForFileDiff(const MerklePoint& point, const MerkleIndex& current, const MerkleIndex& next)
+	{
+		deque<MerklePoint> diffs = current.diff(point);
+		if (diffs.empty())
+			return deque<string>();
+		else if (diffs.size() == 1)
+		{
+			MerkleRange range(diffs[0].location);
+			return next.enumerate(range.first(), range.last());
+		}
+		else
+		{
+			deque<string> resultLeft = traverseForFileDiff(diffs[0], next, current);
+			deque<string> resultRight = traverseForFileDiff(diffs[1], next, current);
+			resultLeft.insert(resultLeft.end(), resultRight.begin(), resultRight.end());
+			return resultLeft;
+		}
+	}
+}
+
+TEST_CASE( "MerkleIndexTest/testTraverse_Case1", "[unit]" )
 {
 	// make a generic test to iterate over two MerkleIndexes recursively,
 	// and enforce that the appropriate missing key ranges are pushed to a list
@@ -123,4 +145,27 @@ TEST_CASE( "MerkleIndexTest/testBadness", "[unit]" )
 	assertEquals(64, range.first());
 	assertEquals(0xFFFFFFFFFFFFFF7FULL, range.last());
 	assertEquals( "two0", StringUtil::stlJoin(indexTwo.enumerate(range.first(), range.last())) );
+
+	assertEquals( "two0", StringUtil::stlJoin(traverseForFileDiff(indexOne.top(), indexTwo, indexOne)) );
+	assertEquals( "", StringUtil::stlJoin(traverseForFileDiff(indexTwo.top(), indexOne, indexTwo)) );
+}
+
+
+TEST_CASE( "MerkleIndexTest/testTraverse_Case2", "[unit]" )
+{
+	MerkleIndex indexOne;
+	MerkleIndex indexTwo;
+
+	for (int i = 0; i < 100; ++i)
+	{
+		string id = StringUtil::str(i);
+		indexOne.add(id);
+		indexTwo.add(id);
+	}
+	indexTwo.remove("83");
+	indexTwo.remove("86");
+
+	indexOne.print(2);
+
+	assertEquals( "83 86", StringUtil::stlJoin(traverseForFileDiff(indexOne.top(), indexTwo, indexOne)) );
 }

@@ -2,6 +2,7 @@
 
 #include "common/MerklePoint.h"
 #include "consistent_hashing/Hash.h"
+#include <tuple>
 
 void MerkleIndex::add(const std::string& id)
 {
@@ -40,4 +41,15 @@ std::deque<std::string> MerkleIndex::enumerate(unsigned long long first, unsigne
 
 	_tree.enumerate(fun, first, last);
 	return files;
+}
+
+std::ostream& operator<<(std::ostream& stream, const std::tuple<unsigned long long, std::string>& fileData)
+{
+	stream << std::get<1>(fileData);
+	return stream;
+}
+
+void MerkleIndex::print(int keywidth) const
+{
+	_tree.print(keywidth);
 }
