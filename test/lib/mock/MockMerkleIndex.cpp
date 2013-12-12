@@ -25,7 +25,7 @@ std::deque<MerklePoint> MockMerkleIndex::diff(const MerklePoint& point) const
 	return _diff;
 }
 
-std::deque<std::string> MockMerkleIndex::enumerate(unsigned long long first, unsigned long long last) const
+std::deque<std::string> MockMerkleIndex::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
 {
 	_history.call("enumerate", first, last);
 	return _enumerate;

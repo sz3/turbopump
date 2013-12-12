@@ -8,6 +8,7 @@ set (SOURCES
 	MerkleRangeTest.cpp
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
+	SynchronizerIntegrationTest.cpp
 )
 
 include_directories(

@@ -117,7 +117,7 @@ std::string LocalDataStore::toString() const
 {
 	std::vector<string> report;
 	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
-		report.push_back("(" + it->first + ")=>" + *it->second);
+		report.push_back("(" + it->first + ")=>" + StringUtil::str(it->second->size()));
 	std::sort(report.begin(), report.end());
 	return StringUtil::stlJoin(report, '\n');
 }

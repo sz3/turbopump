@@ -27,5 +27,5 @@ public:
 
 	virtual MerklePoint top() const = 0;
 	virtual std::deque<MerklePoint> diff(const MerklePoint& point) const = 0;
-	virtual std::deque<std::string> enumerate(unsigned long long first, unsigned long long last) const = 0;
+	virtual std::deque<std::string> enumerate(unsigned long long first, unsigned long long last, unsigned limit=50) const = 0;
 };

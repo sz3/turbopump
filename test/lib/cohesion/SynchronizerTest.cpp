@@ -123,7 +123,7 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 
 	assertEquals( "diff(10 10 100)", index._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,10,18446744073709494026)", messenger._history.calls() );
+	assertEquals( "requestKeyRange(fooid,10,18446744073709502218)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
@@ -139,10 +139,9 @@ TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 	Synchronizer sinkro(membership, index, messenger, corrector);
 	sinkro.compare(Peer("fooid"), whatsThePoint(10));
 
-	// idea is we have the range from bit 32 on, but any ranges from 10->32 on either side are missing.
 	assertEquals( "diff(10 10 100)", index._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,10,32)|requestKeyRange(fooid,18446743519658770464,18446744073709494026)", messenger._history.calls() );
+	assertEquals( "requestKeyRange(fooid,32,18446744069414584352)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 

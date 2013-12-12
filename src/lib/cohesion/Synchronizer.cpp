@@ -39,6 +39,10 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 	}
 
 	std::deque<MerklePoint> diffs = _index.diff(point);
+	std::cout << " Synchronizer compare. Point is " << MerklePointSerializer::toString(point) << ". Diffs are : ";
+	for (auto it = diffs.begin(); it != diffs.end(); ++it)
+		std::cout << MerklePointSerializer::toString(*it) << " , ";
+	std::cout << std::endl;
 
 	// 0 == no diff
 	if (diffs.empty())
@@ -60,17 +64,16 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 		 *     c) we have conflicting values for the same key
 		 */
 
-		//if (diff.location.keybits == maxkeybits)
-		//	_corrector.healKey(peer, diff.location.key);
 
 		if (diff == MerklePoint::null())
 			_messenger.requestKeyRange(peer, 0, ~0ULL);
-		else if (diff.location.keybits > point.location.keybits)
+		else if (diff.location.keybits == 64)
 		{
-			MerkleRange myRange(diff.location);
-			MerkleRange wideRange(point.location);
-			_messenger.requestKeyRange(peer, wideRange.first(), myRange.first());
-			_messenger.requestKeyRange(peer, myRange.last(), wideRange.last());
+			//if (diff.location.key == point.location.key)
+			//	_corrector.healKey(peer, diff.location.key);
+
+			MerkleRange range(point.location);
+			_messenger.requestKeyRange(peer, range.first(), range.last());
 		}
 		else
 		{

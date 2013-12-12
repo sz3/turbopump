@@ -97,13 +97,19 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 				break;
 
 			ActionParser parser;
+			std::shared_ptr<IAction> action;
 			if (parser.parse(buff))
-				conn->setAction( newAction(*peer, parser.action(), parser.params()) );
+			{
+				action = newAction(*peer, parser.action(), parser.params());
+				conn->setAction(action);
+			}
+			else
+				action = conn->action();
 
-			if (!conn->action() || !conn->action()->good())
+			if (!action || !action->good())
 				return;
-			std::cout << "received packet '" << buffer << "' from " << peer->uid << ". Calling " << conn->action()->name() << std::endl;
-			conn->action()->run(buff);
+			//std::cout << "received packet '" << buffer << "' from " << peer->uid << ". Calling " << action->name() << std::endl;
+			action->run(buff);
 		}
 	}
 	conn->end_processing();

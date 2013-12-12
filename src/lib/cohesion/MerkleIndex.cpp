@@ -33,11 +33,10 @@ std::deque<MerklePoint> MerkleIndex::diff(const MerklePoint& point) const
 
 // TODO: unsigned long long& start?
 //       return "next"? ???
-std::deque<std::string> MerkleIndex::enumerate(unsigned long long first, unsigned long long last) const
+std::deque<std::string> MerkleIndex::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
 {
-	static const unsigned limit = 50;
 	std::deque<std::string> files;
-	auto fun = [&] (unsigned long long hash, const std::string& file) { files.push_back(file); first = hash; return files.size() < limit; };
+	auto fun = [&,limit] (unsigned long long hash, const std::string& file) { files.push_back(file); first = hash; return files.size() < limit; };
 
 	_tree.enumerate(fun, first, last);
 	return files;

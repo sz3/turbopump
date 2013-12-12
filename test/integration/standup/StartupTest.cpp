@@ -77,16 +77,16 @@ TEST_CASE( "StartupTest/testDefault", "[integration]" )
 
 	CommandLine::run("sleep 10");
 
-	string expected = "(one0)=>one hello0\n\n"
-					  "(one1)=>one hello1\n\n"
-					  "(one2)=>one hello2\n\n"
-					  "(one3)=>one hello3\n\n"
-					  "(one4)=>one hello4\n\n"
-					  "(two0)=>two hello0\n\n"
-					  "(two1)=>two hello1\n\n"
-					  "(two2)=>two hello2\n\n"
-					  "(two3)=>two hello3\n\n"
-					  "(two4)=>two hello4\n";
+	string expected = "(one0)=>11\n"
+					  "(one1)=>11\n"
+					  "(one2)=>11\n"
+					  "(one3)=>11\n"
+					  "(one4)=>11\n"
+					  "(two0)=>11\n"
+					  "(two1)=>11\n"
+					  "(two2)=>11\n"
+					  "(two3)=>11\n"
+					  "(two4)=>11";
 
 	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerTwo");
 	assertEquals( expected, response );
