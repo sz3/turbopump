@@ -27,6 +27,7 @@ Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const Local
 
 void Switchboard::run()
 {
+	std::unique_ptr<IAction> action;
 	std::vector<char> buff;
 	buff.resize(8192);
 	while (1)
@@ -34,35 +35,31 @@ void Switchboard::run()
 		int bytesRead = _stream.read(&buff[0], buff.capacity());
 		if (bytesRead <= 0)
 			break;
-		parse(buff.data(), bytesRead);
-	}
-}
 
-// TODO: this won't fly. We need something like the IAsyncReader to wrap the ByteStream,
-// to enable data larger than a single packet. The ActionParser will also need to be involved,
-// since the best way to treat the data will be to pull the action off the front of the buffer,
-// and pass the rest on.
-// potentially: _stream.getCommand(command)?
-void Switchboard::parse(const char* buffer, unsigned size)
-{
-	{
-		string dumbuff(buffer, buffer+size);
-		std::cout << size << ":" << dumbuff << std::endl;
-	}
-
-	ActionParser parser;
-	DataBuffer data(buffer, size);
-	if (!parser.parse(data))
-		return;
-
-	std::shared_ptr<IAction> action = newAction(parser.action(), parser.params());
-	if (action && action->good())
+		DataBuffer data(buff.data(), bytesRead);
+		if (!action && !parse(data, action))
+		{
+			string dumbuff(buff.data(), bytesRead);
+			std::cout << "failed to parse action out of packet size " << bytesRead << ":" << dumbuff << std::endl;
+			break;
+		}
 		action->run(data);
+	}
 }
 
-std::shared_ptr<IAction> Switchboard::newAction(const string& actionName, const std::map<string,string>& params)
+bool Switchboard::parse(DataBuffer& data, std::unique_ptr<IAction>& action)
 {
-	std::shared_ptr<IAction> action;
+	ActionParser parser;
+	if (!parser.parse(data))
+		return false;
+
+	action = newAction(parser.action(), parser.params());
+	return action && action->good();
+}
+
+std::unique_ptr<IAction> Switchboard::newAction(const string& actionName, const std::map<string,string>& params)
+{
+	std::unique_ptr<IAction> action;
 	if (actionName == "write")
 		action.reset(new WriteAction(_dataStore, _callbacks.when_local_write_finishes));
 	else if (actionName == "read")

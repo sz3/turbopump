@@ -11,32 +11,21 @@ TEST_CASE( "BufferedConnectionWriterTest/testSmallBuffer", "[unit]" )
 	MockIpSocket* sock = new MockIpSocket;
 	BufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 8);
 
-	// a packet size of 8 will give us 5 data bytes + the 3 bytes of overhead (length + virtid)
-
-	string header;
-	header.resize(3);
+	// a packet size of 8 will give us at most 5 data bytes. -3 bytes of overhead per write (length + virtid)
 
 	string buff = "0123456789abc";
 	writer.write(33, buff.data(), buff.size());
-	header[0] = 0;
-	header[1] = 6;
-	header[2] = 33;
-	assertEquals( ("send(" + header + "01234)|send(" + header + "56789)"), sock->_history.calls() );
+	assertEquals( ("send(" + string{0,6,33} + "01234)|send(" + string{0,6,33} + "56789)"), sock->_history.calls() );
 
 	sock->_history.clear();
 	buff = "FOO";
 	writer.write(35, buff.data(), buff.size());
-	header[0] = 0;
-	header[1] = 4;
-	header[2] = 33; // previous write gets flushed == matches previous virtid
-	assertEquals( ("send(" + header + "abc)"), sock->_history.calls() );
+	// 33 -> previous write gets flushed == matches previous virtid
+	assertEquals( ("send(" + string{0,4,33} + "abc)"), sock->_history.calls() );
 
 	sock->_history.clear();
 	writer.flush();
-	header[0] = 0;
-	header[1] = 4;
-	header[2] = 35;
-	assertEquals( ("send(" + header + "FOO)"), sock->_history.calls() );
+	assertEquals( ("send(" + string{0,4,35} + "FOO)"), sock->_history.calls() );
 }
 
 TEST_CASE( "BufferedConnectionWriterTest/testBigBuffer", "[unit]" )

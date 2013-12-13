@@ -94,12 +94,17 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 		{
 			unsigned char virtid;
 			if (!packetGrabber.getNext(virtid, buff))
+			{
+				std::cout << "throwing out '" << buffer << "' from " << peer->uid << std::endl;
 				break;
+			}
 
+			// TODO: implement action teardown, and only attempt to parse the packet if there is no action
 			ActionParser parser;
 			std::shared_ptr<IAction> action;
 			if (parser.parse(buff))
 			{
+				std::cout << "received action '" << buffer << "' from " << peer->uid << ". virt " << (unsigned)virtid << ", action = " << parser.action() << std::endl;
 				action = newAction(*peer, parser.action(), parser.params());
 				conn->setAction(action);
 			}
@@ -107,7 +112,10 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 				action = conn->action();
 
 			if (!action || !action->good())
-				return;
+			{
+				std::cout << "received packet '" << buffer << "' from " << peer->uid << ". But the action was bad. :(" << std::endl;
+				break;
+			}
 			//std::cout << "received packet '" << buffer << "' from " << peer->uid << ". Calling " << action->name() << std::endl;
 			action->run(buff);
 		}

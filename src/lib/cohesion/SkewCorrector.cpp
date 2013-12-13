@@ -28,7 +28,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, unsigned long long first, uns
 	std::cout << "pushing " << files.size() << " keys to peer " << peer.uid << ": " << StringUtil::stlJoin(files) << std::endl;
 	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
 	{
-		std::cout << "attempting to push file " << *it << " to peer " << peer.uid << std::endl;
+		//std::cout << "attempting to push file " << *it << " to peer " << peer.uid << std::endl;
 		IDataStoreReader::ptr reader = _store.read(*it);
 		if (!reader)
 			continue;

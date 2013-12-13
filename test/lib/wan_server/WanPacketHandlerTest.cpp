@@ -28,8 +28,8 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 {
 	SimpleExecutor executor;
 	MockMembership membership;
+	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
 	MockPeerTracker peers;
-	MockDataStore dataStore;
 	MockSynchronize sync;
 	Callbacks callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
@@ -57,7 +57,7 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 	peers._conn->end_processing();
 	assertTrue( handler.onPacket(sock, formatPacket(35, "write|name=bar|i am another file")) );
 
-	// second write finishes and flushes first write
+	// second write begins and processes the first write
 	assertEquals( "i am a file", dataStore._store["foo"] );
 	assertEquals( "", dataStore._store["bar"] );
 	assertEquals( "track(someguid)|track(someguid)", peers._history.calls() );
@@ -74,8 +74,8 @@ TEST_CASE( "WanPacketHandlerTest/testMultiplexing", "default" )
 {
 	SimpleExecutor executor;
 	MockMembership membership;
-	MockPeerTracker peers;
 	MockDataStore dataStore;
+	MockPeerTracker peers;
 	MockSynchronize sync;
 	Callbacks callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);

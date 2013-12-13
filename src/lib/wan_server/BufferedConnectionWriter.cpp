@@ -10,7 +10,7 @@ using std::lock_guard;
 // maybe only for buffered writes?
 BufferedConnectionWriter::BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize)
 	: _sock(sock)
-	, _capacity(packetsize) // will be -3 when encrypted?
+	, _capacity(packetsize-3) // will be -6 when encrypted?
 {
 	_buffer.reserve(packetsize);
 }
@@ -35,7 +35,7 @@ int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsi
 	// [34 1 data2-part2]
 	// [30 1 data2-part3]
 
-	unsigned maxBufferSize = capacity()-3;
+	unsigned maxBufferSize = capacity();
 	int res = 0;
 	if (_buffer.size() > 0 && _buffer.size() + length > maxBufferSize)
 		res = flush();
@@ -44,7 +44,7 @@ int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsi
 		unsigned packetSize = _buffer.size() + length;
 		if (packetSize >= maxBufferSize)
 		{
-			packetSize = maxBufferSize;
+			packetSize = maxBufferSize;//-_buffer.size();
 			pushBytes(virtid, buff, packetSize);
 			res = flush();
 		}

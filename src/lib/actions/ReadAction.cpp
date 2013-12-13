@@ -24,9 +24,7 @@ bool ReadAction::run(const DataBuffer& data)
 	IDataStoreReader::ptr reader = _dataStore.read(_filename);
 	if (!reader)
 		return false;
-	// while. Or something.
-	// flow control???
-	reader->read(_writer);
+	while (reader->read(_writer) > 0);
 	return true;
 }
 

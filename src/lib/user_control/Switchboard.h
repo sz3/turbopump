@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ISwitchboard.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -13,18 +12,16 @@ class IDataStore;
 class IMembership;
 class LocalDataStore;
 
-// "owns" the BlockingReader (because of RAII he *technically* doesn't, but...)
-// and manages his own thread.
-class Switchboard : public ISwitchboard
+// "owns" the stream
+class Switchboard
 {
 public:
-	// should take a blockingWriter as well
 	Switchboard(IByteStream& stream, IDataStore& dataStore, const LocalDataStore& localDataStore, const IMembership& membership, const Callbacks& callbacks);
 
 	void run();
 
-	void parse(const char* buffer, unsigned size);
-	std::shared_ptr<IAction> newAction(const std::string& actionName, const std::map<std::string,std::string>& params);
+	bool parse(DataBuffer& data, std::unique_ptr<IAction>& action);
+	std::unique_ptr<IAction> newAction(const std::string& actionName, const std::map<std::string,std::string>& params);
 
 protected:
 	IByteStream& _stream;
