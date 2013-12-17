@@ -2,13 +2,6 @@
 
 #include "serialize/StringUtil.h"
 
-bool MockIpSocket::setTarget(const IpAddress& address)
-{
-	_history.call("setTarget", address.toString());
-	_target = address;
-	return true;
-}
-
 IpAddress MockIpSocket::getTarget() const
 {
 	_history.call("getTarget");

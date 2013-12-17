@@ -28,6 +28,8 @@ public:
 	void onClientConnect(int fd);
 
 protected:
+	//UdtScope _udt;
+
 	// plugins
 	Callbacks _callbacks;
 
@@ -48,7 +50,7 @@ protected:
 
 	// servers!
 	LocalStreamSocketServer _localServer;
-	MultiThreadedExecutor _udpExecutor;
-	WanPacketHandler _udpPacketHandler;
-	UdpServer _udpServer;
+	MultiThreadedExecutor _wanExecutor;
+	WanPacketHandler _wanPacketHandler;
+	UdpServer _wanServer;
 };

@@ -32,12 +32,12 @@ bool PeerConnection::popRecv(std::string& buff)
 	return _incoming.try_pop(buff);
 }
 
-void PeerConnection::setAction(const std::shared_ptr<IAction>& action)
+void PeerConnection::setAction(unsigned char vid, const std::shared_ptr<IAction>& action)
 {
-	_action = action;
+	_actions[vid] = action;
 }
 
-const std::shared_ptr<IAction>& PeerConnection::action() const
+const std::shared_ptr<IAction>& PeerConnection::action(unsigned char vid) const
 {
-	return _action;
+	return _actions[vid];
 }

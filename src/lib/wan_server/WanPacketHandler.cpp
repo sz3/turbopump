@@ -106,14 +106,15 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 			{
 				std::cout << "received action '" << buffer << "' from " << peer->uid << ". virt " << (unsigned)virtid << ", action = " << parser.action() << std::endl;
 				action = newAction(*peer, parser.action(), parser.params());
-				conn->setAction(action);
+				conn->setAction(virtid, action);
 			}
 			else
-				action = conn->action();
+				action = conn->action(virtid);
 
 			if (!action || !action->good())
 			{
-				std::cout << "received packet '" << buffer << "' from " << peer->uid << ". But the action was bad. :(" << std::endl;
+				std::cout << "   connection " << peer->uid << ":" << (unsigned)virtid << " re-queued packet of size " << buffer.size() << " from " << peer->uid << std::endl;
+				//conn->pushRecv(std::move(buffer));
 				break;
 			}
 			//std::cout << "received packet '" << buffer << "' from " << peer->uid << ". Calling " << action->name() << std::endl;

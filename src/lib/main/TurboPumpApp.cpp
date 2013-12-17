@@ -26,10 +26,10 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _messenger(_peers)
 	, _writeActionSender(_peers)
 	, _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())
-	, _peers(_udpServer)
+	, _peers(_wanServer)
 	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1))
-	, _udpPacketHandler(_udpExecutor, _membership, _peers, _localDataStore, _synchronizer, _callbacks)
-	, _udpServer(port, std::bind(&WanPacketHandler::onPacket, &_udpPacketHandler, _1, _2))
+	, _wanPacketHandler(_wanExecutor, _membership, _peers, _localDataStore, _synchronizer, _callbacks)
+	, _wanServer(port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2))
 {
 	_callbacks.initialize(_membership, _peers, _merkleIndex);
 }
@@ -41,15 +41,15 @@ void TurboPumpApp::run()
 	if (!_membership.load())
 		std::cerr << "failed to load membership. Warn." << std::endl;
 
-	if (!_udpExecutor.start())
+	if (!_wanExecutor.start())
 	{
 		std::cerr << "failed to start udp handler threads. Abort." << std::endl;
 		::exit(-1);
 	}
 
-	if (!_udpServer.start())
+	if (!_wanServer.start())
 	{
-		std::cerr << "failed to start udp server. Abort. " << _udpServer.lastError() << std::endl;
+		std::cerr << "failed to start udp server. Abort. " << _wanServer.lastError() << std::endl;
 		::exit(-1);
 	}
 
@@ -65,8 +65,8 @@ void TurboPumpApp::run()
 
 	_scheduler.shutdown();
 	_localServer.stop();
-	_udpServer.stop();
-	_udpExecutor.stop();
+	_wanServer.stop();
+	_wanExecutor.stop();
 }
 
 void TurboPumpApp::shutdown()

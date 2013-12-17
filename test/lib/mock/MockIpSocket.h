@@ -7,7 +7,6 @@
 class MockIpSocket : public IIpSocket
 {
 public:
-	bool setTarget(const IpAddress& address);
 	IpAddress getTarget() const;
 
 	int send(const char* buffer, unsigned size) const;

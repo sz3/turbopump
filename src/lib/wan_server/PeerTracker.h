@@ -6,12 +6,12 @@
 #include <unordered_map>
 #include "tbb/concurrent_unordered_map.h"
 class IBufferedConnectionWriter;
-class UdpServer;
+class IPacketServer;
 
 class PeerTracker : public IPeerTracker
 {
 public:
-	PeerTracker(const UdpServer& server);
+	PeerTracker(IPacketServer& server);
 
 	std::shared_ptr<IBufferedConnectionWriter> getWriter(const Peer& peer);
 	std::shared_ptr<PeerConnection> track(const Peer& peer);
@@ -19,7 +19,7 @@ public:
 	std::string list() const;
 
 protected:
-	const UdpServer& _server;
+	IPacketServer& _server;
 	tbb::concurrent_unordered_map< std::string,std::shared_ptr<IBufferedConnectionWriter> > _writers;
 	std::unordered_map< std::string,std::shared_ptr<PeerConnection> > _peers;
 };

@@ -103,7 +103,9 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 
 		string name = StringUtil::str(i);
 		string packet = string("write|name=") + name + "|" + name;
+		//packet += StringUtil::str(packet.size()) + packet + '\n';
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
+
 		std::cout << "write " << i <<  " finished at " << elapsed.micros() << "us" << std::endl;
 
 		close(socket_fd);

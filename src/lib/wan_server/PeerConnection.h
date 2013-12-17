@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <memory>
 #include "tbb/concurrent_queue.h"
@@ -21,11 +22,11 @@ public:
 	void pushRecv(std::string buff);
 	bool popRecv(std::string& buff);
 
-	void setAction(const std::shared_ptr<IAction>& action);
-	const std::shared_ptr<IAction>& action() const;
+	void setAction(unsigned char vid, const std::shared_ptr<IAction>& action);
+	const std::shared_ptr<IAction>& action(unsigned char vid) const;
 
 protected:
 	std::atomic_flag _processing;
 	tbb::concurrent_queue<std::string> _incoming;
-	std::shared_ptr<IAction> _action;
+	std::array<std::shared_ptr<IAction>,256> _actions;
 };

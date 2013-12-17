@@ -19,7 +19,7 @@ public:
 	// TODO: should this be a weak ptr to the fd,
 	// with the target peer split out into a separate data stucture?
 	// for example, PeerSock{ IpAddress peer, std::weak_ptr<IIpSocket> }
-	BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize=1500);
+	BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize=1450);
 
 	unsigned capacity() const;
 	int write(unsigned char virtid, const char* buffer, unsigned length);

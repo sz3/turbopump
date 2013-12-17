@@ -30,6 +30,15 @@ void Switchboard::run()
 	std::unique_ptr<IAction> action;
 	std::vector<char> buff;
 	buff.resize(8192);
+
+	// some sort of length based packet format: length|action|params|[data][newline]
+	// if first token starts with a char, it's an action, no length. (run only one action)
+	//
+	//  * stream.read
+	//  * while (parse(buff))
+	//  *    do stuff
+	//  * save remainder + size into buff, append next read
+
 	while (1)
 	{
 		int bytesRead = _stream.read(&buff[0], buff.capacity());
@@ -37,7 +46,7 @@ void Switchboard::run()
 			break;
 
 		DataBuffer data(buff.data(), bytesRead);
-		if (!action && !parse(data, action))
+		if (!parse(data, action) && !action)
 		{
 			string dumbuff(buff.data(), bytesRead);
 			std::cout << "failed to parse action out of packet size " << bytesRead << ":" << dumbuff << std::endl;
