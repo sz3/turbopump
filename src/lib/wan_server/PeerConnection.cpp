@@ -1,5 +1,7 @@
 #include "PeerConnection.h"
 
+#include "VirtualConnection.h"
+
 // manage buffers.
 /*
  * udp server -> pushes buffer (concurrent_queue) into connection
@@ -22,22 +24,38 @@ void PeerConnection::end_processing()
 	_processing.clear();
 }
 
-void PeerConnection::pushRecv(std::string buff)
+void PeerConnection::pushRecv(OrderedPacket packet)
 {
-	_incoming.push(std::move(buff));
+	_incoming.push(packet);
 }
 
-bool PeerConnection::popRecv(std::string& buff)
+bool PeerConnection::popRecv(OrderedPacket& packet)
 {
-	return _incoming.try_pop(buff);
+	return _incoming.try_pop(packet);
 }
 
-void PeerConnection::setAction(unsigned char vid, const std::shared_ptr<IAction>& action)
+bool PeerConnection::empty() const
 {
-	_actions[vid] = action;
+	return _incoming.empty();
 }
 
-const std::shared_ptr<IAction>& PeerConnection::action(unsigned char vid) const
+VirtualConnection& PeerConnection::operator[](unsigned char vid)
 {
-	return _actions[vid];
+	return virt(vid);
+}
+
+VirtualConnection& PeerConnection::virt(unsigned char vid)
+{
+	std::shared_ptr<VirtualConnection>& vii = _virts[vid];
+	if (!vii)
+		vii.reset(new VirtualConnection);
+	return *vii;
+}
+
+std::shared_ptr<IAction> PeerConnection::action(unsigned char vid)
+{
+	std::shared_ptr<VirtualConnection>& vii = _virts[vid];
+	if (!vii)
+		return NULL;
+	return vii->action();
 }

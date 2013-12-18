@@ -14,6 +14,7 @@ public:
 	virtual bool run(const DataBuffer& data) = 0;
 	virtual void setParams(const std::map<std::string,std::string>& params) {}
 
+	virtual bool multiPacket() const { return false; }
 	virtual bool good() const { return true; }
 
 protected:

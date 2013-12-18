@@ -7,12 +7,15 @@ set(SOURCES
 	ConnectionWriteStream.h
 	IBufferedConnectionWriter.h
 	IPeerTracker.h
+	OrderedPacket.h
 	PacketParser.cpp
 	PacketParser.h
 	PeerConnection.cpp
 	PeerConnection.h
 	PeerTracker.cpp
 	PeerTracker.h
+	VirtualConnection.cpp
+	VirtualConnection.h
 	WanPacketHandler.cpp
 	WanPacketHandler.h
 )

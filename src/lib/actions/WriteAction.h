@@ -18,6 +18,7 @@ public:
 	bool run(const DataBuffer& data);
 	void setParams(const std::map<std::string,std::string>& params);
 
+	bool multiPacket() const;
 	bool good() const;
 	bool finished() const;
 

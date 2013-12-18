@@ -25,6 +25,7 @@ public:
 
 	bool onPacket(const IIpSocket& socket, const std::string& buffer);
 	void doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerConnection> weakConn);
+	void processPendingBuffers(const Peer& peer, PeerConnection& conn);
 
 protected:
 	std::shared_ptr<IAction> newAction(const Peer& peer, const std::string& cmdname, const std::map<std::string,std::string>& params);

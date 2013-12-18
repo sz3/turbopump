@@ -39,6 +39,7 @@ bool WriteAction::commit()
 
 	if (_onCommit)
 		_onCommit(_filename, reader);
+	_writer.reset();
 	return true;
 }
 
@@ -48,7 +49,10 @@ std::string WriteAction::name() const
 }
 
 // now: [data]
-// eventually: [8 byte offset][data]
+// eventually: [1 byte packet number][data]
+// ... multiply w/ packet size to get the offset
+// ... to go along with a size on write init to determine close
+// ... may have to split this into local write and remote write parts. :(
 bool WriteAction::run(const DataBuffer& data)
 {
 	if (_finished)
@@ -74,6 +78,11 @@ void WriteAction::setParams(const map<string,string>& params)
 		_filename = it->second;
 		_writer = _dataStore.write(_filename);
 	}
+}
+
+bool WriteAction::multiPacket() const
+{
+	return true;
 }
 
 bool WriteAction::good() const

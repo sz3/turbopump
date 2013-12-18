@@ -24,7 +24,113 @@ namespace {
 	}
 }
 
-TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
+TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
+{
+	SimpleExecutor executor;
+	MockMembership membership;
+	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockPeerTracker peers;
+	MockSynchronize sync;
+	Callbacks callbacks;
+	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
+
+	PeerConnection conn;
+	{
+		OrderedPacket packet{3, formatPacket(33, "key-req|first=3 last=30|")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{1, formatPacket(33, "key-req|first=1 last=10|")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{2, formatPacket(33, "key-req|first=2 last=20|")};
+		conn.pushRecv(packet);
+	}
+
+	handler.processPendingBuffers(Peer("someguid"), conn);
+	assertTrue( conn.empty() );
+	assertEquals( "pushKeyRange(someguid,1,10)|pushKeyRange(someguid,2,20)|pushKeyRange(someguid,3,30)", sync._history.calls() );
+	assertTrue( !conn.action(33) );
+}
+
+TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ConcurrentFileWrite", "default" )
+{
+	SimpleExecutor executor;
+	MockMembership membership;
+	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockPeerTracker peers;
+	MockSynchronize sync;
+	Callbacks callbacks;
+	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
+
+	PeerConnection conn;
+	{
+		OrderedPacket packet{2, formatPacket(33, "write|name=foo|i am a file")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{3, formatPacket(33, " with more bytes!")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{5, formatPacket(33, "")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{1, formatPacket(35, "write|name=bar|i am a different file")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{4, formatPacket(35, " with different bytes")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{6, formatPacket(35, "")};
+		conn.pushRecv(packet);
+	}
+
+	handler.processPendingBuffers(Peer("someguid"), conn);
+	assertTrue( conn.empty() );
+	assertEquals( "i am a file with more bytes!", dataStore._store["foo"] );
+	assertEquals( "i am a different file with different bytes", dataStore._store["bar"] );
+}
+
+TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ReuseOldVirtid", "default" )
+{
+	SimpleExecutor executor;
+	MockMembership membership;
+	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockPeerTracker peers;
+	MockSynchronize sync;
+	Callbacks callbacks;
+	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
+
+	PeerConnection conn;
+	{
+		OrderedPacket packet{1, formatPacket(33, "write|name=foo|i am a file")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{2, formatPacket(33, "")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{3, formatPacket(33, "write|name=bar|i am a different file")};
+		conn.pushRecv(packet);
+	}
+	{
+		OrderedPacket packet{4, formatPacket(33, "")};
+		conn.pushRecv(packet);
+	}
+
+	handler.processPendingBuffers(Peer("someguid"), conn);
+	assertTrue( conn.empty() );
+	assertEquals( "i am a file", dataStore._store["foo"] );
+	assertEquals( "i am a different file", dataStore._store["bar"] );
+}
+
+TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 {
 	SimpleExecutor executor;
 	MockMembership membership;
@@ -38,40 +144,22 @@ TEST_CASE( "WanPacketHandlerTest/testDefault", "default" )
 	sock.setTarget(IpAddress("1.2.3.4", 10));
 	peers._conn.reset(new PeerConnection);
 
-	assertFalse( handler.onPacket(sock, formatPacket(32, "foo")) );
+	assertFalse( handler.onPacket(sock, '0' + formatPacket(32, "foo")) );
 	assertEquals( "", peers._history.calls() );
 
 	membership._ips["1.2.3.4:10"].reset(new Peer("someguid"));
-	assertTrue( handler.onPacket(sock, formatPacket(32, "foo")) );
+	assertTrue( handler.onPacket(sock, '1' + formatPacket(32, "foo")) );
 	assertEquals( "track(someguid)", peers._history.calls() );
 
 	peers._history.clear();
 
-	// first write.
-	assertTrue( handler.onPacket(sock, formatPacket(33, "write|name=foo|i am a file")) );
-	assertTrue( handler.onPacket(sock, formatPacket(33, "")) );
-	assertEquals( "i am a file", dataStore._store["foo"] );
-
-	// since we're using our own thread as the executor and we've already parsed a packet,
-	// if we don't call end_processing beforehand, write will be queued but not processed.
-	// second write. Clear the connection's processing flag so we do some work (processing both write|foo, and the first part of write|bar)
-	peers._conn->end_processing();
-	assertTrue( handler.onPacket(sock, formatPacket(35, "write|name=bar|i am another file")) );
-
-	// second write begins and processes the first write
-	assertEquals( "i am a file", dataStore._store["foo"] );
-	assertEquals( "", dataStore._store["bar"] );
-	assertEquals( "track(someguid)|track(someguid)|track(someguid)", peers._history.calls() );
-
-	// more for second write + empty string to signify EOF
-	assertTrue( handler.onPacket(sock, formatPacket(35, " across two packets!")) );
-
-	peers._conn->end_processing();
-	assertTrue( handler.onPacket(sock, formatPacket(35, "")) );
-	assertEquals( "i am another file across two packets!", dataStore._store["bar"] );
+	// finally, send a properly formatted packet
+	assertTrue( handler.onPacket(sock, '2' + formatPacket(33, "key-req|first=1 last=10|")) );
+	assertEquals( "track(someguid)", peers._history.calls() );
+	assertEquals( "pushKeyRange(someguid,1,10)", sync._history.calls() );
 }
 
-TEST_CASE( "WanPacketHandlerTest/testMultiplexing", "default" )
+TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 {
 	SimpleExecutor executor;
 	MockMembership membership;
@@ -84,9 +172,9 @@ TEST_CASE( "WanPacketHandlerTest/testMultiplexing", "default" )
 	UdpSocket sock(-1);
 	sock.setTarget(IpAddress("1.2.3.4", 10));
 	peers._conn.reset(new PeerConnection);
-
 	membership._ips["1.2.3.4:10"].reset(new Peer("someguid"));
-	string packet = formatPacket(35, "write|name=foo|i am a file") + formatPacket(37, "write|name=bar|another file") + formatPacket(37, "") + formatPacket(35, "");
+
+	string packet = '0' + formatPacket(35, "write|name=foo|i am a file") + formatPacket(37, "write|name=bar|another file") + formatPacket(37, "") + formatPacket(35, "");
 	assertTrue( handler.onPacket(sock, packet) );
 	assertEquals( "track(someguid)", peers._history.calls() );
 
@@ -94,4 +182,31 @@ TEST_CASE( "WanPacketHandlerTest/testMultiplexing", "default" )
 	assertEquals( "i am a file", dataStore._store["foo"] );
 	assertEquals( "another file", dataStore._store["bar"] );
 	assertEquals( "track(someguid)", peers._history.calls() );
+}
+
+
+TEST_CASE( "WanPacketHandlerTest/testOnPacket_RecoverOnRetransmit", "default" )
+{
+	SimpleExecutor executor;
+	MockMembership membership;
+	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockPeerTracker peers;
+	MockSynchronize sync;
+	Callbacks callbacks;
+	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
+
+	UdpSocket sock(-1);
+	sock.setTarget(IpAddress("1.2.3.4", 10));
+	peers._conn.reset(new PeerConnection);
+	membership._ips["1.2.3.4:10"].reset(new Peer("someguid"));
+
+	// ostensibly, these are file contents for a file write we don't know about yet
+	assertTrue( handler.onPacket(sock, '5' + formatPacket(32, "foo")) );
+	assertTrue( handler.onPacket(sock, '7' + formatPacket(32, "")) ); // FIN
+	assertTrue( handler.onPacket(sock, '6' + formatPacket(32, "bar")) );
+	assertEquals( "", dataStore._store["foo"] );
+
+	assertTrue( handler.onPacket(sock, '4' + formatPacket(32, "write|name=foo|see") + formatPacket(32, "smell")) );
+	string actual = dataStore._store["foo"];
+	assertEquals( "seesmellfoobar", actual );
 }
