@@ -62,16 +62,18 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 	// if decryption fails,
 	// return false
 
-	OrderedPacket packet;
-	packet.seqnum = buffer[0]; // some part of the nonce that only increments on data channel sends?
-	packet.buffer = buffer.substr(1); // decrypted buffer
+	string decryptedBuffer = buffer;
+
+	//OrderedPacket packet;
+	//packet.seqnum = buffer[0]; // some part of the nonce that only increments on data channel sends?
+	//packet.buffer = buffer.substr(1); // decrypted buffer
 
 	// maybe we're the only one that ever uses _peers, e.g. it is single-threaded?
 	std::shared_ptr<PeerConnection> conn = _peers.track(*peer);
 	if (!conn)
 		return false; // TODO: log error or something
 
-	conn->pushRecv(std::move(packet));
+	conn->pushRecv(std::move(decryptedBuffer));
 	if (conn->begin_processing())
 		_executor.execute(std::bind(&WanPacketHandler::doWork, this, std::weak_ptr<Peer>(peer), std::weak_ptr<PeerConnection>(conn)));
 	return true;
@@ -95,10 +97,10 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 
 void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& conn)
 {
-	OrderedPacket packet;
-	while (conn.popRecv(packet))
+	string buffer;
+	while (conn.popRecv(buffer))
 	{
-		DataBuffer unparsed(packet.buffer.data(), packet.buffer.size());
+		DataBuffer unparsed(buffer.data(), buffer.size());
 		PacketParser packetGrabber(unparsed);
 
 		DataBuffer buff(DataBuffer::Null());
@@ -107,7 +109,7 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 			unsigned char virtid;
 			if (!packetGrabber.getNext(virtid, buff))
 			{
-				std::cout << "throwing out '" << packet.buffer << "' from " << peer.uid << std::endl;
+				std::cout << "throwing out '" << buffer << "' from " << peer.uid << std::endl;
 				break;
 			}
 
@@ -118,7 +120,7 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 			{
 				if (parser.parse(buff))
 				{
-					std::cout << "received action '" << packet.buffer << "' from " << peer.uid << ". virt " << (unsigned)virtid << ", action = " << parser.action() << std::endl;
+					std::cout << "received action '" << buffer << "' from " << peer.uid << ". virt " << (unsigned)virtid << ", action = " << parser.action() << std::endl;
 					action = newAction(peer, parser.action(), parser.params());
 					if (action->multiPacket())
 					{
@@ -127,21 +129,19 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 						virt.setAction(action);
 
 						//cleanup pending virt data
-						OrderedPacket pending;
+						string pending;
 						while (virt.pop(pending))
-							action->run( DataBuffer(pending.buffer.data(), pending.buffer.size()) );
+							action->run( DataBuffer(pending.data(), pending.size()) );
 					}
-					else
-						std::cout << "action is ... not multipacket. :( " << action->name() << std::endl;
 				}
 				else
 				{
-					std::cout << "   connection " << peer.uid << ":" << (unsigned)virtid << ":" << packet.seqnum << " saved packet of size " << buff.size() << std::endl;
-					conn[virtid].push( {packet.seqnum, buff.str()} );
+					std::cout << "   connection " << peer.uid << ":" << (unsigned)virtid << " saved packet of size " << buff.size() << std::endl;
+					//conn[virtid].push( buff.str() );
 					break;
 				}
 			}
-			//std::cout << "received packet '" << packet.buffer << "' from " << peer.uid << ". Calling " << action->name() << std::endl;
+			//std::cout << "received packet '" << buffer << "' from " << peer.uid << ". Calling " << action->name() << std::endl;
 			action->run(buff);
 		}
 	}

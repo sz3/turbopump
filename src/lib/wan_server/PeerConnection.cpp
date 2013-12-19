@@ -24,14 +24,14 @@ void PeerConnection::end_processing()
 	_processing.clear();
 }
 
-void PeerConnection::pushRecv(OrderedPacket packet)
+void PeerConnection::pushRecv(std::string buffer)
 {
-	_incoming.push(packet);
+	_incoming.push(std::move(buffer));
 }
 
-bool PeerConnection::popRecv(OrderedPacket& packet)
+bool PeerConnection::popRecv(std::string& buffer)
 {
-	return _incoming.try_pop(packet);
+	return _incoming.try_pop(buffer);
 }
 
 bool PeerConnection::empty() const

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "OrderedPacket.h"
 #include <array>
 #include <atomic>
 #include <memory>
-#include "tbb/concurrent_priority_queue.h"
+#include <string>
+#include "tbb/concurrent_queue.h"
 class IAction;
 class VirtualConnection;
 
@@ -21,8 +21,8 @@ public:
 	bool begin_processing();
 	void end_processing();
 
-	void pushRecv(OrderedPacket packet);
-	bool popRecv(OrderedPacket& packet);
+	void pushRecv(std::string buffer);
+	bool popRecv(std::string& buffer);
 	bool empty() const;
 
 	VirtualConnection& operator[](unsigned char vid);
@@ -31,6 +31,6 @@ public:
 
 protected:
 	std::atomic_flag _processing;
-	tbb::concurrent_priority_queue<OrderedPacket> _incoming;
+	tbb::concurrent_queue<std::string> _incoming;
 	std::array<std::shared_ptr<VirtualConnection>,256> _virts;
 };

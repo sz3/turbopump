@@ -1,6 +1,5 @@
 #pragma once
 
-#include "OrderedPacket.h"
 #include "actions/IAction.h"
 #include <queue>
 #include <memory>
@@ -13,10 +12,10 @@ public:
 	void setAction(const std::shared_ptr<IAction>& action);
 	const std::shared_ptr<IAction>& action() const;
 
-	void push(OrderedPacket packet);
-	bool pop(OrderedPacket& packet);
+	void push(std::string buffer);
+	bool pop(std::string& buffer);
 
 protected:
 	std::shared_ptr<IAction> _action;
-	std::priority_queue<OrderedPacket> _pending;
+	std::queue<std::string> _pending;
 };

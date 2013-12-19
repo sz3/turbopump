@@ -12,16 +12,16 @@ const std::shared_ptr<IAction>& VirtualConnection::action() const
 	return _action;
 }
 
-void VirtualConnection::push(OrderedPacket packet)
+void VirtualConnection::push(std::string buffer)
 {
-	_pending.push(packet);
+	_pending.push(buffer);
 }
 
-bool VirtualConnection::pop(OrderedPacket& packet)
+bool VirtualConnection::pop(std::string& buffer)
 {
 	if (_pending.empty())
 		return false;
-	packet = _pending.top();
+	buffer = _pending.front();
 	_pending.pop();
 	return true;
 }
