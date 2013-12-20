@@ -29,9 +29,11 @@ target_link_libraries(turbopump
 	file
 	serialize
 	socket
+	udt_socket
 -Wl,--end-group
 
 	pthread
 	tbb
+	udt
 )
 

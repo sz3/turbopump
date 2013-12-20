@@ -69,3 +69,18 @@ TEST_CASE( "MembershipTest/testSaveLoad", "default" )
 	assertEquals( "fooid", other.lookupIp("someip")->uid );
 }
 
+// special case, since UDT doesn't currently allow a new outgoing connection to use a bound port
+TEST_CASE( "MembershipTest/testLoadFilterSelf", "default" )
+{
+	FileRemover remover(_myfile);
+	std::string contents = "barid localhost:9001\n"
+						   "fooid localhost:1337\n";
+	assertTrue( File::save(_myfile, contents) );
+
+	Membership membership(_myfile, "localhost:1337");
+	assertTrue( membership.load() );
+	assertEquals( "barid", membership.lookupIp("localhost:9001")->uid );
+	assertEquals( "barid", membership.lookupIp("localhost")->uid );
+	assertFalse( membership.lookupIp("localhost:1337") );
+}
+

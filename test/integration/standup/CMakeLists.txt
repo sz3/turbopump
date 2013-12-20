@@ -38,9 +38,11 @@ target_link_libraries(standup_test
 	file
 	serialize
 	socket
+	udt_socket
 -Wl,--end-group
 
 	pthread
 	tbb
+	udt
 )
 

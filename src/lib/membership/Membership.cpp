@@ -42,7 +42,15 @@ void Membership::loadLine(const std::string& line)
 		std::shared_ptr<Peer> mem(new Peer(member));
 		_members[member.uid] = mem;
 		for (std::vector<string>::const_iterator it = member.ips.begin(); it != member.ips.end(); ++it)
-			_ips[*it] = mem;
+		{
+			if (*it != _me)
+			{
+				_ips[*it] = mem;
+				std::vector<string> splits = StringUtil::split(*it, ':');
+				if (!splits.empty())
+					_ips[splits.front()] = mem;
+			}
+		}
 	}
 
 }
