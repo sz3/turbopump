@@ -10,13 +10,12 @@ class IAction;
 class IByteStream;
 class IDataStore;
 class IMembership;
-class LocalDataStore;
 
 // "owns" the stream
 class Switchboard
 {
 public:
-	Switchboard(IByteStream& stream, IDataStore& dataStore, const LocalDataStore& localDataStore, const IMembership& membership, const Callbacks& callbacks);
+	Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const Callbacks& callbacks);
 
 	void run();
 
@@ -26,8 +25,6 @@ public:
 protected:
 	IByteStream& _stream;
 	IDataStore& _dataStore;
-
-	const LocalDataStore& _localDataStore;
 	const IMembership& _membership;
 	const Callbacks& _callbacks;
 };

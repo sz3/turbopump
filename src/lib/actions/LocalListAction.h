@@ -3,11 +3,11 @@
 #include "MessageAction.h"
 
 class IByteStream;
-class LocalDataStore;
+class IDataStore;
 
 class LocalListAction : public MessageAction
 {
 public:
-	LocalListAction(const LocalDataStore& dataStore, IByteStream& writer);
+	LocalListAction(const IDataStore& dataStore, IByteStream& writer);
 };
 

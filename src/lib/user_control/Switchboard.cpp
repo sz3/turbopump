@@ -16,10 +16,9 @@
 #include <vector>
 using std::string;
 
-Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const LocalDataStore& localDataStore, const IMembership& membership, const Callbacks& callbacks)
+Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const Callbacks& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
-	, _localDataStore(localDataStore)
 	, _membership(membership)
 	, _callbacks(callbacks)
 {
@@ -74,7 +73,7 @@ std::unique_ptr<IAction> Switchboard::newAction(const string& actionName, const 
 	else if (actionName == "read")
 		action.reset(new ReadAction(_dataStore, _stream));
 	else if (actionName == "local_list")
-		action.reset(new LocalListAction(_localDataStore, _stream));
+		action.reset(new LocalListAction(_dataStore, _stream));
 	else if (actionName == "membership")
 		action.reset(new ViewMembershipAction(_membership, _stream));
 	else

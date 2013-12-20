@@ -43,6 +43,7 @@ set (PROJECTS
    src/lib/programmable
    test/lib/programmable
    src/lib/user_control
+   test/lib/user_control
    src/lib/wan_server
    test/lib/wan_server
 

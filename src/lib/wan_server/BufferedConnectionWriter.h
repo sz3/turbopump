@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IBufferedConnectionWriter.h"
-#include "socket/IByteStream.h"
 #include <memory>
 #include <mutex>
 class IIpSocket;
@@ -16,9 +15,6 @@ class IIpSocket;
 class BufferedConnectionWriter : public IBufferedConnectionWriter
 {
 public:
-	// TODO: should this be a weak ptr to the fd,
-	// with the target peer split out into a separate data stucture?
-	// for example, PeerSock{ IpAddress peer, std::weak_ptr<IIpSocket> }
 	BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize=1450);
 
 	unsigned capacity() const;
