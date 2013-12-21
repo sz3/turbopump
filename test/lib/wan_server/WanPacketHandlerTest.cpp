@@ -7,7 +7,6 @@
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
 #include "mock/MockSynchronize.h"
-#include "programmable/Callbacks.h"
 #include "programmable/TurboApi.h"
 #include "wan_server/PeerConnection.h"
 
@@ -31,7 +30,7 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
 	MockPeerTracker peers;
 	MockSynchronize sync;
-	Callbacks callbacks;
+	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
 	PeerConnection conn;
@@ -52,7 +51,7 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ConcurrentFileWrite",
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
 	MockPeerTracker peers;
 	MockSynchronize sync;
-	Callbacks callbacks;
+	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
 	PeerConnection conn;
@@ -76,7 +75,7 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ReuseOldVirtid", "def
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
 	MockPeerTracker peers;
 	MockSynchronize sync;
-	Callbacks callbacks;
+	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
 	PeerConnection conn;
@@ -98,7 +97,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
 	MockPeerTracker peers;
 	MockSynchronize sync;
-	Callbacks callbacks;
+	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
 	UdpSocket sock(-1);
@@ -127,7 +126,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	MockDataStore dataStore;
 	MockPeerTracker peers;
 	MockSynchronize sync;
-	Callbacks callbacks;
+	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
 	UdpSocket sock(-1);
@@ -153,7 +152,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
 	MockPeerTracker peers;
 	MockSynchronize sync;
-	Callbacks callbacks;
+	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
 	UdpSocket sock(-1);

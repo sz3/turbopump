@@ -10,13 +10,13 @@
 #include "common/DataBuffer.h"
 #include "membership/IMembership.h"
 #include "socket/IByteStream.h"
-#include "programmable/Callbacks.h"
+#include "programmable/TurboApi.h"
 
 #include <iostream>
 #include <vector>
 using std::string;
 
-Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const Callbacks& callbacks)
+Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const TurboApi& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
 	, _membership(membership)

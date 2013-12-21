@@ -4,18 +4,18 @@
 #include <memory>
 #include <string>
 
-class Callbacks;
 class DataBuffer;
 class IAction;
 class IByteStream;
 class IDataStore;
 class IMembership;
+class TurboApi;
 
 // "owns" the stream
 class Switchboard
 {
 public:
-	Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const Callbacks& callbacks);
+	Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const TurboApi& callbacks);
 
 	void run();
 
@@ -26,6 +26,6 @@ protected:
 	IByteStream& _stream;
 	IDataStore& _dataStore;
 	const IMembership& _membership;
-	const Callbacks& _callbacks;
+	const TurboApi& _callbacks;
 };
 

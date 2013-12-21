@@ -15,7 +15,7 @@
 #include "event/IExecutor.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
-#include "programmable/Callbacks.h"
+#include "programmable/TurboApi.h"
 #include "socket/IpAddress.h"
 #include "socket/UdpSocket.h"
 
@@ -27,7 +27,7 @@ using std::string;
 using std::shared_ptr;
 
 // TODO: Lots of member objects, ala IDataStore&?
-WanPacketHandler::WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks)
+WanPacketHandler::WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const TurboApi& callbacks)
 	: _executor(executor)
 	, _membership(membership)
 	, _peers(peers)

@@ -42,11 +42,12 @@ namespace {
 	}
 }
 
-TEST_CASE( "StartupTest/testDefault", "[integration]" )
+TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 {
 	createMemberFile();
 
 	TurboApi api;
+	api.options.write_chaining = false;
 	TurboPumpApp workerOne(api, "/tmp/workerOne", 9001);
 	TurboRunner runnerOne(workerOne);
 

@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 
-class Callbacks;
 class IAction;
 class IDataStore;
 class IExecutor;
@@ -14,6 +13,7 @@ class IPeerTracker;
 class ISynchronize;
 class Peer;
 class PeerConnection;
+class TurboApi;
 
 // receiving (UdpSocket&, string& buff),
 // 1) negotiate connections as necessary
@@ -21,7 +21,7 @@ class PeerConnection;
 class WanPacketHandler
 {
 public:
-	WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const Callbacks& callbacks);
+	WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const TurboApi& callbacks);
 
 	bool onPacket(const IIpSocket& socket, const std::string& buffer);
 	void doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerConnection> weakConn);
@@ -36,5 +36,5 @@ protected:
 	IPeerTracker&  _peers;
 	IDataStore& _dataStore;
 	ISynchronize& _sync;
-	const Callbacks& _callbacks;
+	const TurboApi& _callbacks;
 };
