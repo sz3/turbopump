@@ -189,8 +189,9 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 		int socket_fd = openStreamSocket("/tmp/workerOne");
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
-		std::cout << "write " << i <<  " finished at " << checkpoints[num].timer().micros() << "us" << std::endl;
 		close(socket_fd);
+
+		std::cout << "local write " << i <<  " finished at " << checkpoints[num].timer().micros() << "us" << std::endl;
 	}
 
 	string expected = "(0)=>7\n"
