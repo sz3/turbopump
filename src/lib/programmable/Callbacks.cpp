@@ -47,11 +47,11 @@ void Callbacks::initialize(const IMembership& membership, IPeerTracker& peers, I
 		if (TurboApi::options.merkle)
 			functionChainer.push_back( merkleAddFunct(merkleIndex) );
 
-		if (TurboApi::options.write_chaining)
-			functionChainer.push_back( writeChainFunct(membership, peers) );
-
 		if (when_local_write_finishes)
 			functionChainer.push_back(when_local_write_finishes);
+
+		if (TurboApi::options.write_chaining)
+			functionChainer.push_back( writeChainFunct(membership, peers) );
 
 		if (!functionChainer.empty())
 		{

@@ -38,6 +38,7 @@ target_link_libraries(standup_test
 	file
 	serialize
 	socket
+	time
 	udt_socket
 -Wl,--end-group
 
