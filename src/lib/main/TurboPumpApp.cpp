@@ -27,7 +27,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _writeActionSender(_peers)
 	, _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())
 	, _peers(_wanServer)
-	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1))
+	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
 	, _wanPacketHandler(_wanExecutor, _membership, _peers, _localDataStore, _synchronizer, _callbacks)
 	, _wanServer(port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2))
 {

@@ -14,7 +14,7 @@
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
 #include "socket/LocalStreamSocketServer.h"
-#include "socket/UdpServer.h"
+#include "udt_socket/UdtServer.h"
 #include <string>
 
 class TurboPumpApp
@@ -51,6 +51,7 @@ protected:
 	// servers!
 	LocalStreamSocketServer _localServer;
 	MultiThreadedExecutor _wanExecutor;
+	//SimpleExecutor _wanExecutor;
 	WanPacketHandler _wanPacketHandler;
-	UdpServer _wanServer;
+	UdtServer _wanServer;
 };

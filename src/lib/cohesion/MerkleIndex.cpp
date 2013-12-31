@@ -42,6 +42,7 @@ std::deque<std::string> MerkleIndex::enumerate(unsigned long long first, unsigne
 	return files;
 }
 
+// for print()
 std::ostream& operator<<(std::ostream& stream, const std::tuple<unsigned long long, std::string>& fileData)
 {
 	stream << std::get<1>(fileData);
