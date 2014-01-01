@@ -180,7 +180,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 	// test stuff!
 	CommandLine::run("echo 'write|name=primer|priming the wan pump' | nc -U /tmp/workerOne");
-	CommandLine::run("sleep 1");
+	CommandLine::run("sleep 0.2");
 
 	for (unsigned i = 0; i < numFiles; ++i)
 	{
