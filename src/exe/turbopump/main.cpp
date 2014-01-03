@@ -2,9 +2,21 @@
 #include "programmable/TurboApi.h"
 
 #include "optionparser/ezOptionParser.hpp"
+#include <memory>
 #include <string>
+#include <signal.h>
 using namespace ez;
 using std::string;
+
+namespace {
+	std::unique_ptr<TurboPumpApp> _app;
+
+	void onShutdown(int sig)
+	{
+		_app->shutdown();
+	}
+}
+
 
 int main(int argc, const char** argv)
 {
@@ -42,7 +54,9 @@ int main(int argc, const char** argv)
 
 	std::cout << turbopath << ":" << port << std::endl;
 	TurboApi api;
-	TurboPumpApp app(api, turbopath, port);
-	app.run();
+	_app.reset( new TurboPumpApp(api, turbopath, port) );
+
+	::signal(SIGINT, &onShutdown);
+	_app->run();
 	return 0;
 }

@@ -9,6 +9,13 @@ bool MockMembership::addIp(const std::string& ip, const std::string& uid)
 	return true;
 }
 
+std::shared_ptr<Peer> MockMembership::lookup(const std::string& uid) const
+{
+	_history.call("lookup", uid);
+	auto it = _ips.find(uid);
+	return it != _ips.end()? it->second : NULL;
+}
+
 std::shared_ptr<Peer> MockMembership::lookupIp(const std::string& ip) const
 {
 	_history.call("lookupIp", ip);

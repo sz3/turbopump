@@ -23,12 +23,12 @@ public:
 	TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port);
 
 	void run();
-	void shutdown(); // alternate hook for tests
+	void shutdown();
 
 	void onClientConnect(int fd);
 
 protected:
-	//UdtScope _udt;
+	Event _shutdown;
 
 	// plugins
 	Callbacks _callbacks;

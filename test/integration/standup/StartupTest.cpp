@@ -58,7 +58,6 @@ namespace {
 		int socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
 		assertTrue( socket_fd >= 0 );
 		assertTrue( connect(socket_fd, (struct sockaddr*)&address, sizeof(struct sockaddr_un)) == 0 );
-
 		return socket_fd;
 	}
 }

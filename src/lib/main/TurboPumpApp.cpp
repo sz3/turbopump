@@ -2,22 +2,11 @@
 
 #include "user_control/Switchboard.h"
 
-#include "event/Event.h"
 #include "socket/FileByteStream.h"
 #include "socket/IpAddress.h"
 #include <functional>
 #include <iostream>
-#include <signal.h>
 using namespace std::placeholders;
-
-namespace {
-	Event _shutdown;
-
-	void onShutdown(int sig)
-	{
-		_shutdown.shutdown();
-	}
-}
 
 TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
 	: _callbacks(instruct)
@@ -36,8 +25,6 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 
 void TurboPumpApp::run()
 {
-	::signal(SIGINT, &onShutdown);
-
 	if (!_membership.load())
 		std::cerr << "failed to load membership. Warn." << std::endl;
 
@@ -49,7 +36,7 @@ void TurboPumpApp::run()
 
 	if (!_wanServer.start())
 	{
-		std::cerr << "failed to start udp server. Abort. " << _wanServer.lastError() << std::endl;
+		std::cerr << "failed to start wan server. Abort. " << _wanServer.lastError() << std::endl;
 		::exit(-1);
 	}
 

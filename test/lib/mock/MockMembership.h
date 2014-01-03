@@ -8,6 +8,7 @@ class MockMembership : public IMembership
 {
 public:
 	bool addIp(const std::string& ip, const std::string& uid);
+	std::shared_ptr<Peer> lookup(const std::string& uid) const;
 	std::shared_ptr<Peer> lookupIp(const std::string& ip) const;
 	std::shared_ptr<Peer> self() const;
 	std::shared_ptr<Peer> randomPeer() const;

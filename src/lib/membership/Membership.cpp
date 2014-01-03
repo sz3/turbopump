@@ -89,6 +89,14 @@ bool Membership::addIp(const std::string& ip, const std::string& uid)
 	_ips[ip] = it->second;
 }
 
+shared_ptr<Peer> Membership::lookup(const std::string& uid) const
+{
+	map< string,shared_ptr<Peer> >::const_iterator it = _members.find(uid);
+	if (it == _members.end())
+		return NULL;
+	return it->second;
+}
+
 shared_ptr<Peer> Membership::lookupIp(const std::string& ip) const
 {
 	unordered_map< string,shared_ptr<Peer> >::const_iterator it = _ips.find(ip);
