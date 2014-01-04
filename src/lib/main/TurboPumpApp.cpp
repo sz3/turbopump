@@ -20,7 +20,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _wanPacketHandler(_wanExecutor, _membership, _peers, _localDataStore, _synchronizer, _callbacks)
 	, _wanServer(port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2))
 {
-	_callbacks.initialize(_membership, _peers, _merkleIndex);
+	_callbacks.initialize(_ring, _membership, _peers, _merkleIndex);
 }
 
 void TurboPumpApp::run()

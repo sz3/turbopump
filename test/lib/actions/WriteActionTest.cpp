@@ -3,6 +3,7 @@
 #include "WriteAction.h"
 
 #include "common/DataBuffer.h"
+#include "common/KeyMetadata.h"
 #include "data_store/IDataStoreReader.h"
 #include "mock/MockDataStore.h"
 #include "util/CallHistory.h"
@@ -21,7 +22,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 {
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
+		WriteAction action(dataStore, [&](KeyMetadata md, IDataStoreReader::ptr){ _history.call("onCommit", md.filename); });
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
@@ -45,7 +46,7 @@ TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
+		WriteAction action(dataStore, [&](KeyMetadata md, IDataStoreReader::ptr){ _history.call("onCommit", md.filename); });
 
 		std::map<string,string> params;
 		params["name"] = "foobar.txt";
@@ -65,7 +66,7 @@ TEST_CASE( "WriteActionTest/testZeroByteWrite", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](string filename, IDataStoreReader::ptr){ _history.call("onCommit", filename); });
+		WriteAction action(dataStore, [&](KeyMetadata md, IDataStoreReader::ptr){ _history.call("onCommit", md.filename); });
 
 		std::map<string,string> params;
 		params["name"] = "foobar.txt";

@@ -4,7 +4,8 @@ project(programmable_test)
 
 set (SOURCES
 	test.cpp
-	ForwardToPeerTest.cpp
+	MirrorToPeerTest.cpp
+	RandomizedMirrorToPeerTest.cpp
 )
 
 include_directories(

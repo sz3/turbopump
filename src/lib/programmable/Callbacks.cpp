@@ -1,7 +1,9 @@
 #include "Callbacks.h"
 
-#include "ForwardToPeer.h"
+#include "MirrorToPeer.h"
+#include "RandomizedMirrorToPeer.h"
 #include "cohesion/IMerkleIndex.h"
+#include "common/KeyMetadata.h"
 #include <deque>
 #include <functional>
 using std::bind;
@@ -14,16 +16,22 @@ namespace
 {
 	auto merkleAddFunct(IMerkleIndex& merkleIndex)
 	{
-		return [&] (std::string filename, IDataStoreReader::ptr contents)
+		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
 		{
-			merkleIndex.add(filename);
+			merkleIndex.add(md.filename);
 		};
 	}
 
-	auto writeChainFunct(const IMembership& membership, IPeerTracker& peers)
+	auto writeChainFunct_cloneMode(const IMembership& membership, IPeerTracker& peers)
 	{
-		std::shared_ptr<ForwardToPeer> cmd(new ForwardToPeer(membership, peers));
-		return bind(&ForwardToPeer::run, cmd, _1, _2);
+		std::shared_ptr<RandomizedMirrorToPeer> cmd(new RandomizedMirrorToPeer(membership, peers));
+		return bind(&RandomizedMirrorToPeer::run, cmd, _1, _2);
+	}
+
+	auto writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers)
+	{
+		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, peers));
+		return bind(&MirrorToPeer::run, cmd, _1, _2);
 	}
 }
 
@@ -36,14 +44,14 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(const IMembership& membership, IPeerTracker& peers, IMerkleIndex& merkleIndex)
+void Callbacks::initialize(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, IMerkleIndex& merkleIndex)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"
 
 	// on local write
 	{
-		deque<function<void(std::string, IDataStoreReader::ptr)>> functionChainer;
+		deque<function<void(KeyMetadata, IDataStoreReader::ptr)>> functionChainer;
 		if (TurboApi::options.merkle)
 			functionChainer.push_back( merkleAddFunct(merkleIndex) );
 
@@ -51,21 +59,26 @@ void Callbacks::initialize(const IMembership& membership, IPeerTracker& peers, I
 			functionChainer.push_back(when_local_write_finishes);
 
 		if (TurboApi::options.write_chaining)
-			functionChainer.push_back( writeChainFunct(membership, peers) );
+		{
+			if (TurboApi::options.partition_keys)
+				functionChainer.push_back( writeChainFunct_partitionMode(ring, membership, peers) );
+			else
+				functionChainer.push_back( writeChainFunct_cloneMode(membership, peers) );
+		}
 
 		if (!functionChainer.empty())
 		{
-			when_local_write_finishes = [functionChainer] (std::string filename, IDataStoreReader::ptr contents)
+			when_local_write_finishes = [functionChainer] (KeyMetadata md, IDataStoreReader::ptr contents)
 			{
 				for (auto fun : functionChainer)
-					fun(filename, contents);
+					fun(md, contents);
 			};
 		}
 	}
 
 	// on mirror write
 	{
-		deque<function<void(std::string, IDataStoreReader::ptr)>> functionChainer;
+		deque<function<void(KeyMetadata, IDataStoreReader::ptr)>> functionChainer;
 		if (TurboApi::options.merkle)
 			functionChainer.push_back( merkleAddFunct(merkleIndex) );
 
@@ -74,10 +87,10 @@ void Callbacks::initialize(const IMembership& membership, IPeerTracker& peers, I
 
 		if (!functionChainer.empty())
 		{
-			when_mirror_write_finishes = [functionChainer] (std::string filename, IDataStoreReader::ptr contents)
+			when_mirror_write_finishes = [functionChainer] (KeyMetadata md, IDataStoreReader::ptr contents)
 			{
 				for (auto fun : functionChainer)
-					fun(filename, contents);
+					fun(md, contents);
 			};
 		}
 	}

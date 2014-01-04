@@ -5,6 +5,7 @@
 #include "cohesion/MerkleIndex.h"
 #include "cohesion/SkewCorrector.h"
 #include "cohesion/Synchronizer.h"
+#include "consistent_hashing/HashRing.h"
 #include "data_store/LocalDataStore.h"
 #include "membership/Membership.h"
 #include "programmable/Callbacks.h"
@@ -43,7 +44,8 @@ protected:
 	WriteActionSender _writeActionSender;
 	SchedulerThread _scheduler;
 
-	// core. Membership, connection tracking, data store...
+	// core. hashring, membership, connection tracking, data store...
+	HashRing _ring;
 	Membership _membership;
 	LocalDataStore _localDataStore;
 	PeerTracker _peers;

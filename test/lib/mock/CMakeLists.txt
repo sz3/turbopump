@@ -5,6 +5,8 @@ set(SOURCES
 	MockBufferedConnectionWriter.h
 	MockDataStore.cpp
 	MockDataStore.h
+	MockHashRing.cpp
+	MockHashRing.h
 	MockIpSocket.cpp
 	MockIpSocket.h
 	MockMembership.cpp

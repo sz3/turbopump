@@ -3,8 +3,10 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	Callbacks.h
 	Callbacks.cpp
-	ForwardToPeer.cpp
-	ForwardToPeer.h
+	MirrorToPeer.cpp
+	MirrorToPeer.h
+	RandomizedMirrorToPeer.cpp
+	RandomizedMirrorToPeer.h
 	TurboApi.h
 )
 

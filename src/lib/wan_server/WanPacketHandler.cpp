@@ -44,7 +44,7 @@ WanPacketHandler::WanPacketHandler(IExecutor& executor, const IMembership& membe
 bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 {
 	// is the message from a valid peer?
-	std::shared_ptr<Peer> peer = _membership.lookupIp(socket.getTarget().ip());
+	std::shared_ptr<Peer> peer = _membership.lookupIp(socket.destination());
 	if (!peer)
 	{
 		std::cerr << "rejecting packet from unknown host " << socket.getTarget().toString() << std::endl;

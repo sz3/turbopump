@@ -2,6 +2,7 @@
 
 #include "TurboApi.h"
 
+class IHashRing;
 class IMembership;
 class IMerkleIndex;
 class IPeerTracker;
@@ -13,7 +14,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(const IMembership& membership, IPeerTracker& peers, IMerkleIndex& merkleIndex);
+	void initialize(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, IMerkleIndex& merkleIndex);
 
 protected:
 };

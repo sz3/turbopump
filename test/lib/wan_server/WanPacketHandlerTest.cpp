@@ -6,13 +6,13 @@
 #include "mock/MockDataStore.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
+#include "mock/MockIpSocket.h"
 #include "mock/MockSynchronize.h"
 #include "programmable/TurboApi.h"
 #include "wan_server/PeerConnection.h"
 
 #include "event/SimpleExecutor.h"
 #include "socket/IpAddress.h"
-#include "socket/UdpSocket.h"
 using std::string;
 
 namespace {
@@ -100,8 +100,8 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
-	UdpSocket sock(-1);
-	sock.setTarget(IpAddress("1.2.3.4", 10));
+	MockIpSocket sock;
+	sock._target = IpAddress("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 
 	assertFalse( handler.onPacket(sock, formatPacket(32, "foo")) );
@@ -129,8 +129,8 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
-	UdpSocket sock(-1);
-	sock.setTarget(IpAddress("1.2.3.4", 10));
+	MockIpSocket sock;
+	sock._target = IpAddress("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));
 
@@ -155,8 +155,8 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	TurboApi callbacks;
 	WanPacketHandler handler(executor, membership, peers, dataStore, sync, callbacks);
 
-	UdpSocket sock(-1);
-	sock.setTarget(IpAddress("1.2.3.4", 10));
+	MockIpSocket sock;
+	sock._target = IpAddress("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));
 

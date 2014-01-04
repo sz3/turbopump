@@ -1,5 +1,6 @@
 #include "unittest.h"
 
+#include "common/KeyMetadata.h"
 #include "main/TurboPumpApp.h"
 
 #include "command_line/CommandLine.h"
@@ -163,9 +164,9 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	for (unsigned i = 0; i < numFiles; ++i)
 		checkpoints[StringUtil::str(i)];
 
-	api.when_local_write_finishes = api.when_mirror_write_finishes = [&checkpoints] (std::string filename, IDataStoreReader::ptr)
+	api.when_local_write_finishes = api.when_mirror_write_finishes = [&checkpoints] (KeyMetadata md, IDataStoreReader::ptr)
 	{
-		checkpoints[filename].add();
+		checkpoints[md.filename].add();
 	};
 
 	TurboPumpApp workerOne(api, "/tmp/workerOne", 9001);

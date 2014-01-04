@@ -1,7 +1,8 @@
 #include "unittest.h"
 
-#include "ForwardToPeer.h"
+#include "RandomizedMirrorToPeer.h"
 
+#include "common/KeyMetadata.h"
 #include "data_store/IDataStoreReader.h"
 #include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
@@ -17,12 +18,12 @@ namespace {
 	CallHistory _history;
 }
 
-TEST_CASE( "ForwardToPeerTest/testDefault", "[unit]" )
+TEST_CASE( "RandomizedMirrorToPeerTest/testDefault", "[unit]" )
 {
 	MockMembership membership;
 	membership.addIp("1.2.3.4", "dude");
 	MockPeerTracker peers;
-	ForwardToPeer command(membership, peers);
+	RandomizedMirrorToPeer command(membership, peers);
 
 	// input
 	MockDataStore store;
@@ -33,7 +34,7 @@ TEST_CASE( "ForwardToPeerTest/testDefault", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run("file", reader) );
+	assertTrue( command.run({"file", 123, 456}, reader) );
 
 	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
