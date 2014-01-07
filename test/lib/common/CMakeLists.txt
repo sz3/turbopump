@@ -11,8 +11,8 @@ set (SOURCES
 
 include_directories(
 	${corelib_SOURCE_DIR}/test
-	${dynamo_SOURCE_DIR}/test/lib
-	${dynamo_SOURCE_DIR}/src/lib/common
+	${TURBOPUMP_SOURCE_DIR}/test/lib
+	${TURBOPUMP_SOURCE_DIR}/src/lib/common
 )
 
 add_executable (

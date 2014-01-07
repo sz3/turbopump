@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project ( dynamo )
+project ( TURBOPUMP )
 enable_testing()
 
 # gdwarf-3 to help older gdbs
@@ -13,14 +13,14 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
-set (CORELIB ${dynamo_SOURCE_DIR}/../cmake)
+set (TURBOLIB ${TURBOPUMP_SOURCE_DIR}/../turbolib)
 
 include_directories(
-	${dynamo_SOURCE_DIR}/src/lib
-	${CORELIB}/src/lib
+	${TURBOPUMP_SOURCE_DIR}/src/lib
+	${TURBOLIB}/src/lib
 )
 
-add_subdirectory(${CORELIB} ${CORELIB})
+add_subdirectory(${TURBOLIB} ${TURBOLIB})
 
 set (PROJECTS
    src/exe/turbopump
