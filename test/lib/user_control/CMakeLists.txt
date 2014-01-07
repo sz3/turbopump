@@ -9,8 +9,8 @@ set (SOURCES
 
 include_directories(
 	${corelib_SOURCE_DIR}/test
-	${TURBOPUMP_SOURCE_DIR}/test/lib
-	${TURBOPUMP_SOURCE_DIR}/src/lib/user_control
+	${turboproj_SOURCE_DIR}/test/lib
+	${turboproj_SOURCE_DIR}/src/lib/user_control
 )
 
 add_executable (

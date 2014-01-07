@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project ( TURBOPUMP )
+project ( turboproj )
 enable_testing()
 
 # gdwarf-3 to help older gdbs
@@ -13,10 +13,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
-set (TURBOLIB ${TURBOPUMP_SOURCE_DIR}/../turbolib)
+set (TURBOLIB ${turboproj_SOURCE_DIR}/../turbolib)
 
 include_directories(
-	${TURBOPUMP_SOURCE_DIR}/src/lib
+	${turboproj_SOURCE_DIR}/src/lib
 	${TURBOLIB}/src/lib
 )
 

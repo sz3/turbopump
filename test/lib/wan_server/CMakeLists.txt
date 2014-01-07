@@ -10,8 +10,8 @@ set (SOURCES
 
 include_directories(
 	${corelib_SOURCE_DIR}/test
-	${TURBOPUMP_SOURCE_DIR}/test/lib
-	${TURBOPUMP_SOURCE_DIR}/src/lib/wan_server
+	${turboproj_SOURCE_DIR}/test/lib
+	${turboproj_SOURCE_DIR}/src/lib/wan_server
 )
 
 add_executable (

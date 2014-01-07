@@ -13,8 +13,8 @@ set (SOURCES
 
 include_directories(
 	${corelib_SOURCE_DIR}/test
-	${TURBOPUMP_SOURCE_DIR}/test/lib
-	${TURBOPUMP_SOURCE_DIR}/src/lib/cohesion
+	${turboproj_SOURCE_DIR}/test/lib
+	${turboproj_SOURCE_DIR}/src/lib/cohesion
 )
 
 add_executable (
