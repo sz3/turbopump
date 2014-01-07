@@ -55,10 +55,10 @@ int main(int argc, const char** argv)
 
 	std::cout << turbopath << ":" << port << std::endl;
 	TurboApi api;
-	if ((og = opt.get("--partition")) != NULL)
+	if (opt.isSet("--partition"))
 	{
 		api.options.partition_keys = true;
-		api.options.merkle = false;
+		api.options.merkle = false; //TODO: only for a while
 	}
 
 	_app.reset( new TurboPumpApp(api, turbopath, port) );

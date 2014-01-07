@@ -10,9 +10,9 @@ struct TurboApi
 
 	struct Options
 	{
-		bool partition_keys = true;
+		bool partition_keys = false;
 		bool write_chaining = true;
-		bool merkle = false;
+		bool merkle = true;
 	} options;
 };
 

@@ -37,7 +37,7 @@ void TurboRunner::start()
 
 void TurboRunner::stop()
 {
-	int res = system("kill -9 `ps faux | grep turbopump | grep -v grep | awk '{print $2}'`");
+	int res = system("kill -9 `ps faux | grep 'turbopump ' | grep -v grep | awk '{print $2}'`");
 }
 
 void TurboRunner::createMemberFile(int members)
