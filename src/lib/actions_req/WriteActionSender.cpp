@@ -13,6 +13,7 @@ WriteActionSender::WriteActionSender(IPeerTracker& peers)
 {
 }
 
+// TODO: instead of a string filename, take a KeyMetadata
 bool WriteActionSender::store(const Peer& peer, const string& filename, IDataStoreReader::ptr contents)
 {
 	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));

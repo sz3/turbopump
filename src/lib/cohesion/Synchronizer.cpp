@@ -20,6 +20,7 @@ Synchronizer::Synchronizer(const IMembership& membership, const IMerkleIndex& in
 {
 }
 
+// TODO: use hash ring to choose what section we need to try to sync, instead of a random peer selection.
 void Synchronizer::pingRandomPeer()
 {
 	shared_ptr<Peer> peer = _membership.randomPeer();

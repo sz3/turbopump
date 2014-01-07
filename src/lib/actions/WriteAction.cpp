@@ -72,6 +72,9 @@ bool WriteAction::run(const DataBuffer& data)
 
 void WriteAction::setParams(const map<string,string>& params)
 {
+	_metadata.mirror = 0;
+	_metadata.totalCopies = 2;
+
 	map<string,string>::const_iterator it = params.find("name");
 	if (it != params.end())
 	{

@@ -1,7 +1,7 @@
 #include "unittest.h"
 
 #include "command_line/CommandLine.h"
-#include "membership/Membership.h"
+#include "integration/TurboRunner.h"
 
 #include "serialize/StringUtil.h"
 #include "time/Timer.h"
@@ -13,62 +13,8 @@
 #include <unistd.h>
 using std::string;
 
-namespace
-{
-	string exePath = "../../../src/exe/turbopump/turbopump";
-
-	class TurboRunner
-	{
-	public:
-		TurboRunner(short port, string dataChannel)
-			: _port(port)
-			, _dataChannel(dataChannel)
-		{}
-
-		~TurboRunner()
-		{
-			stop();
-		}
-
-		short port() const
-		{
-			return _port;
-		}
-
-		string dataChannel() const
-		{
-			return _dataChannel;
-		}
-
-		void start()
-		{
-			string command = (exePath + " -p " + StringUtil::str(_port) + " -d " + _dataChannel + "&");
-			int res = system(command.c_str());
-		}
-
-		void stop()
-		{
-			int res = system("kill -9 `ps faux | grep turbopump | grep -v grep | awk '{print $2}'`");
-		}
-
-	protected:
-		short _port;
-		string _dataChannel;
-	};
-
-	void createMemberFile(int members)
-	{
-		Membership membership("turbo_members.txt", "localhost:1337");
-		for (int i = 1; i <= members; ++i)
-		{
-			string uid = StringUtil::str(i);
-			membership.add(uid);
-			membership.addIp("127.0.0.1:" + StringUtil::str(9000+i), uid);
-		}
-		membership.save();
-	}
-
-	int openStreamSocket(const string& where)
+namespace {
+	int openStreamSocket(string where)
 	{
 		struct sockaddr_un address;
 		memset(&address, 0, sizeof(struct sockaddr_un));
@@ -85,8 +31,7 @@ namespace
 
 TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 {
-	createMemberFile(2);
-
+	TurboRunner::createMemberFile(2);
 	TurboRunner runner1(9001, "/tmp/turbo9001");
 	TurboRunner runner2(9002, "/tmp/turbo9002");
 	runner1.start();
@@ -131,8 +76,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 {
 	std::vector<string> timingData;
 
-	createMemberFile(2);
-
+	TurboRunner::createMemberFile(2);
 	TurboRunner runner1(9001, "/tmp/turbo9001");
 	TurboRunner runner2(9002, "/tmp/turbo9002");
 	runner1.start();
@@ -211,8 +155,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 
 TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 {
-	createMemberFile(2);
-
+	TurboRunner::createMemberFile(2);
 	TurboRunner runner1(9001, "/tmp/turbo9001");
 	TurboRunner runner2(9002, "/tmp/turbo9002");
 	runner1.start();

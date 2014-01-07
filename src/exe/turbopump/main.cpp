@@ -28,6 +28,7 @@ int main(int argc, const char** argv)
 	opt.add("", false, 0, 0, "Display usage instructions.", "-h", "--help");
 	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-d", "--dataChannel");
 	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
+	opt.add("", false, 0, 0, "run cluster in partition mode", "-A", "--partition");
 
 	opt.parse(argc, argv);
 
@@ -54,6 +55,12 @@ int main(int argc, const char** argv)
 
 	std::cout << turbopath << ":" << port << std::endl;
 	TurboApi api;
+	if ((og = opt.get("--partition")) != NULL)
+	{
+		api.options.partition_keys = true;
+		api.options.merkle = false;
+	}
+
 	_app.reset( new TurboPumpApp(api, turbopath, port) );
 
 	::signal(SIGINT, &onShutdown);

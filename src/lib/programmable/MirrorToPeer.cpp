@@ -20,11 +20,17 @@ MirrorToPeer::MirrorToPeer(const IHashRing& ring, const IMembership& membership,
 // TODO: specify consistency?
 bool MirrorToPeer::run(KeyMetadata md, IDataStoreReader::ptr contents)
 {
-	std::vector<std::string> locations = _ring.lookup(md.filename, 5);
-	// do something with locations
+	std::vector<std::string> locations = _ring.lookup(md.filename, md.totalCopies);
+	shared_ptr<Peer> peer;
 
-	shared_ptr<Peer> peer = _membership.randomPeer();
-	if (!peer)
+	unsigned next = md.mirror;
+	for (; next < locations.size(); ++next)
+	{
+		peer = _membership.lookup(locations[next]);
+		if (peer != _membership.self())
+			break;
+	}
+	if (!peer || peer == _membership.self())
 		return false;
 
 	WriteActionSender client(_peers);

@@ -49,7 +49,9 @@ set (PROJECTS
 
    test/integration/standup
    test/integration/load
+   test/integration/partition
 
+   test/lib/integration
    test/lib/mock
 )
 

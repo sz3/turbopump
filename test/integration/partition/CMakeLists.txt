@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(load_test)
+project(partition_test)
 
 set (SOURCES
 	test.cpp
-	ReadWriteLoadTest.cpp
+	PartitionStoreTest.cpp
 )
 
 include_directories(
@@ -13,13 +13,13 @@ include_directories(
 )
 
 add_executable (
-	load_test
+	partition_test
 	${SOURCES}
 )
 
-add_test(load_test load_test)
+add_test(partition_test partition_test)
 
-target_link_libraries(load_test
+target_link_libraries(partition_test
 -Wl,--start-group
 	membership
 	integration

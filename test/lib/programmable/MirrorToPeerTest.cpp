@@ -19,11 +19,19 @@ namespace {
 	CallHistory _history;
 }
 
-TEST_CASE( "MirrorToPeerTest/testDefault", "[unit]" )
+TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 {
 	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	ring._workers.push_back("bbb");
+	ring._workers.push_back("ccc");
+	ring._workers.push_back("ddd");
 	MockMembership membership;
-	membership.addIp("1.2.3.4", "dude");
+	membership.addIp("aaa", "aaa");
+	membership.addIp("bbb", "bbb");
+	membership.addIp("ccc", "ccc");
+	membership.addIp("ddd", "ddd");
+	membership._history.clear();
 	MockPeerTracker peers;
 	MirrorToPeer command(ring, membership, peers);
 
@@ -36,10 +44,146 @@ TEST_CASE( "MirrorToPeerTest/testDefault", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run({"file",0,0}, reader) );
+	assertTrue( command.run({"file",0,3}, reader) );
 
-	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "lookup(aaa)|self()|self()", membership._history.calls() );
+	assertEquals( "getWriter(aaa)", peers._history.calls() );
 	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+}
+
+TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	ring._workers.push_back("bbb");
+	ring._workers.push_back("ccc");
+	ring._workers.push_back("ddd");
+	MockMembership membership;
+	membership.addIp("aaa", "aaa");
+	membership.addIp("bbb", "bbb");
+	membership.addIp("ccc", "ccc");
+	membership.addIp("ddd", "ddd");
+	membership._self = membership.lookup("aaa");
+	membership._history.clear();
+	MockPeerTracker peers;
+	MirrorToPeer command(ring, membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	assertTrue( command.run({"file",0,3}, reader) );
+
+	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "lookup(aaa)|self()|lookup(bbb)|self()|self()", membership._history.calls() );
+	assertEquals( "getWriter(bbb)", peers._history.calls() );
+	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+}
+
+TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	ring._workers.push_back("bbb");
+	ring._workers.push_back("ccc");
+	ring._workers.push_back("ddd");
+	MockMembership membership;
+	membership.addIp("aaa", "aaa");
+	membership.addIp("bbb", "bbb");
+	membership.addIp("ccc", "ccc");
+	membership.addIp("ddd", "ddd");
+	membership._self = membership.lookup("ccc");
+	membership._history.clear();
+	MockPeerTracker peers;
+	MirrorToPeer command(ring, membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	assertTrue( command.run({"file",0,3}, reader) );
+
+	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "lookup(aaa)|self()|self()", membership._history.calls() );
+	assertEquals( "getWriter(aaa)", peers._history.calls() );
+	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+}
+
+TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	ring._workers.push_back("bbb");
+	ring._workers.push_back("ccc");
+	ring._workers.push_back("ddd");
+	MockMembership membership;
+	membership.addIp("aaa", "aaa");
+	membership.addIp("bbb", "bbb");
+	membership.addIp("ccc", "ccc");
+	membership.addIp("ddd", "ddd");
+	membership._history.clear();
+	MockPeerTracker peers;
+	MirrorToPeer command(ring, membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	assertTrue( command.run({"file",2,3}, reader) );
+
+	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "lookup(ccc)|self()|self()", membership._history.calls() );
+	assertEquals( "getWriter(ccc)", peers._history.calls() );
+	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+}
+
+TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	ring._workers.push_back("bbb");
+	ring._workers.push_back("ccc");
+	ring._workers.push_back("ddd");
+	MockMembership membership;
+	membership.addIp("aaa", "aaa");
+	membership.addIp("bbb", "bbb");
+	membership.addIp("ccc", "ccc");
+	membership.addIp("ddd", "ddd");
+	membership._self = membership.lookup("ddd");
+	membership._history.clear();
+	MockPeerTracker peers;
+	MirrorToPeer command(ring, membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	assertFalse( command.run({"file",3,4}, reader) );
+
+	assertEquals( "lookup(file,4)", ring._history.calls() );
+	assertEquals( "lookup(ddd)|self()|self()", membership._history.calls() );
+	assertEquals( "", peers._history.calls() );
+	assertEquals( "", writer->_history.calls() );
 }
 
