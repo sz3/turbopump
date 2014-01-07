@@ -1,3 +1,4 @@
+/* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 // async class to do reads/writes. May be local, may be remote.
 // we CAN do work on the caller thread, but only if it's fast (e.g. no IO/network/mutexes)

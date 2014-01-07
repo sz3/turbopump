@@ -5,6 +5,7 @@ An aspiring low-latency, extensible, distributed key value store. Currently in b
 ### Dependencies
 
 * linux (for now)
+* turbolib (see adjacent library)
 * UDT (libudt)
 * intel's TBB library (libtbb)
 
