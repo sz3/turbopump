@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
+#include "ProcessState.h"
 #include "actions_req/MessageSender.h"
 #include "actions_req/WriteActionSender.h"
 #include "cohesion/MerkleIndex.h"
@@ -30,6 +31,7 @@ public:
 	void onClientConnect(int fd);
 
 protected:
+	ProcessState _state;
 	Event _shutdown;
 
 	// plugins

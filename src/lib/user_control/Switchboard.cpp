@@ -3,12 +3,15 @@
 
 // actions
 #include "actions/LocalListAction.h"
+#include "actions/LocalStateAction.h"
 #include "actions/ReadAction.h"
+#include "actions/ViewHashRingAction.h"
 #include "actions/ViewMembershipAction.h"
 #include "actions/WriteAction.h"
 
 #include "common/ActionParser.h"
 #include "common/DataBuffer.h"
+#include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
 #include "socket/IByteStream.h"
 #include "programmable/TurboApi.h"
@@ -17,10 +20,12 @@
 #include <vector>
 using std::string;
 
-Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const TurboApi& callbacks)
+Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, const IProcessState& state, const TurboApi& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
+	, _ring(ring)
 	, _membership(membership)
+	, _state(state)
 	, _callbacks(callbacks)
 {
 }
@@ -77,6 +82,10 @@ std::unique_ptr<IAction> Switchboard::newAction(const string& actionName, const 
 		action.reset(new LocalListAction(_dataStore, _stream));
 	else if (actionName == "membership")
 		action.reset(new ViewMembershipAction(_membership, _stream));
+	else if (actionName == "ring")
+		action.reset(new ViewHashRingAction(_ring, _stream));
+	else if (actionName == "state")
+		action.reset(new LocalStateAction(_state, _stream));
 	else
 		return action;
 

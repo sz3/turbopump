@@ -15,6 +15,8 @@ public:
 	void start();
 	void stop();
 
+	std::string query(std::string action) const;
+	bool waitForRunning(unsigned seconds=5) const;
 	static void createMemberFile(int members);
 
 protected:

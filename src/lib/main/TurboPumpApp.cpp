@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "TurboPumpApp.h"
 
+#include "membership/Peer.h"
 #include "user_control/Switchboard.h"
 
 #include "socket/FileByteStream.h"
@@ -26,8 +27,15 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 
 void TurboPumpApp::run()
 {
+	_state.starting();
 	if (!_membership.load())
 		std::cerr << "failed to load membership. Warn." << std::endl;
+	else
+	{
+		HashRing& ring(_ring);
+		auto fun = [&ring] (const Peer& peer) { ring.addWorker(peer.uid); };
+		_membership.forEachPeer(fun);
+	}
 
 	if (!_wanExecutor.start())
 	{
@@ -49,7 +57,9 @@ void TurboPumpApp::run()
 
 	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_synchronizer), 3000);
 
+	_state.running();
 	_shutdown.wait();
+	_state.stopping();
 
 	_scheduler.shutdown();
 	_localServer.stop();
@@ -66,6 +76,6 @@ void TurboPumpApp::shutdown()
 void TurboPumpApp::onClientConnect(int fd)
 {
 	FileByteStream stream(fd);
-	Switchboard switcher(stream, _localDataStore, _membership, _callbacks);
+	Switchboard switcher(stream, _localDataStore, _ring, _membership, _state, _callbacks);
 	switcher.run();
 }

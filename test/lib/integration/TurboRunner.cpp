@@ -1,8 +1,10 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "TurboRunner.h"
-
+#include "command_line/CommandLine.h"
 #include "membership/Membership.h"
 #include "serialize/StringUtil.h"
+#include "time/Timer.h"
+#include <iostream>
 using std::string;
 
 namespace {
@@ -39,6 +41,25 @@ void TurboRunner::start()
 void TurboRunner::stop()
 {
 	int res = system("kill -9 `ps faux | grep 'turbopump ' | grep -v grep | awk '{print $2}'`");
+}
+
+std::string TurboRunner::query(std::string action) const
+{
+	return CommandLine::run("echo '" + action + "||' | nc -U " + dataChannel());
+}
+
+bool TurboRunner::waitForRunning(unsigned seconds) const
+{
+	Timer t;
+	while (t.millis() < seconds*1000)
+	{
+		string response = query("state");
+		std::cout << response << std::endl;
+		if (response == "running")
+			return true;
+		CommandLine::run("sleep 0.25");
+	}
+	return false;
 }
 
 void TurboRunner::createMemberFile(int members)

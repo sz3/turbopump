@@ -22,6 +22,8 @@ public:
 	std::vector<string> lookup(const string& filename, unsigned numWorkers = 5) const;
 	unsigned size() const;
 
+	std::string toString() const;
+
 protected:
 	circular_map<string,string> _ring;
 };

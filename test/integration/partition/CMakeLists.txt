@@ -21,6 +21,7 @@ add_test(partition_test partition_test)
 
 target_link_libraries(partition_test
 -Wl,--start-group
+	consistent_hashing
 	membership
 	integration
 

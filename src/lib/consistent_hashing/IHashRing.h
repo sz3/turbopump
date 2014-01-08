@@ -15,4 +15,6 @@ public:
 	// I think this nees to return the primary location (hash) as well -- so, a richer data structure (string + vector)
 	// otherwise we won't know how to arrange stuff for merkle-ing
 	virtual std::vector<std::string> lookup(const std::string& filename, unsigned numWorkers = 5) const = 0;
+
+	virtual std::string toString() const = 0;
 };

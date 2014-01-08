@@ -105,6 +105,11 @@ public:
 		return iterator(*this, _map.lower_bound(key));
 	}
 
+	iterator begin() const
+	{
+		return iterator(*this, _map.begin());
+	}
+
 	bool empty() const
 	{
 		return _map.empty();

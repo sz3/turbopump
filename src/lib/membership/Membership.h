@@ -31,6 +31,7 @@ public:
 	std::shared_ptr<Peer> self() const;
 	std::shared_ptr<Peer> randomPeer() const;
 
+	void forEachPeer(std::function<void(const Peer&)> fun) const;
 	std::string toString() const;
 
 protected:

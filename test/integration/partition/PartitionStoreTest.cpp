@@ -2,10 +2,18 @@
 #include "unittest.h"
 
 #include "command_line/CommandLine.h"
+#include "consistent_hashing/HashRing.h"
 #include "integration/TurboRunner.h"
 #include "serialize/StringUtil.h"
 
 using std::string;
+
+namespace {
+	string hashRingStr(string id)
+	{
+		return HashRing::hash(id) + ":" + id + " ";
+	}
+}
 
 TEST_CASE( "PartitionStoreTest/testManyWorkers", "[integration-udp]" )
 {
@@ -21,20 +29,27 @@ TEST_CASE( "PartitionStoreTest/testManyWorkers", "[integration-udp]" )
 	runner4.start();
 	runner5.start();
 
-	// wait for everything to run... this sucks... add a status command!
-	CommandLine::run("sleep 1");
+	assertTrue( runner1.waitForRunning() );
+	assertTrue( runner2.waitForRunning() );
+	assertTrue( runner3.waitForRunning() );
+	assertTrue( runner4.waitForRunning() );
+	assertTrue( runner5.waitForRunning() );
 
-	string response = CommandLine::run("echo 'membership||' | nc -U /tmp/turbo9001");
+	string response = runner1.query("membership");
 	assertEquals( "1 127.0.0.1:9001\n"
 				  "2 127.0.0.1:9002\n"
 				  "3 127.0.0.1:9003\n"
 				  "4 127.0.0.1:9004\n"
 				  "5 127.0.0.1:9005", response );
 
-	for (unsigned i = 0; i < 5; ++i)
+	response = runner1.query("ring");
+	string expected = hashRingStr("2") + hashRingStr("1") + hashRingStr("5") + hashRingStr("4") + hashRingStr("3");
+	assertEquals(expected, response);
+
+	for (unsigned i = 1; i <= 5; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = CommandLine::run("echo 'write|name=file" + num + "|hello" + num + "' | nc -U /tmp/turbo9001");
+		response = CommandLine::run("echo 'write|name=" + num + "|hello" + num + "' | nc -U " + runner1.dataChannel());
 		assertEquals( "", response );
 	}
 
@@ -42,12 +57,12 @@ TEST_CASE( "PartitionStoreTest/testManyWorkers", "[integration-udp]" )
 	// TODO: don't
 	CommandLine::run("sleep 0.5");
 
-	response = CommandLine::run("echo 'local_list||' | nc -U " + runner2.dataChannel());
+	response = runner2.query("local_list");
 	std::cout << "runner2 says " << response << std::endl;
-	response = CommandLine::run("echo 'local_list||' | nc -U " + runner3.dataChannel());
+	response = runner3.query("local_list");
 	std::cout << "runner3 says " << response << std::endl;
-	response = CommandLine::run("echo 'local_list||' | nc -U " + runner4.dataChannel());
+	response = runner4.query("local_list");
 	std::cout << "runner4 says " << response << std::endl;
-	response = CommandLine::run("echo 'local_list||' | nc -U " + runner5.dataChannel());
+	response = runner5.query("local_list");
 	std::cout << "runner5 says " << response << std::endl;
 }

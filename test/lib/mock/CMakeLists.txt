@@ -17,6 +17,8 @@ set(SOURCES
 	MockMessageSender.h
 	MockPeerTracker.cpp
 	MockPeerTracker.h
+	MockProcessState.cpp
+	MockProcessState.h
 	MockSkewCorrector.cpp
 	MockSkewCorrector.h
 	MockSynchronize.cpp

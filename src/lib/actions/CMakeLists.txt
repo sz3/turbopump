@@ -6,12 +6,16 @@ set(SOURCES
 	KeyReqAction.h
 	LocalListAction.cpp
 	LocalListAction.h
+	LocalStateAction.cpp
+	LocalStateAction.h
 	MerkleAction.cpp
 	MerkleAction.h
 	MessageAction.cpp
 	MessageAction.h
 	ReadAction.cpp
 	ReadAction.h
+	ViewHashRingAction.cpp
+	ViewHashRingAction.h
 	ViewMembershipAction.cpp
 	ViewMembershipAction.h
 	WriteAction.cpp

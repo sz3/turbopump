@@ -58,3 +58,11 @@ unsigned HashRing::size() const
 {
 	return _ring.size();
 }
+
+std::string HashRing::toString() const
+{
+	std::string result;
+	for (circular_map<string,string>::iterator it = _ring.begin(); it != _ring.end(); ++it)
+		result += it->first + ":" + it->second + " ";
+	return result;
+}

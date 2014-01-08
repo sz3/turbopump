@@ -5,11 +5,13 @@
 
 #include "Peer.h"
 #include "file/FileRemover.h"
+#include "serialize/StringUtil.h"
 #include <string>
+#include <vector>
 
 const std::string _myfile = "membership.backup";
 
-TEST_CASE( "MembershipTest/testAdd", "default" )
+TEST_CASE( "MembershipTest/testAdd", "[unit]" )
 {
 	Membership membership(_myfile, "localhost:1337");
 	membership.add("fooid");
@@ -26,7 +28,7 @@ TEST_CASE( "MembershipTest/testAdd", "default" )
 				  "fooid 1.2.3.4:80", membership.toString() );
 }
 
-TEST_CASE( "MembershipTest/testLookup", "default" )
+TEST_CASE( "MembershipTest/testLookup", "[unit]" )
 {
 	Membership membership(_myfile, "localhost:1337");
 	membership.add("fooid");
@@ -46,7 +48,7 @@ TEST_CASE( "MembershipTest/testLookup", "default" )
 	assertEquals( "fooid", membership.lookupIp("1.2.3.4:80")->uid );
 }
 
-TEST_CASE( "MembershipTest/testSaveLoad", "default" )
+TEST_CASE( "MembershipTest/testSaveLoad", "[unit]" )
 {
 	FileRemover remover(_myfile);
 	Membership membership(_myfile, "localhost:1337");
@@ -71,7 +73,7 @@ TEST_CASE( "MembershipTest/testSaveLoad", "default" )
 }
 
 // special case, since UDT doesn't currently allow a new outgoing connection to use a bound port
-TEST_CASE( "MembershipTest/testLoadFilterSelf", "default" )
+TEST_CASE( "MembershipTest/testLoadFilterSelf", "[unit]" )
 {
 	FileRemover remover(_myfile);
 	std::string contents = "barid localhost:9001\n"
@@ -83,5 +85,20 @@ TEST_CASE( "MembershipTest/testLoadFilterSelf", "default" )
 	assertEquals( "barid", membership.lookupIp("localhost:9001")->uid );
 	assertEquals( "barid", membership.lookupIp("localhost")->uid );
 	assertFalse( membership.lookupIp("localhost:1337") );
+}
+
+TEST_CASE( "MembershipTest/testForEachPeer", "[unit]" )
+{
+	FileRemover remover(_myfile);
+	Membership membership(_myfile, "localhost:1337");
+	membership.add("fooid");
+	membership.add("barid");
+	membership.add("rabid");
+
+	std::vector<std::string> peers;
+	auto fun = [&peers] (const Peer& peer) { peers.push_back(peer.uid); };
+	membership.forEachPeer(fun);
+
+	assertStringsEqual("barid fooid rabid", StringUtil::stlJoin(peers));
 }
 

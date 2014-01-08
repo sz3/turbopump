@@ -38,8 +38,8 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	runner1.start();
 	runner2.start();
 
-	// wait for everything to run... this sucks... add a status command!
-	CommandLine::run("sleep 1");
+	assertTrue( runner1.waitForRunning() );
+	assertTrue( runner2.waitForRunning() );
 
 	Timer elapsed;
 	for (int i = 0; i < 100; ++i)
@@ -83,8 +83,8 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 	runner1.start();
 	runner2.start();
 
-	// wait for everything to run... this sucks... add a status command!
-	CommandLine::run("sleep 1");
+	assertTrue( runner1.waitForRunning() );
+	assertTrue( runner2.waitForRunning() );
 
 	const unsigned bufsize = 65536;
 	char buffer[bufsize];
@@ -162,8 +162,8 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 	runner1.start();
 	runner2.start();
 
-	// wait for everything to run... this sucks... add a status command!
-	CommandLine::run("sleep 1");
+	assertTrue( runner1.waitForRunning() );
+	assertTrue( runner2.waitForRunning() );
 
 	const unsigned bufsize = 65536;
 	char buffer[bufsize];

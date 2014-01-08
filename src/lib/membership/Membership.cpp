@@ -129,6 +129,12 @@ shared_ptr<Peer> Membership::randomPeer() const
 	return it->second;
 }
 
+void Membership::forEachPeer(std::function<void(const Peer&)> fun) const
+{
+	for (map<string,shared_ptr<Peer>>::const_iterator it = _members.begin(); it != _members.end(); ++it)
+		fun(*it->second);
+}
+
 std::string Membership::toString() const
 {
 	return StringUtil::stlJoin(_members, '\n');

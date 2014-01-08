@@ -9,14 +9,16 @@ class DataBuffer;
 class IAction;
 class IByteStream;
 class IDataStore;
+class IHashRing;
 class IMembership;
+class IProcessState;
 class TurboApi;
 
 // "owns" the stream
 class Switchboard
 {
 public:
-	Switchboard(IByteStream& stream, IDataStore& dataStore, const IMembership& membership, const TurboApi& callbacks);
+	Switchboard(IByteStream& stream, IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, const IProcessState& state, const TurboApi& callbacks);
 
 	void run();
 
@@ -26,7 +28,9 @@ public:
 protected:
 	IByteStream& _stream;
 	IDataStore& _dataStore;
+	const IHashRing& _ring;
 	const IMembership& _membership;
+	const IProcessState& _state;
 	const TurboApi& _callbacks;
 };
 

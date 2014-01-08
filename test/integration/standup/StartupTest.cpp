@@ -76,8 +76,7 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	TurboPumpApp workerTwo(api, "/tmp/workerTwo", 9002);
 	TurboRunner runnerTwo(workerTwo);
 
-	// need some events to signal when we're running...
-	CommandLine::run("sleep 1");
+
 
 	// test stuff!
 

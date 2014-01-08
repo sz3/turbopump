@@ -13,6 +13,7 @@ public:
 	void removeWorker(const std::string& id);
 
 	std::vector<std::string> lookup(const std::string& filename, unsigned numWorkers = 5) const;
+	std::string toString() const;
 
 public:
 	std::vector<std::string> _workers;
