@@ -9,6 +9,8 @@ set(SOURCES
 	MockHashRing.h
 	MockIpSocket.cpp
 	MockIpSocket.h
+	MockLogger.cpp
+	MockLogger.h
 	MockMembership.cpp
 	MockMembership.h
 	MockMerkleIndex.cpp

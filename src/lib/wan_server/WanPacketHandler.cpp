@@ -14,6 +14,7 @@
 #include "common/DataBuffer.h"
 #include "data_store/IDataStore.h"
 #include "event/IExecutor.h"
+#include "logging/ILog.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 #include "programmable/TurboApi.h"
@@ -28,12 +29,13 @@ using std::string;
 using std::shared_ptr;
 
 // TODO: Lots of member objects, ala IDataStore&?
-WanPacketHandler::WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const TurboApi& callbacks)
+WanPacketHandler::WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, ILog& logger, const TurboApi& callbacks)
 	: _executor(executor)
 	, _membership(membership)
 	, _peers(peers)
 	, _dataStore(dataStore)
 	, _sync(sync)
+	, _logger(logger)
 	, _callbacks(callbacks)
 {
 }
@@ -48,7 +50,7 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 	std::shared_ptr<Peer> peer = _membership.lookupIp(socket.destination());
 	if (!peer)
 	{
-		std::cerr << "rejecting packet from unknown host " << socket.getTarget().toString() << std::endl;
+		_logger.logWarn("rejecting packet from unknown host " + socket.getTarget().toString());
 		return false;
 	}
 

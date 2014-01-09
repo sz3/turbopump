@@ -9,6 +9,7 @@ class IAction;
 class IDataStore;
 class IExecutor;
 class IIpSocket;
+class ILog;
 class IMembership;
 class IPeerTracker;
 class ISynchronize;
@@ -22,7 +23,7 @@ class TurboApi;
 class WanPacketHandler
 {
 public:
-	WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, const TurboApi& callbacks);
+	WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, ILog& logger, const TurboApi& callbacks);
 
 	bool onPacket(const IIpSocket& socket, const std::string& buffer);
 	void doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerConnection> weakConn);
@@ -37,5 +38,6 @@ protected:
 	IPeerTracker&  _peers;
 	IDataStore& _dataStore;
 	ISynchronize& _sync;
+	ILog& _logger;
 	const TurboApi& _callbacks;
 };

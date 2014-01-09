@@ -23,7 +23,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 {
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](KeyMetadata md, IDataStoreReader::ptr){ _history.call("onCommit", md.filename); });
+		WriteAction action(dataStore, [&](KeyMetadata md, IDataStoreReader::ptr){ _history.call("onCommit", md.filename, md.mirror, md.totalCopies); });
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
@@ -39,7 +39,31 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 		assertFalse( action.run(DataBuffer("closed", 6)) );
 	}
 	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
-	assertEquals( "onCommit(foobar.txt)", _history.calls() );
+	assertEquals( "onCommit(foobar.txt,0,2)", _history.calls() );
+}
+
+TEST_CASE( "WriteActionTest/testExtraParams", "default" )
+{
+	_history.clear();
+	MockDataStore dataStore;
+	{
+		WriteAction action(dataStore, [&](KeyMetadata md, IDataStoreReader::ptr){ _history.call("onCommit", md.filename, md.mirror, md.totalCopies); });
+		assertFalse( action.good() );
+
+		std::map<string,string> params;
+		params["name"] = "foobar.txt";
+		params["n"] = "5";
+		params["i"] = "3";
+		action.setParams(params);
+		assertTrue( action.good() );
+		assertEquals( "", _history.calls() );
+
+		assertTrue( action.run(DataBuffer("0123456789", 10)) );
+		assertTrue( action.run(DataBuffer::Null()) );
+		assertTrue( action.finished() );
+	}
+	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
+	assertEquals( "onCommit(foobar.txt,3,5)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )

@@ -9,6 +9,7 @@
 #include "cohesion/Synchronizer.h"
 #include "consistent_hashing/HashRing.h"
 #include "data_store/LocalDataStore.h"
+#include "logging/StderrLogger.h"
 #include "membership/Membership.h"
 #include "programmable/Callbacks.h"
 #include "wan_server/PeerTracker.h"
@@ -17,7 +18,7 @@
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
 #include "socket/LocalStreamSocketServer.h"
-#include "udt_socket/UdtServer.h"
+#include "socket/UdpServer.h"
 #include <string>
 
 class TurboPumpApp
@@ -31,8 +32,9 @@ public:
 	void onClientConnect(int fd);
 
 protected:
-	ProcessState _state;
 	Event _shutdown;
+	ProcessState _state;
+	StderrLogger _logger;
 
 	// plugins
 	Callbacks _callbacks;
@@ -58,5 +60,5 @@ protected:
 	MultiThreadedExecutor _wanExecutor;
 	//SimpleExecutor _wanExecutor;
 	WanPacketHandler _wanPacketHandler;
-	UdtServer _wanServer;
+	UdpServer _wanServer;
 };

@@ -57,6 +57,8 @@ TEST_CASE( "PartitionStoreTest/testManyWorkers", "[integration-udp]" )
 	// TODO: don't
 	CommandLine::run("sleep 0.5");
 
+	response = runner1.query("local_list");
+	std::cout << "runner1 says " << response << std::endl;
 	response = runner2.query("local_list");
 	std::cout << "runner2 says " << response << std::endl;
 	response = runner3.query("local_list");

@@ -38,6 +38,7 @@ set (PROJECTS
    test/lib/consistent_hashing
    src/lib/data_store
    test/lib/data_store
+   src/lib/logging
    src/lib/membership
    test/lib/membership
    src/lib/programmable

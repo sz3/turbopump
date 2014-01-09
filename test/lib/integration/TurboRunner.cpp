@@ -54,9 +54,9 @@ bool TurboRunner::waitForRunning(unsigned seconds) const
 	while (t.millis() < seconds*1000)
 	{
 		string response = query("state");
-		std::cout << response << std::endl;
 		if (response == "running")
 			return true;
+		std::cout << response << std::endl;
 		CommandLine::run("sleep 0.25");
 	}
 	return false;

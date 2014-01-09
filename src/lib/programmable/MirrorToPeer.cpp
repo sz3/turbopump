@@ -6,6 +6,7 @@
 #include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
+#include <iostream>
 #include <memory>
 using std::shared_ptr;
 
@@ -22,16 +23,17 @@ MirrorToPeer::MirrorToPeer(const IHashRing& ring, const IMembership& membership,
 bool MirrorToPeer::run(KeyMetadata md, IDataStoreReader::ptr contents)
 {
 	std::vector<std::string> locations = _ring.lookup(md.filename, md.totalCopies);
+	shared_ptr<Peer> self = _membership.self();
 	shared_ptr<Peer> peer;
 
 	unsigned next = md.mirror;
 	for (; next < locations.size(); ++next)
 	{
 		peer = _membership.lookup(locations[next]);
-		if (peer != _membership.self())
+		if (peer != self)
 			break;
 	}
-	if (!peer || peer == _membership.self())
+	if (!peer || peer == self)
 		return false;
 
 	WriteActionSender client(_peers);

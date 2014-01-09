@@ -39,7 +39,8 @@ protected:
 
 protected:
 	std::string _filename;
-	std::string _me;
+	std::string _myip;
+	std::shared_ptr<Peer> _self;
 	std::map< std::string,std::shared_ptr<Peer> > _members; // by uid
 	std::unordered_map< std::string,std::shared_ptr<Peer> > _ips;     // by ip
 };

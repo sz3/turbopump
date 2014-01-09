@@ -69,7 +69,9 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	createMemberFile();
 
 	TurboApi api;
+	api.options.merkle = true;
 	api.options.write_chaining = false;
+	api.options.partition_keys = false;
 	TurboPumpApp workerOne(api, "/tmp/workerOne", 9001);
 	TurboRunner runnerOne(workerOne);
 
@@ -157,6 +159,8 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 	TurboApi api;
 	api.options.merkle = false;
+	api.options.write_chaining = true;
+	api.options.partition_keys = false;
 
 	// create all checkpoints while we're on an orderly single thread.
 	// the callbacks will be chaotic, but as long as all our map allocations are done, we should be fine

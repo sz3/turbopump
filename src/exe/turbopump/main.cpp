@@ -29,7 +29,7 @@ int main(int argc, const char** argv)
 	opt.add("", false, 0, 0, "Display usage instructions.", "-h", "--help");
 	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-d", "--dataChannel");
 	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
-	opt.add("", false, 0, 0, "run cluster in partition mode", "-A", "--partition");
+	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
 
 	opt.parse(argc, argv);
 
@@ -56,10 +56,10 @@ int main(int argc, const char** argv)
 
 	std::cout << turbopath << ":" << port << std::endl;
 	TurboApi api;
-	if (opt.isSet("--partition"))
+	if (opt.isSet("--clone"))
 	{
-		api.options.partition_keys = true;
-		api.options.merkle = false; //TODO: only for a while
+		api.options.partition_keys = false;
+		api.options.merkle = true; //TODO: only for a while
 	}
 
 	_app.reset( new TurboPumpApp(api, turbopath, port) );

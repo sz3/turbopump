@@ -31,7 +31,7 @@ namespace {
 
 Membership::Membership(const std::string& filename, const std::string& myip)
 	: _filename(filename)
-	, _me(myip)
+	, _myip(myip)
 {
 }
 
@@ -44,13 +44,15 @@ void Membership::loadLine(const std::string& line)
 		_members[member.uid] = mem;
 		for (std::vector<string>::const_iterator it = member.ips.begin(); it != member.ips.end(); ++it)
 		{
-			if (*it != _me)
+			if (*it != _myip)
 			{
 				_ips[*it] = mem;
 				std::vector<string> splits = StringUtil::split(*it, ':');
 				if (!splits.empty())
 					_ips[splits.front()] = mem;
 			}
+			else
+				_self = mem;
 		}
 	}
 
@@ -110,7 +112,7 @@ shared_ptr<Peer> Membership::lookupIp(const std::string& ip) const
 // once we have uids working properly, we'll use that and it'll all make a lot more sense.
 shared_ptr<Peer> Membership::self() const
 {
-	return lookupIp(_me);
+	return _self;
 }
 
 shared_ptr<Peer> Membership::randomPeer() const
@@ -118,14 +120,6 @@ shared_ptr<Peer> Membership::randomPeer() const
 	unordered_map< string,shared_ptr<Peer> >::const_iterator it = Random::select(_ips.begin(), _ips.end(), _ips.size());
 	if (it == _ips.end())
 		return NULL;
-
-	// try not to return myself.
-	if (it->second == self())
-	{
-		++it;
-		if (it == _ips.end())
-			it = _ips.begin();
-	}
 	return it->second;
 }
 

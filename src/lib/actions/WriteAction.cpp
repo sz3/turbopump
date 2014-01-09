@@ -82,6 +82,14 @@ void WriteAction::setParams(const map<string,string>& params)
 		_metadata.filename = it->second;
 		_writer = _dataStore.write(it->second);
 	}
+
+	it = params.find("i");
+	if (it != params.end())
+		_metadata.mirror = std::stoi(it->second);
+
+	it = params.find("n");
+	if (it != params.end())
+		_metadata.totalCopies = std::stoi(it->second);
 }
 
 bool WriteAction::multiPacket() const

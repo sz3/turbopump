@@ -19,6 +19,7 @@ target_link_libraries(turbopump
 	common
 	consistent_hashing
 	data_store
+	logging
 	main
 	membership
 	programmable

@@ -27,6 +27,7 @@ target_link_libraries(standup_test
 	common
 	consistent_hashing
 	data_store
+	logging
 	main
 	membership
 	programmable
