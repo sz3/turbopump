@@ -11,7 +11,6 @@ MerkleRange::MerkleRange(const merkle_location<unsigned long long>& location)
 
 void MerkleRange::fromLocation(const merkle_location<unsigned long long>& location)
 {
-	std::cout << "MerkleRange of " << location.key << " : " << location.keybits << std::endl;
 	if (location.keybits >= 64)
 	{
 		_first = _last = location.key;

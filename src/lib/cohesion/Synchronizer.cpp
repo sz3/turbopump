@@ -41,10 +41,10 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 	}
 
 	std::deque<MerklePoint> diffs = _index.diff(point);
-	std::cout << " Synchronizer compare. Point is " << MerklePointSerializer::toString(point) << ". Diffs are : ";
+	/*std::cout << " Synchronizer compare. Point is " << MerklePointSerializer::toString(point) << ". Diffs are : ";
 	for (auto it = diffs.begin(); it != diffs.end(); ++it)
 		std::cout << MerklePointSerializer::toString(*it) << " , ";
-	std::cout << std::endl;
+	std::cout << std::endl;*/
 
 	// 0 == no diff
 	if (diffs.empty())

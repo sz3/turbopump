@@ -26,7 +26,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 	corrector.pushKeyRange(Peer("fooid"), 0, 1234567890);
 
 	assertEquals( "enumerate(0,1234567890)", index._history.calls() );
-	assertEquals( "store(fooid,file1)|store(fooid,file3)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,0,0)|store(fooid,file3,0,0)", writer._history.calls() );
 }
 
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )

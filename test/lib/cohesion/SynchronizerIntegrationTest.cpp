@@ -90,8 +90,8 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 	// one4: 1110 1000 | 1011 1011 | 0110 1001 | 1011 1001 | 0001 1010 | 0100 0001 | 1111 1000 | 0000 0011
 	// two1: 1111 0101 | 1100 0011 | 0011 0110 | 0011 0001 | 0100 1111 | 0101 0001 | 0100 1011 | 1010 0010
 
-	indexOne.print();
-	indexTwo.print();
+	//indexOne.print();
+	//indexTwo.print();
 
 	TestMessageSender senderOne;
 	TestSkewCorrector correctorOne(indexOne);
@@ -107,8 +107,8 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 
 	one.compare(Peer("dummy"), indexTwo.top());
 
-	std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
-	std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
+	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
+	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
 	assertEquals( "one0 one1 one2", StringUtil::stlJoin(correctorOne._corrected) );
 	assertEquals( "two3 two2 two4 two1", StringUtil::stlJoin(correctorTwo._corrected) );
 }
@@ -124,7 +124,7 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 		indexOne.add(id);
 	}
 
-	indexOne.print(2);
+	//indexOne.print(2);
 
 	TestMessageSender senderOne;
 	TestSkewCorrector correctorOne(indexOne);
@@ -140,8 +140,8 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 
 	one.compare(Peer("dummy"), indexTwo.top());
 
-	std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
-	std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
+	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
+	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
 	assertEquals( "2 26 46 6 40 9 55 21 67 41 90 32 62 69 54 10 29 8 1 94 56 28 33 49 99 7 65"
 				  " 13 88 71 25 58 0 74 64 61 53 66 57 47 27 60 5 97 4 17 14 20 48 63", StringUtil::stlJoin(correctorOne._corrected) );
 	assertEquals( "", StringUtil::stlJoin(correctorTwo._corrected) );
@@ -157,8 +157,8 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 
 	two.compare(Peer("dummy"), indexOne.top());
 
-	std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
-	std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
+	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
+	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
 	assertEquals( "36 79 68 75 44 92 11 77 51 24 16 52 91 23 87 38 30 39 93 45 35 3 70 15 37 18"
 				  " 19 73 42 72 80 12 78 84 96 76 89 31 43 50 82 81 85 98 22", StringUtil::stlJoin(correctorOne._corrected) );
 	assertEquals( "", StringUtil::stlJoin(correctorTwo._corrected) );
