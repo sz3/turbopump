@@ -18,11 +18,11 @@ namespace {
 TEST_CASE( "PartitionStoreTest/testManyWorkers", "[integration-udp]" )
 {
 	TurboRunner::createMemberFile(5);
-	TurboRunner runner1(9001, "/tmp/turbo9001");
-	TurboRunner runner2(9002, "/tmp/turbo9002");
-	TurboRunner runner3(9003, "/tmp/turbo9003");
-	TurboRunner runner4(9004, "/tmp/turbo9004");
-	TurboRunner runner5(9005, "/tmp/turbo9005");
+	TurboRunner runner1(9001, "/tmp/turbo9001", "--udp");
+	TurboRunner runner2(9002, "/tmp/turbo9002", "--udp");
+	TurboRunner runner3(9003, "/tmp/turbo9003", "--udp");
+	TurboRunner runner4(9004, "/tmp/turbo9004", "--udp");
+	TurboRunner runner5(9005, "/tmp/turbo9005", "--udp");
 	runner1.start();
 	runner2.start();
 	runner3.start();

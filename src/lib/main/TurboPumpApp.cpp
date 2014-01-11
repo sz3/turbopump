@@ -21,7 +21,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _peers(_wanServer)
 	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
 	, _wanPacketHandler(_wanExecutor, _membership, _peers, _localDataStore, _synchronizer, _logger, _callbacks)
-	, _wanServer(port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2))
+	, _wanServer(instruct.options, port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2))
 {
 	_callbacks.initialize(_ring, _membership, _peers, _merkleIndex);
 }

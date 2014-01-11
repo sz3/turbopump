@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ProcessState.h"
+#include "WanServer.h"
 #include "actions_req/MessageSender.h"
 #include "actions_req/WriteActionSender.h"
 #include "cohesion/MerkleIndex.h"
@@ -18,7 +19,6 @@
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
 #include "socket/LocalStreamSocketServer.h"
-#include "socket/UdpServer.h"
 #include <string>
 
 class TurboPumpApp
@@ -60,5 +60,5 @@ protected:
 	MultiThreadedExecutor _wanExecutor;
 	//SimpleExecutor _wanExecutor;
 	WanPacketHandler _wanPacketHandler;
-	UdpServer _wanServer;
+	WanServer _wanServer;
 };

@@ -6,7 +6,7 @@
 class TurboRunner
 {
 public:
-	TurboRunner(short port, std::string dataChannel);
+	TurboRunner(short port, std::string dataChannel, std::string programFlags="");
 	~TurboRunner();
 
 	short port() const;
@@ -22,4 +22,5 @@ public:
 protected:
 	short _port;
 	std::string _dataChannel;
+	std::string _programFlags;
 };

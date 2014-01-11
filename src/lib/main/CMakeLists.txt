@@ -6,6 +6,8 @@ set(SOURCES
 	ProcessState.h
 	TurboPumpApp.cpp
 	TurboPumpApp.h
+	WanServer.cpp
+	WanServer.h
 )
 
 include_directories(

@@ -12,9 +12,10 @@ namespace {
 	string exePath = "../../../src/exe/turbopump/turbopump";
 }
 
-TurboRunner::TurboRunner(short port, string dataChannel)
+TurboRunner::TurboRunner(short port, string dataChannel, std::string programFlags)
 	: _port(port)
 	, _dataChannel(dataChannel)
+	, _programFlags(programFlags)
 {}
 
 TurboRunner::~TurboRunner()
@@ -34,7 +35,7 @@ string TurboRunner::dataChannel() const
 
 void TurboRunner::start()
 {
-	string command = (exePath + " -p " + StringUtil::str(_port) + " -d " + _dataChannel + "&");
+	string command = (exePath + " -p " + StringUtil::str(_port) + " -d " + _dataChannel + " " + _programFlags + " &");
 	int res = system(command.c_str());
 }
 

@@ -30,6 +30,7 @@ int main(int argc, const char** argv)
 	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-d", "--dataChannel");
 	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
+	opt.add("", false, 0, 0, "peer-to-peer communications use UDP instead of congestion-aware, reliable UDT", "", "--udp");
 
 	opt.parse(argc, argv);
 
@@ -61,6 +62,8 @@ int main(int argc, const char** argv)
 		api.options.partition_keys = false;
 		api.options.merkle = true; //TODO: only for a while
 	}
+	if (opt.isSet("--udp"))
+		api.options.udt = false;
 
 	_app.reset( new TurboPumpApp(api, turbopath, port) );
 
