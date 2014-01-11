@@ -1,7 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "SkewCorrector.h"
 #include "IMerkleIndex.h"
+#include "SkewCorrector.h"
 #include "actions_req/IWriteActionSender.h"
+#include "common/KeyMetadata.h"
 #include "data_store/IDataStore.h"
 #include "membership/Peer.h"
 #include "serialize/StringUtil.h"
@@ -33,7 +34,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, unsigned long long first, uns
 		IDataStoreReader::ptr reader = _store.read(*it);
 		if (!reader)
 			continue;
-		if (!_sender.store(peer, *it, reader))
+		if (!_sender.store(peer, KeyMetadata({*it,0,0}), reader))
 		{
 			std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
 			return; // TODO: last error?

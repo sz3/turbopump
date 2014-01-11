@@ -3,6 +3,7 @@
 
 #include "WriteActionSender.h"
 
+#include "common/KeyMetadata.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
 #include "mock/MockBufferedConnectionWriter.h"
@@ -25,10 +26,10 @@ TEST_CASE( "WriteActionSenderTest/testDefault", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( client.store(Peer("dude"), "file", reader) );
+	assertTrue( client.store(Peer("dude"), KeyMetadata({"file",2,3}), reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteActionSenderTest/testMultipleBuffers", "[unit]" )
@@ -46,10 +47,10 @@ TEST_CASE( "WriteActionSenderTest/testMultipleBuffers", "[unit]" )
 	writer->_capacity = 10;
 	peers._writer.reset(writer);
 
-	assertTrue( client.store(Peer("dude"), "file", reader) );
+	assertTrue( client.store(Peer("dude"), KeyMetadata({"file",2,3}), reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file|)|write(0,0123456789)|write(0,abcdeABCDE)|write(0,turtle)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3|)|write(0,0123456789)|write(0,abcdeABCDE)|write(0,turtle)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteActionSenderTest/testNeedsFinPacket", "[unit]" )
@@ -67,9 +68,9 @@ TEST_CASE( "WriteActionSenderTest/testNeedsFinPacket", "[unit]" )
 	writer->_capacity = 10;
 	peers._writer.reset(writer);
 
-	assertTrue( client.store(Peer("dude"), "file", reader) );
+	assertTrue( client.store(Peer("dude"), KeyMetadata({"file",2,3}), reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file|)|write(0,0123456789)|write(0,abcdeABCDE)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3|)|write(0,0123456789)|write(0,abcdeABCDE)|write(0,)|flush()", writer->_history.calls() );
 }
 

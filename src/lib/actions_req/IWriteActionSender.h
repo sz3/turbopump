@@ -2,7 +2,7 @@
 #pragma once
 
 #include "data_store/IDataStoreReader.h"
-#include <string>
+class KeyMetadata;
 class Peer;
 
 class IWriteActionSender
@@ -10,5 +10,5 @@ class IWriteActionSender
 public:
 	virtual ~IWriteActionSender() {}
 
-	virtual bool store(const Peer& peer, const std::string& filename, IDataStoreReader::ptr contents) = 0;
+	virtual bool store(const Peer& peer, const KeyMetadata& file, IDataStoreReader::ptr contents) = 0;
 };

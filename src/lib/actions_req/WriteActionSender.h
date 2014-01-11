@@ -9,7 +9,7 @@ class WriteActionSender : public IWriteActionSender
 public:
 	WriteActionSender(IPeerTracker& peers);
 
-	bool store(const Peer& peer, const std::string& filename, IDataStoreReader::ptr contents);
+	bool store(const Peer& peer, const KeyMetadata& file, IDataStoreReader::ptr contents);
 
 protected:
 	IPeerTracker& _peers;

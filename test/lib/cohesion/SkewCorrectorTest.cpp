@@ -60,5 +60,5 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 	corrector.pushKeyRange(Peer("fooid"), 0, 1234567890);
 
 	assertEquals( "enumerate(0,1234567890)", index._history.calls() );
-	assertEquals( "store(fooid,file1)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,0,0)", writer._history.calls() );
 }

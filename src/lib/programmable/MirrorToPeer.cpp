@@ -36,6 +36,10 @@ bool MirrorToPeer::run(KeyMetadata md, IDataStoreReader::ptr contents)
 	if (!peer || peer == self)
 		return false;
 
+	md.mirror = next+1;
+	if (md.mirror > md.totalCopies)
+		return false;
+
 	WriteActionSender client(_peers);
-	return client.store(*peer, md.filename, contents);
+	return client.store(*peer, md, contents);
 }

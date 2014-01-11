@@ -86,6 +86,9 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 		if (when_mirror_write_finishes)
 			functionChainer.push_back(when_mirror_write_finishes);
 
+		if (TurboApi::options.write_chaining && TurboApi::options.partition_keys)
+			functionChainer.push_back( writeChainFunct_partitionMode(ring, membership, peers) );
+
 		if (!functionChainer.empty())
 		{
 			when_mirror_write_finishes = [functionChainer] (KeyMetadata md, IDataStoreReader::ptr contents)

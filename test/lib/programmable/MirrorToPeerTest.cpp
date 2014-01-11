@@ -50,7 +50,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	assertEquals( "lookup(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
@@ -84,7 +84,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	assertEquals( "lookup(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)|lookup(bbb)", membership._history.calls() );
 	assertEquals( "getWriter(bbb)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
@@ -118,7 +118,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	assertEquals( "lookup(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
@@ -151,7 +151,40 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	assertEquals( "lookup(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=3 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+}
+
+TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	ring._workers.push_back("bbb");
+	ring._workers.push_back("ccc");
+	ring._workers.push_back("ddd");
+	MockMembership membership;
+	membership.addIp("aaa", "aaa");
+	membership.addIp("bbb", "bbb");
+	membership.addIp("ccc", "ccc");
+	membership.addIp("ddd", "ddd");
+	membership._history.clear();
+	MockPeerTracker peers;
+	MirrorToPeer command(ring, membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	assertFalse( command.run({"file",3,3}, reader) );
+
+	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "self()|lookup(ddd)", membership._history.calls() );
+	assertEquals( "", peers._history.calls() );
+	assertEquals( "", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
@@ -187,4 +220,5 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	assertEquals( "", peers._history.calls() );
 	assertEquals( "", writer->_history.calls() );
 }
+
 

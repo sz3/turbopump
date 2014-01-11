@@ -20,6 +20,9 @@ bool RandomizedMirrorToPeer::run(KeyMetadata md, IDataStoreReader::ptr contents)
 	if (!peer)
 		return false;
 
+	if (md.mirror >= md.totalCopies)
+		return false;
+
 	WriteActionSender client(_peers);
-	return client.store(*peer, md.filename, contents);
+	return client.store(*peer, md, contents);
 }
