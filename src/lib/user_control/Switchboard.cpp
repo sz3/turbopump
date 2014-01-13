@@ -58,6 +58,9 @@ void Switchboard::run()
 			break;
 		}
 		action->run(data);
+
+		if (!action->multiPacket())
+			break;
 	}
 }
 
