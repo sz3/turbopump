@@ -5,7 +5,20 @@
 
 struct KeyMetadata
 {
+	KeyMetadata()
+		: mirror(0)
+		, totalCopies(2)
+	{}
+
+	KeyMetadata(std::string filename, short mirror, short totalCopies)
+		: filename(filename)
+		, mirror(mirror)
+		, totalCopies(totalCopies)
+		, source("")
+	{}
+
 	std::string filename;
 	short mirror;
 	short totalCopies;
+	std::string source;
 };

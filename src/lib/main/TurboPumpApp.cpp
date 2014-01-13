@@ -20,10 +20,10 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())
 	, _peers(_wanServer)
 	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
-	, _wanPacketHandler(_wanExecutor, _membership, _peers, _localDataStore, _synchronizer, _logger, _callbacks)
+	, _wanPacketHandler(_wanExecutor, _ring, _membership, _peers, _localDataStore, _synchronizer, _logger, _callbacks)
 	, _wanServer(instruct.options, port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2))
 {
-	_callbacks.initialize(_ring, _membership, _peers, _merkleIndex);
+	_callbacks.initialize(_ring, _membership, _merkleIndex, _messenger, _peers);
 }
 
 void TurboPumpApp::run()

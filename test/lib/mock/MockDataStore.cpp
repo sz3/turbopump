@@ -92,6 +92,7 @@ int MockDataStore::Reader::read(IByteStream& out)
 
 bool MockDataStore::erase(const string& filename)
 {
+	_history.call("erase", filename);
 	return _store.erase(filename) > 0;
 }
 

@@ -116,6 +116,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 
 		string packet = "read|name=bigfile|";
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
+		assertEquals( packet.size(), bytesWrit );
 
 		size_t totalBytes = 0;
 		int bytesRead = 0;

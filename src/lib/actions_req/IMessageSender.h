@@ -13,4 +13,5 @@ public:
 	virtual void merklePing(const Peer& peer, const MerklePoint& point) = 0;
 	virtual void merklePing(const Peer& peer, const std::deque<MerklePoint>& points) = 0;
 	virtual void requestKeyRange(const Peer& peer, unsigned long long first, unsigned long long last) = 0;
+	virtual void dropKey(const Peer& peer, const std::string& filename) = 0;
 };

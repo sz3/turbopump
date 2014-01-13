@@ -78,7 +78,8 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	TurboPumpApp workerTwo(api, "/tmp/workerTwo", 9002);
 	TurboRunner runnerTwo(workerTwo);
 
-
+	// TODO: make this sleep go away
+	CommandLine::run("sleep 0.5");
 
 	// test stuff!
 

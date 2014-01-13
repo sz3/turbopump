@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
+#include "DataEntry.h"
 #include "LocalDataStore.h"
 #include "IDataStoreReader.h"
 #include "IDataStoreWriter.h"
@@ -25,9 +26,9 @@ public:
 		return _filename;
 	}
 
-	const std::string& buffer() const
+	const DataEntry& data() const
 	{
-		return _buffer;
+		return _data;
 	}
 };
 
@@ -40,16 +41,16 @@ TEST_CASE( "LocalDataStoreTest/testWrite", "default" )
 	assertEquals( "foo", testView->filename() );
 
 	assertTrue( writer->write("012345", 6) );
-	assertEquals( "012345", testView->buffer() );
+	assertEquals( "012345", testView->data().data );
 
 	assertTrue( writer->write("6789", 4) );
-	assertEquals( "0123456789", testView->buffer() );
+	assertEquals( "0123456789", testView->data().data );
 
 	assertTrue( dataStore._store.find("foo") == dataStore._store.end() );
 	assertTrue( writer->commit() );
 
-	assertEquals( "0123456789", *dataStore._store["foo"] );
-	assertEquals( "", testView->buffer() ); // got std::move'd
+	assertEquals( "0123456789", dataStore._store["foo"]->data );
+	assertEquals( "", testView->data().data ); // got std::move'd
 }
 
 TEST_CASE( "LocalDataStoreTest/testOverwrite", "default" )
@@ -59,13 +60,13 @@ TEST_CASE( "LocalDataStoreTest/testOverwrite", "default" )
 		IDataStoreWriter::ptr writer = dataStore.write("foo");
 		assertTrue( writer->write("012345", 6) );
 		assertTrue( writer->commit() );
-		assertEquals( "012345", *dataStore._store["foo"] );
+		assertEquals( "012345", dataStore._store["foo"]->data );
 	}
 	{
 		IDataStoreWriter::ptr writer = dataStore.write("foo");
 		assertTrue( writer->write("different!", 10) );
 		assertTrue( writer->commit() );
-		assertEquals( "different!", *dataStore._store["foo"] );
+		assertEquals( "different!", dataStore._store["foo"]->data );
 	}
 }
 
@@ -95,7 +96,7 @@ public:
 TEST_CASE( "LocalDataStoreTest/testRead", "default" )
 {
 	TestableLocalDataStore dataStore;
-	dataStore._store["foo"].reset(new string("readme"));
+	dataStore._store["foo"].reset(new DataEntry({"readme"}));
 
 	StringBackedByteStream stream;
 	IDataStoreReader::ptr reader = dataStore.read("foo");
@@ -118,7 +119,7 @@ TEST_CASE( "LocalDataStoreTest/testRead", "default" )
 TEST_CASE( "LocalDataStoreTest/testConcurrentRead", "default" )
 {
 	TestableLocalDataStore dataStore;
-	dataStore._store["foo"].reset(new string("readme"));
+	dataStore._store["foo"].reset(new DataEntry({"readme"}));
 
 	StringBackedByteStream stream;
 	IDataStoreReader::ptr reader = dataStore.read("foo");

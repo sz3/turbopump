@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
+#include "DataEntry.h"
 #include "IDataStore.h"
 #include "IDataStoreReader.h"
 #include "IDataStoreWriter.h"
@@ -20,24 +21,24 @@ protected:
 		IDataStoreReader::ptr commit();
 
 		std::string&& filename();
-		std::string&& buffer();
+		DataEntry&& data();
 
 	protected:
 		std::string _filename;
-		std::string _buffer;
+		DataEntry _data;
 		LocalDataStore& _store;
 	};
 
 	class Reader : public IDataStoreReader
 	{
 	public:
-		Reader(const std::shared_ptr<std::string>& data);
+		Reader(const std::shared_ptr<DataEntry>& data);
 
 		bool seek(unsigned long long offset);
 		int read(IByteStream& out);
 
 	protected:
-		std::shared_ptr<std::string> _data;
+		std::shared_ptr<DataEntry> _entry;
 		unsigned long long _offset;
 	};
 public:
@@ -51,7 +52,7 @@ protected:
 	IDataStoreReader::ptr commit(Writer& writer);
 
 protected:
-	using data_map_type = tbb::concurrent_unordered_map< std::string, std::shared_ptr<std::string> >;
+	using data_map_type = tbb::concurrent_unordered_map< std::string, std::shared_ptr<DataEntry> >;
 	data_map_type _store;
 };
 

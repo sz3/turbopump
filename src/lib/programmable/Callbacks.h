@@ -6,6 +6,7 @@
 class IHashRing;
 class IMembership;
 class IMerkleIndex;
+class IMessageSender;
 class IPeerTracker;
 
 // not really sure about the name of this guy, yet
@@ -15,7 +16,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, IMerkleIndex& merkleIndex);
+	void initialize(const IHashRing& ring, const IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers);
 
 protected:
 };

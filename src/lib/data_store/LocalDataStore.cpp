@@ -32,7 +32,7 @@ LocalDataStore::Writer::Writer(std::string filename, LocalDataStore& store)
 
 bool LocalDataStore::Writer::write(const char* buffer, unsigned size)
 {
-	_buffer.append(buffer, size);
+	_data.data.append(buffer, size);
 	return true;
 }
 
@@ -46,9 +46,9 @@ std::string&& LocalDataStore::Writer::filename()
 	return std::move(_filename);
 }
 
-std::string&& LocalDataStore::Writer::buffer()
+DataEntry&& LocalDataStore::Writer::data()
 {
-	return std::move(_buffer);
+	return std::move(_data);
 }
 /*
   </end child class>
@@ -56,8 +56,8 @@ std::string&& LocalDataStore::Writer::buffer()
 
 IDataStoreReader::ptr LocalDataStore::commit(Writer& writer)
 {
-	shared_ptr<string>& data = _store[writer.filename()];
-	data.reset(new string(writer.buffer()));
+	shared_ptr<DataEntry>& data = _store[writer.filename()];
+	data.reset(new DataEntry(writer.data()));
 	return IDataStoreReader::ptr(new Reader(data));
 }
 
@@ -71,20 +71,20 @@ shared_ptr<IDataStoreReader> LocalDataStore::read(const string& filename) const
 }
 
 /*
-  ******************************************
+  **********************************************
   L o c a l  D a t a  S t o r e  ::  R e a d e r
-  ******************************************
+  **********************************************
 */
 
-LocalDataStore::Reader::Reader(const std::shared_ptr<std::string>& data)
-	: _data(data)
+LocalDataStore::Reader::Reader(const std::shared_ptr<DataEntry>& entry)
+	: _entry(entry)
 	, _offset(0)
 {
 }
 
 bool LocalDataStore::Reader::seek(unsigned long long offset)
 {
-	if (offset > _data->size())
+	if (offset > _entry->data.size())
 		return false;
 	_offset = offset;
 	return true;
@@ -92,14 +92,14 @@ bool LocalDataStore::Reader::seek(unsigned long long offset)
 
 int LocalDataStore::Reader::read(IByteStream& out)
 {
-	long long numBytes = _data->size() - _offset;
+	long long numBytes = _entry->data.size() - _offset;
 	if (numBytes <= 0)
 		return 0;
 
 	if (out.maxPacketLength() < numBytes)
 		numBytes = out.maxPacketLength();
 
-	const char* start = &(*_data)[_offset];
+	const char* start = &(_entry->data)[_offset];
 	_offset += numBytes;
 	return out.write(start, numBytes);
 }
@@ -118,7 +118,7 @@ std::string LocalDataStore::toString() const
 {
 	std::vector<string> report;
 	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
-		report.push_back("(" + it->first + ")=>" + StringUtil::str(it->second->size()));
+		report.push_back("(" + it->first + ")=>" + StringUtil::str(it->second->data.size()));
 	std::sort(report.begin(), report.end());
 	return StringUtil::stlJoin(report, '\n');
 }

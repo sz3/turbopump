@@ -34,7 +34,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, unsigned long long first, uns
 		IDataStoreReader::ptr reader = _store.read(*it);
 		if (!reader)
 			continue;
-		if (!_sender.store(peer, KeyMetadata({*it,0,0}), reader))
+		if (!_sender.store(peer, KeyMetadata(*it,0,0), reader))
 		{
 			std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
 			return; // TODO: last error?

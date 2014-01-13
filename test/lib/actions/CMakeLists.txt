@@ -4,6 +4,7 @@ project(actions_test)
 
 set (SOURCES
 	test.cpp
+	DropActionTest.cpp
 	KeyReqActionTest.cpp
 	MerkleActionTest.cpp
 	WriteActionTest.cpp

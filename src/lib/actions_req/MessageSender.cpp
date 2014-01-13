@@ -45,3 +45,8 @@ void MessageSender::requestKeyRange(const Peer& peer, unsigned long long first, 
 	msg << "key-req|first=" << first << " last=" << last << "|";
 	sendMessage(peer, msg.str());
 }
+
+void MessageSender::dropKey(const Peer& peer, const std::string& filename)
+{
+	sendMessage(peer, "drop|name=" + filename + "|");
+}

@@ -90,12 +90,9 @@ TEST_CASE( "PartitionStoreTest/testManyWorkers", "[integration-udp]" )
 				  "(3)=>7\n"
 				  "(6)=>7", response );
 
-	// runner1 has everything, since cleanup isn't implemented yet...
+	// runner1 should drop the files he's not responsible for
 	response = runner1.query("local_list");
 	assertEquals( "(1)=>7\n"
 				  "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7\n"
 				  "(6)=>7", response );
 }

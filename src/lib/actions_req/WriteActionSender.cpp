@@ -25,7 +25,10 @@ bool WriteActionSender::store(const Peer& peer, const KeyMetadata& file, IDataSt
 	ConnectionWriteStream stream(writer, peer.nextActionId());
 
 	std::stringstream ss;
-	ss << "write|name=" << file.filename << " i=" << file.mirror << " n=" << file.totalCopies << "|";
+	ss << "write|name=" << file.filename << " i=" << file.mirror << " n=" << file.totalCopies;
+	if (!file.source.empty())
+		ss << " source=" << file.source;
+	ss << "|";
 	std::string buff(ss.str());
 	stream.write(buff.data(), buff.size());
 

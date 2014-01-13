@@ -29,9 +29,9 @@ namespace
 		return bind(&RandomizedMirrorToPeer::run, cmd, _1, _2);
 	}
 
-	auto writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers)
+	auto writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IMessageSender& messenger, IPeerTracker& peers)
 	{
-		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, peers));
+		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, messenger, peers));
 		return bind(&MirrorToPeer::run, cmd, _1, _2);
 	}
 }
@@ -45,7 +45,7 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, IMerkleIndex& merkleIndex)
+void Callbacks::initialize(const IHashRing& ring, const IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"
@@ -62,7 +62,7 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 		if (TurboApi::options.write_chaining)
 		{
 			if (TurboApi::options.partition_keys)
-				functionChainer.push_back( writeChainFunct_partitionMode(ring, membership, peers) );
+				functionChainer.push_back( writeChainFunct_partitionMode(ring, membership, messenger, peers) );
 			else
 				functionChainer.push_back( writeChainFunct_cloneMode(membership, peers) );
 		}
@@ -87,7 +87,7 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 			functionChainer.push_back(when_mirror_write_finishes);
 
 		if (TurboApi::options.write_chaining && TurboApi::options.partition_keys)
-			functionChainer.push_back( writeChainFunct_partitionMode(ring, membership, peers) );
+			functionChainer.push_back( writeChainFunct_partitionMode(ring, membership, messenger, peers) );
 
 		if (!functionChainer.empty())
 		{

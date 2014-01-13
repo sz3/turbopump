@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	DropAction.cpp
+	DropAction.h
 	IAction.h
 	KeyReqAction.cpp
 	KeyReqAction.h

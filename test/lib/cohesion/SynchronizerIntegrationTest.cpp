@@ -32,6 +32,10 @@ namespace
 			_other->pushKeyRange(peer, first, last);
 		}
 
+		void dropKey(const Peer& peer, const std::string& filename)
+		{
+		}
+
 	public:
 		Synchronizer* _other;
 	};

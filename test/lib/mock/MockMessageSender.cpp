@@ -23,3 +23,8 @@ void MockMessageSender::requestKeyRange(const Peer& peer, unsigned long long fir
 {
 	_history.call("requestKeyRange", peer.uid, first, last);
 }
+
+void MockMessageSender::dropKey(const Peer& peer, const std::string& filename)
+{
+	_history.call("dropKey", peer.uid, filename);
+}

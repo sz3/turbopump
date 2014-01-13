@@ -90,6 +90,10 @@ void WriteAction::setParams(const map<string,string>& params)
 	it = params.find("n");
 	if (it != params.end())
 		_metadata.totalCopies = std::stoi(it->second);
+
+	it = params.find("source");
+	if (it != params.end())
+		_metadata.source = it->second;
 }
 
 bool WriteAction::multiPacket() const

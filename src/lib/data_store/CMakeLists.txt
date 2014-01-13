@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	DataEntry.h
 	IDataStore.h
 	IDataStoreReader.h
 	IDataStoreWriter.h

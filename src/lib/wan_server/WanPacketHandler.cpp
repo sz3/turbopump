@@ -5,6 +5,7 @@
 #include "PacketParser.h"
 #include "PeerConnection.h"
 #include "VirtualConnection.h"
+#include "actions/DropAction.h"
 #include "actions/KeyReqAction.h"
 #include "actions/MerkleAction.h"
 #include "actions/ReadAction.h"
@@ -29,8 +30,9 @@ using std::string;
 using std::shared_ptr;
 
 // TODO: Lots of member objects, ala IDataStore&?
-WanPacketHandler::WanPacketHandler(IExecutor& executor, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, ILog& logger, const TurboApi& callbacks)
+WanPacketHandler::WanPacketHandler(IExecutor& executor, const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, ILog& logger, const TurboApi& callbacks)
 	: _executor(executor)
+	, _ring(ring)
 	, _membership(membership)
 	, _peers(peers)
 	, _dataStore(dataStore)
@@ -92,7 +94,7 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 	if (!conn)
 		return;
 
-	std::cout << "   WanPacketHandler::doWork(" << std::this_thread::get_id() << ") for " << peer->uid << std::endl;
+	//std::cout << "   WanPacketHandler::doWork(" << std::this_thread::get_id() << ") for " << peer->uid << std::endl;
 
 	processPendingBuffers(*peer, *conn);
 	conn->end_processing();
@@ -155,6 +157,8 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 	std::shared_ptr<IAction> action;
 	if (cmdname == "write")
 		action.reset(new WriteAction(_dataStore, _callbacks.when_mirror_write_finishes));
+	else if (cmdname == "drop")
+		action.reset(new DropAction(_dataStore, _ring, _membership));
 	else if (cmdname == "merkle")
 		action.reset(new MerkleAction(peer, _sync));
 	else if (cmdname == "key-req")

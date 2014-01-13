@@ -5,18 +5,20 @@
 
 class IHashRing;
 class IMembership;
+class IMessageSender;
 class IPeerTracker;
 class KeyMetadata;
 
 class MirrorToPeer
 {
 public:
-	MirrorToPeer(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers);
+	MirrorToPeer(const IHashRing& ring, const IMembership& membership, IMessageSender& messenger, IPeerTracker& peers);
 
 	bool run(KeyMetadata md, IDataStoreReader::ptr contents);
 
 protected:
 	const IHashRing& _ring;
 	const IMembership& _membership;
+	IMessageSender& _messenger;
 	IPeerTracker& _peers;
 };
