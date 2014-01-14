@@ -17,6 +17,7 @@ std::shared_ptr<IDataStoreWriter> MockDataStore::write(const string& filename)
 */
 MockDataStore::Writer::Writer(std::string filename, MockDataStore& store)
 	: _filename(std::move(filename))
+	, _data({"",1})
 	, _store(store)
 {
 }
@@ -24,14 +25,19 @@ MockDataStore::Writer::Writer(std::string filename, MockDataStore& store)
 bool MockDataStore::Writer::write(const char* buffer, unsigned size)
 {
 	_store._history.call("Writer::write", _filename, string(buffer, size));
-	_buffer.append(buffer, size);
+	_data.data.append(buffer, size);
 	return true;
 }
 
 IDataStoreReader::ptr MockDataStore::Writer::commit()
 {
-	_store._history.call("Writer::commit", _filename);
+	_store._history.call("Writer::commit", _filename, _data.totalCopies);
 	return _store.commit(*this);
+}
+
+DataEntry& MockDataStore::Writer::data()
+{
+	return _data;
 }
 
 /*
@@ -40,8 +46,8 @@ IDataStoreReader::ptr MockDataStore::Writer::commit()
 
 IDataStoreReader::ptr MockDataStore::commit(Writer& writer)
 {
-	_store[writer._filename] = writer._buffer;
-	return IDataStoreReader::ptr(new Reader(writer._buffer));
+	_store[writer._filename] = writer._data.data;
+	return IDataStoreReader::ptr(new Reader(writer._data.data));
 }
 
 std::shared_ptr<IDataStoreReader> MockDataStore::read(const string& filename) const
@@ -60,14 +66,14 @@ std::shared_ptr<IDataStoreReader> MockDataStore::read(const string& filename) co
 */
 
 MockDataStore::Reader::Reader(const std::string& data)
-	: _data(data)
+	: _data({data,1})
 	, _offset(0)
 {
 }
 
 bool MockDataStore::Reader::seek(unsigned long long offset)
 {
-	if (offset > _data.size())
+	if (offset > _data.data.size())
 		return false;
 	_offset = offset;
 	return true;
@@ -75,16 +81,21 @@ bool MockDataStore::Reader::seek(unsigned long long offset)
 
 int MockDataStore::Reader::read(IByteStream& out)
 {
-	long long numBytes = _data.size() - _offset;
+	long long numBytes = _data.data.size() - _offset;
 	if (numBytes <= 0)
 		return 0;
 
 	if (out.maxPacketLength() < numBytes)
 		numBytes = out.maxPacketLength();
 
-	const char* start = &(_data[_offset]);
+	const char* start = &(_data.data[_offset]);
 	_offset += numBytes;
 	return out.write(start, numBytes);
+}
+
+const DataEntry& MockDataStore::Reader::data() const
+{
+	return _data;
 }
 /*
   </end child class>

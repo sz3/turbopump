@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory>
+class DataEntry;
 class IByteStream;
 
 class IDataStoreReader
@@ -13,4 +14,7 @@ public:
 
 	virtual bool seek(unsigned long long offset) = 0;
 	virtual int read(IByteStream& out) = 0;
+
+	// this exists to expose access to the metadata... but there may be a better way to go about it
+	virtual const DataEntry& data() const = 0;
 };

@@ -2,6 +2,7 @@
 #include "WriteAction.h"
 
 #include "common/DataBuffer.h"
+#include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
 #include <map>
 #include <string>
@@ -94,6 +95,9 @@ void WriteAction::setParams(const map<string,string>& params)
 	it = params.find("source");
 	if (it != params.end())
 		_metadata.source = it->second;
+
+	if (_writer)
+		_writer->data().totalCopies = _metadata.totalCopies;
 }
 
 bool WriteAction::multiPacket() const

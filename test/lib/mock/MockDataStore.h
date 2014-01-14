@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
+#include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
 #include "data_store/IDataStoreReader.h"
 #include "data_store/IDataStoreWriter.h"
@@ -15,13 +16,14 @@ protected:
 	{
 	public:
 		Writer(std::string filename, MockDataStore& store);
+		DataEntry& data();
 
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();
 
 	public:
 		std::string _filename;
-		std::string _buffer;
+		DataEntry _data;
 		MockDataStore& _store;
 	};
 
@@ -29,12 +31,13 @@ protected:
 	{
 	public:
 		Reader(const std::string& data);
+		const DataEntry& data() const;
 
 		bool seek(unsigned long long offset);
 		int read(IByteStream& out);
 
 	public:
-		std::string _data;
+		DataEntry _data;
 		unsigned long long _offset;
 	};
 

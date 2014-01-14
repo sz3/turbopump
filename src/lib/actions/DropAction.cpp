@@ -2,7 +2,9 @@
 #include "DropAction.h"
 
 #include "consistent_hashing/IHashRing.h"
+#include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
+#include "data_store/IDataStoreReader.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 
@@ -26,8 +28,11 @@ std::string DropAction::name() const
 
 bool DropAction::run(const DataBuffer& data)
 {
-	// drop the thing
-	vector<string> locs = _ring.lookup(_filename, 3);
+	IDataStoreReader::ptr read = _dataStore.read(_filename);
+	if (!read)
+		return false;
+
+	vector<string> locs = _ring.lookup(_filename, read->data().totalCopies);
 	if (std::find(locs.begin(), locs.end(), _membership.self()->uid) != locs.end())
 		return false;
 	return _dataStore.erase(_filename);

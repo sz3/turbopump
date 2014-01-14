@@ -41,14 +41,19 @@ IDataStoreReader::ptr LocalDataStore::Writer::commit()
 	return _store.commit(*this);
 }
 
-std::string&& LocalDataStore::Writer::filename()
+std::string&& LocalDataStore::Writer::move_filename()
 {
 	return std::move(_filename);
 }
 
-DataEntry&& LocalDataStore::Writer::data()
+DataEntry&& LocalDataStore::Writer::move_data()
 {
 	return std::move(_data);
+}
+
+DataEntry& LocalDataStore::Writer::data()
+{
+	return _data;
 }
 /*
   </end child class>
@@ -56,8 +61,8 @@ DataEntry&& LocalDataStore::Writer::data()
 
 IDataStoreReader::ptr LocalDataStore::commit(Writer& writer)
 {
-	shared_ptr<DataEntry>& data = _store[writer.filename()];
-	data.reset(new DataEntry(writer.data()));
+	shared_ptr<DataEntry>& data = _store[writer.move_filename()];
+	data.reset(new DataEntry(writer.move_data()));
 	return IDataStoreReader::ptr(new Reader(data));
 }
 
@@ -76,15 +81,15 @@ shared_ptr<IDataStoreReader> LocalDataStore::read(const string& filename) const
   **********************************************
 */
 
-LocalDataStore::Reader::Reader(const std::shared_ptr<DataEntry>& entry)
-	: _entry(entry)
+LocalDataStore::Reader::Reader(const std::shared_ptr<DataEntry>& data)
+	: _data(data)
 	, _offset(0)
 {
 }
 
 bool LocalDataStore::Reader::seek(unsigned long long offset)
 {
-	if (offset > _entry->data.size())
+	if (offset > _data->data.size())
 		return false;
 	_offset = offset;
 	return true;
@@ -92,16 +97,21 @@ bool LocalDataStore::Reader::seek(unsigned long long offset)
 
 int LocalDataStore::Reader::read(IByteStream& out)
 {
-	long long numBytes = _entry->data.size() - _offset;
+	long long numBytes = _data->data.size() - _offset;
 	if (numBytes <= 0)
 		return 0;
 
 	if (out.maxPacketLength() < numBytes)
 		numBytes = out.maxPacketLength();
 
-	const char* start = &(_entry->data)[_offset];
+	const char* start = &(_data->data)[_offset];
 	_offset += numBytes;
 	return out.write(start, numBytes);
+}
+
+const DataEntry& LocalDataStore::Reader::data() const
+{
+	return *_data;
 }
 /*
   </end child class>

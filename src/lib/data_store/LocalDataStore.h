@@ -16,12 +16,13 @@ protected:
 	{
 	public:
 		Writer(std::string filename, LocalDataStore& store);
+		DataEntry& data();
 
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();
 
-		std::string&& filename();
-		DataEntry&& data();
+		std::string&& move_filename();
+		DataEntry&& move_data();
 
 	protected:
 		std::string _filename;
@@ -33,12 +34,13 @@ protected:
 	{
 	public:
 		Reader(const std::shared_ptr<DataEntry>& data);
+		const DataEntry& data() const;
 
 		bool seek(unsigned long long offset);
 		int read(IByteStream& out);
 
 	protected:
-		std::shared_ptr<DataEntry> _entry;
+		std::shared_ptr<DataEntry> _data;
 		unsigned long long _offset;
 	};
 public:

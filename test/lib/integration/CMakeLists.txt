@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	TurboCluster.cpp
+	TurboCluster.h
 	TurboRunner.cpp
 	TurboRunner.h
 )

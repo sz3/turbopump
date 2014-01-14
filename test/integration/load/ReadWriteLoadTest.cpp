@@ -2,6 +2,7 @@
 #include "unittest.h"
 
 #include "command_line/CommandLine.h"
+#include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 
 #include "serialize/StringUtil.h"
@@ -32,19 +33,14 @@ namespace {
 
 TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 {
-	TurboRunner::createMemberFile(2);
-	TurboRunner runner1(9001, "/tmp/turbo9001");
-	TurboRunner runner2(9002, "/tmp/turbo9002");
-	runner1.start();
-	runner2.start();
-
-	assertTrue( runner1.waitForRunning() );
-	assertTrue( runner2.waitForRunning() );
+	TurboCluster cluster(2);
+	cluster.start();
+	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
 	Timer elapsed;
 	for (int i = 0; i < 100; ++i)
 	{
-		int socket_fd = openStreamSocket(runner1.dataChannel());
+		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		std::cout << "write " << i <<  " connection open at " << elapsed.micros() << "us" << std::endl;
 
 		string name = StringUtil::str(i);
@@ -63,7 +59,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	Timer t;
 	while (t.millis() < 30000)
 	{
-		response = CommandLine::run("echo 'local_list||' | nc -U " + runner2.dataChannel() + " | wc | awk '{print $2}'");
+		response = CommandLine::run("echo 'local_list||' | nc -U " + cluster[2].dataChannel() + " | wc | awk '{print $2}'");
 		if (response == "100\n")
 			break;
 		CommandLine::run("sleep 1");
@@ -77,21 +73,16 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 {
 	std::vector<string> timingData;
 
-	TurboRunner::createMemberFile(2);
-	TurboRunner runner1(9001, "/tmp/turbo9001");
-	TurboRunner runner2(9002, "/tmp/turbo9002");
-	runner1.start();
-	runner2.start();
-
-	assertTrue( runner1.waitForRunning() );
-	assertTrue( runner2.waitForRunning() );
+	TurboCluster cluster(2);
+	cluster.start();
+	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
 	const unsigned bufsize = 65536;
 	char buffer[bufsize];
 
 	Timer elapsed;
 	{
-		int socket_fd = openStreamSocket(runner1.dataChannel());
+		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		timingData.push_back("opened write socket at " + StringUtil::str(elapsed.micros()) + "us");
 
 		string packet = "write|name=bigfile|";
@@ -110,7 +101,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 	memset(buffer, 0, bufsize);
 
 	{
-		int socket_fd = openStreamSocket(runner1.dataChannel());
+		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		timingData.push_back("opened read socket at " + StringUtil::str(elapsed.micros()) + "us");
 		//std::cout << "opened read socket at " << elapsed.micros() << "us" << std::endl;
 
@@ -133,7 +124,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 	assertEquals( expectedContents, actualContents );
 
 
-	actualContents = CommandLine::run("echo 'read|name=bigfile|' | nc -U " + runner1.dataChannel());
+	actualContents = CommandLine::run("echo 'read|name=bigfile|' | nc -U " + cluster[1].dataChannel());
 	assertEquals( expectedContents, actualContents );
 
 	timingData.push_back("finished read 2 at " + StringUtil::str(elapsed.micros()) + "us");
@@ -143,7 +134,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 	Timer t;
 	while (t.millis() < 10000)
 	{
-		actualContents = CommandLine::run("echo 'read|name=bigfile|' | nc -U " + runner2.dataChannel());
+		actualContents = CommandLine::run("echo 'read|name=bigfile|' | nc -U " + cluster[2].dataChannel());
 		if (!actualContents.empty())
 			break;
 	}
@@ -157,20 +148,15 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 
 TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 {
-	TurboRunner::createMemberFile(2);
-	TurboRunner runner1(9001, "/tmp/turbo9001");
-	TurboRunner runner2(9002, "/tmp/turbo9002");
-	runner1.start();
-	runner2.start();
-
-	assertTrue( runner1.waitForRunning() );
-	assertTrue( runner2.waitForRunning() );
+	TurboCluster cluster(2);
+	cluster.start();
+	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
 	const unsigned bufsize = 65536;
 	char buffer[bufsize];
 	for (int i = 32; i < 122; ++i)
 	{
-		int socket_fd = openStreamSocket(runner1.dataChannel());
+		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 
 		string name = StringUtil::str(i);
 		string packet = string("write|name=") + name + "|";
@@ -187,7 +173,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 	Timer t;
 	while (t.millis() < 30000)
 	{
-		string response = CommandLine::run("echo 'local_list||' | nc -U " + runner2.dataChannel());
+		string response = CommandLine::run("echo 'local_list||' | nc -U " + cluster[2].dataChannel());
 		results = StringUtil::split(response, '\n');
 		if (results.size() == 90)
 			break;
