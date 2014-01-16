@@ -6,6 +6,7 @@ set (SOURCES
 	test.cpp
 	MerkleIndexTest.cpp
 	MerkleRangeTest.cpp
+	MerkleTreeTest.cpp
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
 	SynchronizerIntegrationTest.cpp

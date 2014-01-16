@@ -87,6 +87,24 @@ TEST_CASE( "MembershipTest/testLoadFilterSelf", "[unit]" )
 	assertFalse( membership.lookupIp("localhost:1337") );
 }
 
+TEST_CASE( "MembershipTest/testRandomPeerFromList", "[unit]" )
+{
+	Membership membership(_myfile, "localhost:1337");
+	membership.add("fooid");
+	membership.add("barid");
+
+	std::vector<std::string> list;
+	assertFalse( membership.randomPeerFromList(list) );
+
+	list.push_back("fooid");
+	std::shared_ptr<Peer> peer = membership.randomPeerFromList(list);
+	assertEquals( "fooid", peer->uid );
+
+	list[0] = "barid";
+	peer = membership.randomPeerFromList(list);
+	assertEquals( "barid", peer->uid );
+}
+
 TEST_CASE( "MembershipTest/testForEachPeer", "[unit]" )
 {
 	FileRemover remover(_myfile);

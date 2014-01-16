@@ -17,6 +17,8 @@ public:
 protected:
 	Peer _peer;
 	ISynchronize& _sync;
+
+	std::string _tree;
 	unsigned long long _first;
 	unsigned long long _last;
 };

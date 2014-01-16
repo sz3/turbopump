@@ -4,24 +4,24 @@
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-void MockMessageSender::merklePing(const Peer& peer, const MerklePoint& point)
+void MockMessageSender::merklePing(const Peer& peer, const std::string& treeid, const MerklePoint& point)
 {
-	_history.call("merklePing", peer.uid, MerklePointSerializer::toString(point));
+	_history.call("merklePing", peer.uid, treeid, MerklePointSerializer::toString(point));
 }
 
-void MockMessageSender::merklePing(const Peer& peer, const std::deque<MerklePoint>& points)
+void MockMessageSender::merklePing(const Peer& peer, const std::string& treeid, const std::deque<MerklePoint>& points)
 {
 	std::string pstr;
 	if (!points.empty())
 		pstr += MerklePointSerializer::toString(points.front());
 	for (auto it = ++points.begin(); it != points.end(); ++it)
 		pstr += "|" + MerklePointSerializer::toString(*it);
-	_history.call("merklePing", peer.uid, pstr);
+	_history.call("merklePing", peer.uid, treeid, pstr);
 }
 
-void MockMessageSender::requestKeyRange(const Peer& peer, unsigned long long first, unsigned long long last)
+void MockMessageSender::requestKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last)
 {
-	_history.call("requestKeyRange", peer.uid, first, last);
+	_history.call("requestKeyRange", peer.uid, treeid, first, last);
 }
 
 void MockMessageSender::dropKey(const Peer& peer, const std::string& filename)

@@ -4,30 +4,25 @@
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-void MockMerkleIndex::add(const std::string& id)
+void MockMerkleIndex::add(const std::string& key)
 {
-	_history.call("add", id);
+	_history.call("add", key);
 }
 
-void MockMerkleIndex::remove(const std::string& id)
+void MockMerkleIndex::remove(const std::string& key)
 {
-	_history.call("remove", id);
+	_history.call("remove", key);
 }
 
-MerklePoint MockMerkleIndex::top() const
+const IMerkleTree& MockMerkleIndex::find(const std::string& id) const
 {
-	_history.call("top");
-	return _top;
+	_history.call("find", id);
+	return _tree;
 }
 
-std::deque<MerklePoint> MockMerkleIndex::diff(const MerklePoint& point) const
+const IMerkleTree& MockMerkleIndex::randomTree() const
 {
-	_history.call("diff", MerklePointSerializer::toString(point));
-	return _diff;
-}
-
-std::deque<std::string> MockMerkleIndex::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
-{
-	_history.call("enumerate", first, last);
-	return _enumerate;
+	// determined by fair dice roll. Guaranteed to be random.
+	_history.call("randomTree");
+	return _tree;
 }

@@ -36,6 +36,12 @@ std::shared_ptr<Peer> MockMembership::randomPeer() const
 	return _ips.empty()? NULL : _ips.begin()->second;
 }
 
+std::shared_ptr<Peer> MockMembership::randomPeerFromList(std::vector<std::string> list) const
+{
+	_history.call("randomPeerFromList");
+	return _ips.empty()? NULL : _ips.begin()->second;
+}
+
 std::string MockMembership::toString() const
 {
 	return "mock membership";

@@ -12,7 +12,10 @@ public:
 	void addWorker(const std::string& id);
 	void removeWorker(const std::string& id);
 
-	std::vector<std::string> lookup(const std::string& filename, unsigned numWorkers = 5) const;
+	std::vector<std::string> locations(const std::string& filename, unsigned numWorkers = 5) const;
+	std::vector<std::string> locationsFromHash(const std::string& hash, unsigned numWorkers) const;
+	std::string section(const std::string& filename) const;
+
 	std::string toString() const;
 
 public:

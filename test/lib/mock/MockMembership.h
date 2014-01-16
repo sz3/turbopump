@@ -13,6 +13,7 @@ public:
 	std::shared_ptr<Peer> lookupIp(const std::string& ip) const;
 	std::shared_ptr<Peer> self() const;
 	std::shared_ptr<Peer> randomPeer() const;
+	std::shared_ptr<Peer> randomPeerFromList(std::vector<std::string> list) const;
 
 	std::string toString() const;
 

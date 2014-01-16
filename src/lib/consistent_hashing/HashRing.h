@@ -6,25 +6,26 @@
 
 #include <string>
 #include <vector>
-using std::string;
 
 class HashRing : public IHashRing
 {
 public:
-	static string hash(const string& str);
+	static std::string hash(const std::string& str);
 
 public:
-	void addWorker(const string& id);
-	void removeWorker(const string& id);
-	void growWorker(const string& name);
-	void shrinkWorker(const string& name);
+	void addWorker(const std::string& id);
+	void removeWorker(const std::string& id);
+	void growWorker(const std::string& name);
+	void shrinkWorker(const std::string& name);
 
-	std::vector<string> lookup(const string& filename, unsigned numWorkers = 5) const;
+	std::vector<std::string> locations(const std::string& filename, unsigned numWorkers = 5) const;
+	std::vector<std::string> locationsFromHash(const std::string& hash, unsigned numWorkers) const;
+	std::string section(const std::string& filename) const;
 	unsigned size() const;
 
 	std::string toString() const;
 
 protected:
-	circular_map<string,string> _ring;
+	circular_map<std::string,std::string> _ring;
 };
 

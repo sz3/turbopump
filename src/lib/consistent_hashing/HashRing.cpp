@@ -3,6 +3,7 @@
 
 #include "base64.h"
 #include "Hash.h"
+using std::string;
 using std::vector;
 
 string HashRing::hash(const string& str)
@@ -37,10 +38,15 @@ void HashRing::shrinkWorker(const string& name)
 	// TODO
 }
 
-std::vector<string> HashRing::lookup(const string& filename, unsigned numWorkers) const
+vector<string> HashRing::locations(const string& filename, unsigned numWorkers) const
+{
+	return locationsFromHash(hash(filename), numWorkers);
+}
+
+vector<string> HashRing::locationsFromHash(const string& hash, unsigned numWorkers) const
 {
 	vector<string> workers;
-	circular_map<string,string>::iterator it = _ring.lower_bound(hash(filename));
+	circular_map<string,string>::iterator it = _ring.lower_bound(hash);
 	if (it == _ring.end())
 		return workers;
 
@@ -52,6 +58,14 @@ std::vector<string> HashRing::lookup(const string& filename, unsigned numWorkers
 		++count;
 	}
 	return workers;
+}
+
+std::string HashRing::section(const string& filename) const
+{
+	circular_map<string,string>::iterator it = _ring.lower_bound(hash(filename));
+	if (it == _ring.end())
+		return "";
+	return it->first;
 }
 
 unsigned HashRing::size() const

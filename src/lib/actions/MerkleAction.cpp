@@ -7,6 +7,7 @@
 #include "common/MerklePoint.h"
 #include "serialize/StringUtil.h"
 
+using std::map;
 using std::string;
 using std::vector;
 
@@ -43,11 +44,14 @@ bool MerkleAction::run(const DataBuffer& data)
 		if (!MerklePointSerializer::fromString(point, *it))
 			return false;
 
-		_sync.compare(_peer, point);
+		_sync.compare(_peer, _tree, point);
 	}
 	return true;
 }
 
 void MerkleAction::setParams(const std::map<std::string,std::string>& params)
 {
+	map<string,string>::const_iterator tree = params.find("tree");
+	if (tree != params.end())
+		_tree = tree->second;
 }

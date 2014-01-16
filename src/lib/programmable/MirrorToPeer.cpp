@@ -25,7 +25,7 @@ MirrorToPeer::MirrorToPeer(const IHashRing& ring, const IMembership& membership,
 // TODO: specify consistency?
 bool MirrorToPeer::run(KeyMetadata md, IDataStoreReader::ptr contents)
 {
-	std::vector<std::string> locations = _ring.lookup(md.filename, md.totalCopies);
+	std::vector<std::string> locations = _ring.locations(md.filename, md.totalCopies);
 	shared_ptr<Peer> self = _membership.self();
 	shared_ptr<Peer> peer;
 

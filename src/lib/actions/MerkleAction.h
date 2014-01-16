@@ -17,4 +17,6 @@ public:
 protected:
 	Peer _peer;
 	ISynchronize& _sync;
+
+	std::string _tree;
 };

@@ -5,7 +5,7 @@
 
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
-#include "mock/MockIpSocket.h"
+#include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMerkleIndex.h"
 #include "mock/MockMessageSender.h"
@@ -28,67 +28,102 @@ namespace {
 
 TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	membership.addIp("1.2.3.4", "dude");
+	membership._history.clear();
 	MockMerkleIndex index;
-	index._top = whatsThePoint(5);
+	index._tree._top = whatsThePoint(5);
+	index._tree._id = "oak";
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
 	sinkro.pingRandomPeer();
 
-	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
-	assertEquals( "merklePing(dude,5 5 50)", messenger._history.calls() );
+	assertEquals( "locationsFromHash(oak,3)", ring._history.calls() );
+	assertEquals( "randomPeer()", membership._history.calls() );
+	assertEquals( "merklePing(dude,oak,5 5 50)", messenger._history.calls() );
+	assertEquals( "randomTree()", index._history.calls() );
+	assertEquals( "top()", index._tree._history.calls() );
+}
+
+TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("dude");
+	MockMembership membership;
+	membership.addIp("dude", "dude");
+	membership._history.clear();
+	MockMerkleIndex index;
+	index._tree._top = whatsThePoint(5);
+	index._tree._id = "oak";
+	MockMessageSender messenger;
+	MockSkewCorrector corrector;
+
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.pingRandomPeer();
+
+	assertEquals( "locationsFromHash(oak,3)", ring._history.calls() );
+	assertEquals( "randomPeerFromList()", membership._history.calls() );
+	assertEquals( "merklePing(dude,oak,5 5 50)", messenger._history.calls() );
+	assertEquals( "randomTree()", index._history.calls() );
+	assertEquals( "top()", index._tree._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
-	index._top = whatsThePoint(10);
+	index._tree._top = whatsThePoint(10);
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
-	sinkro.compare(Peer("fooid"), MerklePoint::null());
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.compare(Peer("fooid"), "oak", MerklePoint::null());
 
-	assertEquals( "top()", index._history.calls() );
-	assertEquals( ("pushKeyRange(fooid,0," + StringUtil::str(~0ULL) + ")"), corrector._history.calls() );
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "top()", index._tree._history.calls() );
+	assertEquals( ("pushKeyRange(fooid,oak,0," + StringUtil::str(~0ULL) + ")"), corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	index._diff.push_back( MerklePoint::null() );
+	index._tree._diff.push_back( MerklePoint::null() );
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
-	sinkro.compare(Peer("fooid"), whatsThePoint(10));
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.compare(Peer("fooid"), "oak", whatsThePoint(10));
 
-	assertEquals( "diff(10 10 100)", index._history.calls() );
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( ("requestKeyRange(fooid,0," + StringUtil::str(~0ULL) + ")"), messenger._history.calls() );
+	assertEquals( ("requestKeyRange(fooid,oak,0," + StringUtil::str(~0ULL) + ")"), messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
-	index._top = MerklePoint::null();
+	index._tree._top = MerklePoint::null();
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
-	sinkro.compare(Peer("fooid"), MerklePoint::null());
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.compare(Peer("fooid"), "oak", MerklePoint::null());
 
-	assertEquals( "top()", index._history.calls() );
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "top()", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
@@ -96,15 +131,17 @@ TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.Same", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
-	sinkro.compare(Peer("fooid"), whatsThePoint(10));
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.compare(Peer("fooid"), "oak", whatsThePoint(10));
 
-	assertEquals( "diff(10 10 100)", index._history.calls() );
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
@@ -112,56 +149,62 @@ TEST_CASE( "SynchronizerTest/testCompare.Same", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	index._diff.push_back( whatsThePoint(10) );
+	index._tree._diff.push_back( whatsThePoint(10) );
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
-	sinkro.compare(Peer("fooid"), whatsThePoint(10));
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.compare(Peer("fooid"), "oak", whatsThePoint(10));
 
-	assertEquals( "diff(10 10 100)", index._history.calls() );
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,10,18446744073709502218)", messenger._history.calls() );
+	assertEquals( "requestKeyRange(fooid,oak,10,18446744073709502218)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	index._diff.push_back( whatsThePoint(32) );
+	index._tree._diff.push_back( whatsThePoint(32) );
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
-	sinkro.compare(Peer("fooid"), whatsThePoint(10));
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.compare(Peer("fooid"), "oak", whatsThePoint(10));
 
-	assertEquals( "diff(10 10 100)", index._history.calls() );
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,32,18446744069414584352)", messenger._history.calls() );
+	assertEquals( "requestKeyRange(fooid,oak,32,18446744069414584352)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.Climb", "default" )
 {
+	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
-	index._diff.push_back( whatsThePoint(1) );
-	index._diff.push_back( whatsThePoint(2) );
+	index._tree._diff.push_back( whatsThePoint(1) );
+	index._tree._diff.push_back( whatsThePoint(2) );
 
-	Synchronizer sinkro(membership, index, messenger, corrector);
-	sinkro.compare(Peer("fooid"), whatsThePoint(10));
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.compare(Peer("fooid"), "oak", whatsThePoint(10));
 
-	assertEquals( "diff(10 10 100)", index._history.calls() );
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "merklePing(fooid,1 1 10|2 2 20)", messenger._history.calls() );
+	assertEquals( "merklePing(fooid,oak,1 1 10|2 2 20)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 

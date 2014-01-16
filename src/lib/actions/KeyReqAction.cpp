@@ -20,12 +20,16 @@ std::string KeyReqAction::name() const
 
 bool KeyReqAction::run(const DataBuffer& data)
 {
-	_sync.pushKeyRange(_peer, _first, _last);
+	_sync.pushKeyRange(_peer, _tree, _first, _last);
 	return true;
 }
 
 void KeyReqAction::setParams(const std::map<std::string,std::string>& params)
 {
+	map<string,string>::const_iterator tree = params.find("tree");
+	if (tree != params.end())
+		_tree = tree->second;
+
 	map<string,string>::const_iterator first = params.find("first");
 	if (first != params.end())
 		_first = std::stoull(first->second);

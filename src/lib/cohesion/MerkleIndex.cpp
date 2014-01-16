@@ -2,55 +2,72 @@
 #include "MerkleIndex.h"
 
 #include "common/MerklePoint.h"
+#include "consistent_hashing/IHashRing.h"
 #include "consistent_hashing/Hash.h"
-#include <tuple>
+#include "util/Random.h"
+using std::string;
 
-void MerkleIndex::add(const std::string& id)
+MerkleIndex::MerkleIndex(const IHashRing& ring)
+	: _ring(ring)
 {
-	// TODO: worry about endianness of keyhash.
-	// if different architectures can't agree on where a file hashes to... we're in trouble.
-	// right now, it's derived from a char*, so it's mostly ok...
-	//  except that the merkle_point::keybits don't act how you might expect...
-	unsigned long long keyhash = Hash::compute(id).integer();
-	_tree.insert(keyhash, keyhash, id);
-	//std::cout << "MerkleIndex::add " << id << ", " << keyhash << std::endl;
 }
 
-void MerkleIndex::remove(const std::string& id)
+// addFile
+void MerkleIndex::add(const std::string& key)
 {
-	unsigned long long keyhash = Hash::compute(id).integer();
-	_tree.remove(keyhash);
+	// find appropriate merkle tree based on hash, totalCopies
+
+	/* maintain a list of trees.
+	 * map?
+	 * needs to reflect HashRing
+	 * as hashring grows, index grows
+	 * as hashring shrinks, index shrinks
+	 * file hashes to hashRing section (first 64 bits?), and totalCopies parameter determines which merkle tree it addresses into.
+	 *
+	 * merkle sections contain the hashtoken that represents the primary mirror (e.g. "1:1", if it's 1's first hash range). This is true whether we're box 1, or box 2 (mirror 1), or box 3...
+	 * merkle sections can be looked up by this hash token
+	 **/
+
+	string section = _ring.section(key);
+	MerkleTree& tree = _forest[section];
+	if (tree.empty())
+		tree.setId(section);
+	tree.add(key);
 }
 
-MerklePoint MerkleIndex::top() const
+void MerkleIndex::remove(const string& key)
 {
-	return _tree.top();
+	string section = _ring.section(key);
+	std::map<string, MerkleTree>::iterator it = _forest.find(section);
+	if (it == _forest.end())
+		return;
+
+	MerkleTree& tree = it->second;
+	tree.remove(key);
+	if (tree.empty())
+		_forest.erase(it);
 }
 
-std::deque<MerklePoint> MerkleIndex::diff(const MerklePoint& point) const
+const IMerkleTree& MerkleIndex::find(const string& id) const
 {
-	return _tree.diff(point.location, point.hash);
+	std::map<string, MerkleTree>::const_iterator it = _forest.find(id);
+	if (it == _forest.end())
+		return _emptyTree;
+	return it->second;
 }
 
-// TODO: unsigned long long& start?
-//       return "next"? ???
-std::deque<std::string> MerkleIndex::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
+const IMerkleTree& MerkleIndex::randomTree() const
 {
-	std::deque<std::string> files;
-	auto fun = [&,limit] (unsigned long long hash, const std::string& file) { files.push_back(file); first = hash; return files.size() < limit; };
-
-	_tree.enumerate(fun, first, last);
-	return files;
+	if (_forest.empty())
+		return _emptyTree;
+	std::map<string, MerkleTree>::const_iterator it = Random::select(_forest.begin(), _forest.end(), _forest.size());
+	return it->second;
 }
 
-// for print()
-std::ostream& operator<<(std::ostream& stream, const std::tuple<unsigned long long, std::string>& fileData)
+std::vector<string> MerkleIndex::list() const
 {
-	stream << std::get<1>(fileData);
-	return stream;
-}
-
-void MerkleIndex::print(int keywidth) const
-{
-	_tree.print(keywidth);
+	std::vector<string> treeIds;
+	for (std::map<string, MerkleTree>::const_iterator it = _forest.begin(); it != _forest.end(); ++it)
+		treeIds.push_back(it->first);
+	return treeIds;
 }

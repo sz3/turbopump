@@ -123,6 +123,20 @@ shared_ptr<Peer> Membership::randomPeer() const
 	return it->second;
 }
 
+shared_ptr<Peer> Membership::randomPeerFromList(std::vector<string> list) const
+{
+	while (!list.empty())
+	{
+		std::vector<string>::iterator it = Random::select(list.begin(), list.end(), list.size());
+		shared_ptr<Peer> peer = lookup(*it);
+		if (peer && peer != self())
+			return peer;
+
+		list.erase(it);
+	}
+	return NULL;
+}
+
 void Membership::forEachPeer(std::function<void(const Peer&)> fun) const
 {
 	for (map<string,shared_ptr<Peer>>::const_iterator it = _members.begin(); it != _members.end(); ++it)

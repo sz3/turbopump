@@ -1,23 +1,20 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
+#include "MockMerkleTree.h"
 #include "cohesion/IMerkleIndex.h"
 #include "util/CallHistory.h"
 
 class MockMerkleIndex : public IMerkleIndex
 {
 public:
-	void add(const std::string& id);
-	void remove(const std::string& id);
+	void add(const std::string& key);
+	void remove(const std::string& key);
 
-	MerklePoint top() const;
-	std::deque<MerklePoint> diff(const MerklePoint& point) const;
-	std::deque<std::string> enumerate(unsigned long long first, unsigned long long last, unsigned limit) const;
+	const IMerkleTree& find(const std::string& id) const;
+	const IMerkleTree& randomTree() const;
 
 public:
+	MockMerkleTree _tree;
 	mutable CallHistory _history;
-
-	MerklePoint _top;
-	std::deque<MerklePoint> _diff;
-	std::deque<std::string> _enumerate;
 };

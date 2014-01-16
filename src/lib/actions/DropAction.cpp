@@ -32,7 +32,7 @@ bool DropAction::run(const DataBuffer& data)
 	if (!read)
 		return false;
 
-	vector<string> locs = _ring.lookup(_filename, read->data().totalCopies);
+	vector<string> locs = _ring.locations(_filename, read->data().totalCopies);
 	if (std::find(locs.begin(), locs.end(), _membership.self()->uid) != locs.end())
 		return false;
 	return _dataStore.erase(_filename);

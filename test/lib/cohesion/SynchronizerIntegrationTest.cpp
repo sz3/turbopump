@@ -6,6 +6,7 @@
 #include "Synchronizer.h"
 #include "actions_req/IMessageSender.h"
 #include "membership/Peer.h"
+#include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
 #include "serialize/StringUtil.h"
 using std::deque;
@@ -16,20 +17,20 @@ namespace
 	class TestMessageSender : public IMessageSender
 	{
 	public:
-		void merklePing(const Peer& peer, const MerklePoint& point)
+		void merklePing(const Peer& peer, const string& treeid, const MerklePoint& point)
 		{
-			_other->compare(peer, point);
+			_other->compare(peer, treeid, point);
 		}
 
-		void merklePing(const Peer& peer, const deque<MerklePoint>& points)
+		void merklePing(const Peer& peer, const string& treeid, const deque<MerklePoint>& points)
 		{
 			for (deque<MerklePoint>::const_iterator it = points.begin(); it != points.end(); ++it)
-				_other->compare(peer, *it);
+				_other->compare(peer, treeid, *it);
 		}
 
-		void requestKeyRange(const Peer& peer, unsigned long long first, unsigned long long last)
+		void requestKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last)
 		{
-			_other->pushKeyRange(peer, first, last);
+			_other->pushKeyRange(peer, treeid, first, last);
 		}
 
 		void dropKey(const Peer& peer, const std::string& filename)
@@ -52,10 +53,10 @@ namespace
 			_history.call("healKey", key);
 		}
 
-		void pushKeyRange(const Peer& peer, unsigned long long first, unsigned long long last)
+		void pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last)
 		{
-			_history.call("pushKeyRange", first, last);
-			deque<string> toPush = _index.enumerate(first, last);
+			_history.call("pushKeyRange", treeid, first, last);
+			deque<string> toPush = _index.find(treeid).enumerate(first, last);
 			_corrected.insert(_corrected.end(), toPush.begin(), toPush.end());
 		}
 
@@ -68,8 +69,10 @@ namespace
 
 TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 {
-	MerkleIndex indexOne;
-	MerkleIndex indexTwo;
+	MockHashRing ring;
+	ring._workers.push_back("fooid"); // will be used as the MerkleTree's id
+	MerkleIndex indexOne(ring);
+	MerkleIndex indexTwo(ring);
 
 	indexOne.add("one0");
 	indexOne.add("one1");
@@ -103,13 +106,13 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 	TestSkewCorrector correctorTwo(indexTwo);
 
 	MockMembership membership;
-	Synchronizer one(membership, indexOne, senderOne, correctorOne);
-	Synchronizer two(membership, indexTwo, senderTwo, correctorTwo);
+	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne);
+	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo);
 
 	senderOne._other = &two;
 	senderTwo._other = &one;
 
-	one.compare(Peer("dummy"), indexTwo.top());
+	one.compare(Peer("dummy"), "fooid", indexTwo.find("fooid").top());
 
 	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
@@ -119,8 +122,10 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 
 TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integration]" )
 {
-	MerkleIndex indexOne;
-	MerkleIndex indexTwo;
+	MockHashRing ring;
+	ring._workers.push_back("fooid");
+	MerkleIndex indexOne(ring);
+	MerkleIndex indexTwo(ring);
 
 	for (int i = 0; i < 100; ++i)
 	{
@@ -136,13 +141,13 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 	TestSkewCorrector correctorTwo(indexTwo);
 
 	MockMembership membership;
-	Synchronizer one(membership, indexOne, senderOne, correctorOne);
-	Synchronizer two(membership, indexTwo, senderTwo, correctorTwo);
+	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne);
+	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo);
 
 	senderOne._other = &two;
 	senderTwo._other = &one;
 
-	one.compare(Peer("dummy"), indexTwo.top());
+	one.compare(Peer("dummy"), "fooid", indexTwo.find("fooid").top());
 
 	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
@@ -159,7 +164,7 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 	correctorOne._history.clear();
 	correctorTwo._history.clear();
 
-	two.compare(Peer("dummy"), indexOne.top());
+	two.compare(Peer("dummy"), "fooid", indexOne.find("fooid").top());
 
 	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
@@ -170,8 +175,8 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 	for (deque<string>::const_iterator it = correctorOne._corrected.begin(); it != correctorOne._corrected.end(); ++it)
 		indexTwo.add(*it);
 
-	deque<string> filesOne = indexOne.enumerate(0,~0ULL,100);
-	deque<string> filesTwo = indexTwo.enumerate(0,~0ULL,100);
+	deque<string> filesOne = indexOne.find("fooid").enumerate(0,~0ULL,100);
+	deque<string> filesTwo = indexTwo.find("fooid").enumerate(0,~0ULL,100);
 	//assertEquals( StringUtil::stlJoin(filesOne), StringUtil::stlJoin(filesTwo) );
 	assertEquals( 95, filesTwo.size() );
 }

@@ -3,18 +3,22 @@
 
 #include "ICorrectSkew.h"
 #include "IMerkleIndex.h"
+#include "IMerkleTree.h"
 #include "MerkleRange.h"
 
 #include "actions_req/IMessageSender.h"
 #include "common/MerklePoint.h"
+#include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 #include <deque>
 #include <iostream>
 using std::shared_ptr;
+using std::string;
 
-Synchronizer::Synchronizer(const IMembership& membership, const IMerkleIndex& index, IMessageSender& messenger, ICorrectSkew& corrector)
-	: _membership(membership)
+Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership, const IMerkleIndex& index, IMessageSender& messenger, ICorrectSkew& corrector)
+	: _ring(ring)
+	, _membership(membership)
 	, _index(index)
 	, _messenger(messenger)
 	, _corrector(corrector)
@@ -24,23 +28,27 @@ Synchronizer::Synchronizer(const IMembership& membership, const IMerkleIndex& in
 // TODO: use hash ring to choose what section we need to try to sync, instead of a random peer selection.
 void Synchronizer::pingRandomPeer()
 {
-	shared_ptr<Peer> peer = _membership.randomPeer();
+	const IMerkleTree& tree = _index.randomTree();
+	std::vector<string> locations = _ring.locationsFromHash(tree.id(), 3); // tree.mirrorCount() or something?
+
+	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
 	if (!peer)
 		return;
-	_messenger.merklePing(*peer, _index.top());
+	_messenger.merklePing(*peer, tree.id(), tree.top());
 }
 
-void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
+void Synchronizer::compare(const Peer& peer, const string& treeid, const MerklePoint& point)
 {
+	const IMerkleTree& tree = _index.find(treeid);
 	if (point == MerklePoint::null())
 	{
-		if (_index.top() == MerklePoint::null())
+		if (tree.top() == MerklePoint::null())
 			return;
-		pushKeyRange(peer, 0, ~0ULL);
+		pushKeyRange(peer, treeid, 0, ~0ULL);
 		return;
 	}
 
-	std::deque<MerklePoint> diffs = _index.diff(point);
+	std::deque<MerklePoint> diffs = tree.diff(point);
 	/*std::cout << " Synchronizer compare. Point is " << MerklePointSerializer::toString(point) << ". Diffs are : ";
 	for (auto it = diffs.begin(); it != diffs.end(); ++it)
 		std::cout << MerklePointSerializer::toString(*it) << " , ";
@@ -68,30 +76,30 @@ void Synchronizer::compare(const Peer& peer, const MerklePoint& point)
 
 
 		if (diff == MerklePoint::null())
-			_messenger.requestKeyRange(peer, 0, ~0ULL);
+			_messenger.requestKeyRange(peer, treeid, 0, ~0ULL);
 		else if (diff.location.keybits == 64)
 		{
 			//if (diff.location.key == point.location.key)
 			//	_corrector.healKey(peer, diff.location.key);
 
 			MerkleRange range(point.location);
-			_messenger.requestKeyRange(peer, range.first(), range.last());
+			_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
 		}
 		else
 		{
 			MerkleRange range(diff.location);
-			_messenger.requestKeyRange(peer, range.first(), range.last());
+			_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
 		}
 	}
 
 	else if (diffs.size() >= 2)
 	{
 		// respond!
-		_messenger.merklePing(peer, diffs);
+		_messenger.merklePing(peer, treeid, diffs);
 	}
 }
 
-void Synchronizer::pushKeyRange(const Peer& peer, unsigned long long first, unsigned long long last)
+void Synchronizer::pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last)
 {
-	_corrector.pushKeyRange(peer, first, last);
+	_corrector.pushKeyRange(peer, treeid, first, last);
 }

@@ -7,8 +7,8 @@
 class MockSynchronize : public ISynchronize
 {
 public:
-	 void compare(const Peer& peer, const MerklePoint& point);
-	 void pushKeyRange(const Peer& peer, unsigned long long first, unsigned long long last);
+	 void compare(const Peer& peer, const std::string& treeid, const MerklePoint& point);
+	 void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last);
 
 public:
 	CallHistory _history;

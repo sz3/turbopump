@@ -13,8 +13,9 @@ using namespace std::placeholders;
 TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
 	: _logger(IpAddress("127.0.0.1", port).toString())
 	, _callbacks(instruct)
+	, _merkleIndex(_ring)
 	, _corrector(_merkleIndex, _localDataStore, _writeActionSender)
-	, _synchronizer(_membership, _merkleIndex, _messenger, _corrector)
+	, _synchronizer(_ring, _membership, _merkleIndex, _messenger, _corrector)
 	, _messenger(_peers)
 	, _writeActionSender(_peers)
 	, _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())
@@ -31,7 +32,7 @@ void TurboPumpApp::run()
 	_state.starting();
 	if (!_membership.load())
 		std::cerr << "failed to load membership. Warn." << std::endl;
-	else
+	else if (_callbacks.options.partition_keys)
 	{
 		HashRing& ring(_ring);
 		auto fun = [&ring] (const Peer& peer) { ring.addWorker(peer.uid); };

@@ -29,7 +29,7 @@ TEST_CASE( "DropActionTest/testFileIsMine", "[unit]" )
 	assertEquals( "", store._history.calls() );
 	assertEquals( "foo", store._store["myfile"] );
 
-	assertEquals( "lookup(myfile,1)", ring._history.calls() );
+	assertEquals( "locations(myfile,1)", ring._history.calls() );
 	assertEquals( "self()", membership._history.calls() );
 }
 
@@ -52,6 +52,6 @@ TEST_CASE( "DropActionTest/testFileIsntMine", "[unit]" )
 	assertEquals( "erase(myfile)", store._history.calls() );
 	assertEquals( "", store._store["myfile"] );
 
-	assertEquals( "lookup(myfile,1)", ring._history.calls() );
+	assertEquals( "locations(myfile,1)", ring._history.calls() );
 	assertEquals( "self()", membership._history.calls() );
 }

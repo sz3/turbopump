@@ -14,6 +14,10 @@ TEST_CASE( "MerkleActionTest/testOne", "default" )
 	MockSynchronize sync;
 	MerkleAction action(peer, sync);
 
+	std::map<string,string> params;
+	params["tree"] = "oak";
+	action.setParams(params);
+
 	MerklePoint point;
 	point.location.key = 1337;
 	point.location.keybits = 32;
@@ -21,7 +25,7 @@ TEST_CASE( "MerkleActionTest/testOne", "default" )
 
 	string data = MerklePointSerializer::toString(point);
 	assertTrue( action.run(DataBuffer(data.data(), data.size())) );
-	assertEquals( "compare(fooid,1337 32 8000)", sync._history.calls() );
+	assertEquals( "compare(fooid,oak,1337 32 8000)", sync._history.calls() );
 }
 
 TEST_CASE( "MerkleActionTest/testMany", "default" )
@@ -43,9 +47,9 @@ TEST_CASE( "MerkleActionTest/testMany", "default" )
 	}
 
 	assertTrue( action.run(DataBuffer(data.data(), data.size())) );
-	assertEquals( "compare(fooid,1 1 10)|"
-				  "compare(fooid,2 2 20)|"
-				  "compare(fooid,3 3 30)", sync._history.calls() );
+	assertEquals( "compare(fooid,,1 1 10)|"
+				  "compare(fooid,,2 2 20)|"
+				  "compare(fooid,,3 3 30)", sync._history.calls() );
 }
 
 

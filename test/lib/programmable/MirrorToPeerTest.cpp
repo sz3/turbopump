@@ -51,7 +51,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 
 	assertTrue( command.run(KeyMetadata({"file",0,3}), reader) );
 
-	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -87,7 +87,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 
 	assertTrue( command.run({"file",0,3}, reader) );
 
-	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)|lookup(bbb)", membership._history.calls() );
 	assertEquals( "getWriter(bbb)", peers._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -123,7 +123,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 
 	assertTrue( command.run({"file",0,3}, reader) );
 
-	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -158,7 +158,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 
 	assertTrue( command.run({"file",2,3}, reader) );
 
-	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -193,7 +193,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 
 	assertFalse( command.run({"file",3,3}, reader) );
 
-	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()", membership._history.calls() );
 	assertEquals( "", peers._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -232,7 +232,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done_DropExtraMirror", "[unit]" )
 	md.source = "source";
 	assertFalse( command.run(md, reader) );
 
-	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(source)", membership._history.calls() );
 	assertEquals( "", peers._history.calls() );
 	assertEquals( "dropKey(source,file)", messenger._history.calls() );
@@ -270,7 +270,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done_DropExtraMirrorFails", "[unit]" )
 	md.source = "source";
 	assertFalse( command.run(md, reader) );
 
-	assertEquals( "lookup(file,3)", ring._history.calls() );
+	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(source)", membership._history.calls() );
 	assertEquals( "", peers._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -306,7 +306,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 
 	assertFalse( command.run({"file",3,4}, reader) );
 
-	assertEquals( "lookup(file,4)", ring._history.calls() );
+	assertEquals( "locations(file,4)", ring._history.calls() );
 	assertEquals( "self()|lookup(ddd)", membership._history.calls() );
 	assertEquals( "", peers._history.calls() );
 	assertEquals( "", messenger._history.calls() );
