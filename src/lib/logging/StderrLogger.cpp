@@ -20,6 +20,11 @@ void StderrLogger::logError(const std::string& msg)
 	logMessage("ERROR", msg);
 }
 
+void StderrLogger::logTrace(const std::string& msg)
+{
+	//logMessage("TRACE", msg);
+}
+
 void StderrLogger::logWarn(const std::string& msg)
 {
 	logMessage("WARN", msg);

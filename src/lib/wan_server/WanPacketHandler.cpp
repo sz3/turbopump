@@ -19,6 +19,7 @@
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 #include "programmable/TurboApi.h"
+#include "serialize/StringUtil.h"
 #include "socket/IpAddress.h"
 #include "socket/UdpSocket.h"
 
@@ -125,7 +126,7 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 			{
 				if (parser.parse(buff))
 				{
-					std::cout << "received action '" << buffer << "' from " << peer.uid << ". virt " << (unsigned)virtid << ", action = " << parser.action() << std::endl;
+					_logger.logTrace("received action '" + buffer + "' from " + peer.uid + ". virt " + StringUtil::str((unsigned)virtid) + ", action = " + parser.action());
 					action = newAction(peer, parser.action(), parser.params());
 					if (action->multiPacket())
 					{

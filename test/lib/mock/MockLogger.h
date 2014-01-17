@@ -9,6 +9,7 @@ class MockLogger : public ILog
 public:
 	void logDebug(const std::string& msg);
 	void logError(const std::string& msg);
+	void logTrace(const std::string& msg);
 	void logWarn(const std::string& msg);
 
 public:

@@ -11,6 +11,11 @@ void MockLogger::logError(const std::string& msg)
 	_history.call("logError", msg);
 }
 
+void MockLogger::logTrace(const std::string& msg)
+{
+	_history.call("logTrace", msg);
+}
+
 void MockLogger::logWarn(const std::string& msg)
 {
 	_history.call("logWarn", msg);

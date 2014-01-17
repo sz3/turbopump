@@ -10,5 +10,6 @@ public:
 
 	virtual void logDebug(const std::string& msg) = 0;
 	virtual void logError(const std::string& msg) = 0;
+	virtual void logTrace(const std::string& msg) = 0;
 	virtual void logWarn(const std::string& msg) = 0;
 };
