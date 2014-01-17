@@ -2,21 +2,18 @@
 #pragma once
 
 #include "data_store/IDataStoreReader.h"
-
-class IHashRing;
 class IMembership;
-class IPeerTracker;
+class IMessageSender;
 class KeyMetadata;
 
-class MirrorToPeer
+class NotifyWriteComplete
 {
 public:
-	MirrorToPeer(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers);
+	NotifyWriteComplete(const IMembership& membership, IMessageSender& messenger);
 
-	bool run(KeyMetadata md, IDataStoreReader::ptr contents);
+	void run(KeyMetadata md, IDataStoreReader::ptr contents);
 
 protected:
-	const IHashRing& _ring;
 	const IMembership& _membership;
-	IPeerTracker& _peers;
+	IMessageSender& _messenger;
 };

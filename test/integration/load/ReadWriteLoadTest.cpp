@@ -33,7 +33,7 @@ namespace {
 
 TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 {
-	TurboCluster cluster(2);
+	TurboCluster cluster(2, "--clone");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
@@ -73,7 +73,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 {
 	std::vector<string> timingData;
 
-	TurboCluster cluster(2);
+	TurboCluster cluster(2, "--clone");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
@@ -148,7 +148,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 
 TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 {
-	TurboCluster cluster(2);
+	TurboCluster cluster(2, "--clone");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 

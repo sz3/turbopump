@@ -10,7 +10,6 @@
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
-#include "mock/MockMessageSender.h"
 #include "mock/MockPeerTracker.h"
 
 #include "util/CallHistory.h"
@@ -34,11 +33,9 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	membership.addIp("bbb", "bbb");
 	membership.addIp("ccc", "ccc");
 	membership.addIp("ddd", "ddd");
-	membership._self.reset( new Peer("me") );
 	membership._history.clear();
-	MockMessageSender messenger;
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
+	MirrorToPeer command(ring, membership, peers);
 
 	// input
 	MockDataStore store;
@@ -54,7 +51,6 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "", messenger._history.calls() );
 	assertEquals( "write(0,write|name=file i=1 n=3 source=me|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
@@ -72,9 +68,8 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	membership.addIp("ddd", "ddd");
 	membership._self = membership.lookup("aaa");
 	membership._history.clear();
-	MockMessageSender messenger;
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
+	MirrorToPeer command(ring, membership, peers);
 
 	// input
 	MockDataStore store;
@@ -90,7 +85,6 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)|lookup(bbb)", membership._history.calls() );
 	assertEquals( "getWriter(bbb)", peers._history.calls() );
-	assertEquals( "", messenger._history.calls() );
 	assertEquals( "write(0,write|name=file i=2 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
@@ -108,9 +102,8 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	membership.addIp("ddd", "ddd");
 	membership._self = membership.lookup("ccc");
 	membership._history.clear();
-	MockMessageSender messenger;
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
+	MirrorToPeer command(ring, membership, peers);
 
 	// input
 	MockDataStore store;
@@ -126,7 +119,6 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "", messenger._history.calls() );
 	assertEquals( "write(0,write|name=file i=1 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
@@ -143,9 +135,8 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	membership.addIp("ccc", "ccc");
 	membership.addIp("ddd", "ddd");
 	membership._history.clear();
-	MockMessageSender messenger;
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
+	MirrorToPeer command(ring, membership, peers);
 
 	// input
 	MockDataStore store;
@@ -161,7 +152,6 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "", messenger._history.calls() );
 	assertEquals( "write(0,write|name=file i=3 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
@@ -178,9 +168,8 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	membership.addIp("ccc", "ccc");
 	membership.addIp("ddd", "ddd");
 	membership._history.clear();
-	MockMessageSender messenger;
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
+	MirrorToPeer command(ring, membership, peers);
 
 	// input
 	MockDataStore store;
@@ -196,84 +185,6 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()", membership._history.calls() );
 	assertEquals( "", peers._history.calls() );
-	assertEquals( "", messenger._history.calls() );
-	assertEquals( "", writer->_history.calls() );
-}
-
-// same as Done, but with an extra operation... dropKey()
-TEST_CASE( "MirrorToPeerTest/testMirror_Done_DropExtraMirror", "[unit]" )
-{
-	MockHashRing ring;
-	ring._workers.push_back("aaa");
-	ring._workers.push_back("bbb");
-	ring._workers.push_back("ccc");
-	ring._workers.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
-	membership.addIp("source", "source");
-	membership._history.clear();
-	MockMessageSender messenger;
-	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
-
-	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
-
-	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
-
-	KeyMetadata md("file", 3, 3);
-	md.source = "source";
-	assertFalse( command.run(md, reader) );
-
-	assertEquals( "locations(file,3)", ring._history.calls() );
-	assertEquals( "self()|lookup(source)", membership._history.calls() );
-	assertEquals( "", peers._history.calls() );
-	assertEquals( "dropKey(source,file)", messenger._history.calls() );
-	assertEquals( "", writer->_history.calls() );
-}
-
-TEST_CASE( "MirrorToPeerTest/testMirror_Done_DropExtraMirrorFails", "[unit]" )
-{
-	MockHashRing ring;
-	ring._workers.push_back("aaa");
-	ring._workers.push_back("bbb");
-	ring._workers.push_back("ccc");
-	ring._workers.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
-	// mirror "source" isn't a valid member
-	membership._history.clear();
-	MockMessageSender messenger;
-	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
-
-	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
-
-	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
-
-	KeyMetadata md("file", 3, 3);
-	md.source = "source";
-	assertFalse( command.run(md, reader) );
-
-	assertEquals( "locations(file,3)", ring._history.calls() );
-	assertEquals( "self()|lookup(source)", membership._history.calls() );
-	assertEquals( "", peers._history.calls() );
-	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", writer->_history.calls() );
 }
 
@@ -291,9 +202,8 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	membership.addIp("ddd", "ddd");
 	membership._self = membership.lookup("ddd");
 	membership._history.clear();
-	MockMessageSender messenger;
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, messenger, peers);
+	MirrorToPeer command(ring, membership, peers);
 
 	// input
 	MockDataStore store;
@@ -309,7 +219,6 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	assertEquals( "locations(file,4)", ring._history.calls() );
 	assertEquals( "self()|lookup(ddd)", membership._history.calls() );
 	assertEquals( "", peers._history.calls() );
-	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", writer->_history.calls() );
 }
 

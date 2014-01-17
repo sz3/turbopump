@@ -11,6 +11,6 @@ MockWriteActionSender::MockWriteActionSender()
 
 bool MockWriteActionSender::store(const Peer& peer, const KeyMetadata& file, IDataStoreReader::ptr contents)
 {
-	_history.call("store", peer.uid, file.filename, file.mirror, file.totalCopies);
+	_history.call("store", peer.uid, file.filename, file.mirror, file.totalCopies, file.source);
 	return !_storeFails;
 }

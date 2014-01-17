@@ -30,7 +30,9 @@ int main(int argc, const char** argv)
 	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-d", "--dataChannel");
 	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
-	opt.add("", false, 0, 0, "peer-to-peer communications use UDP instead of congestion-aware, reliable UDT", "", "--udp");
+	opt.add("", false, 0, 0, "TEST-ONLY: disable data forwarding", "--no-write-chaining");
+	opt.add("", false, 0, 0, "TEST-ONLY: disable query-response data sync between peers", "--no-merkle");
+	opt.add("", false, 0, 0, "peer-to-peer communications use UDP instead of congestion-aware, reliable UDT", "--udp");
 
 	opt.parse(argc, argv);
 
@@ -58,10 +60,11 @@ int main(int argc, const char** argv)
 	std::cout << turbopath << ":" << port << std::endl;
 	TurboApi api;
 	if (opt.isSet("--clone"))
-	{
 		api.options.partition_keys = false;
-		api.options.merkle = true; //TODO: only for a while
-	}
+	if (opt.isSet("--no-write-chaining"))
+		api.options.write_chaining = false;
+	if (opt.isSet("--no-merkle"))
+		api.options.merkle = false;
 	if (opt.isSet("--udp"))
 		api.options.udt = false;
 

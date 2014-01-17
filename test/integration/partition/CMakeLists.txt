@@ -4,6 +4,7 @@ project(partition_test)
 
 set (SOURCES
 	test.cpp
+	MerklePartitionTest.cpp
 	PartitionStoreTest.cpp
 )
 

@@ -27,7 +27,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 
 	assertEquals( "find(oak)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "store(fooid,file1,0,0)|store(fooid,file3,0,0)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,0,1,)|store(fooid,file3,0,1,)", writer._history.calls() );
 }
 
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )
@@ -63,5 +63,5 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 
 	assertEquals( "find(oak)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "store(fooid,file1,0,0)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,0,1,)", writer._history.calls() );
 }

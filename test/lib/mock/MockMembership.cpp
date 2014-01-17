@@ -3,6 +3,11 @@
 
 #include "membership/Peer.h"
 
+MockMembership::MockMembership()
+	: _self( new Peer("me") )
+{
+}
+
 bool MockMembership::addIp(const std::string& ip, const std::string& uid)
 {
 	_history.call("addIp", ip, uid);
