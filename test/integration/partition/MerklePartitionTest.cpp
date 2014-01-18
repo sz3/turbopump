@@ -47,43 +47,55 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 		assertEquals( "", response );
 	}
 
-	CommandLine::run("sleep 30");
-
 	// wait for files to propagate
 	// again, 2,6,1,5,4,3
-	response = cluster[1].query("local_list");
-	assertEquals( "(1)=>7\n"
-				  "(2)=>7\n"
-				  "(6)=>7", response );
+	waitFor(60, response, [&]()
+	{
+		response = cluster[1].query("local_list");
+		return "(1)=>7\n"
+			   "(2)=>7\n"
+			   "(6)=>7" == response;
+	});
 
-	response = cluster[2].query("local_list");
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(4)=>7", response );
+	waitFor(30, response, [&]()
+	{
+		response = cluster[2].query("local_list");
+		return "(2)=>7\n"
+			   "(3)=>7\n"
+			   "(4)=>7" == response;
+	});
 
-	response = cluster[3].query("local_list");
-	assertEquals( "(3)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
+	waitFor(20, response, [&]()
+	{
+		response = cluster[3].query("local_list");
+		return "(3)=>7\n"
+			   "(4)=>7\n"
+			   "(5)=>7" == response;
+	});
 
+	waitFor(20, response, [&]()
+	{
+		response = cluster[4].query("local_list");
+		return "(1)=>7\n"
+			   "(4)=>7\n"
+			   "(5)=>7" == response;
+	});
 
-	response = cluster[4].query("local_list");
-	assertEquals( "(1)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
+	waitFor(20, response, [&]()
+	{
+		response = cluster[5].query("local_list");
+		return "(1)=>7\n"
+			   "(5)=>7\n"
+			   "(6)=>7" == response;
+	});
 
-
-	response = cluster[5].query("local_list");
-	assertEquals( "(1)=>7\n"
-				  "(5)=>7\n"
-				  "(6)=>7", response );
-
-
-	response = cluster[6].query("local_list");
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(6)=>7", response );
-
+	waitFor(20, response, [&]()
+	{
+		response = cluster[6].query("local_list");
+		return "(2)=>7\n"
+			   "(3)=>7\n"
+			   "(6)=>7" == response;
+	});
 }
 
 TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
@@ -115,41 +127,54 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 		assertEquals( "", response );
 	}
 
-	//CommandLine::run("sleep 60");
-
 	// wait for files to propagate
 	// again, 2,6,1,5,4,3
-	response = cluster[2].query("local_list");
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(4)=>7", response );
-
-	response = cluster[3].query("local_list");
-	assertEquals( "(3)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
-
-
-	response = cluster[4].query("local_list");
-	assertEquals( "(1)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
-
-
-	response = cluster[5].query("local_list");
-	assertEquals( "(1)=>7\n"
-				  "(5)=>7\n"
-				  "(6)=>7", response );
-
-
-	response = cluster[6].query("local_list");
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(6)=>7", response );
-
 	// runner1 should drop the files he's not responsible for
-	response = cluster[1].query("local_list");
-	assertEquals( "(1)=>7\n"
-				  "(2)=>7\n"
-				  "(6)=>7", response );
+	waitFor(60, response, [&]()
+	{
+		response = cluster[1].query("local_list");
+		return "(1)=>7\n"
+			   "(2)=>7\n"
+			   "(6)=>7" == response;
+	});
+
+	waitFor(30, response, [&]()
+	{
+		response = cluster[2].query("local_list");
+		return "(2)=>7\n"
+			   "(3)=>7\n"
+			   "(4)=>7" == response;
+	});
+
+	waitFor(20, response, [&]()
+	{
+		response = cluster[3].query("local_list");
+		return "(3)=>7\n"
+			   "(4)=>7\n"
+			   "(5)=>7" == response;
+	});
+
+	waitFor(20, response, [&]()
+	{
+		response = cluster[4].query("local_list");
+		return "(1)=>7\n"
+			   "(4)=>7\n"
+			   "(5)=>7" == response;
+	});
+
+	waitFor(20, response, [&]()
+	{
+		response = cluster[5].query("local_list");
+		return "(1)=>7\n"
+			   "(5)=>7\n"
+			   "(6)=>7" == response;
+	});
+
+	waitFor(20, response, [&]()
+	{
+		response = cluster[6].query("local_list");
+		return "(2)=>7\n"
+			   "(3)=>7\n"
+			   "(6)=>7" == response;
+	});
 }

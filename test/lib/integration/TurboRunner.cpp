@@ -41,7 +41,8 @@ void TurboRunner::start()
 
 void TurboRunner::stop()
 {
-	int res = system("kill -9 `ps faux | grep 'turbopump ' | grep -v grep | awk '{print $2}'`");
+	string command = "kill -9 `ps faux | grep 'turbopump ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
+	int res = system(command.c_str());
 }
 
 std::string TurboRunner::query(std::string action) const
