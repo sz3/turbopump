@@ -8,7 +8,7 @@ class MockSkewCorrector : public ICorrectSkew
 {
 public:
 	void healKey(const Peer& peer, unsigned long long key);
-	void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last);
+	void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom);
 
 public:
 	CallHistory _history;

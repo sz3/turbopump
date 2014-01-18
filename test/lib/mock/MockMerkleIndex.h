@@ -13,6 +13,7 @@ public:
 
 	const IMerkleTree& find(const std::string& id) const;
 	const IMerkleTree& randomTree() const;
+	const IMerkleTree& unwantedTree() const;
 
 public:
 	MockMerkleTree _tree;

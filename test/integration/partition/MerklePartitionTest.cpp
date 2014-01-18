@@ -148,9 +148,8 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 				  "(6)=>7", response );
 
 	// runner1 should drop the files he's not responsible for
-	// ... but he doesn't know how yet so he won't. Welp.
-	/*response = cluster[1].query("local_list");
+	response = cluster[1].query("local_list");
 	assertEquals( "(1)=>7\n"
 				  "(2)=>7\n"
-				  "(6)=>7", response );*/
+				  "(6)=>7", response );
 }

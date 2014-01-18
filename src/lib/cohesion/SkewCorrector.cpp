@@ -26,7 +26,7 @@ void SkewCorrector::healKey(const Peer& peer, unsigned long long key)
 	std::cout << "how does SkewCorrector heal key? :(" << std::endl;
 }
 
-void SkewCorrector::pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last)
+void SkewCorrector::pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
 {
 	const IMerkleTree& tree = _index.find(treeid);
 
@@ -40,6 +40,11 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const string& treeid, unsigne
 			continue;
 
 		KeyMetadata md(*it, 0, reader->data().totalCopies);
+		if (!offloadFrom.empty())
+		{
+			md.source = offloadFrom;
+			md.mirror = md.totalCopies;
+		}
 		if (!_sender.store(peer, md, reader))
 		{
 			std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;

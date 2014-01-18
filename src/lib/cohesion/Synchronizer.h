@@ -17,6 +17,7 @@ public:
 	Synchronizer(const IHashRing& ring, const IMembership& membership, const IMerkleIndex& index, IMessageSender& messenger, ICorrectSkew& corrector);
 
 	void pingRandomPeer();
+	void offloadUnwantedKeys();
 	void compare(const Peer& peer, const std::string& treeid, const MerklePoint& point);
 	void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last);
 

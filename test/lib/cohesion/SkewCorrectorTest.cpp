@@ -30,6 +30,26 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 	assertEquals( "store(fooid,file1,0,1,)|store(fooid,file3,0,1,)", writer._history.calls() );
 }
 
+TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Offload", "[unit]" )
+{
+	MockMerkleIndex index;
+	MockDataStore store;
+	MockWriteActionSender writer;
+	SkewCorrector corrector(index, store, writer);
+
+	index._tree._enumerate.push_back("file1");
+	index._tree._enumerate.push_back("badfile");
+	index._tree._enumerate.push_back("file3");
+	store._store["file1"] = "I am file 1";
+	store._store["file3"] = "I am file 3";
+
+	corrector.pushKeyRange(Peer("fooid"), "oak", 0, 1234567890, "offloadFrom");
+
+	assertEquals( "find(oak)", index._history.calls() );
+	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
+	assertEquals( "store(fooid,file1,1,1,offloadFrom)|store(fooid,file3,1,1,offloadFrom)", writer._history.calls() );
+}
+
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )
 {
 	MockMerkleIndex index;

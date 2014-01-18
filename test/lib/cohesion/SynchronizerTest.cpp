@@ -71,6 +71,29 @@ TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 	assertEquals( "top()", index._tree._history.calls() );
 }
 
+TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("dude");
+	MockMembership membership;
+	membership.addIp("dude", "dude");
+	membership._history.clear();
+	MockMerkleIndex index;
+	index._tree._top = whatsThePoint(5);
+	index._tree._id = "oak";
+	MockMessageSender messenger;
+	MockSkewCorrector corrector;
+
+	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	sinkro.offloadUnwantedKeys();
+
+	assertEquals( "unwantedTree()", index._history.calls() );
+	assertEquals( "empty()", index._tree._history.calls() );
+	assertEquals( "locationsFromHash(oak,3)", ring._history.calls() );
+	assertEquals( "randomPeerFromList()|self()", membership._history.calls() );
+	assertEquals( ("pushKeyRange(dude,oak,0," + StringUtil::str(~0ULL) + ",me)"), corrector._history.calls() );
+}
+
 TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 {
 	MockHashRing ring;
@@ -85,7 +108,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 
 	assertEquals( "find(oak)", index._history.calls() );
 	assertEquals( "top()", index._tree._history.calls() );
-	assertEquals( ("pushKeyRange(fooid,oak,0," + StringUtil::str(~0ULL) + ")"), corrector._history.calls() );
+	assertEquals( ("pushKeyRange(fooid,oak,0," + StringUtil::str(~0ULL) + ",)"), corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }

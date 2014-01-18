@@ -13,7 +13,7 @@ public:
 	SkewCorrector(const IMerkleIndex& index, const IDataStore& store, IWriteActionSender& sender);
 
 	void healKey(const Peer& peer, unsigned long long key);
-	void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last);
+	void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="");
 
 protected:
 	const IMerkleIndex& _index;

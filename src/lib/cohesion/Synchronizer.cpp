@@ -25,7 +25,6 @@ Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership,
 {
 }
 
-// TODO: use hash ring to choose what section we need to try to sync, instead of a random peer selection.
 void Synchronizer::pingRandomPeer()
 {
 	const IMerkleTree& tree = _index.randomTree();
@@ -37,8 +36,28 @@ void Synchronizer::pingRandomPeer()
 	_messenger.merklePing(*peer, tree.id(), tree.top());
 }
 
+void Synchronizer::offloadUnwantedKeys()
+{
+	const IMerkleTree& tree = _index.unwantedTree();
+	if (tree.empty())
+		return;
+
+	std::vector<string> locations = _ring.locationsFromHash(tree.id(), 3); // tree.mirrorCount() or something?
+	if (locations.empty())
+		return;
+
+	shared_ptr<Peer> peer = _membership.randomPeerFromList(locations);
+	if (!peer)
+		return;
+	// TODO: some sort of exchange will be necessary here.
+	// "tell me if you have these" => "oh, you have A and B but not C?"
+	// ... but for now, just chuck everything at them
+	_corrector.pushKeyRange(*peer, tree.id(), 0, ~0ULL, _membership.self()->uid);
+}
+
 void Synchronizer::compare(const Peer& peer, const string& treeid, const MerklePoint& point)
 {
+	// TODO: do we need to sanity check treeid against the _ring or _index to make sure we care?
 	const IMerkleTree& tree = _index.find(treeid);
 	if (point == MerklePoint::null())
 	{

@@ -13,7 +13,7 @@ using namespace std::placeholders;
 TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
 	: _logger(IpAddress("127.0.0.1", port).toString())
 	, _callbacks(instruct)
-	, _merkleIndex(_ring)
+	, _merkleIndex(_ring, _membership)
 	, _corrector(_merkleIndex, _localDataStore, _writeActionSender)
 	, _synchronizer(_ring, _membership, _merkleIndex, _messenger, _corrector)
 	, _messenger(_peers)
@@ -58,6 +58,7 @@ void TurboPumpApp::run()
 	}
 
 	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_synchronizer), 3000);
+	_scheduler.schedulePeriodic(std::bind(&Synchronizer::offloadUnwantedKeys, &_synchronizer), 5000);
 
 	_state.running();
 	_shutdown.wait();

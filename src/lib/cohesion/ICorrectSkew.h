@@ -10,5 +10,5 @@ public:
 	virtual ~ICorrectSkew() {}
 
 	virtual void healKey(const Peer& peer, unsigned long long key) = 0;
-	virtual void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last) = 0;
+	virtual void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="") = 0;
 };

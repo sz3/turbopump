@@ -5,6 +5,7 @@
 #include "MerkleRange.h"
 #include "consistent_hashing/Hash.h"
 #include "mock/MockHashRing.h"
+#include "mock/MockMembership.h"
 #include "serialize/StringUtil.h"
 #include <deque>
 #include <string>
@@ -14,7 +15,8 @@ using std::string;
 TEST_CASE( "MerkleIndexTest/testNoRingMembers", "[unit]" )
 {
 	MockHashRing ring;
-	MerkleIndex index(ring);
+	MockMembership membership;
+	MerkleIndex index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -43,7 +45,8 @@ TEST_CASE( "MerkleIndexTest/testSingleTree", "[unit]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("fooid");
-	MerkleIndex index(ring);
+	MockMembership membership;
+	MerkleIndex index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -72,7 +75,8 @@ TEST_CASE( "MerkleIndexTest/testManyTrees", "[unit]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("aaa");
-	MerkleIndex index(ring);
+	MockMembership membership;
+	MerkleIndex index(ring, membership);
 	assertEquals( 0, index.list().size() );
 
 	index.add("one");
@@ -104,4 +108,55 @@ TEST_CASE( "MerkleIndexTest/testManyTrees", "[unit]" )
 
 	files = index.find("ccc").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "", StringUtil::stlJoin(files) );
+}
+
+namespace {
+	class TestableMerkleIndex : public MerkleIndex
+	{
+	public:
+		TestableMerkleIndex(IHashRing& ring, IMembership& membership)
+			: MerkleIndex(ring, membership)
+		{}
+
+	public:
+		using MerkleIndex::_unwanted;
+		using MerkleIndex::_wanted;
+	};
+}
+
+TEST_CASE( "MerkleIndexTest/testWantedAndUnwanted", "[unit]" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	index.add("one");
+	index.add("two");
+	assertEquals( "aaa", StringUtil::stlJoin(index.list()) );
+	assertEquals( "aaa", StringUtil::stlJoin(index._unwanted) );
+	assertEquals( "", StringUtil::stlJoin(index._wanted) );
+
+	ring._workers[0] = "me";
+	index.add("three");
+	index.add("four");
+	assertEquals( "aaa me", StringUtil::stlJoin(index.list()) );
+	assertEquals( "aaa", StringUtil::stlJoin(index._unwanted) );
+	assertEquals( "me", StringUtil::stlJoin(index._wanted) );
+
+	// randomTree picks from wanted trees -- ones we should be doing merkle exchanges for
+	assertEquals( "me", index.randomTree().id() );
+	assertEquals( "aaa", index.unwantedTree().id() );
+
+	index.remove("three");
+	index.remove("four");
+	assertEquals( "aaa", StringUtil::stlJoin(index.list()) );
+	assertEquals( "aaa", StringUtil::stlJoin(index._unwanted) );
+	assertEquals( "", StringUtil::stlJoin(index._wanted) );
+
+	ring._workers[0] = "aaa";
+	index.remove("one");
+	index.remove("two");
+	assertEquals( "", StringUtil::stlJoin(index.list()) );
+	assertEquals( "", StringUtil::stlJoin(index._unwanted) );
 }

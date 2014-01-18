@@ -8,7 +8,7 @@ void MockSkewCorrector::healKey(const Peer& peer, unsigned long long key)
 	_history.call("healKey", peer.uid, key);
 }
 
-void MockSkewCorrector::pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last)
+void MockSkewCorrector::pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
 {
-	_history.call("pushKeyRange", peer.uid, treeid, first, last);
+	_history.call("pushKeyRange", peer.uid, treeid, first, last, offloadFrom);
 }

@@ -4,11 +4,16 @@
 #include "common/MerklePoint.h"
 #include "consistent_hashing/IHashRing.h"
 #include "consistent_hashing/Hash.h"
+#include "membership/IMembership.h"
+#include "membership/Peer.h"
+
 #include "util/Random.h"
+#include <algorithm>
 using std::string;
 
-MerkleIndex::MerkleIndex(const IHashRing& ring)
+MerkleIndex::MerkleIndex(const IHashRing& ring, const IMembership& membership)
 	: _ring(ring)
+	, _membership(membership)
 {
 }
 
@@ -28,10 +33,17 @@ void MerkleIndex::add(const std::string& key)
 	 * merkle sections can be looked up by this hash token
 	 **/
 
-	string section = _ring.section(key);
+	std::vector<string> locs;
+	string section = _ring.lookup(key, locs, 3);
 	MerkleTree& tree = _forest[section];
 	if (tree.empty())
+	{
 		tree.setId(section);
+		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
+			_unwanted.insert(section);
+		else
+			_wanted.insert(section);
+	}
 	tree.add(key);
 }
 
@@ -45,7 +57,11 @@ void MerkleIndex::remove(const string& key)
 	MerkleTree& tree = it->second;
 	tree.remove(key);
 	if (tree.empty())
+	{
+		_unwanted.erase(section);
+		_wanted.erase(section);
 		_forest.erase(it);
+	}
 }
 
 const IMerkleTree& MerkleIndex::find(const string& id) const
@@ -60,8 +76,20 @@ const IMerkleTree& MerkleIndex::randomTree() const
 {
 	if (_forest.empty())
 		return _emptyTree;
-	std::map<string, MerkleTree>::const_iterator it = Random::select(_forest.begin(), _forest.end(), _forest.size());
-	return it->second;
+	std::set<string>::const_iterator it = Random::select(_wanted.begin(), _wanted.end(), _wanted.size());
+	if (it == _wanted.end())
+		return _emptyTree;
+	return find(*it);
+}
+
+const IMerkleTree& MerkleIndex::unwantedTree() const
+{
+	if (_forest.empty())
+		return _emptyTree;
+	std::set<string>::const_iterator it = Random::select(_unwanted.begin(), _unwanted.end(), _unwanted.size());
+	if (it == _unwanted.end())
+		return _emptyTree;
+	return find(*it);
 }
 
 std::vector<string> MerkleIndex::list() const

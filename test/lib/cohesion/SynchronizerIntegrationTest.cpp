@@ -53,9 +53,9 @@ namespace
 			_history.call("healKey", key);
 		}
 
-		void pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last)
+		void pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last, const string& offloadFrom)
 		{
-			_history.call("pushKeyRange", treeid, first, last);
+			_history.call("pushKeyRange", treeid, first, last, offloadFrom);
 			deque<string> toPush = _index.find(treeid).enumerate(first, last);
 			_corrected.insert(_corrected.end(), toPush.begin(), toPush.end());
 		}
@@ -71,8 +71,9 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("fooid"); // will be used as the MerkleTree's id
-	MerkleIndex indexOne(ring);
-	MerkleIndex indexTwo(ring);
+	MockMembership membership;
+	MerkleIndex indexOne(ring, membership);
+	MerkleIndex indexTwo(ring, membership);
 
 	indexOne.add("one0");
 	indexOne.add("one1");
@@ -105,7 +106,6 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 	TestMessageSender senderTwo;
 	TestSkewCorrector correctorTwo(indexTwo);
 
-	MockMembership membership;
 	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne);
 	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo);
 
@@ -124,8 +124,9 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 {
 	MockHashRing ring;
 	ring._workers.push_back("fooid");
-	MerkleIndex indexOne(ring);
-	MerkleIndex indexTwo(ring);
+	MockMembership membership;
+	MerkleIndex indexOne(ring, membership);
+	MerkleIndex indexTwo(ring, membership);
 
 	for (int i = 0; i < 100; ++i)
 	{
@@ -140,7 +141,6 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integratio
 	TestMessageSender senderTwo;
 	TestSkewCorrector correctorTwo(indexTwo);
 
-	MockMembership membership;
 	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne);
 	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo);
 

@@ -26,3 +26,10 @@ const IMerkleTree& MockMerkleIndex::randomTree() const
 	_history.call("randomTree");
 	return _tree;
 }
+
+const IMerkleTree& MockMerkleIndex::unwantedTree() const
+{
+	// determined by fair dice roll. Guaranteed to be random.
+	_history.call("unwantedTree");
+	return _tree;
+}

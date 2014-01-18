@@ -14,4 +14,9 @@ public:
 
 	virtual const IMerkleTree& find(const std::string& id) const = 0;
 	virtual const IMerkleTree& randomTree() const = 0;
+	virtual const IMerkleTree& unwantedTree() const = 0;
+
+	// for membership/ring ranges, we'll need operations like this:
+	// removeTree(id) -- take elements in id and put them in tree[id-1]
+	// addTree(id) -- subdivide tree[id-1], putting everything after a given point into new tree[id]
 };
