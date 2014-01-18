@@ -4,9 +4,12 @@
 #include "MirrorToPeer.h"
 #include "NotifyWriteComplete.h"
 #include "RandomizedMirrorToPeer.h"
+
 #include "cohesion/IMerkleIndex.h"
 #include "common/KeyMetadata.h"
+#include "event/ISchedulerThread.h"
 #include "util/FunctionChainer.h"
+
 #include <deque>
 #include <functional>
 using std::bind;
@@ -17,19 +20,19 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> merkleAddFunct(IMerkleIndex& merkleIndex)
+	std::function<void(KeyMetadata, IDataStoreReader::ptr)> merkleAddFunct(ISchedulerThread& scheduler, IMerkleIndex& merkleIndex)
 	{
 		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
 		{
-			merkleIndex.add(md.filename);
+			scheduler.schedule( bind(&IMerkleIndex::add, std::ref(merkleIndex), md.filename), 0 );
 		};
 	}
 
-	std::function<void(KeyMetadata)> merkleDelFunct(IMerkleIndex& merkleIndex)
+	std::function<void(KeyMetadata)> merkleDelFunct(ISchedulerThread& scheduler, IMerkleIndex& merkleIndex)
 	{
 		return [&] (KeyMetadata md)
 		{
-			merkleIndex.remove(md.filename);
+			scheduler.schedule( bind(&IMerkleIndex::remove, std::ref(merkleIndex), md.filename), 0 );
 		};
 	}
 
@@ -61,7 +64,7 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(const IHashRing& ring, const IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
+void Callbacks::initialize(ISchedulerThread& scheduler, const IHashRing& ring, const IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"
@@ -70,7 +73,7 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 	{
 		FunctionChainer<KeyMetadata, IDataStoreReader::ptr> chain(when_local_write_finishes);
 		if (TurboApi::options.merkle)
-			chain.add( merkleAddFunct(merkleIndex) );
+			chain.add( merkleAddFunct(scheduler, merkleIndex) );
 
 		if (TurboApi::options.write_chaining)
 		{
@@ -86,7 +89,7 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 	{
 		FunctionChainer<KeyMetadata, IDataStoreReader::ptr> chain(when_mirror_write_finishes);
 		if (TurboApi::options.merkle)
-			chain.add( merkleAddFunct(merkleIndex) );
+			chain.add( merkleAddFunct(scheduler, merkleIndex) );
 
 		if (TurboApi::options.write_chaining && TurboApi::options.partition_keys)
 			chain.add( writeChainFunct_partitionMode(ring, membership, peers) );
@@ -100,7 +103,7 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 	{
 		FunctionChainer<KeyMetadata> chain(when_drop_finishes);
 		if (TurboApi::options.merkle)
-			chain.add( merkleDelFunct(merkleIndex) );
+			chain.add( merkleDelFunct(scheduler, merkleIndex) );
 		when_drop_finishes = chain.generate();
 	}
 }

@@ -130,7 +130,7 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 					action = newAction(peer, parser.action(), parser.params());
 					if (action->multiPacket())
 					{
-						std::cout << "action is multipacket! " << action->name() << std::endl;
+						//std::cout << "action is multipacket! " << action->name() << std::endl;
 						VirtualConnection& virt = conn[virtid];
 						virt.setAction(action);
 
