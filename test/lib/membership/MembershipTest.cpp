@@ -117,6 +117,6 @@ TEST_CASE( "MembershipTest/testForEachPeer", "[unit]" )
 	auto fun = [&peers] (const Peer& peer) { peers.push_back(peer.uid); };
 	membership.forEachPeer(fun);
 
-	assertStringsEqual("barid fooid rabid", StringUtil::stlJoin(peers));
+	assertStringsEqual("barid fooid rabid", StringUtil::join(peers));
 }
 

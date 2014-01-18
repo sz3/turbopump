@@ -36,7 +36,7 @@ unsigned char Peer::nextActionId() const
 
 string Peer::toString() const
 {
-	string iplist = StringUtil::stlJoin(ips, '|');
+	string iplist = StringUtil::join(ips, '|');
 	if (iplist.empty())
 		iplist = "none";
 	return uid + " " + iplist;

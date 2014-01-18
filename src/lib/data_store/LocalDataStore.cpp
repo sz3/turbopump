@@ -130,5 +130,5 @@ std::string LocalDataStore::toString() const
 	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
 		report.push_back("(" + it->first + ")=>" + StringUtil::str(it->second->data.size()));
 	std::sort(report.begin(), report.end());
-	return StringUtil::stlJoin(report, '\n');
+	return StringUtil::join(report, '\n');
 }

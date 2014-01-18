@@ -39,7 +39,7 @@ TEST_CASE( "ActionParserTest/testParseBuffer", "" )
 
 		assertEquals( "I am an action!", parser.action() );
 		assertEquals( 0, parser.params().size() );
-		assertEquals( "", StringUtil::stlJoin(parser.params()) );
+		assertEquals( "", StringUtil::join(parser.params()) );
 		assertEquals( 0, buffer.size() );
 	}
 	{
@@ -49,7 +49,7 @@ TEST_CASE( "ActionParserTest/testParseBuffer", "" )
 
 		assertEquals( "I am an action!", parser.action() );
 		assertEquals( 2, parser.params().size() );
-		assertEquals( "foo=bar thing=what", StringUtil::stlJoin(parser.params()) );
+		assertEquals( "foo=bar thing=what", StringUtil::join(parser.params()) );
 
 		assertEquals( 5, buffer.size() );
 		assertEquals( "data!", buffer.str() );

@@ -41,5 +41,5 @@ std::string MockHashRing::lookup(const std::string& filename, std::vector<std::s
 std::string MockHashRing::toString() const
 {
 	_history.call("toString");
-	return StringUtil::stlJoin(_workers);
+	return StringUtil::join(_workers);
 }

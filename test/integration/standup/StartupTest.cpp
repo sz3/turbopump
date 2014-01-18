@@ -220,6 +220,6 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	assertEquals( expected, response );
 
 	for (std::map<string,Checkpoint>::const_iterator it = checkpoints.begin(); it != checkpoints.end(); ++it)
-		std::cout << "  " << it->first << " : " << StringUtil::stlJoin(it->second.results()) << std::endl;
+		std::cout << "  " << it->first << " : " << StringUtil::join(it->second.results()) << std::endl;
 }
 

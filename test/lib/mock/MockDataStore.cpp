@@ -112,5 +112,5 @@ std::string MockDataStore::toString() const
 	std::vector<string> report;
 	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
 		report.push_back("(" + it->first + ")=>" + it->second);
-	return StringUtil::stlJoin(report, '\n');
+	return StringUtil::join(report, '\n');
 }

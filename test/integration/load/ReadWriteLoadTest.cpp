@@ -187,7 +187,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 		if (it->find("65536") == string::npos)
 			badResults.push_back(*it);
 	}
-	assertEquals( "", StringUtil::stlJoin(badResults, '\n') );
+	assertEquals( "", StringUtil::join(badResults, '\n') );
 
 	// if we got this far, we would then check the contents of each file
 }

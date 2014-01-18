@@ -21,22 +21,22 @@ TEST_CASE( "MerkleTreeTest/testBasics", "[unit]" )
 	assertFalse( tree.empty() );
 
 	deque<string> files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::stlJoin(files) );
+	assertStringsEqual( "two three one", StringUtil::join(files) );
 
 	tree.remove("two");
 	tree.remove("three");
 
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::stlJoin(files) );
+	assertStringsEqual( "one", StringUtil::join(files) );
 
 	tree.add("four");
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::stlJoin(files) );
+	assertStringsEqual( "one four", StringUtil::join(files) );
 
 	tree.remove("one");
 	tree.remove("four");
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::stlJoin(files) );
+	assertStringsEqual( "", StringUtil::join(files) );
 
 	assertTrue( tree.empty() );
 }
@@ -127,6 +127,6 @@ TEST_CASE( "MerkleTreeTest/testTraverse_Case1", "[unit]" )
 
 	assertEquals(64, range.first());
 	assertEquals(0xFFFFFFFFFFFFFF7FULL, range.last());
-	assertEquals( "two0", StringUtil::stlJoin(treeTwo.enumerate(range.first(), range.last())) );
+	assertEquals( "two0", StringUtil::join(treeTwo.enumerate(range.first(), range.last())) );
 }
 

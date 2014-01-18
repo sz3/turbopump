@@ -32,7 +32,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const string& treeid, unsigne
 
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files = tree.enumerate(first, last);
-	std::cout << "pushing " << files.size() << " keys to peer " << peer.uid << ": " << StringUtil::stlJoin(files) << std::endl;
+	std::cout << "pushing " << files.size() << " keys to peer " << peer.uid << ": " << StringUtil::join(files) << std::endl;
 	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
 	{
 		IDataStoreReader::ptr reader = _store.read(*it);

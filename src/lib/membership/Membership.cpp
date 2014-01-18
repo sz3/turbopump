@@ -145,5 +145,5 @@ void Membership::forEachPeer(std::function<void(const Peer&)> fun) const
 
 std::string Membership::toString() const
 {
-	return StringUtil::stlJoin(_members, '\n');
+	return StringUtil::join(_members, '\n');
 }

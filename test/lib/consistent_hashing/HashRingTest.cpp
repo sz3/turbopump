@@ -66,13 +66,13 @@ TEST_CASE( "HashRingTest/testLocationsFromHash", "[unit]" )
 	ring.addWorker("three");
 
 	locs = ring.locationsFromHash(HashRing::hash("one"), 1);
-	assertEquals( "one", StringUtil::stlJoin(locs) );
+	assertEquals( "one", StringUtil::join(locs) );
 
 	locs = ring.locationsFromHash(HashRing::hash("two"), 1);
-	assertEquals( "two", StringUtil::stlJoin(locs) );
+	assertEquals( "two", StringUtil::join(locs) );
 
 	locs = ring.locationsFromHash(HashRing::hash("three"), 1);
-	assertEquals( "three", StringUtil::stlJoin(locs) );
+	assertEquals( "three", StringUtil::join(locs) );
 }
 
 TEST_CASE( "HashRingTest/testLookupSection", "[unit]" )
@@ -83,7 +83,7 @@ TEST_CASE( "HashRingTest/testLookupSection", "[unit]" )
 
 	vector<string> locs;
 	assertEquals( "", ring.lookup("foo", locs, 1) );
-	assertEquals( "", StringUtil::stlJoin(locs) );
+	assertEquals( "", StringUtil::join(locs) );
 
 	ring.addWorker("one");
 	ring.addWorker("two");
@@ -94,11 +94,11 @@ TEST_CASE( "HashRingTest/testLookupSection", "[unit]" )
 	assertEquals( HashRing::hash("three"), ring.section("three") );
 
 	assertEquals( HashRing::hash("one"), ring.lookup("one", locs, 1) );
-	assertEquals( "one", StringUtil::stlJoin(locs) );
+	assertEquals( "one", StringUtil::join(locs) );
 
 	locs.clear();
 	assertEquals( HashRing::hash("two"), ring.section("foo") );
 	assertEquals( HashRing::hash("two"), ring.lookup("foo", locs, 3) );
-	assertEquals( "two three one", StringUtil::stlJoin(locs) );
+	assertEquals( "two three one", StringUtil::join(locs) );
 }
 

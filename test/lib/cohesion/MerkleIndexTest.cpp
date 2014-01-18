@@ -23,22 +23,22 @@ TEST_CASE( "MerkleIndexTest/testNoRingMembers", "[unit]" )
 	index.add("three");
 
 	deque<string> files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::stlJoin(files) );
+	assertStringsEqual( "two three one", StringUtil::join(files) );
 
 	index.remove("two");
 	index.remove("three");
 
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::stlJoin(files) );
+	assertStringsEqual( "one", StringUtil::join(files) );
 
 	index.add("four");
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::stlJoin(files) );
+	assertStringsEqual( "one four", StringUtil::join(files) );
 
 	index.remove("one");
 	index.remove("four");
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::stlJoin(files) );
+	assertStringsEqual( "", StringUtil::join(files) );
 }
 
 TEST_CASE( "MerkleIndexTest/testSingleTree", "[unit]" )
@@ -53,22 +53,22 @@ TEST_CASE( "MerkleIndexTest/testSingleTree", "[unit]" )
 	index.add("three");
 
 	deque<string> files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::stlJoin(files) );
+	assertStringsEqual( "two three one", StringUtil::join(files) );
 
 	index.remove("two");
 	index.remove("three");
 
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::stlJoin(files) );
+	assertStringsEqual( "one", StringUtil::join(files) );
 
 	index.add("four");
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::stlJoin(files) );
+	assertStringsEqual( "one four", StringUtil::join(files) );
 
 	index.remove("one");
 	index.remove("four");
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::stlJoin(files) );
+	assertStringsEqual( "", StringUtil::join(files) );
 }
 
 TEST_CASE( "MerkleIndexTest/testManyTrees", "[unit]" )
@@ -94,20 +94,20 @@ TEST_CASE( "MerkleIndexTest/testManyTrees", "[unit]" )
 	assertEquals( 3, index.list().size() );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two one", StringUtil::stlJoin(files) );
+	assertStringsEqual( "two one", StringUtil::join(files) );
 
 	files = index.find("bbb").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "three four", StringUtil::stlJoin(files) );
+	assertStringsEqual( "three four", StringUtil::join(files) );
 
 	files = index.find("ccc").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "five six", StringUtil::stlJoin(files) );
+	assertStringsEqual( "five six", StringUtil::join(files) );
 
 	index.remove("five");
 	index.remove("six");
 	assertEquals( 2, index.list().size() );
 
 	files = index.find("ccc").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::stlJoin(files) );
+	assertStringsEqual( "", StringUtil::join(files) );
 }
 
 namespace {
@@ -133,16 +133,16 @@ TEST_CASE( "MerkleIndexTest/testWantedAndUnwanted", "[unit]" )
 
 	index.add("one");
 	index.add("two");
-	assertEquals( "aaa", StringUtil::stlJoin(index.list()) );
-	assertEquals( "aaa", StringUtil::stlJoin(index._unwanted) );
-	assertEquals( "", StringUtil::stlJoin(index._wanted) );
+	assertEquals( "aaa", StringUtil::join(index.list()) );
+	assertEquals( "aaa", StringUtil::join(index._unwanted) );
+	assertEquals( "", StringUtil::join(index._wanted) );
 
 	ring._workers[0] = "me";
 	index.add("three");
 	index.add("four");
-	assertEquals( "aaa me", StringUtil::stlJoin(index.list()) );
-	assertEquals( "aaa", StringUtil::stlJoin(index._unwanted) );
-	assertEquals( "me", StringUtil::stlJoin(index._wanted) );
+	assertEquals( "aaa me", StringUtil::join(index.list()) );
+	assertEquals( "aaa", StringUtil::join(index._unwanted) );
+	assertEquals( "me", StringUtil::join(index._wanted) );
 
 	// randomTree picks from wanted trees -- ones we should be doing merkle exchanges for
 	assertEquals( "me", index.randomTree().id() );
@@ -150,13 +150,13 @@ TEST_CASE( "MerkleIndexTest/testWantedAndUnwanted", "[unit]" )
 
 	index.remove("three");
 	index.remove("four");
-	assertEquals( "aaa", StringUtil::stlJoin(index.list()) );
-	assertEquals( "aaa", StringUtil::stlJoin(index._unwanted) );
-	assertEquals( "", StringUtil::stlJoin(index._wanted) );
+	assertEquals( "aaa", StringUtil::join(index.list()) );
+	assertEquals( "aaa", StringUtil::join(index._unwanted) );
+	assertEquals( "", StringUtil::join(index._wanted) );
 
 	ring._workers[0] = "aaa";
 	index.remove("one");
 	index.remove("two");
-	assertEquals( "", StringUtil::stlJoin(index.list()) );
-	assertEquals( "", StringUtil::stlJoin(index._unwanted) );
+	assertEquals( "", StringUtil::join(index.list()) );
+	assertEquals( "", StringUtil::join(index._unwanted) );
 }
