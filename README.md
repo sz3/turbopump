@@ -13,6 +13,7 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 * turbolib (see adjacent library)
 * UDT (libudt)
 * intel's TBB library (libtbb)
+* Crypto++ (libcrypto++/libcryptopp) -- will likely be replaced with libsodium
 
 ### What works
 
@@ -20,22 +21,29 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 * RAM data store
 * local storage and retrieval of small keys via unix domain sockets
 * immutable writes
-* cross-worker sync -- for "clone" use case
+* cross-peer sync
 	* sync/healing based on merkle
 	* merkle-like summary data structure
 * basic function callbacks on write completion
-* inter-box UDP communication for small packets. No reliability, nor congestion control. YMMV.
-* inter-box UDT communication. No ability to reuse bound socket for outgoing connection -> :(
+* inter-box UDP communication for small packets.
+	* No reliability, nor congestion control. YMMV.
+* inter-box UDT communication.
+	* No ability to reuse bound socket for outgoing connection -> :(
 	* may cause NAT issues going forward
-* basic load/latency testing 
+* partitioning! Mode to distribute keys to only their rightful place, rather than "everywhere".
+	* also supports a simpler "clone" mode, where every peer duplicates the entire data store.
+* basic load/latency testing
 	* concurrent writes
 	* large writes
+	* cross-peer sync
 
 ### What's planned
 
-* partitioning! DHT! mode to distribute keys to only their rightful place, rather than "everywhere".
-* encryption of socket layer via libsodium
+* encryption of socket layer via libsodium.
+* a "transient" mode, where keys are only kept until they have been successfully propagated to the destination.
 * API for function callbacks on key execution. Hook for arbitrary code execution via system()?
+* dynamic membership, with online addition/removal of peers to the cluster.
+* libnice NAT traversal
 
 ### What about...? (TODO)
 
