@@ -23,6 +23,8 @@ set(SOURCES
 	MockPeerTracker.h
 	MockProcessState.cpp
 	MockProcessState.h
+	MockSchedulerThread.cpp
+	MockSchedulerThread.h
 	MockSkewCorrector.cpp
 	MockSkewCorrector.h
 	MockSynchronize.cpp

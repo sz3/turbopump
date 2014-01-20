@@ -19,6 +19,16 @@ void ThreadLockedMerkleIndex::remove(const std::string& key)
 	_scheduler.schedule( bind(&IMerkleIndex::remove, std::ref(_index), key), 0 );
 }
 
+void ThreadLockedMerkleIndex::splitTree(const std::string& where)
+{
+	_scheduler.schedule( bind(&IMerkleIndex::splitTree, std::ref(_index), where), 0 );
+}
+
+void ThreadLockedMerkleIndex::cannibalizeTree(const std::string& where)
+{
+	_scheduler.schedule( bind(&IMerkleIndex::cannibalizeTree, std::ref(_index), where), 0 );
+}
+
 const IMerkleTree& ThreadLockedMerkleIndex::find(const std::string& id) const
 {
 	return _index.find(id);

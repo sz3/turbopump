@@ -9,6 +9,10 @@
 class IHashRing;
 class IMembership;
 
+// a forest of merkle trees.
+// organized by section, and tracking ones we want to talk about with our peers "wanted"
+// and those we want to offload ASAP ("unwanted")
+
 class MerkleIndex : public IMerkleIndex
 {
 public:

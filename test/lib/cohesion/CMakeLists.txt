@@ -10,6 +10,7 @@ set (SOURCES
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
 	SynchronizerIntegrationTest.cpp
+	ThreadLockedMerkleIndexTest.cpp
 )
 
 include_directories(

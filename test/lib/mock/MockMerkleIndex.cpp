@@ -14,6 +14,16 @@ void MockMerkleIndex::remove(const std::string& key)
 	_history.call("remove", key);
 }
 
+void MockMerkleIndex::splitTree(const std::string& where)
+{
+	_history.call("splitTree", where);
+}
+
+void MockMerkleIndex::cannibalizeTree(const std::string& where)
+{
+	_history.call("cannibalizeTree", where);
+}
+
 const IMerkleTree& MockMerkleIndex::find(const std::string& id) const
 {
 	_history.call("find", id);

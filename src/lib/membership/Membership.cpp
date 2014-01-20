@@ -55,7 +55,6 @@ void Membership::loadLine(const std::string& line)
 				_self = mem;
 		}
 	}
-
 }
 
 bool Membership::load()
