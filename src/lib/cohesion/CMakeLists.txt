@@ -15,6 +15,8 @@ set(SOURCES
 	SkewCorrector.h
 	Synchronizer.cpp
 	Synchronizer.h
+	ThreadLockedMerkleIndex.cpp
+	ThreadLockedMerkleIndex.h
 )
 
 include_directories(

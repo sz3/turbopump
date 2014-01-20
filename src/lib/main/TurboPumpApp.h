@@ -6,6 +6,7 @@
 #include "actions_req/MessageSender.h"
 #include "actions_req/WriteActionSender.h"
 #include "cohesion/MerkleIndex.h"
+#include "cohesion/ThreadLockedMerkleIndex.h"
 #include "cohesion/SkewCorrector.h"
 #include "cohesion/Synchronizer.h"
 #include "consistent_hashing/HashRing.h"
@@ -41,6 +42,7 @@ protected:
 
 	// healing
 	MerkleIndex _merkleIndex;
+	ThreadLockedMerkleIndex _threadLockedMerkleIndex;
 	SkewCorrector _corrector;
 	Synchronizer _synchronizer;
 

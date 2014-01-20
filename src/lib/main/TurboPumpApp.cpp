@@ -14,6 +14,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	: _logger(IpAddress("127.0.0.1", port).toString())
 	, _callbacks(instruct)
 	, _merkleIndex(_ring, _membership)
+	, _threadLockedMerkleIndex(_merkleIndex, _scheduler)
 	, _corrector(_merkleIndex, _localDataStore, _writeActionSender)
 	, _synchronizer(_ring, _membership, _merkleIndex, _messenger, _corrector)
 	, _messenger(_peers)
@@ -24,7 +25,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _wanPacketHandler(_wanExecutor, _ring, _membership, _peers, _localDataStore, _synchronizer, _logger, _callbacks)
 	, _wanServer(instruct.options, port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2))
 {
-	_callbacks.initialize(_scheduler, _ring, _membership, _merkleIndex, _messenger, _peers);
+	_callbacks.initialize(_ring, _membership, _threadLockedMerkleIndex, _messenger, _peers);
 }
 
 void TurboPumpApp::run()

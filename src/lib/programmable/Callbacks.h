@@ -8,7 +8,6 @@ class IMembership;
 class IMerkleIndex;
 class IMessageSender;
 class IPeerTracker;
-class ISchedulerThread;
 
 // not really sure about the name of this guy, yet
 class Callbacks : public TurboApi
@@ -17,7 +16,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(ISchedulerThread& scheduler, const IHashRing& ring, const IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers);
+	void initialize(const IHashRing& ring, const IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers);
 
 protected:
 };
