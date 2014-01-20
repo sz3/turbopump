@@ -36,14 +36,7 @@ void MerkleIndex::add(const std::string& key)
 	std::vector<string> locs;
 	string section = _ring.lookup(key, locs, 3);
 	MerkleTree& tree = _forest[section];
-	if (tree.empty())
-	{
-		tree.setId(section);
-		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
-			_unwanted.insert(section);
-		else
-			_wanted.insert(section);
-	}
+	initTree(tree, section, locs);
 	tree.add(key);
 }
 
@@ -56,12 +49,74 @@ void MerkleIndex::remove(const string& key)
 
 	MerkleTree& tree = it->second;
 	tree.remove(key);
+	prune(it);
+}
+
+void MerkleIndex::initTree(MerkleTree& tree, const string& section, const std::vector<string>& locs)
+{
 	if (tree.empty())
 	{
-		_unwanted.erase(section);
-		_wanted.erase(section);
+		tree.setId(section);
+		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
+			_unwanted.insert(section);
+		else
+			_wanted.insert(section);
+	}
+}
+
+void MerkleIndex::prune(const std::map<string, MerkleTree>::iterator& it)
+{
+	MerkleTree& tree = it->second;
+	if (tree.empty())
+	{
+		_unwanted.erase(tree.id());
+		_wanted.erase(tree.id());
 		_forest.erase(it);
 	}
+}
+
+std::map<string, MerkleTree>::iterator MerkleIndex::prevTree(const std::map<string, MerkleTree>::iterator& it)
+{
+	std::map<string, MerkleTree>::iterator prev(it);
+	if (prev == _forest.begin())
+		prev = _forest.end();
+	return --prev;
+}
+
+void MerkleIndex::splitTree(const string& where)
+{
+	std::vector<string> locs;
+	string section = _ring.lookup(where, locs, 3);
+	std::pair<std::map<string, MerkleTree>::iterator,bool> pear = _forest.emplace(std::make_pair(section, MerkleTree()));
+	if (!pear.second)
+		return;
+
+	std::map<string, MerkleTree>::iterator prev = prevTree(pear.first);
+	MerkleTree& sourceTree = prev->second;
+	MerkleTree& newTree = pear.first->second;
+	initTree(newTree, section, locs);
+
+	auto fun = [&sourceTree, &newTree] (unsigned long long hash, const std::string& file) { newTree.add(file); sourceTree.remove(file); return true; };
+	sourceTree.forEachInRange(fun, Hash::compute(where).integer(), ~0ULL);
+
+	prune(prev);
+	prune(pear.first);
+}
+
+void MerkleIndex::cannibalizeTree(const string& where)
+{
+	string section = _ring.section(where);
+	std::map<string, MerkleTree>::iterator it = _forest.find(section);
+	if (it == _forest.end())
+		return;
+
+	std::map<string, MerkleTree>::iterator prev = prevTree(it);
+	MerkleTree& dyingTree = it->second;
+	MerkleTree& refugeeTree = prev->second;
+
+	auto fun = [&dyingTree, &refugeeTree] (unsigned long long hash, const std::string& file) { refugeeTree.add(file); dyingTree.remove(file); return true; };
+	dyingTree.forEachInRange(fun, 0, ~0ULL);
+	prune(it);
 }
 
 const IMerkleTree& MerkleIndex::find(const string& id) const

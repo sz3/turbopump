@@ -160,3 +160,160 @@ TEST_CASE( "MerkleIndexTest/testWantedAndUnwanted", "[unit]" )
 	assertEquals( "", StringUtil::join(index.list()) );
 	assertEquals( "", StringUtil::join(index._unwanted) );
 }
+
+TEST_CASE( "MerkleIndexTest/testSplitTree.InHalf", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("aaa");
+	index.add("one");
+	index.add("two");
+	index.add("three");
+	index.add("four");
+
+	ring._workers[0] = "zzz";
+	index.add("five");
+
+	ring._workers[0] = "one";
+	index.splitTree("one");
+	assertEquals( "aaa one zzz", StringUtil::join(index.list()) );
+	assertEquals( "aaa one zzz", StringUtil::join(index._unwanted) );
+	assertEquals( "one", index.find("one").id() );
+
+	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three", StringUtil::join(files) );
+
+	files = index.find("one").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "one four", StringUtil::join(files) );
+
+	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "five", StringUtil::join(files) );
+}
+
+TEST_CASE( "MerkleIndexTest/testSplitTree.AllKeys", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("aaa");
+	index.add("one");
+	index.add("two");
+	index.add("three");
+	index.add("four");
+
+	ring._workers[0] = "two";
+	index.splitTree("two");
+	assertEquals( "two", StringUtil::join(index.list()) );
+	assertEquals( "two", StringUtil::join(index._unwanted) );
+	assertEquals( "two", index.find("two").id() );
+
+	deque<string> files = index.find("two").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three one four", StringUtil::join(files) );
+}
+
+TEST_CASE( "MerkleIndexTest/testSplitTree.NoKeys", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("aaa");
+	index.add("one");
+	index.add("two");
+	index.add("three");
+
+	ring._workers[0] = "four";
+	index.splitTree("four");
+	assertEquals( "aaa", StringUtil::join(index.list()) );
+	assertEquals( "aaa", StringUtil::join(index._unwanted) );
+
+	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three one", StringUtil::join(files) );
+}
+
+TEST_CASE( "MerkleIndexTest/testCannibalizeTree.Last", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("aaa");
+	index.add("one");
+	index.add("two");
+
+	ring._workers[0] = "three";
+	index.add("three");
+	index.add("four");
+
+	assertEquals( "aaa three", StringUtil::join(index.list()) );
+	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two one", StringUtil::join(files) );
+
+	index.cannibalizeTree("three");
+	assertEquals( "aaa", StringUtil::join(index.list()) );
+	assertEquals( "aaa", StringUtil::join(index._unwanted) );
+
+	files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three one four", StringUtil::join(files) );
+}
+
+TEST_CASE( "MerkleIndexTest/testCannibalizeTree.First", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("aaa");
+	index.add("one");
+	index.add("two");
+
+	ring._workers[0] = "ccc";
+	index.add("three");
+	index.add("four");
+
+	assertEquals( "aaa ccc", StringUtil::join(index.list()) );
+	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two one", StringUtil::join(files) );
+
+	ring._workers[0] = "aaa";
+	index.cannibalizeTree("aaa");
+	assertEquals( "ccc", StringUtil::join(index.list()) );
+	assertEquals( "ccc", StringUtil::join(index._unwanted) );
+
+	files = index.find("ccc").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three one four", StringUtil::join(files) );
+}
+
+TEST_CASE( "MerkleIndexTest/testCannibalizeTree.Middle", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("aaa");
+	index.add("one");
+	index.add("two");
+
+	ring._workers[0] = "ccc";
+	index.add("three");
+	index.add("four");
+
+	ring._workers[0] = "zzz";
+	index.add("five");
+
+	assertEquals( "aaa ccc zzz", StringUtil::join(index.list()) );
+
+	ring._workers[0] = "ccc";
+	index.cannibalizeTree("ccc");
+	assertEquals( "aaa zzz", StringUtil::join(index.list()) );
+	assertEquals( "aaa zzz", StringUtil::join(index._unwanted) );
+
+	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three one four", StringUtil::join(files) );
+
+	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "five", StringUtil::join(files) );
+}

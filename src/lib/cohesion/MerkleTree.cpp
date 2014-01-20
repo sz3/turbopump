@@ -59,8 +59,13 @@ std::deque<std::string> MerkleTree::enumerate(unsigned long long first, unsigned
 	std::deque<std::string> files;
 	auto fun = [&,limit] (unsigned long long hash, const std::string& file) { files.push_back(file); first = hash; return files.size() < limit; };
 
-	_tree.enumerate(fun, first, last);
+	forEachInRange(fun, first, last);
 	return files;
+}
+
+void MerkleTree::forEachInRange(const std::function<bool(unsigned long long, const std::string&)>& fun, unsigned long long first, unsigned long long last) const
+{
+	_tree.enumerate(fun, first, last);
 }
 
 // for print()

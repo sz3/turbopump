@@ -9,8 +9,6 @@ class IMembership;
 class IMerkleIndex;
 class IMessageSender;
 
-// this probably should be the "high level" interface overseeing synchronization.
-// that means it probably shouldn't be sending packets itself, but rather delegating to pieces that do?
 class Synchronizer : public ISynchronize
 {
 public:
