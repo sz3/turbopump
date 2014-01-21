@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(partition_test)
+project(dynamic_membership_test)
 
 set (SOURCES
 	test.cpp
-	MerklePartitionTest.cpp
-	PartitionStoreTest.cpp
+	DynamicMembershipTest.cpp
 )
 
 include_directories(
@@ -14,23 +13,20 @@ include_directories(
 )
 
 add_executable (
-	partition_test
+	dynamic_membership_test
 	${SOURCES}
 )
 
-add_test(partition_test partition_test)
+add_test(dynamic_membership_test dynamic_membership_test)
 
-target_link_libraries(partition_test
--Wl,--start-group
-	consistent_hashing
-	membership
+target_link_libraries(dynamic_membership_test
 	integration
+	membership
 
 	command_line
 	file
 	serialize
 	time
--Wl,--end-group
 
 	boost_filesystem
 	boost_system

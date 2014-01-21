@@ -6,9 +6,11 @@
 
 TurboCluster::TurboCluster(unsigned workers, std::string programFlags)
 {
-	TurboRunner::createMemberFile(workers);
 	for (unsigned i = 1; i <= workers; ++i)
-		_workers.emplace_back(9000+i, "/tmp/turbo" + StringUtil::str(9000+i), programFlags);
+	{
+		_workers.emplace_back(9000+i, programFlags);
+		_workers.back().createMemberFile(9001, 1, workers);
+	}
 }
 
 void TurboCluster::start()

@@ -6,7 +6,7 @@
 class TurboRunner
 {
 public:
-	TurboRunner(short port, std::string dataChannel, std::string programFlags="");
+	TurboRunner(short port, std::string programFlags="");
 	~TurboRunner();
 
 	short port() const;
@@ -17,10 +17,11 @@ public:
 
 	std::string query(std::string action) const;
 	bool waitForRunning(unsigned seconds=5) const;
-	static void createMemberFile(int members);
+	void createMemberFile(short firstPort, int firstUid=0, int members=1);
 
 protected:
 	short _port;
 	std::string _dataChannel;
 	std::string _programFlags;
+	std::string _workingDir;
 };

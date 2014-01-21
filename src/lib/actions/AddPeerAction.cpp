@@ -16,7 +16,7 @@ AddPeerAction::AddPeerAction(IHashRing& ring, IMembership& membership, IMerkleIn
 
 std::string AddPeerAction::name() const
 {
-	return "add-peer";
+	return "add_peer";
 }
 
 bool AddPeerAction::run(const DataBuffer& data)

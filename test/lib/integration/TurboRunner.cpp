@@ -4,23 +4,29 @@
 #include "membership/Membership.h"
 #include "serialize/StringUtil.h"
 #include "time/Timer.h"
+
+#include "boost/filesystem.hpp"
 #include <iostream>
 using std::string;
 
 namespace {
-	// TODO: find based on cwd
-	string exePath = "../../../src/exe/turbopump/turbopump";
+	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopump/turbopump";
 }
 
-TurboRunner::TurboRunner(short port, string dataChannel, std::string programFlags)
+TurboRunner::TurboRunner(short port, string programFlags)
 	: _port(port)
-	, _dataChannel(dataChannel)
+	, _dataChannel("/tmp/turbo" + StringUtil::str(port))
 	, _programFlags(programFlags)
-{}
+	, _workingDir(StringUtil::str(port))
+{
+	boost::filesystem::create_directory(_workingDir);
+	createMemberFile(_port);
+}
 
 TurboRunner::~TurboRunner()
 {
 	stop();
+	boost::filesystem::remove_all(_workingDir);
 }
 
 short TurboRunner::port() const
@@ -35,7 +41,7 @@ string TurboRunner::dataChannel() const
 
 void TurboRunner::start()
 {
-	string command = (exePath + " -p " + StringUtil::str(_port) + " -d " + _dataChannel + " " + _programFlags + " &");
+	string command = ("cd " + _workingDir + " && " + exePath + " -p " + StringUtil::str(_port) + " -d " + _dataChannel + " " + _programFlags + " &");
 	int res = system(command.c_str());
 }
 
@@ -64,14 +70,17 @@ bool TurboRunner::waitForRunning(unsigned seconds) const
 	return false;
 }
 
-void TurboRunner::createMemberFile(int members)
+void TurboRunner::createMemberFile(short firstPort, int firstUid, int members)
 {
-	Membership membership("turbo_members.txt", "localhost:1337");
-	for (int i = 1; i <= members; ++i)
+	Membership membership(_workingDir + "/turbo_members.txt", "localhost:" + _workingDir);
+	if (firstUid <= 0)
+		firstUid = firstPort;
+	for (int i = 0; i < members; ++i)
 	{
-		string uid = StringUtil::str(i);
+		string uid = StringUtil::str(firstUid+i);
+		string port = StringUtil::str(firstPort+i);
 		membership.add(uid);
-		membership.addIp("127.0.0.1:" + StringUtil::str(9000+i), uid);
+		membership.addIp("127.0.0.1:" + port, uid);
 	}
 	membership.save();
 }

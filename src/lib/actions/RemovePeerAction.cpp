@@ -16,7 +16,7 @@ RemovePeerAction::RemovePeerAction(IHashRing& ring, IMembership& membership, IMe
 
 std::string RemovePeerAction::name() const
 {
-	return "remove-peer";
+	return "remove_peer";
 }
 
 bool RemovePeerAction::run(const DataBuffer& data)

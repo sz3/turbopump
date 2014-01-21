@@ -5,6 +5,7 @@
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
+#include "mock/MockMerkleIndex.h"
 #include "mock/MockProcessState.h"
 #include "programmable/TurboApi.h"
 #include "socket/StringByteStream.h"
@@ -14,6 +15,7 @@ TEST_CASE( "SwitchboardTest/testDefault", "[unit]" )
 	MockDataStore dataStore;
 	MockHashRing ring;
 	MockMembership membership;
+	MockMerkleIndex merkleIndex;
 	MockProcessState state;
 	TurboApi callbacks;
 
@@ -21,7 +23,7 @@ TEST_CASE( "SwitchboardTest/testDefault", "[unit]" )
 
 	{
 		StringByteStream stream("local_list||");
-		Switchboard board(stream, dataStore, ring, membership, state, callbacks);
+		Switchboard board(stream, dataStore, ring, membership, merkleIndex, state, callbacks);
 		board.run();
 
 		assertEquals( "(hi)=>world", stream.writeBuffer() );

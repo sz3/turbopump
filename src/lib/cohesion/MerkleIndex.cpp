@@ -85,6 +85,8 @@ std::map<string, MerkleTree>::iterator MerkleIndex::prevTree(const std::map<stri
 
 void MerkleIndex::splitTree(const string& where)
 {
+	if (_forest.empty())
+		return;
 	std::vector<string> locs;
 	string section = _ring.lookup(where, locs, 3);
 	std::pair<std::map<string, MerkleTree>::iterator,bool> pear = _forest.emplace(std::make_pair(section, MerkleTree()));

@@ -2,6 +2,7 @@
 #include "Switchboard.h"
 
 // actions
+#include "actions/AddPeerAction.h"
 #include "actions/LocalListAction.h"
 #include "actions/LocalStateAction.h"
 #include "actions/ReadAction.h"
@@ -20,11 +21,12 @@
 #include <vector>
 using std::string;
 
-Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, const IProcessState& state, const TurboApi& callbacks)
+Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex, const IProcessState& state, const TurboApi& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
 	, _ring(ring)
 	, _membership(membership)
+	, _merkleIndex(merkleIndex)
 	, _state(state)
 	, _callbacks(callbacks)
 {
@@ -89,6 +91,8 @@ std::unique_ptr<IAction> Switchboard::newAction(const string& actionName, const 
 		action.reset(new ViewHashRingAction(_ring, _stream));
 	else if (actionName == "state")
 		action.reset(new LocalStateAction(_state, _stream));
+	else if (actionName == "add_peer")
+		action.reset(new AddPeerAction(_ring, _membership, _merkleIndex));
 	else
 		return action;
 

@@ -234,6 +234,17 @@ TEST_CASE( "MerkleIndexTest/testSplitTree.NoKeys", "[unit]" )
 	assertEquals( "two three one", StringUtil::join(files) );
 }
 
+TEST_CASE( "MerkleIndexTest/testSplitEmptyTree", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("one");
+	index.splitTree("one");
+	assertEquals( "", StringUtil::join(index.list()) );
+}
+
 TEST_CASE( "MerkleIndexTest/testCannibalizeTree.Last", "[unit]" )
 {
 	MockHashRing ring;
@@ -316,4 +327,20 @@ TEST_CASE( "MerkleIndexTest/testCannibalizeTree.Middle", "[unit]" )
 
 	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertEquals( "five", StringUtil::join(files) );
+}
+
+// not sure about the contents of this test case, as far as desired behavior goes.
+// however, at least it doesn't core.
+TEST_CASE( "MerkleIndexTest/testCannibalizeTree.ToEmpty", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleIndex index(ring, membership);
+
+	ring._workers.push_back("aaa");
+	index.add("one");
+	index.add("two");
+
+	index.cannibalizeTree("aaa");
+	assertEquals( "", StringUtil::join(index.list()) );
 }

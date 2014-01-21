@@ -29,5 +29,8 @@ target_link_libraries(load_test
 	serialize
 	time
 -Wl,--end-group
+
+	boost_filesystem
+	boost_system
 )
 

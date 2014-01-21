@@ -80,6 +80,6 @@ void TurboPumpApp::shutdown()
 void TurboPumpApp::onClientConnect(int fd)
 {
 	FileByteStream stream(fd);
-	Switchboard switcher(stream, _localDataStore, _ring, _membership, _state, _callbacks);
+	Switchboard switcher(stream, _localDataStore, _ring, _membership, _threadLockedMerkleIndex, _state, _callbacks);
 	switcher.run();
 }

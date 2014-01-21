@@ -65,7 +65,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 			   "(4)=>7" == response;
 	});
 
-	waitFor(20, response, [&]()
+	waitFor(40, response, [&]()
 	{
 		response = cluster[3].query("local_list");
 		return "(3)=>7\n"
@@ -146,7 +146,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 			   "(4)=>7" == response;
 	});
 
-	waitFor(20, response, [&]()
+	waitFor(40, response, [&]()
 	{
 		response = cluster[3].query("local_list");
 		return "(3)=>7\n"

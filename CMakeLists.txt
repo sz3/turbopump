@@ -10,7 +10,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	# -ftime-report
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-std=c++0x")
+    set(CMAKE_CXX_FLAGS "-std=c++0x -DTURBOPUMP_PROJECT_ROOT=\\\"${turboproj_SOURCE_DIR}\\\"")
 endif()
 
 set (TURBOLIB ${turboproj_SOURCE_DIR}/../turbolib)
@@ -49,6 +49,7 @@ set (PROJECTS
    test/lib/wan_server
 
    test/integration/standup
+   test/integration/dynamic_membership
    test/integration/load
    test/integration/partition
 
