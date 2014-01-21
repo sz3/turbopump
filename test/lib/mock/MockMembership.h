@@ -10,7 +10,12 @@ class MockMembership : public IMembership
 public:
 	MockMembership();
 
+	bool save();
+
+	bool add(const std::string& uid);
 	bool addIp(const std::string& ip, const std::string& uid);
+	bool remove(const std::string& uid);
+
 	std::shared_ptr<Peer> lookup(const std::string& uid) const;
 	std::shared_ptr<Peer> lookupIp(const std::string& ip) const;
 	std::shared_ptr<Peer> self() const;

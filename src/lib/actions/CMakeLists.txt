@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	AddPeerAction.cpp
+	AddPeerAction.h
 	DropAction.cpp
 	DropAction.h
 	IAction.h
@@ -16,6 +18,8 @@ set(SOURCES
 	MessageAction.h
 	ReadAction.cpp
 	ReadAction.h
+	RemovePeerAction.cpp
+	RemovePeerAction.h
 	ViewHashRingAction.cpp
 	ViewHashRingAction.h
 	ViewMembershipAction.cpp

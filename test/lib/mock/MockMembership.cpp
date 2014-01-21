@@ -8,11 +8,33 @@ MockMembership::MockMembership()
 {
 }
 
+bool MockMembership::save()
+{
+	_history.call("save");
+	return true;
+}
+
+bool MockMembership::add(const std::string& uid)
+{
+	_history.call("add", uid);
+	if (_ips[uid])
+		return false;
+
+	_ips[uid].reset(new Peer(uid));
+	return true;
+}
+
 bool MockMembership::addIp(const std::string& ip, const std::string& uid)
 {
 	_history.call("addIp", ip, uid);
 	_ips[ip].reset(new Peer(uid));
 	return true;
+}
+
+bool MockMembership::remove(const std::string& uid)
+{
+	_history.call("remove", uid);
+	return _ips.erase(uid);
 }
 
 std::shared_ptr<Peer> MockMembership::lookup(const std::string& uid) const
