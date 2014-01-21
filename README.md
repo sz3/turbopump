@@ -14,6 +14,7 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 * UDT (libudt)
 * intel's TBB library (libtbb)
 * Crypto++ (libcrypto++/libcryptopp) -- will likely be replaced with libsodium
+* boost::filesystem -- used in integration tests
 
 ### What works
 
@@ -22,8 +23,7 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 * local storage and retrieval of small keys via unix domain sockets
 * immutable writes
 * cross-peer sync
-	* sync/healing based on merkle
-	* merkle-like summary data structure
+	* efficient synchronization of changes to data store based on a hierarchical merkle-tree-like summary data structure
 * basic function callbacks on write completion
 * inter-box UDP communication for small packets.
 	* No reliability, nor congestion control. YMMV.
@@ -47,8 +47,8 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 
 ### What about...? (TODO)
 
+* key deletes! Are probably a good idea.
 * paxos and write versioning.
-* key deletes!
 * windows support...
 
 ### Q&A
