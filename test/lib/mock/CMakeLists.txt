@@ -15,6 +15,8 @@ set(SOURCES
 	MockMembership.h
 	MockMerkleIndex.cpp
 	MockMerkleIndex.h
+	MockMerkleRing.cpp
+	MockMerkleRing.h
 	MockMerkleTree.cpp
 	MockMerkleTree.h
 	MockMessageSender.cpp

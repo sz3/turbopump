@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	turbopump_defaults.h
 	ActionParser.cpp
 	ActionParser.h
 	DataBuffer.cpp

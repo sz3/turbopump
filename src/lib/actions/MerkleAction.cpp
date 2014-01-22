@@ -51,7 +51,11 @@ bool MerkleAction::run(const DataBuffer& data)
 
 void MerkleAction::setParams(const std::map<std::string,std::string>& params)
 {
-	map<string,string>::const_iterator tree = params.find("tree");
-	if (tree != params.end())
-		_tree = tree->second;
+	map<string,string>::const_iterator it = params.find("tree");
+	if (it != params.end())
+		_tree.id = it->second;
+
+	it = params.find("n");
+	if (it != params.end())
+		_tree.mirrors = std::stoul(it->second);
 }

@@ -5,12 +5,18 @@
 #include "consistent_hashing/Hash.h"
 #include <tuple>
 
-void MerkleTree::setId(const std::string& id)
+const MerkleTree& MerkleTree::null()
+{
+	static MerkleTree tree;
+	return tree;
+}
+
+void MerkleTree::setId(const TreeId& id)
 {
 	_id = id;
 }
 
-std::string MerkleTree::id() const
+const TreeId& MerkleTree::id() const
 {
 	return _id;
 }

@@ -1,15 +1,17 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MerkleIndex.h"
 
-#include "common/MerklePoint.h"
+#include "MerkleTree.h"
 #include "consistent_hashing/IHashRing.h"
-#include "consistent_hashing/Hash.h"
 #include "membership/IMembership.h"
-#include "membership/Peer.h"
 
 #include "util/Random.h"
 #include <algorithm>
+#include <cassert>
 using std::string;
+using std::unique_ptr;
+
+using map_type = std::map<unsigned char, unique_ptr<MerkleRing>>;
 
 MerkleIndex::MerkleIndex(const IHashRing& ring, const IMembership& membership)
 	: _ring(ring)
@@ -17,142 +19,68 @@ MerkleIndex::MerkleIndex(const IHashRing& ring, const IMembership& membership)
 {
 }
 
-// addFile
-void MerkleIndex::add(const std::string& key)
+void MerkleIndex::add(const string& key, unsigned mirrors)
 {
-	// find appropriate merkle tree based on hash, totalCopies
+	// find appropriate merkle tree based on hash, mirrors
 
-	/* maintain a list of trees.
-	 * map?
-	 * needs to reflect HashRing
-	 * as hashring grows, index grows
-	 * as hashring shrinks, index shrinks
-	 * file hashes to hashRing section (first 64 bits?), and totalCopies parameter determines which merkle tree it addresses into.
-	 *
-	 * merkle sections contain the hashtoken that represents the primary mirror (e.g. "1:1", if it's 1's first hash range). This is true whether we're box 1, or box 2 (mirror 1), or box 3...
-	 * merkle sections can be looked up by this hash token
-	 **/
-
-	std::vector<string> locs;
-	string section = _ring.lookup(key, locs, 3);
-	MerkleTree& tree = _forest[section];
-	initTree(tree, section, locs);
-	tree.add(key);
+	unique_ptr<MerkleRing>& forest = _forest[mirrors];
+	if (!forest)
+		forest.reset( new MerkleRing(_ring, _membership, mirrors) );
+	forest->add(key);
 }
 
-void MerkleIndex::remove(const string& key)
+void MerkleIndex::remove(const string& key, unsigned mirrors)
 {
-	string section = _ring.section(key);
-	std::map<string, MerkleTree>::iterator it = _forest.find(section);
+	map_type::iterator it = _forest.find(mirrors);
 	if (it == _forest.end())
 		return;
 
-	MerkleTree& tree = it->second;
-	tree.remove(key);
-	prune(it);
+	MerkleRing& forest = *it->second;
+	forest.remove(key);
 }
 
-void MerkleIndex::initTree(MerkleTree& tree, const string& section, const std::vector<string>& locs)
+void MerkleIndex::splitSection(const string& where)
 {
-	if (tree.empty())
-	{
-		tree.setId(section);
-		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
-			_unwanted.insert(section);
-		else
-			_wanted.insert(section);
-	}
+	for (map_type::iterator it = _forest.begin(); it != _forest.end(); ++it)
+		it->second->splitSection(where);
 }
 
-void MerkleIndex::prune(const std::map<string, MerkleTree>::iterator& it)
+void MerkleIndex::cannibalizeSection(const string& where)
 {
-	MerkleTree& tree = it->second;
-	if (tree.empty())
-	{
-		_unwanted.erase(tree.id());
-		_wanted.erase(tree.id());
-		_forest.erase(it);
-	}
+	for (map_type::iterator it = _forest.begin(); it != _forest.end(); ++it)
+		it->second->cannibalizeSection(where);
 }
 
-std::map<string, MerkleTree>::iterator MerkleIndex::prevTree(const std::map<string, MerkleTree>::iterator& it)
+const IMerkleTree& MerkleIndex::find(const string& id, unsigned mirrors) const
 {
-	std::map<string, MerkleTree>::iterator prev(it);
-	if (prev == _forest.begin())
-		prev = _forest.end();
-	return --prev;
-}
-
-void MerkleIndex::splitTree(const string& where)
-{
-	if (_forest.empty())
-		return;
-	std::vector<string> locs;
-	string section = _ring.lookup(where, locs, 3);
-	std::pair<std::map<string, MerkleTree>::iterator,bool> pear = _forest.emplace(std::make_pair(section, MerkleTree()));
-	if (!pear.second)
-		return;
-
-	std::map<string, MerkleTree>::iterator prev = prevTree(pear.first);
-	MerkleTree& sourceTree = prev->second;
-	MerkleTree& newTree = pear.first->second;
-	initTree(newTree, section, locs);
-
-	auto fun = [&sourceTree, &newTree] (unsigned long long hash, const std::string& file) { newTree.add(file); sourceTree.remove(file); return true; };
-	sourceTree.forEachInRange(fun, Hash::compute(where).integer(), ~0ULL);
-
-	prune(prev);
-	prune(pear.first);
-}
-
-void MerkleIndex::cannibalizeTree(const string& where)
-{
-	string section = _ring.section(where);
-	std::map<string, MerkleTree>::iterator it = _forest.find(section);
+	map_type::const_iterator it = _forest.find(mirrors);
 	if (it == _forest.end())
-		return;
-
-	std::map<string, MerkleTree>::iterator prev = prevTree(it);
-	MerkleTree& dyingTree = it->second;
-	MerkleTree& refugeeTree = prev->second;
-
-	auto fun = [&dyingTree, &refugeeTree] (unsigned long long hash, const std::string& file) { refugeeTree.add(file); dyingTree.remove(file); return true; };
-	dyingTree.forEachInRange(fun, 0, ~0ULL);
-	prune(it);
-}
-
-const IMerkleTree& MerkleIndex::find(const string& id) const
-{
-	std::map<string, MerkleTree>::const_iterator it = _forest.find(id);
-	if (it == _forest.end())
-		return _emptyTree;
-	return it->second;
+		return MerkleTree::null();
+	return it->second->find(id);
 }
 
 const IMerkleTree& MerkleIndex::randomTree() const
 {
 	if (_forest.empty())
-		return _emptyTree;
-	std::set<string>::const_iterator it = Random::select(_wanted.begin(), _wanted.end(), _wanted.size());
-	if (it == _wanted.end())
-		return _emptyTree;
-	return find(*it);
+		return MerkleTree::null();
+
+	map_type::const_iterator start = _forest.begin();
+	size_t elems = _forest.size();
+	while (elems > 0 && start->first <= 1)
+	{
+		--elems;
+		++start;
+	}
+
+	map_type::const_iterator it = Random::select(start, _forest.end(), elems);
+	return it->second->randomTree();
 }
 
 const IMerkleTree& MerkleIndex::unwantedTree() const
 {
 	if (_forest.empty())
-		return _emptyTree;
-	std::set<string>::const_iterator it = Random::select(_unwanted.begin(), _unwanted.end(), _unwanted.size());
-	if (it == _unwanted.end())
-		return _emptyTree;
-	return find(*it);
-}
+		return MerkleTree::null();
 
-std::vector<string> MerkleIndex::list() const
-{
-	std::vector<string> treeIds;
-	for (std::map<string, MerkleTree>::const_iterator it = _forest.begin(); it != _forest.end(); ++it)
-		treeIds.push_back(it->first);
-	return treeIds;
+	map_type::const_iterator it = Random::select(_forest.begin(), _forest.end(), _forest.size());
+	return it->second->unwantedTree();
 }

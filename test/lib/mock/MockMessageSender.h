@@ -7,9 +7,9 @@
 class MockMessageSender : public IMessageSender
 {
 public:
-	void merklePing(const Peer& peer, const std::string& treeid, const MerklePoint& point);
-	void merklePing(const Peer& peer, const std::string& treeid, const std::deque<MerklePoint>& points);
-	void requestKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last);
+	void merklePing(const Peer& peer, const TreeId& treeid, const MerklePoint& point);
+	void merklePing(const Peer& peer, const TreeId& treeid, const std::deque<MerklePoint>& points);
+	void requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last);
 	void dropKey(const Peer& peer, const std::string& filename);
 
 public:

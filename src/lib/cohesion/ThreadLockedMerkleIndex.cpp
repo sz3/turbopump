@@ -9,29 +9,29 @@ ThreadLockedMerkleIndex::ThreadLockedMerkleIndex(IMerkleIndex& index, IScheduler
 {
 }
 
-void ThreadLockedMerkleIndex::add(const std::string& key)
+void ThreadLockedMerkleIndex::add(const std::string& key, unsigned mirrors)
 {
-	_scheduler.schedule( bind(&IMerkleIndex::add, std::ref(_index), key), 0 );
+	_scheduler.schedule( bind(&IMerkleIndex::add, std::ref(_index), key, mirrors), 0 );
 }
 
-void ThreadLockedMerkleIndex::remove(const std::string& key)
+void ThreadLockedMerkleIndex::remove(const std::string& key, unsigned mirrors)
 {
-	_scheduler.schedule( bind(&IMerkleIndex::remove, std::ref(_index), key), 0 );
+	_scheduler.schedule( bind(&IMerkleIndex::remove, std::ref(_index), key, mirrors), 0 );
 }
 
-void ThreadLockedMerkleIndex::splitTree(const std::string& where)
+void ThreadLockedMerkleIndex::splitSection(const std::string& where)
 {
-	_scheduler.schedule( bind(&IMerkleIndex::splitTree, std::ref(_index), where), 0 );
+	_scheduler.schedule( bind(&IMerkleIndex::splitSection, std::ref(_index), where), 0 );
 }
 
-void ThreadLockedMerkleIndex::cannibalizeTree(const std::string& where)
+void ThreadLockedMerkleIndex::cannibalizeSection(const std::string& where)
 {
-	_scheduler.schedule( bind(&IMerkleIndex::cannibalizeTree, std::ref(_index), where), 0 );
+	_scheduler.schedule( bind(&IMerkleIndex::cannibalizeSection, std::ref(_index), where), 0 );
 }
 
-const IMerkleTree& ThreadLockedMerkleIndex::find(const std::string& id) const
+const IMerkleTree& ThreadLockedMerkleIndex::find(const std::string& id, unsigned mirrors) const
 {
-	return _index.find(id);
+	return _index.find(id, mirrors);
 }
 
 const IMerkleTree& ThreadLockedMerkleIndex::randomTree() const

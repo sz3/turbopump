@@ -23,7 +23,7 @@ namespace
 	{
 		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
 		{
-			merkleIndex.add(md.filename);
+			merkleIndex.add(md.filename, md.totalCopies);
 		};
 	}
 
@@ -31,7 +31,7 @@ namespace
 	{
 		return [&] (KeyMetadata md)
 		{
-			merkleIndex.remove(md.filename);
+			merkleIndex.remove(md.filename, md.totalCopies);
 		};
 	}
 

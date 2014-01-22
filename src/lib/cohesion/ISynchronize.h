@@ -3,12 +3,13 @@
 
 #include "common/MerklePoint.h"
 class Peer;
+class TreeId;
 
 class ISynchronize
 {
 public:
 	virtual ~ISynchronize() {}
 
-	virtual void compare(const Peer& peer, const std::string& treeid, const MerklePoint& point) = 0;
-	virtual void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last) = 0;
+	virtual void compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point) = 0;
+	virtual void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last) = 0;
 };

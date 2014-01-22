@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MessageSender.h"
 
+#include "cohesion/TreeId.h"
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 #include "wan_server/IBufferedConnectionWriter.h"
@@ -26,24 +27,27 @@ bool MessageSender::sendMessage(const Peer& peer, const string& message)
 	return true;
 }
 
-void MessageSender::merklePing(const Peer& peer, const string& treeid, const MerklePoint& point)
-{
-	sendMessage(peer, "merkle|tree=" + treeid + "|" + MerklePointSerializer::toString(point));
-}
-
-void MessageSender::merklePing(const Peer& peer, const string& treeid, const std::deque<MerklePoint>& points)
-{
-	std::string message = "merkle|tree=" + treeid + "|";
-	message += MerklePointSerializer::toString(points.front());
-	for (auto it = ++points.begin(); it != points.end(); ++it)
-		message += "|" + MerklePointSerializer::toString(*it);
-	sendMessage(peer, message);
-}
-
-void MessageSender::requestKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last)
+void MessageSender::merklePing(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
 {
 	std::stringstream msg;
-	msg << "key-req|tree=" << treeid << " first=" << first << " last=" << last << "|";
+	msg << "merkle|tree=" << treeid.id << " n=" << treeid.mirrors << "|" << MerklePointSerializer::toString(point);
+	sendMessage(peer, msg.str());
+}
+
+void MessageSender::merklePing(const Peer& peer, const TreeId& treeid, const std::deque<MerklePoint>& points)
+{
+	std::stringstream msg;
+	msg << "merkle|tree=" << treeid.id << " n=" << treeid.mirrors << "|";
+	msg << MerklePointSerializer::toString(points.front());
+	for (auto it = ++points.begin(); it != points.end(); ++it)
+		msg << "|" << MerklePointSerializer::toString(*it);
+	sendMessage(peer, msg.str());
+}
+
+void MessageSender::requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last)
+{
+	std::stringstream msg;
+	msg << "key-req|tree=" << treeid.id << " n=" << treeid.mirrors << " first=" << first << " last=" << last << "|";
 	sendMessage(peer, msg.str());
 }
 

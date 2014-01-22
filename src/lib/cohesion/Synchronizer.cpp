@@ -4,9 +4,10 @@
 #include "ICorrectSkew.h"
 #include "IMerkleIndex.h"
 #include "IMerkleTree.h"
-#include "MerkleRange.h"
+#include "KeyRange.h"
 
 #include "actions_req/IMessageSender.h"
+#include "cohesion/TreeId.h"
 #include "common/MerklePoint.h"
 #include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
@@ -28,7 +29,7 @@ Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership,
 void Synchronizer::pingRandomPeer()
 {
 	const IMerkleTree& tree = _index.randomTree();
-	std::vector<string> locations = _ring.locationsFromHash(tree.id(), 3); // tree.mirrorCount() or something?
+	std::vector<string> locations = _ring.locationsFromHash(tree.id().id, tree.id().mirrors);
 
 	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
 	if (!peer)
@@ -42,7 +43,7 @@ void Synchronizer::offloadUnwantedKeys()
 	if (tree.empty())
 		return;
 
-	std::vector<string> locations = _ring.locationsFromHash(tree.id(), 3); // tree.mirrorCount() or something?
+	std::vector<string> locations = _ring.locationsFromHash(tree.id().id, tree.id().mirrors);
 	if (locations.empty())
 		return;
 
@@ -55,10 +56,10 @@ void Synchronizer::offloadUnwantedKeys()
 	_corrector.pushKeyRange(*peer, tree.id(), 0, ~0ULL, _membership.self()->uid);
 }
 
-void Synchronizer::compare(const Peer& peer, const string& treeid, const MerklePoint& point)
+void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
 {
 	// TODO: do we need to sanity check treeid against the _ring or _index to make sure we care?
-	const IMerkleTree& tree = _index.find(treeid);
+	const IMerkleTree& tree = _index.find(treeid.id, treeid.mirrors);
 	if (point == MerklePoint::null())
 	{
 		if (tree.top() == MerklePoint::null())
@@ -101,12 +102,12 @@ void Synchronizer::compare(const Peer& peer, const string& treeid, const MerkleP
 			//if (diff.location.key == point.location.key)
 			//	_corrector.healKey(peer, diff.location.key);
 
-			MerkleRange range(point.location);
+			KeyRange range(point.location);
 			_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
 		}
 		else
 		{
-			MerkleRange range(diff.location);
+			KeyRange range(diff.location);
 			_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
 		}
 	}
@@ -118,7 +119,7 @@ void Synchronizer::compare(const Peer& peer, const string& treeid, const MerkleP
 	}
 }
 
-void Synchronizer::pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last)
+void Synchronizer::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last)
 {
 	_corrector.pushKeyRange(peer, treeid, first, last);
 }

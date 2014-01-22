@@ -2,6 +2,7 @@
 #pragma once
 
 #include "IAction.h"
+#include "cohesion/TreeId.h"
 #include "membership/Peer.h"
 class ISynchronize;
 
@@ -18,7 +19,7 @@ protected:
 	Peer _peer;
 	ISynchronize& _sync;
 
-	std::string _tree;
+	TreeId _tree;
 	unsigned long long _first;
 	unsigned long long _last;
 };

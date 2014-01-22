@@ -27,7 +27,7 @@ TEST_CASE( "RemovePeerActionTest/testRemove", "[unit]" )
 
 	assertEquals( "remove(fooid)|save()", membership._history.calls() );
 	assertEquals( "removeWorker(fooid)", ring._history.calls() );
-	assertEquals( "cannibalizeTree(fooid)", index._history.calls() );
+	assertEquals( "cannibalizeSection(fooid)", index._history.calls() );
 }
 
 TEST_CASE( "RemovePeerActionTest/testRemoveNonexistentWorker", "[unit]" )

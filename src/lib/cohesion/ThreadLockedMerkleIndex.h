@@ -9,13 +9,13 @@ class ThreadLockedMerkleIndex : public IMerkleIndex
 public:
 	ThreadLockedMerkleIndex(IMerkleIndex& index, ISchedulerThread& scheduler);
 
-	void add(const std::string& key);
-	void remove(const std::string& key);
+	void add(const std::string& key, unsigned mirrors);
+	void remove(const std::string& key, unsigned mirrors);
 
-	void splitTree(const std::string& where);
-	void cannibalizeTree(const std::string& where);
+	void splitSection(const std::string& where);
+	void cannibalizeSection(const std::string& where);
 
-	const IMerkleTree& find(const std::string& id) const;
+	const IMerkleTree& find(const std::string& id, unsigned mirrors) const;
 	const IMerkleTree& randomTree() const;
 	const IMerkleTree& unwantedTree() const;
 

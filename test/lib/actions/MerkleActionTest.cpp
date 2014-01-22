@@ -16,6 +16,7 @@ TEST_CASE( "MerkleActionTest/testOne", "default" )
 
 	std::map<string,string> params;
 	params["tree"] = "oak";
+	params["n"] = "5";
 	action.setParams(params);
 
 	MerklePoint point;
@@ -25,7 +26,7 @@ TEST_CASE( "MerkleActionTest/testOne", "default" )
 
 	string data = MerklePointSerializer::toString(point);
 	assertTrue( action.run(DataBuffer(data.data(), data.size())) );
-	assertEquals( "compare(fooid,oak,1337 32 8000)", sync._history.calls() );
+	assertEquals( "compare(fooid,oak,5,1337 32 8000)", sync._history.calls() );
 }
 
 TEST_CASE( "MerkleActionTest/testMany", "default" )
@@ -47,9 +48,9 @@ TEST_CASE( "MerkleActionTest/testMany", "default" )
 	}
 
 	assertTrue( action.run(DataBuffer(data.data(), data.size())) );
-	assertEquals( "compare(fooid,,1 1 10)|"
-				  "compare(fooid,,2 2 20)|"
-				  "compare(fooid,,3 3 30)", sync._history.calls() );
+	assertEquals( "compare(fooid,,3,1 1 10)|"
+				  "compare(fooid,,3,2 2 20)|"
+				  "compare(fooid,,3,3 3 30)", sync._history.calls() );
 }
 
 

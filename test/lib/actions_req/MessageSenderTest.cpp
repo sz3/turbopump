@@ -3,6 +3,7 @@
 
 #include "MessageSender.h"
 
+#include "cohesion/TreeId.h"
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 #include "mock/MockBufferedConnectionWriter.h"
@@ -22,10 +23,10 @@ TEST_CASE( "MessageSenderTest/testMerklePing", "[unit]" )
 	point.location.key = 1;
 	point.location.keybits = 2;
 	point.hash = 3;
-	messenger.merklePing(Peer("dude"), "oak", point);
+	messenger.merklePing(Peer("dude"), TreeId("oak"), point);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle|tree=oak|1 2 3)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,merkle|tree=oak n=3|1 2 3)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testMerklePing.Null", "[unit]" )
@@ -35,10 +36,10 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Null", "[unit]" )
 	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
-	messenger.merklePing(Peer("dude"), "oak", MerklePoint::null());
+	messenger.merklePing(Peer("dude"), TreeId("oak"), MerklePoint::null());
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle|tree=oak|0 65535 0)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,merkle|tree=oak n=3|0 65535 0)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
@@ -58,10 +59,10 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
 		point.hash = i*10;
 		points.push_back(point);
 	}
-	messenger.merklePing(Peer("dude"), "oak", points);
+	messenger.merklePing(Peer("dude"), TreeId("oak",2), points);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle|tree=oak|1 1 10|2 2 20|3 3 30)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,merkle|tree=oak n=2|1 1 10|2 2 20|3 3 30)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
@@ -71,8 +72,8 @@ TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
 	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
-	messenger.requestKeyRange(Peer("foo"), "oak", 1234, 5678);
+	messenger.requestKeyRange(Peer("foo"), TreeId("oak",2), 1234, 5678);
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "write(0,key-req|tree=oak first=1234 last=5678|)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,key-req|tree=oak n=2 first=1234 last=5678|)|flush()", writer->_history.calls() );
 }

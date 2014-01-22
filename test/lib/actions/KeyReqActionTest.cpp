@@ -16,10 +16,11 @@ TEST_CASE( "KeyReqActionTest/testDefault", "[unit]" )
 
 	map<string,string> params;
 	params["tree"] = "oak";
+	params["n"] = "4";
 	params["first"] = "52";
 	params["last"] = "1337";
 	action.setParams(params);
 
 	assertTrue( action.run(DataBuffer::Null()) );
-	assertEquals( "pushKeyRange(fooid,oak,52,1337)", sync._history.calls() );
+	assertEquals( "pushKeyRange(fooid,oak,4,52,1337)", sync._history.calls() );
 }

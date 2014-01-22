@@ -29,7 +29,5 @@ TEST_CASE( "SwitchboardTest/testDefault", "[unit]" )
 		assertEquals( "(hi)=>world", stream.writeBuffer() );
 		assertEquals( "", stream.readBuffer() );
 	}
-
-
 }
 

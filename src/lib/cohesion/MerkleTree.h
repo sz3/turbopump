@@ -2,13 +2,17 @@
 #pragma once
 
 #include "IMerkleTree.h"
+#include "TreeId.h"
 #include "data_structures/merkle_tree.h"
 
 class MerkleTree : public IMerkleTree
 {
 public:
-	void setId(const std::string& id);
-	std::string id() const;
+	static const MerkleTree& null();
+
+public:
+	void setId(const TreeId& id);
+	const TreeId& id() const;
 
 	void add(const std::string& key);
 	void remove(const std::string& key);
@@ -22,6 +26,6 @@ public:
 	void print(int keywidth=0) const; // for testing!
 
 protected:
-	std::string _id;
+	TreeId _id;
 	merkle_tree<unsigned long long, unsigned long long, std::string> _tree;
 };

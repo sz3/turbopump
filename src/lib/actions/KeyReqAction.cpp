@@ -26,16 +26,20 @@ bool KeyReqAction::run(const DataBuffer& data)
 
 void KeyReqAction::setParams(const std::map<std::string,std::string>& params)
 {
-	map<string,string>::const_iterator tree = params.find("tree");
-	if (tree != params.end())
-		_tree = tree->second;
+	map<string,string>::const_iterator it = params.find("tree");
+	if (it != params.end())
+		_tree.id = it->second;
 
-	map<string,string>::const_iterator first = params.find("first");
-	if (first != params.end())
-		_first = std::stoull(first->second);
+	it = params.find("n");
+	if (it != params.end())
+		_tree.mirrors = std::stoul(it->second);
+
+	it = params.find("first");
+	if (it != params.end())
+		_first = std::stoull(it->second);
 
 	_last = _first;
-	map<string,string>::const_iterator last = params.find("last");
-	if (last != params.end())
-		_last = std::stoull(last->second);
+	it = params.find("last");
+	if (it != params.end())
+		_last = std::stoull(it->second);
 }

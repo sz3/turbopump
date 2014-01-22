@@ -6,11 +6,11 @@
 
 MockMerkleTree::MockMerkleTree()
 	: _empty(false)
-	, _id("tim")
+	, _id("tim", 3)
 {
 }
 
-std::string MockMerkleTree::id() const
+const TreeId& MockMerkleTree::id() const
 {
 	return _id;
 }

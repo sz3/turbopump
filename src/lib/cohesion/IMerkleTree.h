@@ -4,6 +4,7 @@
 #include "common/MerklePoint.h"
 #include <deque>
 #include <string>
+class TreeId;
 
 // tracks files that belong to a given HashRing section.
 // e.g. "this tree should be synchronized with AAA and BBB, who both track section XYZ"
@@ -12,7 +13,7 @@ class IMerkleTree
 {
 public:
 	virtual ~IMerkleTree() {}
-	virtual std::string id() const = 0;
+	virtual const TreeId& id() const = 0;
 
 	virtual void add(const std::string& key) = 0;
 	virtual void remove(const std::string& key) = 0;

@@ -13,11 +13,11 @@ TEST_CASE( "ThreadLockedMerkleIndexTest/testAdd", "[unit]" )
 	MockSchedulerThread scheduler;
 	ThreadLockedMerkleIndex index(realIndex, scheduler);
 
-	index.add("foo");
+	index.add("foo", 2);
 	assertEquals( "schedule(0)", scheduler._history.calls() );
 
 	scheduler.run();
-	assertEquals( "add(foo)", realIndex._history.calls() );
+	assertEquals( "add(foo,2)", realIndex._history.calls() );
 }
 
 TEST_CASE( "ThreadLockedMerkleIndexTest/testRemove", "[unit]" )
@@ -26,37 +26,37 @@ TEST_CASE( "ThreadLockedMerkleIndexTest/testRemove", "[unit]" )
 	MockSchedulerThread scheduler;
 	ThreadLockedMerkleIndex index(realIndex, scheduler);
 
-	index.remove("foo");
+	index.remove("foo", 2);
 	assertEquals( "schedule(0)", scheduler._history.calls() );
 
 	scheduler.run();
-	assertEquals( "remove(foo)", realIndex._history.calls() );
+	assertEquals( "remove(foo,2)", realIndex._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testSplitTree", "[unit]" )
+TEST_CASE( "ThreadLockedMerkleIndexTest/testSplitSection", "[unit]" )
 {
 	MockMerkleIndex realIndex;
 	MockSchedulerThread scheduler;
 	ThreadLockedMerkleIndex index(realIndex, scheduler);
 
-	index.splitTree("foo");
+	index.splitSection("foo");
 	assertEquals( "schedule(0)", scheduler._history.calls() );
 
 	scheduler.run();
-	assertEquals( "splitTree(foo)", realIndex._history.calls() );
+	assertEquals( "splitSection(foo)", realIndex._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testCannibalizeTree", "[unit]" )
+TEST_CASE( "ThreadLockedMerkleIndexTest/testCannibalizeSection", "[unit]" )
 {
 	MockMerkleIndex realIndex;
 	MockSchedulerThread scheduler;
 	ThreadLockedMerkleIndex index(realIndex, scheduler);
 
-	index.cannibalizeTree("foo");
+	index.cannibalizeSection("foo");
 	assertEquals( "schedule(0)", scheduler._history.calls() );
 
 	scheduler.run();
-	assertEquals( "cannibalizeTree(foo)", realIndex._history.calls() );
+	assertEquals( "cannibalizeSection(foo)", realIndex._history.calls() );
 }
 
 TEST_CASE( "ThreadLockedMerkleIndexTest/testFind", "[unit]" )
@@ -65,8 +65,8 @@ TEST_CASE( "ThreadLockedMerkleIndexTest/testFind", "[unit]" )
 	MockSchedulerThread scheduler;
 	ThreadLockedMerkleIndex index(realIndex, scheduler);
 
-	index.find("foo");
-	assertEquals( "find(foo)", realIndex._history.calls() );
+	index.find("foo", 2);
+	assertEquals( "find(foo,2)", realIndex._history.calls() );
 	assertEquals( "", scheduler._history.calls() );
 }
 

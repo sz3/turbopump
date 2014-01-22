@@ -2,7 +2,8 @@
 #include "unittest.h"
 
 #include "MerkleTree.h"
-#include "MerkleRange.h"
+
+#include "KeyRange.h"
 #include "consistent_hashing/Hash.h"
 #include "serialize/StringUtil.h"
 #include <deque>
@@ -112,7 +113,7 @@ TEST_CASE( "MerkleTreeTest/testTraverse_Case1", "[unit]" )
 		std::cout << " diffsOne = " << MerklePointSerializer::toString(*it) << std::endl;
 	//*/
 
-	MerkleRange range(diffsOne[0].location);
+	KeyRange range(diffsOne[0].location);
 
 	// one0: 0001 0011 | 0110 1101 | 0100 1011 | 1101 0000 | 1011 0111 | 1101 0101 | 1110 1111 | 1101 0100
 	// one1: 0011 0001 | 0111 1011 | 1100 0001 | 0001 1101 | 1010 1110 | 0001 1111 | 0000 0111 | 1110 1010

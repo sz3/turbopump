@@ -3,11 +3,11 @@
 
 #include "data_structures/merkle_location.h"
 
-class MerkleRange
+class KeyRange
 {
 public:
-	MerkleRange();
-	MerkleRange(const merkle_location<unsigned long long>& location);
+	KeyRange();
+	KeyRange(const merkle_location<unsigned long long>& location);
 
 	void fromLocation(const merkle_location<unsigned long long>& location);
 

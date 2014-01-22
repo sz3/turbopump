@@ -39,8 +39,8 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 		assertFalse( action.run(DataBuffer("closed", 6)) );
 	}
 	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
-	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::write(foobar.txt,abcde)|Writer::commit(foobar.txt,2)", dataStore._history.calls() );
-	assertEquals( "onCommit(foobar.txt,0,2)", _history.calls() );
+	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::write(foobar.txt,abcde)|Writer::commit(foobar.txt,3)", dataStore._history.calls() );
+	assertEquals( "onCommit(foobar.txt,0,3)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testExtraParams", "default" )

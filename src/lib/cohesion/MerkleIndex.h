@@ -2,10 +2,9 @@
 #pragma once
 
 #include "IMerkleIndex.h"
-#include "MerkleTree.h"
+#include "MerkleRing.h"
 #include <map>
-#include <set>
-#include <vector>
+#include <memory>
 class IHashRing;
 class IMembership;
 
@@ -18,28 +17,18 @@ class MerkleIndex : public IMerkleIndex
 public:
 	MerkleIndex(const IHashRing& ring, const IMembership& membership);
 
-	void add(const std::string& key);
-	void remove(const std::string& key);
+	void add(const std::string& key, unsigned mirrors=3);
+	void remove(const std::string& key, unsigned mirrors=3);
 
-	void splitTree(const std::string& where);
-	void cannibalizeTree(const std::string& where);
+	void splitSection(const std::string& where);
+	void cannibalizeSection(const std::string& where);
 
-	const IMerkleTree& find(const std::string& id) const;
+	const IMerkleTree& find(const std::string& id, unsigned mirrors=3) const;
 	const IMerkleTree& randomTree() const;
 	const IMerkleTree& unwantedTree() const;
-
-	std::vector<std::string> list() const; // for testing
-
-private:
-	void initTree(MerkleTree& tree, const std::string& section, const std::vector<std::string>& locs);
-	void prune(const std::map<std::string, MerkleTree>::iterator& it);
-	std::map<std::string, MerkleTree>::iterator prevTree(const std::map<std::string, MerkleTree>::iterator& it);
 
 protected:
 	const IHashRing& _ring;
 	const IMembership& _membership;
-	std::map<std::string, MerkleTree> _forest;
-	std::set<std::string> _wanted;
-	std::set<std::string> _unwanted;
-	MerkleTree _emptyTree;
+	std::map<unsigned char, std::unique_ptr<MerkleRing>> _forest;
 };

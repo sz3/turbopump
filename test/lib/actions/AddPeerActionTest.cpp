@@ -26,7 +26,7 @@ TEST_CASE( "AddPeerActionTest/testAdd", "[unit]" )
 
 	assertEquals( "add(fooid)|addIp(localhost:9001,fooid)|save()", membership._history.calls() );
 	assertEquals( "addWorker(fooid)", ring._history.calls() );
-	assertEquals( "splitTree(fooid)", index._history.calls() );
+	assertEquals( "splitSection(fooid)", index._history.calls() );
 }
 
 TEST_CASE( "AddPeerActionTest/testAddExistingWorker", "[unit]" )

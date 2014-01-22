@@ -29,7 +29,7 @@ bool AddPeerAction::run(const DataBuffer& data)
 		return true;
 
 	_ring.addWorker(_uid);
-	_merkleIndex.splitTree(_uid);
+	_merkleIndex.splitSection(_uid);
 	return true;
 }
 

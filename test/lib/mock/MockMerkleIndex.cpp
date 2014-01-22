@@ -4,29 +4,29 @@
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-void MockMerkleIndex::add(const std::string& key)
+void MockMerkleIndex::add(const std::string& key, unsigned mirrors)
 {
-	_history.call("add", key);
+	_history.call("add", key, mirrors);
 }
 
-void MockMerkleIndex::remove(const std::string& key)
+void MockMerkleIndex::remove(const std::string& key, unsigned mirrors)
 {
-	_history.call("remove", key);
+	_history.call("remove", key, mirrors);
 }
 
-void MockMerkleIndex::splitTree(const std::string& where)
+void MockMerkleIndex::splitSection(const std::string& where)
 {
-	_history.call("splitTree", where);
+	_history.call("splitSection", where);
 }
 
-void MockMerkleIndex::cannibalizeTree(const std::string& where)
+void MockMerkleIndex::cannibalizeSection(const std::string& where)
 {
-	_history.call("cannibalizeTree", where);
+	_history.call("cannibalizeSection", where);
 }
 
-const IMerkleTree& MockMerkleIndex::find(const std::string& id) const
+const IMerkleTree& MockMerkleIndex::find(const std::string& id, unsigned mirrors) const
 {
-	_history.call("find", id);
+	_history.call("find", id, mirrors);
 	return _tree;
 }
 

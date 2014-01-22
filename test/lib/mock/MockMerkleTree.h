@@ -2,13 +2,15 @@
 #pragma once
 
 #include "cohesion/IMerkleTree.h"
+#include "cohesion/TreeId.h"
 #include "util/CallHistory.h"
+#include <deque>
 
 class MockMerkleTree : public IMerkleTree
 {
 public:
 	MockMerkleTree();
-	std::string id() const;
+	const TreeId& id() const;
 
 	void add(const std::string& key);
 	void remove(const std::string& key);
@@ -20,7 +22,7 @@ public:
 
 public:
 	mutable CallHistory _history;
-	std::string _id;
+	TreeId _id;
 
 	bool _empty;
 	MerklePoint _top;

@@ -1,15 +1,15 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "MerkleRange.h"
+#include "KeyRange.h"
 
 #include <endian.h>
 #include <iostream>
 
-MerkleRange::MerkleRange(const merkle_location<unsigned long long>& location)
+KeyRange::KeyRange(const merkle_location<unsigned long long>& location)
 {
 	fromLocation(location);
 }
 
-void MerkleRange::fromLocation(const merkle_location<unsigned long long>& location)
+void KeyRange::fromLocation(const merkle_location<unsigned long long>& location)
 {
 	if (location.keybits >= 64)
 	{
@@ -32,12 +32,12 @@ void MerkleRange::fromLocation(const merkle_location<unsigned long long>& locati
 	_last = be64toh(_last);
 }
 
-unsigned long long MerkleRange::first() const
+unsigned long long KeyRange::first() const
 {
 	return _first;
 }
 
-unsigned long long MerkleRange::last() const
+unsigned long long KeyRange::last() const
 {
 	return _last;
 }

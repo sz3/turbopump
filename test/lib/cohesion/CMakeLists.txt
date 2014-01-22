@@ -4,8 +4,9 @@ project(cohesion_test)
 
 set (SOURCES
 	test.cpp
+	KeyRangeTest.cpp
 	MerkleIndexTest.cpp
-	MerkleRangeTest.cpp
+	MerkleRingTest.cpp
 	MerkleTreeTest.cpp
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp

@@ -4,6 +4,7 @@
 #include "IMerkleIndex.h"
 #include "IMerkleTree.h"
 #include "actions_req/IWriteActionSender.h"
+#include "cohesion/TreeId.h"
 #include "common/KeyMetadata.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
@@ -26,9 +27,9 @@ void SkewCorrector::healKey(const Peer& peer, unsigned long long key)
 	std::cout << "how does SkewCorrector heal key? :(" << std::endl;
 }
 
-void SkewCorrector::pushKeyRange(const Peer& peer, const string& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
+void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
 {
-	const IMerkleTree& tree = _index.find(treeid);
+	const IMerkleTree& tree = _index.find(treeid.id, treeid.mirrors);
 
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files = tree.enumerate(first, last);

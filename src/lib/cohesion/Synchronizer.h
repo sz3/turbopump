@@ -16,8 +16,8 @@ public:
 
 	void pingRandomPeer();
 	void offloadUnwantedKeys();
-	void compare(const Peer& peer, const std::string& treeid, const MerklePoint& point);
-	void pushKeyRange(const Peer& peer, const std::string& treeid, unsigned long long first, unsigned long long last);
+	void compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point);
+	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last);
 
 protected:
 	const IHashRing& _ring;

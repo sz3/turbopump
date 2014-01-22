@@ -26,7 +26,7 @@ bool RemovePeerAction::run(const DataBuffer& data)
 	if (!_membership.save())
 		return false;
 	_ring.removeWorker(_uid);
-	_merkleIndex.cannibalizeTree(_uid);
+	_merkleIndex.cannibalizeSection(_uid);
 }
 
 void RemovePeerAction::setParams(const std::map<std::string,std::string>& params)
