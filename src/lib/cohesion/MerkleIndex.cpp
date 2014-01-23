@@ -73,6 +73,8 @@ const IMerkleTree& MerkleIndex::randomTree() const
 	}
 
 	map_type::const_iterator it = Random::select(start, _forest.end(), elems);
+	if (it == _forest.end())
+		return MerkleTree::null();
 	return it->second->randomTree();
 }
 

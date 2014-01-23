@@ -31,13 +31,6 @@ std::string MockHashRing::section(const std::string& filename) const
 	return _workers.empty()? "" : _workers.front();
 }
 
-std::string MockHashRing::lookup(const std::string& filename, std::vector<std::string>& locs, unsigned numLocs) const
-{
-	_history.call("lookup", filename);
-	locs = _workers;
-	return _workers.empty()? "" : _workers.front();
-}
-
 std::string MockHashRing::toString() const
 {
 	_history.call("toString");

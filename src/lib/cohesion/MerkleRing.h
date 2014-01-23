@@ -31,7 +31,7 @@ public:
 	std::vector<std::string> list() const; // for testing
 
 private:
-	void initTree(MerkleTree& tree, const std::string& section, const std::vector<std::string>& locs);
+	void initTree(MerkleTree& tree, const std::string& section);
 	void prune(const std::map<std::string, MerkleTree>::iterator& it);
 	std::map<std::string, MerkleTree>::iterator prevTree(const std::map<std::string, MerkleTree>::iterator& it);
 

@@ -15,7 +15,6 @@ public:
 	std::vector<std::string> locations(const std::string& filename, unsigned numLocs = 5) const;
 	std::vector<std::string> locationsFromHash(const std::string& hash, unsigned numLocs) const;
 	std::string section(const std::string& filename) const;
-	std::string lookup(const std::string& filename, std::vector<std::string>& locs, unsigned numLocs) const;
 
 	std::string toString() const;
 

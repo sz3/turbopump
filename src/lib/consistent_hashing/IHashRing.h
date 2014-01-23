@@ -17,7 +17,6 @@ public:
 	virtual std::vector<std::string> locations(const std::string& filename, unsigned numLocs = 5) const = 0;
 	virtual std::vector<std::string> locationsFromHash(const std::string& hash, unsigned numLocs) const = 0;
 	virtual std::string section(const std::string& filename) const = 0;
-	virtual std::string lookup(const std::string& filename, std::vector<std::string>& locs, unsigned numLocs) const = 0;
 
 	virtual std::string toString() const = 0;
 };

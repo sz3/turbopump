@@ -34,10 +34,9 @@ void MerkleRing::add(const std::string& key)
 	 * merkle sections can be looked up by this hash token
 	 **/
 
-	std::vector<string> locs;
-	string section = _ring.lookup(key, locs, _mirrors);
+	string section = _ring.section(key);
 	MerkleTree& tree = _forest[section];
-	initTree(tree, section, locs);
+	initTree(tree, section);
 	tree.add(key);
 }
 
@@ -53,11 +52,13 @@ void MerkleRing::remove(const string& key)
 	prune(it);
 }
 
-void MerkleRing::initTree(MerkleTree& tree, const string& section, const std::vector<string>& locs)
+void MerkleRing::initTree(MerkleTree& tree, const string& section)
 {
 	if (tree.empty())
 	{
 		tree.setId(TreeId(section, _mirrors));
+
+		std::vector<string> locs = _ring.locationsFromHash(section, _mirrors);
 		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
 			_unwanted.insert(section);
 		else
@@ -88,8 +89,8 @@ void MerkleRing::splitSection(const string& where)
 {
 	if (_forest.empty())
 		return;
-	std::vector<string> locs;
-	string section = _ring.lookup(where, locs, _mirrors);
+
+	string section = _ring.section(where);
 	std::pair<std::map<string, MerkleTree>::iterator,bool> pear = _forest.emplace(std::make_pair(section, MerkleTree()));
 	if (!pear.second)
 		return;
@@ -97,7 +98,7 @@ void MerkleRing::splitSection(const string& where)
 	std::map<string, MerkleTree>::iterator prev = prevTree(pear.first);
 	MerkleTree& sourceTree = prev->second;
 	MerkleTree& newTree = pear.first->second;
-	initTree(newTree, section, locs);
+	initTree(newTree, section);
 
 	auto fun = [&sourceTree, &newTree] (unsigned long long hash, const std::string& file) { newTree.add(file); sourceTree.remove(file); return true; };
 	sourceTree.forEachInRange(fun, Hash::compute(where).integer(), ~0ULL);

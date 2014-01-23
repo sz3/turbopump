@@ -134,13 +134,16 @@ TEST_CASE( "MerkleRingTest/testWantedAndUnwanted", "[unit]" )
 
 	index.add("one");
 	index.add("two");
+	assertEquals( "section(one)|locationsFromHash(aaa,3)|section(two)", ring._history.calls() );
 	assertEquals( "aaa", StringUtil::join(index.list()) );
 	assertEquals( "aaa", StringUtil::join(index._unwanted) );
 	assertEquals( "", StringUtil::join(index._wanted) );
 
 	ring._workers[0] = "me";
+	ring._history.clear();
 	index.add("three");
 	index.add("four");
+	assertEquals( "section(three)|locationsFromHash(me,3)|section(four)", ring._history.calls() );
 	assertEquals( "aaa me", StringUtil::join(index.list()) );
 	assertEquals( "aaa", StringUtil::join(index._unwanted) );
 	assertEquals( "me", StringUtil::join(index._wanted) );
@@ -178,6 +181,7 @@ TEST_CASE( "MerkleRingTest/testSplitSection.InHalf", "[unit]" )
 	index.add("five");
 
 	ring._workers[0] = "one";
+	ring._history.clear();
 	index.splitSection("one");
 	assertEquals( "aaa one zzz", StringUtil::join(index.list()) );
 	assertEquals( "aaa one zzz", StringUtil::join(index._unwanted) );
@@ -191,6 +195,8 @@ TEST_CASE( "MerkleRingTest/testSplitSection.InHalf", "[unit]" )
 
 	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertEquals( "five", StringUtil::join(files) );
+
+	assertEquals( "section(one)|locationsFromHash(one,3)", ring._history.calls() );
 }
 
 TEST_CASE( "MerkleRingTest/testSplitSection.AllKeys", "[unit]" )
@@ -206,6 +212,7 @@ TEST_CASE( "MerkleRingTest/testSplitSection.AllKeys", "[unit]" )
 	index.add("four");
 
 	ring._workers[0] = "two";
+	ring._history.clear();
 	index.splitSection("two");
 	assertEquals( "two", StringUtil::join(index.list()) );
 	assertEquals( "two", StringUtil::join(index._unwanted) );
@@ -213,6 +220,8 @@ TEST_CASE( "MerkleRingTest/testSplitSection.AllKeys", "[unit]" )
 
 	deque<string> files = index.find("two").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertEquals( "two three one four", StringUtil::join(files) );
+
+	assertEquals( "section(two)|locationsFromHash(two,3)", ring._history.calls() );
 }
 
 TEST_CASE( "MerkleRingTest/testSplitSection.NoKeys", "[unit]" )
@@ -227,12 +236,15 @@ TEST_CASE( "MerkleRingTest/testSplitSection.NoKeys", "[unit]" )
 	index.add("three");
 
 	ring._workers[0] = "four";
+	ring._history.clear();
 	index.splitSection("four");
 	assertEquals( "aaa", StringUtil::join(index.list()) );
 	assertEquals( "aaa", StringUtil::join(index._unwanted) );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertEquals( "two three one", StringUtil::join(files) );
+
+	assertEquals( "section(four)|locationsFromHash(four,3)", ring._history.calls() );
 }
 
 TEST_CASE( "MerkleRingTest/testSplitEmptyTree", "[unit]" )
@@ -242,8 +254,11 @@ TEST_CASE( "MerkleRingTest/testSplitEmptyTree", "[unit]" )
 	TestableMerkleRing index(ring, membership);
 
 	ring._workers.push_back("one");
+	ring._history.clear();
 	index.splitSection("one");
 	assertEquals( "", StringUtil::join(index.list()) );
+
+	assertEquals( "", ring._history.calls() );
 }
 
 TEST_CASE( "MerkleRingTest/testCannibalizeSection.Last", "[unit]" )

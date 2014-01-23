@@ -72,3 +72,102 @@ TEST_CASE( "MerkleIndexTest/testSingleTree", "[unit]" )
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "", StringUtil::join(files) );
 }
+
+TEST_CASE( "MerkleIndexTest/testRandomAndUnwanted", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	MerkleIndex index(ring, membership);
+
+	ring._workers.push_back("fooid");
+	index.add("unwanted1", 1);
+	index.add("unwanted2", 2);
+	index.add("unwanted3", 3);
+
+	ring._workers[0] = "me";
+	index.add("wanted1", 1);
+	index.add("wanted2", 2);
+	index.add("wanted3", 3);
+
+	for (unsigned i = 0; i < 10; ++i)
+	{
+		TreeId id = index.randomTree().id();
+		assertEquals( "me", id.id );
+		assertInRange( 2, 3, id.mirrors );
+	}
+
+	for (unsigned i = 0; i < 10; ++i)
+	{
+		TreeId id = index.unwantedTree().id();
+		assertEquals( "fooid", id.id );
+		assertInRange( 1, 3, id.mirrors );
+	}
+}
+
+TEST_CASE( "MerkleIndexTest/testRandomAndUnwanted.Exclude", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	MerkleIndex index(ring, membership);
+
+	ring._workers.push_back("fooid");
+	index.add("unwanted1", 1);
+
+	ring._workers[0] = "me";
+	index.add("wanted1", 1);
+
+	{
+		const IMerkleTree& tree = index.randomTree();
+		assertEquals( "", tree.id().id );
+		assertTrue( tree.empty() );
+	}
+
+	{
+		TreeId id = index.unwantedTree().id();
+		assertEquals( "fooid", id.id );
+		assertEquals( 1, id.mirrors );
+	}
+}
+
+TEST_CASE( "MerkleIndexTest/testSplitSections", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	MerkleIndex index(ring, membership);
+
+	ring._workers.push_back("1");
+	for (int i = 1; i <= 9; ++i)
+	{
+		string name = StringUtil::str(i);
+		//index.add(name, 1);
+		index.add(name+name, 2);
+		//index.add(name+name+name, 3);
+	}
+
+	/*
+	((const MerkleTree&)index.find("1",1)).print();
+	((const MerkleTree&)index.find("1",2)).print();
+	((const MerkleTree&)index.find("1",3)).print();
+	//*/
+
+	ring._workers[0] = "555";
+	index.splitSection("555");
+
+	deque<string> files = index.find("1", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "888 999 222 666 333 444", StringUtil::join(files) );
+
+	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "555 777 111", StringUtil::join(files) );
+
+	deque<string> files = index.find("1", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "55 33 99 88 66 44", StringUtil::join(files) );
+
+	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "11 77 22", StringUtil::join(files) );
+
+	files = index.find("1", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "2 6 9 8 1 7 5 4", StringUtil::join(files) );
+
+	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "3", StringUtil::join(files) );
+}
