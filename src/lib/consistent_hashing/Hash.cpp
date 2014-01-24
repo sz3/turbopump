@@ -2,11 +2,17 @@
 #include "Hash.h"
 
 #include <cryptopp/tiger.h>
+#include "base64.h"
 using std::string;
 
 Hash::Hash(string hash)
 	: _hash(std::move(hash))
 {
+}
+
+Hash Hash::fromBase64(const string& encoded)
+{
+	return Hash(base64_decode(encoded));
 }
 
 Hash Hash::compute(const string& input)
@@ -20,6 +26,11 @@ Hash Hash::compute(const string& input)
 std::string&& Hash::bytes()
 {
 	return std::move(_hash);
+}
+
+std::string Hash::base64() const
+{
+	return base64_encode((const unsigned char*)_hash.data(), _hash.size());
 }
 
 unsigned long long Hash::integer() const

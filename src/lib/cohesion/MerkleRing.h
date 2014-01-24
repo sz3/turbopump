@@ -33,7 +33,7 @@ public:
 private:
 	void initTree(MerkleTree& tree, const std::string& section);
 	void prune(const std::map<std::string, MerkleTree>::iterator& it);
-	std::map<std::string, MerkleTree>::iterator prevTree(const std::map<std::string, MerkleTree>::iterator& it);
+	std::map<std::string, MerkleTree>::iterator nextTree(const std::map<std::string, MerkleTree>::iterator& it);
 
 protected:
 	const IHashRing& _ring;

@@ -9,6 +9,7 @@
 
 #include "util/Random.h"
 #include <algorithm>
+#include <endian.h>
 using std::string;
 
 MerkleRing::MerkleRing(const IHashRing& ring, const IMembership& membership, unsigned mirrors)
@@ -77,12 +78,12 @@ void MerkleRing::prune(const std::map<string, MerkleTree>::iterator& it)
 	}
 }
 
-std::map<string, MerkleTree>::iterator MerkleRing::prevTree(const std::map<string, MerkleTree>::iterator& it)
+std::map<string, MerkleTree>::iterator MerkleRing::nextTree(const std::map<string, MerkleTree>::iterator& it)
 {
-	std::map<string, MerkleTree>::iterator prev(it);
-	if (prev == _forest.begin())
-		prev = _forest.end();
-	return --prev;
+	std::map<string, MerkleTree>::iterator next(it);
+	if (++next == _forest.end())
+		next = _forest.begin();
+	return next;
 }
 
 void MerkleRing::splitSection(const string& where)
@@ -95,15 +96,31 @@ void MerkleRing::splitSection(const string& where)
 	if (!pear.second)
 		return;
 
-	std::map<string, MerkleTree>::iterator prev = prevTree(pear.first);
-	MerkleTree& sourceTree = prev->second;
+	std::map<string, MerkleTree>::iterator next = nextTree(pear.first);
+	MerkleTree& sourceTree = next->second;
 	MerkleTree& newTree = pear.first->second;
 	initTree(newTree, section);
 
-	auto fun = [&sourceTree, &newTree] (unsigned long long hash, const std::string& file) { newTree.add(file); sourceTree.remove(file); return true; };
-	sourceTree.forEachInRange(fun, Hash::compute(where).integer(), ~0ULL);
+	// range we need to pull out of the sourceTree
+	unsigned long long first = 0;
+	unsigned long long last = Hash::compute(where).integer();
 
-	prune(prev);
+	// if sourceTree is the first tree and its id is < section, that means it remains the first node -- and that newTree is the last node.
+	// So we need to grab its high-end keys instead of the usual low-end.
+	if (next == _forest.begin())
+	{
+		if (sourceTree.id().id < section)
+		{
+			// would be nice to encapsulate this endianness nonsense somewhere.
+			first = htobe64(Hash::fromBase64(sourceTree.id().id).integer());
+			first = be64toh(++first);
+		}
+	}
+
+	auto fun = [&sourceTree, &newTree] (unsigned long long hash, const std::string& file) { newTree.add(file); sourceTree.remove(file); return true; };
+	sourceTree.forEachInRange(fun, first, last);
+
+	prune(next);
 	prune(pear.first);
 }
 
@@ -114,9 +131,9 @@ void MerkleRing::cannibalizeSection(const string& where)
 	if (it == _forest.end())
 		return;
 
-	std::map<string, MerkleTree>::iterator prev = prevTree(it);
+	std::map<string, MerkleTree>::iterator next = nextTree(it);
 	MerkleTree& dyingTree = it->second;
-	MerkleTree& refugeeTree = prev->second;
+	MerkleTree& refugeeTree = next->second;
 
 	auto fun = [&dyingTree, &refugeeTree] (unsigned long long hash, const std::string& file) { refugeeTree.add(file); dyingTree.remove(file); return true; };
 	dyingTree.forEachInRange(fun, 0, ~0ULL);

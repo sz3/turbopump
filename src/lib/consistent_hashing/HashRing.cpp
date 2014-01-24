@@ -8,8 +8,7 @@ using std::vector;
 
 string HashRing::hash(const string& str)
 {
-	std::string result(Hash::compute(str).bytes());
-	return base64_encode((const unsigned char*)result.data(), result.size());
+	return Hash::compute(str).base64();
 }
 
 // TODO: rather than updating the structure directly, it may be beneficial to implement a copy-on-write strategy to handle changes.

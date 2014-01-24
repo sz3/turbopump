@@ -7,9 +7,11 @@ class Hash
 {
 public:
 	Hash(std::string hash);
+	static Hash fromBase64(const std::string& encoded);
 	static Hash compute(const std::string& input);
 
 	std::string&& bytes();
+	std::string base64() const;
 	unsigned long long integer() const;
 	size_t sizet() const;
 

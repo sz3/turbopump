@@ -27,6 +27,8 @@ public:
 	const IMerkleTree& randomTree() const;
 	const IMerkleTree& unwantedTree() const;
 
+	void print() const; // for testing
+
 protected:
 	const IHashRing& _ring;
 	const IMembership& _membership;

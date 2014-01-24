@@ -6,11 +6,12 @@ set (SOURCES
 	test.cpp
 	KeyRangeTest.cpp
 	MerkleIndexTest.cpp
+	MerkleIndexDynamicHashRingTest.cpp
 	MerkleRingTest.cpp
 	MerkleTreeTest.cpp
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
-	SynchronizerIntegrationTest.cpp
+	SynchronizerExchangeTest.cpp
 	ThreadLockedMerkleIndexTest.cpp
 )
 

@@ -23,7 +23,6 @@ const TreeId& MerkleTree::id() const
 
 void MerkleTree::add(const std::string& key)
 {
-	// TODO: find appropriate merkle tree based on hash, totalCopies
 	// TODO: rather than storing "keyhash" as the value, we want something more interesting.
 	//   this is what we're using to detect errors, after all. So: file + file version + crc?
 	//   In any case this should become add(key, value)
@@ -34,7 +33,6 @@ void MerkleTree::add(const std::string& key)
 	//  except that the merkle_point::keybits don't act how you might expect...
 	unsigned long long keyhash = Hash::compute(key).integer();
 	_tree.insert(keyhash, keyhash, key);
-	//std::cout << "MerkleTree::add " << id << ", " << keyhash << std::endl;
 }
 
 void MerkleTree::remove(const std::string& key)

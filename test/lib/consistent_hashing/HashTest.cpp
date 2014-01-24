@@ -26,6 +26,13 @@ TEST_CASE( "HashTest/testCompute", "[unit]" )
 	string res1 = Hash::compute("foo").bytes();
 	string res2 = Hash::compute("foo").bytes();
 	assertEquals( res1, res2 );
+}
 
+TEST_CASE( "HashTest/testToFromBase64", "[unit]" )
+{
+	string base1 = Hash::compute("foo").base64();
+	string base2 = Hash::fromBase64(base1).base64();
+	assertEquals( base1, base2 );
 
+	assertEquals( Hash::fromBase64(base1).integer(), Hash::fromBase64(base2).integer() );
 }

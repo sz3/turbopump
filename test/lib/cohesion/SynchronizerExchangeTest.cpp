@@ -69,7 +69,7 @@ namespace
 	};
 }
 
-TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
+TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("fooid"); // will be used as the MerkleTree's id
@@ -122,7 +122,7 @@ TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange", "[integration]" )
 	assertEquals( "two3 two2 two4 two1", StringUtil::join(correctorTwo._corrected) );
 }
 
-TEST_CASE( "SynchronizerIntegrationTest/testCompareExchange.Case2", "[integration]" )
+TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("fooid");

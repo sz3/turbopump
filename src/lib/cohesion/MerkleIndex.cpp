@@ -5,9 +5,11 @@
 #include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
 
+#include "serialize/StringUtil.h"
 #include "util/Random.h"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 using std::string;
 using std::unique_ptr;
 
@@ -85,4 +87,11 @@ const IMerkleTree& MerkleIndex::unwantedTree() const
 
 	map_type::const_iterator it = Random::select(_forest.begin(), _forest.end(), _forest.size());
 	return it->second->unwantedTree();
+}
+
+// testing
+void MerkleIndex::print() const
+{
+	for (map_type::const_iterator it = _forest.begin(); it != _forest.end(); ++it)
+		std::cout << StringUtil::str(it->first) << " : " << StringUtil::join(it->second->list()) << std::endl;
 }

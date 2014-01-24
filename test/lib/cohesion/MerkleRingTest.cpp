@@ -174,54 +174,30 @@ TEST_CASE( "MerkleRingTest/testSplitSection.InHalf", "[unit]" )
 	ring._workers.push_back("aaa");
 	index.add("one");
 	index.add("two");
-	index.add("three");
-	index.add("four");
 
 	ring._workers[0] = "zzz";
+	index.add("three");
+	index.add("four");
 	index.add("five");
 
 	ring._workers[0] = "one";
 	ring._history.clear();
 	index.splitSection("one");
+
 	assertEquals( "aaa one zzz", StringUtil::join(index.list()) );
 	assertEquals( "aaa one zzz", StringUtil::join(index._unwanted) );
 	assertEquals( "one", index.find("one").id().id );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three", StringUtil::join(files) );
+	assertEquals( "two one", StringUtil::join(files) );
 
 	files = index.find("one").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "one four", StringUtil::join(files) );
+	assertEquals( "five three", StringUtil::join(files) );
 
 	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "five", StringUtil::join(files) );
+	assertEquals( "four", StringUtil::join(files) );
 
 	assertEquals( "section(one)|locationsFromHash(one,3)", ring._history.calls() );
-}
-
-TEST_CASE( "MerkleRingTest/testSplitSection.AllKeys", "[unit]" )
-{
-	MockHashRing ring;
-	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
-
-	ring._workers.push_back("aaa");
-	index.add("one");
-	index.add("two");
-	index.add("three");
-	index.add("four");
-
-	ring._workers[0] = "two";
-	ring._history.clear();
-	index.splitSection("two");
-	assertEquals( "two", StringUtil::join(index.list()) );
-	assertEquals( "two", StringUtil::join(index._unwanted) );
-	assertEquals( "two", index.find("two").id().id );
-
-	deque<string> files = index.find("two").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three one four", StringUtil::join(files) );
-
-	assertEquals( "section(two)|locationsFromHash(two,3)", ring._history.calls() );
 }
 
 TEST_CASE( "MerkleRingTest/testSplitSection.NoKeys", "[unit]" )
@@ -230,21 +206,76 @@ TEST_CASE( "MerkleRingTest/testSplitSection.NoKeys", "[unit]" )
 	MockMembership membership;
 	TestableMerkleRing index(ring, membership);
 
-	ring._workers.push_back("aaa");
+	ring._workers.push_back("two");
 	index.add("one");
 	index.add("two");
 	index.add("three");
 
-	ring._workers[0] = "four";
+	ring._workers[0] = "13";
 	ring._history.clear();
-	index.splitSection("four");
-	assertEquals( "aaa", StringUtil::join(index.list()) );
-	assertEquals( "aaa", StringUtil::join(index._unwanted) );
+	index.splitSection("13");
 
-	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	// but 13 doesn't have any keys, so he gets nothing.
+	assertEquals( "two", StringUtil::join(index.list()) );
+	assertEquals( "two", StringUtil::join(index._unwanted) );
+
+	deque<string> files = index.find("two").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertEquals( "two three one", StringUtil::join(files) );
 
-	assertEquals( "section(four)|locationsFromHash(four,3)", ring._history.calls() );
+	assertEquals( "section(13)|locationsFromHash(13,3)", ring._history.calls() );
+}
+
+TEST_CASE( "MerkleRingTest/testSplitSection.BecomeFirst", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleRing index(ring, membership);
+
+	ring._workers.push_back(Hash::compute("four").base64());
+	index.add("one");
+	index.add("two");
+	index.add("three");
+
+	ring._workers[0] = Hash::compute("one").base64();
+	ring._history.clear();
+	index.splitSection("one");
+
+	// one takes all of four's keys!
+	assertEquals( ring._workers[0], StringUtil::join(index.list()) );
+	assertEquals( ring._workers[0], StringUtil::join(index._unwanted) );
+	assertEquals( ring._workers[0], index.find(ring._workers[0]).id().id );
+
+	deque<string> files = index.find(ring._workers[0]).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three one", StringUtil::join(files) );
+
+	assertStringsEqual( "section(one)|locationsFromHash(" + ring._workers[0] + ",3)", ring._history.calls() );
+}
+
+TEST_CASE( "MerkleRingTest/testSplitSection.BecomeLast", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleRing index(ring, membership);
+	ring._workers.push_back(Hash::compute("2").base64());
+	index.add("one");
+	index.add("two");
+	index.add("three");
+
+	//((const MerkleTree&)index.find(Hash::compute("2").base64())).print(5);
+
+	ring._workers[0] = Hash::compute("four").base64();
+	ring._history.clear();
+	index.splitSection("four");
+
+	deque<string> files = index.find(ring._workers[0]).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two three one", StringUtil::join(files) );
+
+	// four takes all of 2's keys!
+	assertEquals( ring._workers[0], StringUtil::join(index.list()) );
+	assertEquals( ring._workers[0], StringUtil::join(index._unwanted) );
+	assertEquals( ring._workers[0], index.find(ring._workers[0]).id().id );
+
+	assertStringsEqual( "section(four)|locationsFromHash(" + ring._workers[0] + ",3)", ring._history.calls() );
 }
 
 TEST_CASE( "MerkleRingTest/testSplitEmptyTree", "[unit]" )
@@ -339,10 +370,10 @@ TEST_CASE( "MerkleRingTest/testCannibalizeSection.Middle", "[unit]" )
 	assertEquals( "aaa zzz", StringUtil::join(index._unwanted) );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three one four", StringUtil::join(files) );
+	assertEquals( "two one", StringUtil::join(files) );
 
 	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "five", StringUtil::join(files) );
+	assertEquals( "five three four", StringUtil::join(files) );
 }
 
 // not sure about the contents of this test case, as far as desired behavior goes.

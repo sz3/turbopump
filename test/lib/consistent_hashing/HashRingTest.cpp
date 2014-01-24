@@ -10,11 +10,11 @@ using std::vector;
 TEST_CASE( "HashRingTest/testHash", "[unit]" )
 {
 	// Tiger -> base64
-	assertEquals( "ECjsTyiCEvexJ1xX4Bjs4MkzK0epOKO6", HashRing::hash("foo") );
-	assertEquals( "MeNRjt+Y9fNwNBdWLdvc8TyTj8EES9Lw", HashRing::hash("bar") );
-	assertEquals( "2Ok5EtCP5L0BO2S1lrG9C1U4x/a0mU03", HashRing::hash("one") );
-	assertEquals( "QWvKlLwjsuwwU3DcZdYtCBBWoLu0a8Oz", HashRing::hash("two") );
-	assertEquals( "1jN1njgiq71DV2buECVBL5uJ+C4zTUZX", HashRing::hash("three") );
+	assertEquals( "20XgHmW02jSl7plLs/XgsAYn8oSdC8Cu", HashRing::hash("foo") );
+	assertEquals( "ASBFXhyMxTBkB/RK9RjQwHmHXw22Gx9k", HashRing::hash("bar") );
+	assertEquals( "qCYt2h0Dt9o/CqGpZf4x0pIslzOoaIor", HashRing::hash("one") );
+	assertEquals( "EKj8Z9kXgikkIr1QNRMh0//Kc9ioOwCn", HashRing::hash("two") );
+	assertEquals( "pXBpbXUWevp1JqPi20J/9ti7y0snHINL", HashRing::hash("three") );
 }
 
 TEST_CASE( "HashRingTest/testLocations", "[unit]" )

@@ -27,5 +27,6 @@ public:
 
 protected:
 	TreeId _id;
+	// sorted as big endian (because merkle_tree does char-wise comparisons.) Just FYI!
 	merkle_tree<unsigned long long, unsigned long long, std::string> _tree;
 };
