@@ -154,44 +154,44 @@ TEST_CASE( "MerkleIndexTest/testReorganizeSections", "[unit]" )
 	index.splitSection("555");
 
 	deque<string> files = index.find("2", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "888 999 222 666 333 444", StringUtil::join(files) );
+	assertEquals( "777 111", StringUtil::join(files) );
 
 	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "555 777 111", StringUtil::join(files) );
+	assertEquals( "888 999 222 666 333 444 555", StringUtil::join(files) );
 
 	files = index.find("2", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "55 33 99 88 66 44 11 77", StringUtil::join(files) );
+	assertEquals( "77 22", StringUtil::join(files) );
 
 	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "22", StringUtil::join(files) );
+	assertEquals( "55 33 99 88 66 44 11", StringUtil::join(files) );
 
 	files = index.find("2", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "2 6 9 8 1 7 5 4", StringUtil::join(files) );
+	assertEquals( "3", StringUtil::join(files) );
 
 	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "3", StringUtil::join(files) );
+	assertEquals( "2 6 9 8 1 7 5 4", StringUtil::join(files) );
 
 
 	ring._workers[0] = "44";
 	index.splitSection("44");
 
-	files = index.find("2", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "888 999 222 666", StringUtil::join(files) );
+	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "333 444 555", StringUtil::join(files) );
 
 	files = index.find("44", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "333 444", StringUtil::join(files) );
+	assertEquals( "888 999 222 666", StringUtil::join(files) );
 
-	files = index.find("2", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "55 33 99 88 66", StringUtil::join(files) );
+	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "11", StringUtil::join(files) );
 
 	files = index.find("44", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "44 11 77", StringUtil::join(files) );
+	assertEquals( "55 33 99 88 66 44", StringUtil::join(files) );
 
-	files = index.find("2", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "2 6 9 8 1 7 5 4", StringUtil::join(files) );
+	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "8 1 7 5 4", StringUtil::join(files) );
 
 	files = index.find("44", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "", StringUtil::join(files) );
+	assertEquals( "2 6 9", StringUtil::join(files) );
 
 
 	/*ring._workers[0] = "2";
