@@ -3,14 +3,15 @@ cmake_minimum_required(VERSION 2.6)
 project ( turboproj )
 enable_testing()
 
-# gdwarf-3 to help older gdbs
+set(CMAKE_CXX_FLAGS "-DTURBOPUMP_PROJECT_ROOT=\\\"${turboproj_SOURCE_DIR}\\\"")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC -gdwarf-3")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC")
 	# -ftime-report
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-std=c++0x -DTURBOPUMP_PROJECT_ROOT=\\\"${turboproj_SOURCE_DIR}\\\"")
+    # gdwarf-3 to help older gdbs
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -flto -gdwarf-3")
 endif()
 
 set (TURBOLIB ${turboproj_SOURCE_DIR}/../turbolib)

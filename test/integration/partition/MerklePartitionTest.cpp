@@ -130,7 +130,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	// wait for files to propagate
 	// again, 2,6,1,5,4,3
 	// runner1 should drop the files he's not responsible for
-	waitFor(60, response, [&]()
+	waitFor(70, response, [&]()
 	{
 		response = cluster[1].query("local_list");
 		return "(1)=>7\n"
