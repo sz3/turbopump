@@ -7,7 +7,9 @@
 
 #include "boost/filesystem.hpp"
 #include <iostream>
+#include <vector>
 using std::string;
+using std::vector;
 
 namespace {
 	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopump/turbopump";
@@ -54,6 +56,14 @@ void TurboRunner::stop()
 std::string TurboRunner::query(std::string action) const
 {
 	return CommandLine::run("echo '" + action + "||' | nc -U " + dataChannel());
+}
+
+std::string TurboRunner::local_list() const
+{
+	string response = query("local_list");
+	vector<string> files = StringUtil::split(response, '\n');
+	std::sort(files.begin(), files.end());
+	return StringUtil::join(files, '\n');
 }
 
 bool TurboRunner::waitForRunning(unsigned seconds) const

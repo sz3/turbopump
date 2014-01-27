@@ -2,15 +2,15 @@
 #include "AddPeerAction.h"
 
 #include "cohesion/IMerkleIndex.h"
+#include "common/DataBuffer.h"
+#include "common/turbopump_defaults.h"
 #include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
 using std::map;
 using std::string;
 
-AddPeerAction::AddPeerAction(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex)
-	: _ring(ring)
-	, _membership(membership)
-	, _merkleIndex(merkleIndex)
+AddPeerAction::AddPeerAction(std::unique_ptr<IAction>&& writeAction)
+	: _writeAction(std::move(writeAction))
 {
 }
 
@@ -21,19 +21,16 @@ std::string AddPeerAction::name() const
 
 bool AddPeerAction::run(const DataBuffer& data)
 {
-	bool isNew = _membership.add(_uid);
-	_membership.addIp(_ip, _uid);
-	if (!_membership.save())
-		return false;
-	if (!isNew)
-		return true;
+	map<string,string> params;
+	params["name"] = MEMBERSHIP_FILE_PREFIX + _uid;
+	params["n"] = "255";
+	_writeAction->setParams(params);
 
-	_ring.addWorker(_uid);
-	_merkleIndex.splitSection(_uid);
-	return true;
+	DataBuffer buff(_ip.data(), _ip.size());
+	return _writeAction->run(buff);
 }
 
-void AddPeerAction::setParams(const std::map<std::string,std::string>& params)
+void AddPeerAction::setParams(const map<string,string>& params)
 {
 	map<string,string>::const_iterator it = params.find("uid");
 	if (it != params.end())

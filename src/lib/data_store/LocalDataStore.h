@@ -48,7 +48,7 @@ public:
 	std::shared_ptr<IDataStoreReader> read(const std::string& filename) const;
 	bool erase(const std::string& filename);
 
-	std::string toString() const;
+	void report(IByteStream& writer, const std::string& exclude="") const;
 
 protected:
 	IDataStoreReader::ptr commit(Writer& writer);

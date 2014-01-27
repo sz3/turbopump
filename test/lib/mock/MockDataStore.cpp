@@ -107,10 +107,7 @@ bool MockDataStore::erase(const string& filename)
 	return _store.erase(filename) > 0;
 }
 
-std::string MockDataStore::toString() const
+void MockDataStore::report(IByteStream& writer, const string& exclude) const
 {
-	std::vector<string> report;
-	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
-		report.push_back("(" + it->first + ")=>" + it->second);
-	return StringUtil::join(report, '\n');
+	_history.call("report", exclude);
 }

@@ -16,6 +16,7 @@ public:
 	void stop();
 
 	std::string query(std::string action) const;
+	std::string local_list() const;
 	bool waitForRunning(unsigned seconds=5) const;
 	void createMemberFile(short firstPort, int firstUid=0, int members=1);
 

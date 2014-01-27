@@ -2,9 +2,14 @@
 #include "Membership.h"
 
 #include "Peer.h"
+#include "common/turbopump_defaults.h"
+#include "data_store/IDataStore.h"
+#include "data_store/IDataStoreWriter.h"
+
 #include "file/StateSaver.h"
 #include "serialize/StringUtil.h"
 #include "util/Random.h"
+#include <algorithm>
 #include <utility>
 using std::map;
 using std::shared_ptr;
@@ -87,8 +92,13 @@ bool Membership::addIp(const std::string& ip, const std::string& uid)
 	map< string,shared_ptr<Peer> >::iterator it = _members.find(uid);
 	if (it == _members.end())
 		return false;
-	it->second->ips.push_back(ip);
-	_ips[ip] = it->second;
+
+	shared_ptr<Peer>& peer = it->second;
+	if (std::find(peer->ips.begin(), peer->ips.end(), ip) == peer->ips.end())
+	{
+		peer->ips.push_back(ip);
+		_ips[ip] = it->second;
+	}
 }
 
 shared_ptr<Peer> Membership::lookup(const std::string& uid) const
@@ -140,6 +150,18 @@ void Membership::forEachPeer(std::function<void(const Peer&)> fun) const
 {
 	for (map<string,shared_ptr<Peer>>::const_iterator it = _members.begin(); it != _members.end(); ++it)
 		fun(*it->second);
+}
+
+void Membership::syncToDataStore(IDataStore& store) const
+{
+	auto fun = [&store] (const Peer& peer)
+	{
+		IDataStoreWriter::ptr writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid);
+		string data = peer.address();
+		writer->write(data.data(), data.size());
+		writer->commit();
+	};
+	forEachPeer(fun);
 }
 
 std::string Membership::toString() const

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	AddPeer.cpp
+	AddPeer.h
 	Callbacks.cpp
 	Callbacks.h
 	MirrorToPeer.cpp

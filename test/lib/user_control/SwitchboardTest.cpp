@@ -19,14 +19,14 @@ TEST_CASE( "SwitchboardTest/testDefault", "[unit]" )
 	MockProcessState state;
 	TurboApi callbacks;
 
-	dataStore._store["hi"] = "world";
+	state._summary = "dancing";
 
 	{
-		StringByteStream stream("local_list||");
+		StringByteStream stream("state||");
 		Switchboard board(stream, dataStore, ring, membership, merkleIndex, state, callbacks);
 		board.run();
 
-		assertEquals( "(hi)=>world", stream.writeBuffer() );
+		assertEquals( "dancing", stream.writeBuffer() );
 		assertEquals( "", stream.readBuffer() );
 	}
 }

@@ -2,4 +2,5 @@
 #pragma once
 
 #define DEFAULT_MIRRORS 3
-
+#define MEMBERSHIP_FILE_PREFIX ".membership/"
+#define MEMBERSHIP_FILE_PREFIX_LENGTH sizeof(MEMBERSHIP_FILE_PREFIX)

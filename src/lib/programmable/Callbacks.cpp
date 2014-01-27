@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "Callbacks.h"
 
+#include "AddPeer.h"
 #include "MirrorToPeer.h"
 #include "NotifyWriteComplete.h"
 #include "RandomizedMirrorToPeer.h"
@@ -19,6 +20,15 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
+	std::function<void(KeyMetadata, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex)
+	{
+		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
+		{
+			AddPeer adder(ring, membership, merkleIndex);
+			adder.run(md, contents);
+		};
+	}
+
 	std::function<void(KeyMetadata, IDataStoreReader::ptr)> merkleAddFunct(IMerkleIndex& merkleIndex)
 	{
 		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
@@ -63,7 +73,7 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(const IHashRing& ring, const IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
+void Callbacks::initialize(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"
@@ -81,6 +91,8 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 			else
 				chain.add( writeChainFunct_cloneMode(membership, peers) );
 		}
+		chain.add( membershipAddFunct(ring, membership, merkleIndex) );
+
 		when_local_write_finishes = chain.generate();
 	}
 
@@ -94,6 +106,7 @@ void Callbacks::initialize(const IHashRing& ring, const IMembership& membership,
 			chain.add( writeChainFunct_partitionMode(ring, membership, peers) );
 
 		chain.add( notifyWriteComplete(membership, messenger) );
+		chain.add( membershipAddFunct(ring, membership, merkleIndex) );
 
 		when_mirror_write_finishes = chain.generate();
 	}

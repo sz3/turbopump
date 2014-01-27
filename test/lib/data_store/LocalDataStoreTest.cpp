@@ -136,3 +136,30 @@ TEST_CASE( "LocalDataStoreTest/testConcurrentRead", "default" )
 	assertEquals( 6, reader->read(stream) );
 	assertEquals( "readme", stream._buffer );
 }
+
+TEST_CASE( "LocalDataStoreTest/testReport", "default" )
+{
+	TestableLocalDataStore dataStore;
+	dataStore._store["foo"].reset(new DataEntry({"bytes"}));
+	dataStore._store["foobar"].reset(new DataEntry({"bytes"}));
+	dataStore._store["bar"].reset(new DataEntry({"bytes"}));
+
+	StringBackedByteStream stream;
+	dataStore.report(stream);
+
+	// TODO: have a proper ByteStream mock...
+	assertEquals( "\n(foobar)=>5", stream._buffer );
+}
+
+TEST_CASE( "LocalDataStoreTest/testReport.Exclude", "default" )
+{
+	TestableLocalDataStore dataStore;
+	dataStore._store["foo"].reset(new DataEntry({"bytes"}));
+	dataStore._store["foobar"].reset(new DataEntry({"bytes"}));
+	dataStore._store["bar"].reset(new DataEntry({"bytes"}));
+
+	StringBackedByteStream stream;
+	dataStore.report(stream, "foo");
+
+	assertEquals( "(bar)=>5", stream._buffer );
+}

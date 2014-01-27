@@ -165,6 +165,20 @@ TEST_CASE( "MerkleRingTest/testWantedAndUnwanted", "[unit]" )
 	assertEquals( "", StringUtil::join(index._unwanted) );
 }
 
+TEST_CASE( "MerkleRingTest/testWantedAndUnwanted.NoRing", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	TestableMerkleRing index(ring, membership);
+
+	index.add("one");
+	index.add("two");
+	assertEquals( "section(one)|locationsFromHash(,3)|section(two)", ring._history.calls() );
+	assertEquals( 1, index.list().size() );
+	assertEquals( 0, index._unwanted.size() );
+	assertEquals( 1, index._wanted.size() );
+}
+
 TEST_CASE( "MerkleRingTest/testSplitSection.InHalf", "[unit]" )
 {
 	MockHashRing ring;

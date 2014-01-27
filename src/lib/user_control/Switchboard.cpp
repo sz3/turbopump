@@ -92,7 +92,7 @@ std::unique_ptr<IAction> Switchboard::newAction(const string& actionName, const 
 	else if (actionName == "state")
 		action.reset(new LocalStateAction(_state, _stream));
 	else if (actionName == "add_peer")
-		action.reset(new AddPeerAction(_ring, _membership, _merkleIndex));
+		action.reset(new AddPeerAction(std::move(newAction("write", std::map<string,string>()))));
 	else
 		return action;
 

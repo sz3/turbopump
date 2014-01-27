@@ -6,20 +6,19 @@
 class IHashRing;
 class IMembership;
 class IMerkleIndex;
+#include <memory>
 
 class AddPeerAction : public IAction
 {
 public:
-	AddPeerAction(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex);
+	AddPeerAction(std::unique_ptr<IAction>&& writeAction);
 
 	std::string name() const;
 	bool run(const DataBuffer& data);
 	void setParams(const std::map<std::string,std::string>& params);
 
 protected:
-	IHashRing& _ring;
-	IMembership& _membership;
-	IMerkleIndex& _merkleIndex;
+	std::unique_ptr<IAction> _writeAction;
 
 	std::string _uid;
 	std::string _ip;

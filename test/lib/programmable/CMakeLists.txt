@@ -4,6 +4,7 @@ project(programmable_test)
 
 set (SOURCES
 	test.cpp
+	AddPeerTest.cpp
 	MirrorToPeerTest.cpp
 	NotifyWriteCompleteTest.cpp
 	RandomizedMirrorToPeerTest.cpp

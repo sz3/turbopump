@@ -60,7 +60,7 @@ void MerkleRing::initTree(MerkleTree& tree, const string& section)
 		tree.setId(TreeId(section, _mirrors));
 
 		std::vector<string> locs = _ring.locationsFromHash(section, _mirrors);
-		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
+		if (!locs.empty() && std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
 			_unwanted.insert(section);
 		else
 			_wanted.insert(section);

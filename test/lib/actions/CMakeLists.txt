@@ -7,6 +7,7 @@ set (SOURCES
 	AddPeerActionTest.cpp
 	DropActionTest.cpp
 	KeyReqActionTest.cpp
+	LocalListActionTest.cpp
 	MerkleActionTest.cpp
 	RemovePeerActionTest.cpp
 	WriteActionTest.cpp
@@ -34,5 +35,6 @@ target_link_libraries(actions_test
 	mock
 
 	serialize
+	socket
 )
 

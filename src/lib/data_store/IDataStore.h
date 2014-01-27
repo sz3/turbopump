@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 
+class IByteStream;
 class IDataStoreReader;
 class IDataStoreWriter;
 
@@ -19,6 +20,6 @@ public:
 	virtual std::shared_ptr<IDataStoreReader> read(const std::string& filename) const = 0;
 	virtual bool erase(const std::string& filename) = 0;
 
-	virtual std::string toString() const = 0;
+	virtual void report(IByteStream& writer, const std::string& exclude="") const = 0;
 };
 

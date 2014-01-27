@@ -24,6 +24,7 @@ add_test(membership_test membership_test)
 target_link_libraries(membership_test
 
 	membership
+	mock
 
 	file
 	serialize

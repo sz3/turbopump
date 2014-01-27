@@ -51,7 +51,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 	// again, 2,6,1,5,4,3
 	waitFor(60, response, [&]()
 	{
-		response = cluster[1].query("local_list");
+		response = cluster[1].local_list();
 		return "(1)=>7\n"
 			   "(2)=>7\n"
 			   "(6)=>7" == response;
@@ -59,7 +59,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 	waitFor(40, response, [&]()
 	{
-		response = cluster[2].query("local_list");
+		response = cluster[2].local_list();
 		return "(2)=>7\n"
 			   "(3)=>7\n"
 			   "(4)=>7" == response;
@@ -67,7 +67,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 	waitFor(40, response, [&]()
 	{
-		response = cluster[3].query("local_list");
+		response = cluster[3].local_list();
 		return "(3)=>7\n"
 			   "(4)=>7\n"
 			   "(5)=>7" == response;
@@ -75,7 +75,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[4].query("local_list");
+		response = cluster[4].local_list();
 		return "(1)=>7\n"
 			   "(4)=>7\n"
 			   "(5)=>7" == response;
@@ -83,7 +83,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[5].query("local_list");
+		response = cluster[5].local_list();
 		return "(1)=>7\n"
 			   "(5)=>7\n"
 			   "(6)=>7" == response;
@@ -91,7 +91,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[6].query("local_list");
+		response = cluster[6].local_list();
 		return "(2)=>7\n"
 			   "(3)=>7\n"
 			   "(6)=>7" == response;
@@ -132,7 +132,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	// runner1 should drop the files he's not responsible for
 	waitFor(70, response, [&]()
 	{
-		response = cluster[1].query("local_list");
+		response = cluster[1].local_list();
 		return "(1)=>7\n"
 			   "(2)=>7\n"
 			   "(6)=>7" == response;
@@ -140,7 +140,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 	waitFor(40, response, [&]()
 	{
-		response = cluster[2].query("local_list");
+		response = cluster[2].local_list();
 		return "(2)=>7\n"
 			   "(3)=>7\n"
 			   "(4)=>7" == response;
@@ -148,7 +148,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 	waitFor(40, response, [&]()
 	{
-		response = cluster[3].query("local_list");
+		response = cluster[3].local_list();
 		return "(3)=>7\n"
 			   "(4)=>7\n"
 			   "(5)=>7" == response;
@@ -156,7 +156,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[4].query("local_list");
+		response = cluster[4].local_list();
 		return "(1)=>7\n"
 			   "(4)=>7\n"
 			   "(5)=>7" == response;
@@ -164,7 +164,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[5].query("local_list");
+		response = cluster[5].local_list();
 		return "(1)=>7\n"
 			   "(5)=>7\n"
 			   "(6)=>7" == response;
@@ -172,7 +172,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[6].query("local_list");
+		response = cluster[6].local_list();
 		return "(2)=>7\n"
 			   "(3)=>7\n"
 			   "(6)=>7" == response;
@@ -213,14 +213,14 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	// again, 2,6,1,5,4,3
 	waitFor(60, response, [&]()
 	{
-		response = cluster[1].query("local_list");
+		response = cluster[1].local_list();
 		return "(1)=>7\n"
 			   "(6)=>7" == response;
 	});
 
 	waitFor(60, response, [&]()
 	{
-		response = cluster[2].query("local_list");
+		response = cluster[2].local_list();
 		return "(2)=>7\n"
 			   "(3)=>7\n"
 			   "(4)=>7\n"
@@ -230,7 +230,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 
 	waitFor(40, response, [&]()
 	{
-		response = cluster[3].query("local_list");
+		response = cluster[3].local_list();
 		return "(3)=>7\n"
 			   "(4)=>7\n"
 			   "(5)=>7\n"
@@ -239,7 +239,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[4].query("local_list");
+		response = cluster[4].local_list();
 		return "(4)=>7\n"
 			   "(5)=>7\n"
 			   "(6)=>7" == response;
@@ -247,14 +247,14 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[5].query("local_list");
+		response = cluster[5].local_list();
 		return "(5)=>7\n"
 			   "(6)=>7" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
-		response = cluster[6].query("local_list");
+		response = cluster[6].local_list();
 		return "(2)=>7\n"
 			   "(3)=>7\n"
 			   "(4)=>7\n"

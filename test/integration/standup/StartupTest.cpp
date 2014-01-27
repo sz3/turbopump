@@ -102,16 +102,16 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 
 	CommandLine::run("sleep 10");
 
-	string expected = "(one0)=>11\n"
-					  "(one1)=>11\n"
-					  "(one2)=>11\n"
-					  "(one3)=>11\n"
-					  "(one4)=>11\n"
+	string expected = "(one4)=>11\n"
+					  "(two4)=>11\n"
+					  "(one0)=>11\n"
 					  "(two0)=>11\n"
-					  "(two1)=>11\n"
+					  "(one2)=>11\n"
 					  "(two2)=>11\n"
-					  "(two3)=>11\n"
-					  "(two4)=>11";
+					  "(one1)=>11\n"
+					  "(two1)=>11\n"
+					  "(one3)=>11\n"
+					  "(two3)=>11";
 
 	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerTwo");
 	assertEquals( expected, response );
@@ -202,11 +202,11 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	}
 
 	string expected = "(0)=>7\n"
-			"(1)=>7\n"
-			"(2)=>7\n"
-			"(3)=>7\n"
 			"(4)=>7\n"
-			"(primer)=>21";
+			"(2)=>7\n"
+			"(1)=>7\n"
+			"(primer)=>21\n"
+			"(3)=>7";
 
 	string response;
 	Timer t;

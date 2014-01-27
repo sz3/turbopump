@@ -4,7 +4,9 @@
 #include "Membership.h"
 
 #include "Peer.h"
+#include "common/turbopump_defaults.h"
 #include "file/FileRemover.h"
+#include "mock/MockDataStore.h"
 #include "serialize/StringUtil.h"
 #include <string>
 #include <vector>
@@ -19,6 +21,8 @@ TEST_CASE( "MembershipTest/testAdd", "[unit]" )
 
 	assertEquals( "barid none\nfooid none", membership.toString() );
 
+	membership.addIp("1.2.3.4:80", "fooid");
+	membership.addIp("1.2.3.4:80", "fooid");
 	membership.addIp("1.2.3.4:80", "fooid");
 	membership.addIp("8.7.6.5:1", "barid");
 	membership.addIp("127.0.1.1:100", "barid");
@@ -118,5 +122,25 @@ TEST_CASE( "MembershipTest/testForEachPeer", "[unit]" )
 	membership.forEachPeer(fun);
 
 	assertStringsEqual("barid fooid rabid", StringUtil::join(peers));
+}
+
+TEST_CASE( "MembershipTest/testSyncToDataStore", "[unit]" )
+{
+	FileRemover remover(_myfile);
+	Membership membership(_myfile, "localhost:1337");
+	membership.add("fooid");
+	membership.addIp("1.2.3.4", "fooid");
+	membership.add("barid");
+	membership.addIp("ip2", "barid");
+	membership.add("rabid");
+	membership.addIp("ip3", "rabid");
+
+	MockDataStore store;
+	membership.syncToDataStore(store);
+
+	assertEquals( "Writer::write(.membership/barid,ip2)|Writer::commit(.membership/barid,1)"
+				  "|Writer::write(.membership/fooid,1.2.3.4)|Writer::commit(.membership/fooid,1)"
+				  "|Writer::write(.membership/rabid,ip3)|Writer::commit(.membership/rabid,1)", store._history.calls() );
+	assertEquals( "1.2.3.4", store._store[".membership/fooid"] );
 }
 

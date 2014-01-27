@@ -49,33 +49,33 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 	CommandLine::run("sleep 0.5");
 
 	// again, 2,6,1,5,4,3
-	response = cluster[2].query("local_list");
+	response = cluster[2].local_list();
 	assertEquals( "(2)=>7\n"
 				  "(3)=>7\n"
 				  "(4)=>7", response );
 
-	response = cluster[3].query("local_list");
+	response = cluster[3].local_list();
 	assertEquals( "(3)=>7\n"
 				  "(4)=>7\n"
 				  "(5)=>7", response );
 
-	response = cluster[4].query("local_list");
+	response = cluster[4].local_list();
 	assertEquals( "(1)=>7\n"
 				  "(4)=>7\n"
 				  "(5)=>7", response );
 
-	response = cluster[5].query("local_list");
+	response = cluster[5].local_list();
 	assertEquals( "(1)=>7\n"
 				  "(5)=>7\n"
 				  "(6)=>7", response );
 
-	response = cluster[6].query("local_list");
+	response = cluster[6].local_list();
 	assertEquals( "(2)=>7\n"
 				  "(3)=>7\n"
 				  "(6)=>7", response );
 
 	// runner1 should drop the files he's not responsible for
-	response = cluster[1].query("local_list");
+	response = cluster[1].local_list();
 	assertEquals( "(1)=>7\n"
 				  "(2)=>7\n"
 				  "(6)=>7", response );
@@ -121,31 +121,31 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	// (4) => 4,3,2,6
 	// (5) => 5,4,3,2,6
 
-	response = cluster[2].query("local_list");
+	response = cluster[2].local_list();
 	assertEquals( "(2)=>7\n"
 				  "(3)=>7\n"
 				  "(4)=>7\n"
 				  "(5)=>7", response );
 
-	response = cluster[3].query("local_list");
+	response = cluster[3].local_list();
 	assertEquals( "(3)=>7\n"
 				  "(4)=>7\n"
 				  "(5)=>7", response );
 
-	response = cluster[4].query("local_list");
+	response = cluster[4].local_list();
 	assertEquals( "(4)=>7\n"
 				  "(5)=>7", response );
 
-	response = cluster[5].query("local_list");
+	response = cluster[5].local_list();
 	assertEquals( "(5)=>7", response );
 
-	response = cluster[6].query("local_list");
+	response = cluster[6].local_list();
 	assertEquals( "(2)=>7\n"
 				  "(3)=>7\n"
 				  "(4)=>7\n"
 				  "(5)=>7", response );
 
 	// runner1 should drop the files he's not responsible for
-	response = cluster[1].query("local_list");
+	response = cluster[1].local_list();
 	assertEquals( "(1)=>7", response );
 }

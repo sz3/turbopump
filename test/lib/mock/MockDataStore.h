@@ -11,7 +11,7 @@
 
 class MockDataStore : public IDataStore
 {
-protected:
+public:
 	class Writer : public IDataStoreWriter
 	{
 	public:
@@ -49,7 +49,7 @@ public:
 	std::shared_ptr<IDataStoreReader> read(const std::string& filename) const;
 	bool erase(const std::string& filename);
 
-	std::string toString() const;
+	void report(IByteStream& writer, const std::string& exclude) const;
 
 public:
 	using data_map_type = std::map< std::string, std::string >;

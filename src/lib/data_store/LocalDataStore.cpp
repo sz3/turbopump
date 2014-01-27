@@ -124,11 +124,18 @@ bool LocalDataStore::erase(const string& filename)
 	return _store.unsafe_erase(filename) > 0;
 }
 
-std::string LocalDataStore::toString() const
+void LocalDataStore::report(IByteStream& writer, const string& exclude) const
 {
-	std::vector<string> report;
+	bool first = true;
 	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
-		report.push_back("(" + it->first + ")=>" + StringUtil::str(it->second->data.size()));
-	std::sort(report.begin(), report.end());
-	return StringUtil::join(report, '\n');
+	{
+		if (!exclude.empty() && it->first.find(exclude) != string::npos)
+			continue;
+
+		string fileReport = "(" + it->first + ")=>" + StringUtil::str(it->second->data.size());
+		if (!first)
+			fileReport = "\n" + fileReport;
+		first &= false;
+		writer.write(fileReport.data(), fileReport.size());
+	}
 }

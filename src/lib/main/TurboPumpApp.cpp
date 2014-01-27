@@ -33,11 +33,15 @@ void TurboPumpApp::run()
 	_state.starting();
 	if (!_membership.load())
 		std::cerr << "failed to load membership. Warn." << std::endl;
-	else if (_callbacks.options.partition_keys)
+	else
 	{
-		HashRing& ring(_ring);
-		auto fun = [&ring] (const Peer& peer) { ring.addWorker(peer.uid); };
-		_membership.forEachPeer(fun);
+		_membership.syncToDataStore(_localDataStore);
+		if (_callbacks.options.partition_keys)
+		{
+			HashRing& ring(_ring);
+			auto fun = [&ring] (const Peer& peer) { ring.addWorker(peer.uid); };
+			_membership.forEachPeer(fun);
+		}
 	}
 
 	if (!_wanExecutor.start())
@@ -58,7 +62,7 @@ void TurboPumpApp::run()
 		::exit(-1);
 	}
 
-	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_synchronizer), 3000);
+	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_synchronizer), 2000);
 	_scheduler.schedulePeriodic(std::bind(&Synchronizer::offloadUnwantedKeys, &_synchronizer), 5000);
 
 	_state.running();
