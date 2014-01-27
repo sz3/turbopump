@@ -117,8 +117,11 @@ void MerkleRing::splitSection(const string& where)
 		}
 	}
 
-	auto fun = [&sourceTree, &newTree] (unsigned long long hash, const std::string& file) { newTree.add(file); sourceTree.remove(file); return true; };
-	sourceTree.forEachInRange(fun, first, last);
+	auto adder = [&newTree] (unsigned long long hash, const std::string& file) { newTree.add(file); return true; };
+	sourceTree.forEachInRange(adder, first, last);
+
+	auto remover = [&sourceTree] (unsigned long long hash, const std::string& file) { sourceTree.remove(file); return true; };
+	newTree.forEachInRange(remover, 0, ~0ULL);
 
 	prune(next);
 	prune(pear.first);
@@ -135,9 +138,12 @@ void MerkleRing::cannibalizeSection(const string& where)
 	MerkleTree& dyingTree = it->second;
 	MerkleTree& refugeeTree = next->second;
 
-	auto fun = [&dyingTree, &refugeeTree] (unsigned long long hash, const std::string& file) { refugeeTree.add(file); dyingTree.remove(file); return true; };
+	auto fun = [&refugeeTree] (unsigned long long hash, const std::string& file) { refugeeTree.add(file); return true; };
 	dyingTree.forEachInRange(fun, 0, ~0ULL);
-	prune(it);
+
+	_unwanted.erase(dyingTree.id().id);
+	_wanted.erase(dyingTree.id().id);
+	_forest.erase(it);
 }
 
 const IMerkleTree& MerkleRing::find(const string& id) const
