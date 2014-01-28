@@ -62,7 +62,7 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 	const IMerkleTree& tree = _index.find(treeid.id, treeid.mirrors);
 	if (point == MerklePoint::null())
 	{
-		if (tree.top() == MerklePoint::null())
+		if (tree.empty())
 			return;
 		pushKeyRange(peer, treeid, 0, ~0ULL);
 		return;

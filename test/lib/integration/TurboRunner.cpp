@@ -49,7 +49,7 @@ void TurboRunner::start()
 
 void TurboRunner::stop()
 {
-	string command = "kill -9 `ps faux | grep 'turbopump ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
+	string command = "kill `ps faux | grep 'turbopump ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
 	int res = system(command.c_str());
 }
 

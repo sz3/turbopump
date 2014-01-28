@@ -107,7 +107,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 	sinkro.compare(Peer("fooid"), TreeId("oak",4), MerklePoint::null());
 
 	assertEquals( "find(oak,4)", index._history.calls() );
-	assertEquals( "top()", index._tree._history.calls() );
+	assertEquals( "empty()", index._tree._history.calls() );
 	assertEquals( ("pushKeyRange(fooid,oak,0," + StringUtil::str(~0ULL) + ",)"), corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
@@ -138,7 +138,7 @@ TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 	MockHashRing ring;
 	MockMembership membership;
 	MockMerkleIndex index;
-	index._tree._top = MerklePoint::null();
+	index._tree._empty = true;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
@@ -146,7 +146,7 @@ TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 	sinkro.compare(Peer("fooid"), TreeId("oak"), MerklePoint::null());
 
 	assertEquals( "find(oak,3)", index._history.calls() );
-	assertEquals( "top()", index._tree._history.calls() );
+	assertEquals( "empty()", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
