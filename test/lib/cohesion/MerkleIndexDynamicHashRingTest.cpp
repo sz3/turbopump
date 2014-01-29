@@ -4,6 +4,7 @@
 // explore interaction between changes in HashRing and MerkleIndex, validating everything stays sane
 
 #include "MerkleIndex.h"
+#include "cohesion/IMerkleTree.h"
 #include "consistent_hashing/HashRing.h"
 
 #include "membership/Peer.h"

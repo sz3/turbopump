@@ -23,7 +23,7 @@ bool AddPeerAction::run(const DataBuffer& data)
 {
 	map<string,string> params;
 	params["name"] = MEMBERSHIP_FILE_PREFIX + _uid;
-	params["n"] = "255";
+	params["n"] = "0";
 	_writeAction->setParams(params);
 
 	DataBuffer buff(_ip.data(), _ip.size());

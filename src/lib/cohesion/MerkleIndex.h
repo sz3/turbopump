@@ -2,7 +2,7 @@
 #pragma once
 
 #include "IMerkleIndex.h"
-#include "MerkleRing.h"
+#include "IMerkleRing.h"
 #include <map>
 #include <memory>
 class IHashRing;
@@ -32,5 +32,5 @@ public:
 protected:
 	const IHashRing& _ring;
 	const IMembership& _membership;
-	std::map<unsigned char, std::unique_ptr<MerkleRing>> _forest;
+	std::map<unsigned char, std::unique_ptr<IMerkleRing>> _forest;
 };

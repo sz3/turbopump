@@ -5,6 +5,7 @@
 
 #include "IMerkleTree.h"
 #include "KeyRange.h"
+#include "TreeId.h"
 #include "consistent_hashing/Hash.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"

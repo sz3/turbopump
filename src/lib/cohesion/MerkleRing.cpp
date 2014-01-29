@@ -35,7 +35,10 @@ void MerkleRing::add(const std::string& key)
 	 * merkle sections can be looked up by this hash token
 	 **/
 
-	string section = _ring.section(key);
+	string section;
+	if (_mirrors != 0)
+		section = _ring.section(key);
+
 	MerkleTree& tree = _forest[section];
 	initTree(tree, section);
 	tree.add(key);
@@ -43,7 +46,10 @@ void MerkleRing::add(const std::string& key)
 
 void MerkleRing::remove(const string& key)
 {
-	string section = _ring.section(key);
+	string section;
+	if (_mirrors != 0)
+		section = _ring.section(key);
+
 	std::map<string, MerkleTree>::iterator it = _forest.find(section);
 	if (it == _forest.end())
 		return;
