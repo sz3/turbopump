@@ -1,27 +1,27 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "MerkleTree.h"
+#include "DigestTree.h"
 
 #include "common/MerklePoint.h"
 #include "consistent_hashing/Hash.h"
 #include <tuple>
 
-const MerkleTree& MerkleTree::null()
+const DigestTree& DigestTree::null()
 {
-	static MerkleTree tree;
+	static DigestTree tree;
 	return tree;
 }
 
-void MerkleTree::setId(const TreeId& id)
+void DigestTree::setId(const TreeId& id)
 {
 	_id = id;
 }
 
-const TreeId& MerkleTree::id() const
+const TreeId& DigestTree::id() const
 {
 	return _id;
 }
 
-void MerkleTree::add(const std::string& key)
+void DigestTree::add(const std::string& key)
 {
 	// TODO: rather than storing "keyhash" as the value, we want something more interesting.
 	//   this is what we're using to detect errors, after all. So: file + file version + crc?
@@ -35,30 +35,30 @@ void MerkleTree::add(const std::string& key)
 	_tree.insert(keyhash, keyhash, key);
 }
 
-void MerkleTree::remove(const std::string& key)
+void DigestTree::remove(const std::string& key)
 {
 	unsigned long long keyhash = Hash::compute(key).integer();
 	_tree.remove(keyhash);
 }
 
-bool MerkleTree::empty() const
+bool DigestTree::empty() const
 {
 	return _tree.top() == MerklePoint::null();
 }
 
-MerklePoint MerkleTree::top() const
+MerklePoint DigestTree::top() const
 {
 	return _tree.top();
 }
 
-std::deque<MerklePoint> MerkleTree::diff(const MerklePoint& point) const
+std::deque<MerklePoint> DigestTree::diff(const MerklePoint& point) const
 {
 	return _tree.diff(point.location, point.hash);
 }
 
 // TODO: unsigned long long& start?
 //       return "next"? ???
-std::deque<std::string> MerkleTree::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
+std::deque<std::string> DigestTree::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
 {
 	std::deque<std::string> files;
 	auto fun = [&,limit] (unsigned long long hash, const std::string& file) { files.push_back(file); first = hash; return files.size() < limit; };
@@ -67,7 +67,7 @@ std::deque<std::string> MerkleTree::enumerate(unsigned long long first, unsigned
 	return files;
 }
 
-void MerkleTree::forEachInRange(const std::function<bool(unsigned long long, const std::string&)>& fun, unsigned long long first, unsigned long long last) const
+void DigestTree::forEachInRange(const std::function<bool(unsigned long long, const std::string&)>& fun, unsigned long long first, unsigned long long last) const
 {
 	_tree.enumerate(fun, first, last);
 }
@@ -79,7 +79,7 @@ std::ostream& operator<<(std::ostream& stream, const std::tuple<unsigned long lo
 	return stream;
 }
 
-void MerkleTree::print(int keywidth) const
+void DigestTree::print(int keywidth) const
 {
 	_tree.print(keywidth);
 }

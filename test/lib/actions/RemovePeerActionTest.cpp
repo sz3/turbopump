@@ -6,7 +6,7 @@
 #include "common/DataBuffer.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
-#include "mock/MockMerkleIndex.h"
+#include "mock/MockKeyTabulator.h"
 using std::map;
 using std::string;
 
@@ -16,7 +16,7 @@ TEST_CASE( "RemovePeerActionTest/testRemove", "[unit]" )
 	MockMembership membership;
 	membership.add("fooid");
 	membership._history.clear();
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	RemovePeerAction action(ring, membership, index);
 
 	map<string,string> params;
@@ -35,7 +35,7 @@ TEST_CASE( "RemovePeerActionTest/testRemoveNonexistentWorker", "[unit]" )
 	MockHashRing ring;
 	MockMembership membership;
 	membership._history.clear();
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	RemovePeerAction action(ring, membership, index);
 
 	map<string,string> params;

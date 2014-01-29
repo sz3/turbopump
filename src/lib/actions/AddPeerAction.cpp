@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "AddPeerAction.h"
 
-#include "cohesion/IMerkleIndex.h"
+#include "cohesion/IKeyTabulator.h"
 #include "common/DataBuffer.h"
 #include "common/turbopump_defaults.h"
 #include "consistent_hashing/IHashRing.h"

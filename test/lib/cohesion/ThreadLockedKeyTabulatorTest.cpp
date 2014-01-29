@@ -1,17 +1,17 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "ThreadLockedMerkleIndex.h"
+#include "ThreadLockedKeyTabulator.h"
 
-#include "mock/MockMerkleIndex.h"
+#include "mock/MockKeyTabulator.h"
 #include "mock/MockSchedulerThread.h"
 using std::string;
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testAdd", "[unit]" )
+TEST_CASE( "ThreadLockedKeyTabulatorTest/testAdd", "[unit]" )
 {
-	MockMerkleIndex realIndex;
+	MockKeyTabulator realIndex;
 	MockSchedulerThread scheduler;
-	ThreadLockedMerkleIndex index(realIndex, scheduler);
+	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.add("foo", 2);
 	assertEquals( "schedule(0)", scheduler._history.calls() );
@@ -20,11 +20,11 @@ TEST_CASE( "ThreadLockedMerkleIndexTest/testAdd", "[unit]" )
 	assertEquals( "add(foo,2)", realIndex._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testRemove", "[unit]" )
+TEST_CASE( "ThreadLockedKeyTabulatorTest/testRemove", "[unit]" )
 {
-	MockMerkleIndex realIndex;
+	MockKeyTabulator realIndex;
 	MockSchedulerThread scheduler;
-	ThreadLockedMerkleIndex index(realIndex, scheduler);
+	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.remove("foo", 2);
 	assertEquals( "schedule(0)", scheduler._history.calls() );
@@ -33,11 +33,11 @@ TEST_CASE( "ThreadLockedMerkleIndexTest/testRemove", "[unit]" )
 	assertEquals( "remove(foo,2)", realIndex._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testSplitSection", "[unit]" )
+TEST_CASE( "ThreadLockedKeyTabulatorTest/testSplitSection", "[unit]" )
 {
-	MockMerkleIndex realIndex;
+	MockKeyTabulator realIndex;
 	MockSchedulerThread scheduler;
-	ThreadLockedMerkleIndex index(realIndex, scheduler);
+	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.splitSection("foo");
 	assertEquals( "schedule(0)", scheduler._history.calls() );
@@ -46,11 +46,11 @@ TEST_CASE( "ThreadLockedMerkleIndexTest/testSplitSection", "[unit]" )
 	assertEquals( "splitSection(foo)", realIndex._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testCannibalizeSection", "[unit]" )
+TEST_CASE( "ThreadLockedKeyTabulatorTest/testCannibalizeSection", "[unit]" )
 {
-	MockMerkleIndex realIndex;
+	MockKeyTabulator realIndex;
 	MockSchedulerThread scheduler;
-	ThreadLockedMerkleIndex index(realIndex, scheduler);
+	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.cannibalizeSection("foo");
 	assertEquals( "schedule(0)", scheduler._history.calls() );
@@ -59,33 +59,33 @@ TEST_CASE( "ThreadLockedMerkleIndexTest/testCannibalizeSection", "[unit]" )
 	assertEquals( "cannibalizeSection(foo)", realIndex._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testFind", "[unit]" )
+TEST_CASE( "ThreadLockedKeyTabulatorTest/testFind", "[unit]" )
 {
-	MockMerkleIndex realIndex;
+	MockKeyTabulator realIndex;
 	MockSchedulerThread scheduler;
-	ThreadLockedMerkleIndex index(realIndex, scheduler);
+	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.find("foo", 2);
 	assertEquals( "find(foo,2)", realIndex._history.calls() );
 	assertEquals( "", scheduler._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testRandomTree", "[unit]" )
+TEST_CASE( "ThreadLockedKeyTabulatorTest/testRandomTree", "[unit]" )
 {
-	MockMerkleIndex realIndex;
+	MockKeyTabulator realIndex;
 	MockSchedulerThread scheduler;
-	ThreadLockedMerkleIndex index(realIndex, scheduler);
+	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.randomTree();
 	assertEquals( "randomTree()", realIndex._history.calls() );
 	assertEquals( "", scheduler._history.calls() );
 }
 
-TEST_CASE( "ThreadLockedMerkleIndexTest/testUnwantedTree", "[unit]" )
+TEST_CASE( "ThreadLockedKeyTabulatorTest/testUnwantedTree", "[unit]" )
 {
-	MockMerkleIndex realIndex;
+	MockKeyTabulator realIndex;
 	MockSchedulerThread scheduler;
-	ThreadLockedMerkleIndex index(realIndex, scheduler);
+	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.unwantedTree();
 	assertEquals( "unwantedTree()", realIndex._history.calls() );

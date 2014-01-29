@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "MerkleRing.h"
+#include "DigestIndexer.h"
 
 #include "KeyRange.h"
 #include "consistent_hashing/Hash.h"
@@ -13,11 +13,11 @@
 using std::deque;
 using std::string;
 
-TEST_CASE( "MerkleRingTest/testNoRingMembers", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testNoRingMembers", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MerkleRing index(ring, membership);
+	DigestIndexer index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -42,12 +42,12 @@ TEST_CASE( "MerkleRingTest/testNoRingMembers", "[unit]" )
 	assertStringsEqual( "", StringUtil::join(files) );
 }
 
-TEST_CASE( "MerkleRingTest/testSingleTree", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testSingleTree", "[unit]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("fooid");
 	MockMembership membership;
-	MerkleRing index(ring, membership);
+	DigestIndexer index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -72,12 +72,12 @@ TEST_CASE( "MerkleRingTest/testSingleTree", "[unit]" )
 	assertStringsEqual( "", StringUtil::join(files) );
 }
 
-TEST_CASE( "MerkleRingTest/testManyTrees", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testManyTrees", "[unit]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("aaa");
 	MockMembership membership;
-	MerkleRing index(ring, membership);
+	DigestIndexer index(ring, membership);
 	assertEquals( 0, index.list().size() );
 
 	index.add("one");
@@ -112,25 +112,25 @@ TEST_CASE( "MerkleRingTest/testManyTrees", "[unit]" )
 }
 
 namespace {
-	class TestableMerkleRing : public MerkleRing
+	class TestableDigestIndexer : public DigestIndexer
 	{
 	public:
-		TestableMerkleRing(IHashRing& ring, IMembership& membership)
-			: MerkleRing(ring, membership)
+		TestableDigestIndexer(IHashRing& ring, IMembership& membership)
+			: DigestIndexer(ring, membership)
 		{}
 
 	public:
-		using MerkleRing::_unwanted;
-		using MerkleRing::_wanted;
+		using DigestIndexer::_unwanted;
+		using DigestIndexer::_wanted;
 	};
 }
 
-TEST_CASE( "MerkleRingTest/testWantedAndUnwanted", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted", "[unit]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("aaa");
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -165,11 +165,11 @@ TEST_CASE( "MerkleRingTest/testWantedAndUnwanted", "[unit]" )
 	assertEquals( "", StringUtil::join(index._unwanted) );
 }
 
-TEST_CASE( "MerkleRingTest/testWantedAndUnwanted.NoRing", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted.NoRing", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -179,11 +179,11 @@ TEST_CASE( "MerkleRingTest/testWantedAndUnwanted.NoRing", "[unit]" )
 	assertEquals( 1, index._wanted.size() );
 }
 
-TEST_CASE( "MerkleRingTest/testSplitSection.InHalf", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testSplitSection.InHalf", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
 	index.add("one");
@@ -214,11 +214,11 @@ TEST_CASE( "MerkleRingTest/testSplitSection.InHalf", "[unit]" )
 	assertEquals( "section(one)|locationsFromHash(one,3)", ring._history.calls() );
 }
 
-TEST_CASE( "MerkleRingTest/testSplitSection.NoKeys", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testSplitSection.NoKeys", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("two");
 	index.add("one");
@@ -239,11 +239,11 @@ TEST_CASE( "MerkleRingTest/testSplitSection.NoKeys", "[unit]" )
 	assertEquals( "section(13)|locationsFromHash(13,3)", ring._history.calls() );
 }
 
-TEST_CASE( "MerkleRingTest/testSplitSection.BecomeFirst", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeFirst", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back(Hash::compute("four").base64());
 	index.add("one");
@@ -265,11 +265,11 @@ TEST_CASE( "MerkleRingTest/testSplitSection.BecomeFirst", "[unit]" )
 	assertStringsEqual( "section(one)|locationsFromHash(" + ring._workers[0] + ",3)", ring._history.calls() );
 }
 
-TEST_CASE( "MerkleRingTest/testSplitSection.BecomeLast", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeLast", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 	ring._workers.push_back(Hash::compute("2").base64());
 	index.add("one");
 	index.add("two");
@@ -292,11 +292,11 @@ TEST_CASE( "MerkleRingTest/testSplitSection.BecomeLast", "[unit]" )
 	assertStringsEqual( "section(four)|locationsFromHash(" + ring._workers[0] + ",3)", ring._history.calls() );
 }
 
-TEST_CASE( "MerkleRingTest/testSplitEmptyTree", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testSplitEmptyTree", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("one");
 	ring._history.clear();
@@ -306,11 +306,11 @@ TEST_CASE( "MerkleRingTest/testSplitEmptyTree", "[unit]" )
 	assertEquals( "", ring._history.calls() );
 }
 
-TEST_CASE( "MerkleRingTest/testCannibalizeSection.Last", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Last", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
 	index.add("one");
@@ -332,11 +332,11 @@ TEST_CASE( "MerkleRingTest/testCannibalizeSection.Last", "[unit]" )
 	assertEquals( "two three one four", StringUtil::join(files) );
 }
 
-TEST_CASE( "MerkleRingTest/testCannibalizeSection.First", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testCannibalizeSection.First", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
 	index.add("one");
@@ -359,11 +359,11 @@ TEST_CASE( "MerkleRingTest/testCannibalizeSection.First", "[unit]" )
 	assertEquals( "two three one four", StringUtil::join(files) );
 }
 
-TEST_CASE( "MerkleRingTest/testCannibalizeSection.Middle", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Middle", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
 	index.add("one");
@@ -392,11 +392,11 @@ TEST_CASE( "MerkleRingTest/testCannibalizeSection.Middle", "[unit]" )
 
 // not sure about the contents of this test case, as far as desired behavior goes.
 // however, at least it doesn't core.
-TEST_CASE( "MerkleRingTest/testCannibalizeSection.ToEmpty", "[unit]" )
+TEST_CASE( "DigestIndexerTest/testCannibalizeSection.ToEmpty", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	TestableMerkleRing index(ring, membership);
+	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
 	index.add("one");

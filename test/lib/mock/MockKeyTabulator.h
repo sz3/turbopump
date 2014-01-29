@@ -1,11 +1,11 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "MockMerkleTree.h"
-#include "cohesion/IMerkleIndex.h"
+#include "MockDigestTree.h"
+#include "cohesion/IKeyTabulator.h"
 #include "util/CallHistory.h"
 
-class MockMerkleIndex : public IMerkleIndex
+class MockKeyTabulator : public IKeyTabulator
 {
 public:
 	void add(const std::string& key, unsigned mirrors);
@@ -14,11 +14,11 @@ public:
 	void splitSection(const std::string& where);
 	void cannibalizeSection(const std::string& where);
 
-	const IMerkleTree& find(const std::string& id, unsigned mirrors) const;
-	const IMerkleTree& randomTree() const;
-	const IMerkleTree& unwantedTree() const;
+	const IDigestKeys& find(const std::string& id, unsigned mirrors) const;
+	const IDigestKeys& randomTree() const;
+	const IDigestKeys& unwantedTree() const;
 
 public:
-	MockMerkleTree _tree;
+	MockDigestTree _tree;
 	mutable CallHistory _history;
 };

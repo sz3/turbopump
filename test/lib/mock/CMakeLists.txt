@@ -7,20 +7,20 @@ set(SOURCES
 	MockBufferedConnectionWriter.h
 	MockDataStore.cpp
 	MockDataStore.h
+	MockDigestIndexer.cpp
+	MockDigestIndexer.h
+	MockDigestTree.cpp
+	MockDigestTree.h
 	MockHashRing.cpp
 	MockHashRing.h
 	MockIpSocket.cpp
 	MockIpSocket.h
+	MockKeyTabulator.cpp
+	MockKeyTabulator.h
 	MockLogger.cpp
 	MockLogger.h
 	MockMembership.cpp
 	MockMembership.h
-	MockMerkleIndex.cpp
-	MockMerkleIndex.h
-	MockMerkleRing.cpp
-	MockMerkleRing.h
-	MockMerkleTree.cpp
-	MockMerkleTree.h
 	MockMessageSender.cpp
 	MockMessageSender.h
 	MockPeerTracker.cpp

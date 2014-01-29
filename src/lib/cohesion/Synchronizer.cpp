@@ -2,8 +2,8 @@
 #include "Synchronizer.h"
 
 #include "ICorrectSkew.h"
-#include "IMerkleIndex.h"
-#include "IMerkleTree.h"
+#include "IKeyTabulator.h"
+#include "IDigestKeys.h"
 #include "KeyRange.h"
 
 #include "actions_req/IMessageSender.h"
@@ -17,7 +17,7 @@
 using std::shared_ptr;
 using std::string;
 
-Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership, const IMerkleIndex& index, IMessageSender& messenger, ICorrectSkew& corrector)
+Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector)
 	: _ring(ring)
 	, _membership(membership)
 	, _index(index)
@@ -28,7 +28,7 @@ Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership,
 
 void Synchronizer::pingRandomPeer()
 {
-	const IMerkleTree& tree = _index.randomTree();
+	const IDigestKeys& tree = _index.randomTree();
 	std::vector<string> locations = _ring.locationsFromHash(tree.id().id, tree.id().mirrors);
 
 	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
@@ -39,7 +39,7 @@ void Synchronizer::pingRandomPeer()
 
 void Synchronizer::offloadUnwantedKeys()
 {
-	const IMerkleTree& tree = _index.unwantedTree();
+	const IDigestKeys& tree = _index.unwantedTree();
 	if (tree.empty())
 		return;
 
@@ -59,7 +59,7 @@ void Synchronizer::offloadUnwantedKeys()
 void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
 {
 	// TODO: do we need to sanity check treeid against the _ring or _index to make sure we care?
-	const IMerkleTree& tree = _index.find(treeid.id, treeid.mirrors);
+	const IDigestKeys& tree = _index.find(treeid.id, treeid.mirrors);
 	if (point == MerklePoint::null())
 	{
 		if (tree.empty())

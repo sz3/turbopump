@@ -1,10 +1,10 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-// explore interaction between changes in HashRing and MerkleIndex, validating everything stays sane
+// explore interaction between changes in HashRing and KeyTabulator, validating everything stays sane
 
-#include "MerkleIndex.h"
-#include "cohesion/IMerkleTree.h"
+#include "KeyTabulator.h"
+#include "cohesion/IDigestKeys.h"
 #include "consistent_hashing/HashRing.h"
 
 #include "membership/Peer.h"
@@ -14,7 +14,7 @@ using std::string;
 using std::vector;
 
 // grow and shrink the hash ring and merkle index, verifying things stay sane
-TEST_CASE( "MerkleIndexDynamicHashRingTest/testShrinkGrow", "[integration]" )
+TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 {
 	MockMembership membership;
 	membership._self->uid = "1";
@@ -28,8 +28,8 @@ TEST_CASE( "MerkleIndexDynamicHashRingTest/testShrinkGrow", "[integration]" )
 		std::cout << worker << " = " << HashRing::hash(worker) << std::endl;
 	}
 
-	MerkleIndex baseLine(ring, membership);
-	MerkleIndex index(ring, membership);
+	KeyTabulator baseLine(ring, membership);
+	KeyTabulator index(ring, membership);
 	for (unsigned i = 50; i > 0; --i)
 	{
 		string file = StringUtil::str(i);

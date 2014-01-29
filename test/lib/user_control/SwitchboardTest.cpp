@@ -5,7 +5,7 @@
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
-#include "mock/MockMerkleIndex.h"
+#include "mock/MockKeyTabulator.h"
 #include "mock/MockProcessState.h"
 #include "programmable/TurboApi.h"
 #include "socket/StringByteStream.h"
@@ -15,7 +15,7 @@ TEST_CASE( "SwitchboardTest/testDefault", "[unit]" )
 	MockDataStore dataStore;
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex merkleIndex;
+	MockKeyTabulator merkleIndex;
 	MockProcessState state;
 	TurboApi callbacks;
 

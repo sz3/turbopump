@@ -2,12 +2,12 @@
 #pragma once
 
 #include <string>
-class IMerkleTree;
+class IDigestKeys;
 
-class IMerkleIndex
+class IKeyTabulator
 {
 public:
-	virtual ~IMerkleIndex() {}
+	virtual ~IKeyTabulator() {}
 
 	virtual void add(const std::string& key, unsigned mirrors) = 0;
 	virtual void remove(const std::string& key, unsigned mirrors) = 0;
@@ -15,7 +15,7 @@ public:
 	virtual void splitSection(const std::string& where) = 0;
 	virtual void cannibalizeSection(const std::string& where) = 0;
 
-	virtual const IMerkleTree& find(const std::string& id, unsigned mirrors) const = 0;
-	virtual const IMerkleTree& randomTree() const = 0;
-	virtual const IMerkleTree& unwantedTree() const = 0;
+	virtual const IDigestKeys& find(const std::string& id, unsigned mirrors) const = 0;
+	virtual const IDigestKeys& randomTree() const = 0;
+	virtual const IDigestKeys& unwantedTree() const = 0;
 };

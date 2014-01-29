@@ -1,25 +1,25 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	DigestIndexer.cpp
+	DigestIndexer.h
+	DigestTree.cpp
+	DigestTree.h
 	ICorrectSkew.h
-	IMerkleIndex.h
-	IMerkleRing.h
-	IMerkleTree.h
+	IDigestIndexer.h
+	IDigestKeys.h
+	IKeyTabulator.h
 	ISynchronize.h
 	KeyRange.cpp
 	KeyRange.h
-	MerkleIndex.cpp
-	MerkleIndex.h
-	MerkleRing.cpp
-	MerkleRing.h
-	MerkleTree.cpp
-	MerkleTree.h
+	KeyTabulator.cpp
+	KeyTabulator.h
 	SkewCorrector.cpp
 	SkewCorrector.h
 	Synchronizer.cpp
 	Synchronizer.h
-	ThreadLockedMerkleIndex.cpp
-	ThreadLockedMerkleIndex.h
+	ThreadLockedKeyTabulator.cpp
+	ThreadLockedKeyTabulator.h
 	TreeId.h
 )
 

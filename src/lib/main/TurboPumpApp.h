@@ -5,8 +5,8 @@
 #include "WanServer.h"
 #include "actions_req/MessageSender.h"
 #include "actions_req/WriteActionSender.h"
-#include "cohesion/MerkleIndex.h"
-#include "cohesion/ThreadLockedMerkleIndex.h"
+#include "cohesion/KeyTabulator.h"
+#include "cohesion/ThreadLockedKeyTabulator.h"
 #include "cohesion/SkewCorrector.h"
 #include "cohesion/Synchronizer.h"
 #include "consistent_hashing/HashRing.h"
@@ -41,8 +41,8 @@ protected:
 	Callbacks _callbacks;
 
 	// healing
-	MerkleIndex _merkleIndex;
-	ThreadLockedMerkleIndex _threadLockedMerkleIndex;
+	KeyTabulator _merkleIndex;
+	ThreadLockedKeyTabulator _threadLockedKeyTabulator;
 	SkewCorrector _corrector;
 	Synchronizer _synchronizer;
 

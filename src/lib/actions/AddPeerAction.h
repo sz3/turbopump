@@ -5,7 +5,7 @@
 
 class IHashRing;
 class IMembership;
-class IMerkleIndex;
+class IKeyTabulator;
 #include <memory>
 
 class AddPeerAction : public IAction

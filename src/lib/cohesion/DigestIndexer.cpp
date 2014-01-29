@@ -1,5 +1,5 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "MerkleRing.h"
+#include "DigestIndexer.h"
 
 #include "common/MerklePoint.h"
 #include "consistent_hashing/IHashRing.h"
@@ -12,7 +12,7 @@
 #include <endian.h>
 using std::string;
 
-MerkleRing::MerkleRing(const IHashRing& ring, const IMembership& membership, unsigned mirrors)
+DigestIndexer::DigestIndexer(const IHashRing& ring, const IMembership& membership, unsigned mirrors)
 	: _ring(ring)
 	, _membership(membership)
 	, _mirrors(mirrors)
@@ -20,7 +20,7 @@ MerkleRing::MerkleRing(const IHashRing& ring, const IMembership& membership, uns
 }
 
 // addFile
-void MerkleRing::add(const std::string& key)
+void DigestIndexer::add(const std::string& key)
 {
 	// find appropriate merkle tree based on hash, totalCopies
 
@@ -39,27 +39,27 @@ void MerkleRing::add(const std::string& key)
 	if (_mirrors != 0)
 		section = _ring.section(key);
 
-	MerkleTree& tree = _forest[section];
+	DigestTree& tree = _forest[section];
 	initTree(tree, section);
 	tree.add(key);
 }
 
-void MerkleRing::remove(const string& key)
+void DigestIndexer::remove(const string& key)
 {
 	string section;
 	if (_mirrors != 0)
 		section = _ring.section(key);
 
-	std::map<string, MerkleTree>::iterator it = _forest.find(section);
+	std::map<string, DigestTree>::iterator it = _forest.find(section);
 	if (it == _forest.end())
 		return;
 
-	MerkleTree& tree = it->second;
+	DigestTree& tree = it->second;
 	tree.remove(key);
 	prune(it);
 }
 
-void MerkleRing::initTree(MerkleTree& tree, const string& section)
+void DigestIndexer::initTree(DigestTree& tree, const string& section)
 {
 	if (tree.empty())
 	{
@@ -73,9 +73,9 @@ void MerkleRing::initTree(MerkleTree& tree, const string& section)
 	}
 }
 
-void MerkleRing::prune(const std::map<string, MerkleTree>::iterator& it)
+void DigestIndexer::prune(const std::map<string, DigestTree>::iterator& it)
 {
-	MerkleTree& tree = it->second;
+	DigestTree& tree = it->second;
 	if (tree.empty())
 	{
 		_unwanted.erase(tree.id().id);
@@ -84,27 +84,27 @@ void MerkleRing::prune(const std::map<string, MerkleTree>::iterator& it)
 	}
 }
 
-std::map<string, MerkleTree>::iterator MerkleRing::nextTree(const std::map<string, MerkleTree>::iterator& it)
+std::map<string, DigestTree>::iterator DigestIndexer::nextTree(const std::map<string, DigestTree>::iterator& it)
 {
-	std::map<string, MerkleTree>::iterator next(it);
+	std::map<string, DigestTree>::iterator next(it);
 	if (++next == _forest.end())
 		next = _forest.begin();
 	return next;
 }
 
-void MerkleRing::splitSection(const string& where)
+void DigestIndexer::splitSection(const string& where)
 {
 	if (_forest.empty())
 		return;
 
 	string section = _ring.section(where);
-	std::pair<std::map<string, MerkleTree>::iterator,bool> pear = _forest.emplace(std::make_pair(section, MerkleTree()));
+	std::pair<std::map<string, DigestTree>::iterator,bool> pear = _forest.emplace(std::make_pair(section, DigestTree()));
 	if (!pear.second)
 		return;
 
-	std::map<string, MerkleTree>::iterator next = nextTree(pear.first);
-	MerkleTree& sourceTree = next->second;
-	MerkleTree& newTree = pear.first->second;
+	std::map<string, DigestTree>::iterator next = nextTree(pear.first);
+	DigestTree& sourceTree = next->second;
+	DigestTree& newTree = pear.first->second;
 	initTree(newTree, section);
 
 	// range we need to pull out of the sourceTree
@@ -133,16 +133,16 @@ void MerkleRing::splitSection(const string& where)
 	prune(pear.first);
 }
 
-void MerkleRing::cannibalizeSection(const string& where)
+void DigestIndexer::cannibalizeSection(const string& where)
 {
 	string section = _ring.section(where);
-	std::map<string, MerkleTree>::iterator it = _forest.find(section);
+	std::map<string, DigestTree>::iterator it = _forest.find(section);
 	if (it == _forest.end())
 		return;
 
-	std::map<string, MerkleTree>::iterator next = nextTree(it);
-	MerkleTree& dyingTree = it->second;
-	MerkleTree& refugeeTree = next->second;
+	std::map<string, DigestTree>::iterator next = nextTree(it);
+	DigestTree& dyingTree = it->second;
+	DigestTree& refugeeTree = next->second;
 
 	auto fun = [&refugeeTree] (unsigned long long hash, const std::string& file) { refugeeTree.add(file); return true; };
 	dyingTree.forEachInRange(fun, 0, ~0ULL);
@@ -152,38 +152,38 @@ void MerkleRing::cannibalizeSection(const string& where)
 	_forest.erase(it);
 }
 
-const IMerkleTree& MerkleRing::find(const string& id) const
+const IDigestKeys& DigestIndexer::find(const string& id) const
 {
-	std::map<string, MerkleTree>::const_iterator it = _forest.find(id);
+	std::map<string, DigestTree>::const_iterator it = _forest.find(id);
 	if (it == _forest.end())
-		return MerkleTree::null();
+		return DigestTree::null();
 	return it->second;
 }
 
-const IMerkleTree& MerkleRing::randomTree() const
+const IDigestKeys& DigestIndexer::randomTree() const
 {
 	if (_forest.empty())
-		return MerkleTree::null();
+		return DigestTree::null();
 	std::set<string>::const_iterator it = Random::select(_wanted.begin(), _wanted.end(), _wanted.size());
 	if (it == _wanted.end())
-		return MerkleTree::null();
+		return DigestTree::null();
 	return find(*it);
 }
 
-const IMerkleTree& MerkleRing::unwantedTree() const
+const IDigestKeys& DigestIndexer::unwantedTree() const
 {
 	if (_forest.empty())
-		return MerkleTree::null();
+		return DigestTree::null();
 	std::set<string>::const_iterator it = Random::select(_unwanted.begin(), _unwanted.end(), _unwanted.size());
 	if (it == _unwanted.end())
-		return MerkleTree::null();
+		return DigestTree::null();
 	return find(*it);
 }
 
-std::vector<string> MerkleRing::list() const
+std::vector<string> DigestIndexer::list() const
 {
 	std::vector<string> treeIds;
-	for (std::map<string, MerkleTree>::const_iterator it = _forest.begin(); it != _forest.end(); ++it)
+	for (std::map<string, DigestTree>::const_iterator it = _forest.begin(); it != _forest.end(); ++it)
 		treeIds.push_back(it->first);
 	return treeIds;
 }

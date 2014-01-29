@@ -1,8 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "SkewCorrector.h"
 
-#include "IMerkleIndex.h"
-#include "IMerkleTree.h"
+#include "IKeyTabulator.h"
+#include "IDigestKeys.h"
 #include "actions_req/IWriteActionSender.h"
 #include "cohesion/TreeId.h"
 #include "common/KeyMetadata.h"
@@ -15,7 +15,7 @@
 #include <iostream>
 using std::string;
 
-SkewCorrector::SkewCorrector(const IMerkleIndex& index, const IDataStore& store, IWriteActionSender& sender)
+SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender)
 	: _index(index)
 	, _store(store)
 	, _sender(sender)
@@ -29,7 +29,7 @@ void SkewCorrector::healKey(const Peer& peer, unsigned long long key)
 
 void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
 {
-	const IMerkleTree& tree = _index.find(treeid.id, treeid.mirrors);
+	const IDigestKeys& tree = _index.find(treeid.id, treeid.mirrors);
 
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files = tree.enumerate(first, last);

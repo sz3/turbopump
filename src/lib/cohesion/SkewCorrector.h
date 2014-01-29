@@ -4,19 +4,19 @@
 #include "ICorrectSkew.h"
 
 class IDataStore;
-class IMerkleIndex;
+class IKeyTabulator;
 class IWriteActionSender;
 
 class SkewCorrector : public ICorrectSkew
 {
 public:
-	SkewCorrector(const IMerkleIndex& index, const IDataStore& store, IWriteActionSender& sender);
+	SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender);
 
 	void healKey(const Peer& peer, unsigned long long key);
 	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="");
 
 protected:
-	const IMerkleIndex& _index;
+	const IKeyTabulator& _index;
 	const IDataStore& _store;
 	IWriteActionSender& _sender;
 };

@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "AddPeer.h"
 
-#include "cohesion/IMerkleIndex.h"
+#include "cohesion/IKeyTabulator.h"
 #include "common/KeyMetadata.h"
 #include "common/turbopump_defaults.h"
 #include "consistent_hashing/IHashRing.h"
@@ -9,7 +9,7 @@
 #include "membership/IMembership.h"
 using std::string;
 
-AddPeer::AddPeer(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex)
+AddPeer::AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex)
 	: _ring(ring)
 	, _membership(membership)
 	, _merkleIndex(merkleIndex)

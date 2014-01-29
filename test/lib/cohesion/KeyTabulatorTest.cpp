@@ -1,9 +1,9 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "MerkleIndex.h"
+#include "KeyTabulator.h"
 
-#include "IMerkleTree.h"
+#include "IDigestKeys.h"
 #include "KeyRange.h"
 #include "TreeId.h"
 #include "consistent_hashing/Hash.h"
@@ -15,11 +15,11 @@
 using std::deque;
 using std::string;
 
-TEST_CASE( "MerkleIndexTest/testNoRingMembers", "[unit]" )
+TEST_CASE( "KeyTabulatorTest/testNoRingMembers", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MerkleIndex index(ring, membership);
+	KeyTabulator index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -44,12 +44,12 @@ TEST_CASE( "MerkleIndexTest/testNoRingMembers", "[unit]" )
 	assertStringsEqual( "", StringUtil::join(files) );
 }
 
-TEST_CASE( "MerkleIndexTest/testSingleTree", "[unit]" )
+TEST_CASE( "KeyTabulatorTest/testSingleTree", "[unit]" )
 {
 	MockHashRing ring;
 	ring._workers.push_back("fooid");
 	MockMembership membership;
-	MerkleIndex index(ring, membership);
+	KeyTabulator index(ring, membership);
 
 	index.add("one");
 	index.add("two");
@@ -74,11 +74,11 @@ TEST_CASE( "MerkleIndexTest/testSingleTree", "[unit]" )
 	assertStringsEqual( "", StringUtil::join(files) );
 }
 
-TEST_CASE( "MerkleIndexTest/testRandomAndUnwanted", "[unit]" )
+TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MerkleIndex index(ring, membership);
+	KeyTabulator index(ring, membership);
 
 	ring._workers.push_back("fooid");
 	index.add("unwanted1", 1);
@@ -105,11 +105,11 @@ TEST_CASE( "MerkleIndexTest/testRandomAndUnwanted", "[unit]" )
 	}
 }
 
-TEST_CASE( "MerkleIndexTest/testRandomAndUnwanted.Exclude", "[unit]" )
+TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted.Exclude", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MerkleIndex index(ring, membership);
+	KeyTabulator index(ring, membership);
 
 	ring._workers.push_back("fooid");
 	index.add("unwanted1", 1);
@@ -118,7 +118,7 @@ TEST_CASE( "MerkleIndexTest/testRandomAndUnwanted.Exclude", "[unit]" )
 	index.add("wanted1", 1);
 
 	{
-		const IMerkleTree& tree = index.randomTree();
+		const IDigestKeys& tree = index.randomTree();
 		assertEquals( "", tree.id().id );
 		assertTrue( tree.empty() );
 	}
@@ -130,11 +130,11 @@ TEST_CASE( "MerkleIndexTest/testRandomAndUnwanted.Exclude", "[unit]" )
 	}
 }
 
-TEST_CASE( "MerkleIndexTest/testReorganizeSections", "[unit]" )
+TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MerkleIndex index(ring, membership);
+	KeyTabulator index(ring, membership);
 
 	ring._workers.push_back("2");
 	for (int i = 1; i <= 9; ++i)

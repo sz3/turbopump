@@ -6,7 +6,7 @@
 #include "NotifyWriteComplete.h"
 #include "RandomizedMirrorToPeer.h"
 
-#include "cohesion/IMerkleIndex.h"
+#include "cohesion/IKeyTabulator.h"
 #include "common/KeyMetadata.h"
 #include "util/FunctionChainer.h"
 
@@ -20,7 +20,7 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex)
+	std::function<void(KeyMetadata, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex)
 	{
 		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
 		{
@@ -29,7 +29,7 @@ namespace
 		};
 	}
 
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> merkleAddFunct(IMerkleIndex& merkleIndex)
+	std::function<void(KeyMetadata, IDataStoreReader::ptr)> merkleAddFunct(IKeyTabulator& merkleIndex)
 	{
 		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
 		{
@@ -37,7 +37,7 @@ namespace
 		};
 	}
 
-	std::function<void(KeyMetadata)> merkleDelFunct(IMerkleIndex& merkleIndex)
+	std::function<void(KeyMetadata)> merkleDelFunct(IKeyTabulator& merkleIndex)
 	{
 		return [&] (KeyMetadata md)
 		{
@@ -73,7 +73,7 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
+void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"

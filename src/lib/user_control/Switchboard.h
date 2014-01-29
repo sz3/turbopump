@@ -11,7 +11,7 @@ class IByteStream;
 class IDataStore;
 class IHashRing;
 class IMembership;
-class IMerkleIndex;
+class IKeyTabulator;
 class IProcessState;
 class TurboApi;
 
@@ -19,7 +19,7 @@ class TurboApi;
 class Switchboard
 {
 public:
-	Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex, const IProcessState& state, const TurboApi& callbacks);
+	Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex, const IProcessState& state, const TurboApi& callbacks);
 
 	void run();
 
@@ -31,7 +31,7 @@ protected:
 	IDataStore& _dataStore;
 	IHashRing& _ring;
 	IMembership& _membership;
-	IMerkleIndex& _merkleIndex;
+	IKeyTabulator& _merkleIndex;
 	const IProcessState& _state;
 	const TurboApi& _callbacks;
 };

@@ -9,10 +9,10 @@ class TreeId;
 // tracks files that belong to a given HashRing section.
 // e.g. "this tree should be synchronized with AAA and BBB, who both track section XYZ"
 
-class IMerkleTree
+class IDigestKeys
 {
 public:
-	virtual ~IMerkleTree() {}
+	virtual ~IDigestKeys() {}
 	virtual const TreeId& id() const = 0;
 
 	virtual void add(const std::string& key) = 0;

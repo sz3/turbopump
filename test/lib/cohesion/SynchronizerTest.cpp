@@ -7,7 +7,7 @@
 #include "membership/Peer.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
-#include "mock/MockMerkleIndex.h"
+#include "mock/MockKeyTabulator.h"
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
 #include "wan_server/PeerConnection.h"
@@ -32,7 +32,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 	MockMembership membership;
 	membership.addIp("1.2.3.4", "dude");
 	membership._history.clear();
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	index._tree._top = whatsThePoint(5);
 	index._tree._id = TreeId("oak", 2);
 	MockMessageSender messenger;
@@ -55,7 +55,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 	MockMembership membership;
 	membership.addIp("dude", "dude");
 	membership._history.clear();
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	index._tree._top = whatsThePoint(5);
 	index._tree._id = TreeId("oak", 2);
 	MockMessageSender messenger;
@@ -78,7 +78,7 @@ TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
 	MockMembership membership;
 	membership.addIp("dude", "dude");
 	membership._history.clear();
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	index._tree._top = whatsThePoint(5);
 	index._tree._id = TreeId("oak", 2);
 	MockMessageSender messenger;
@@ -98,7 +98,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	index._tree._top = whatsThePoint(10);
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
@@ -117,7 +117,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
@@ -137,7 +137,7 @@ TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	index._tree._empty = true;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
@@ -156,7 +156,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Same", "default" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
@@ -174,7 +174,7 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
@@ -194,7 +194,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 
@@ -214,7 +214,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Climb", "default" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
 

@@ -5,7 +5,7 @@
 
 class IHashRing;
 class IMembership;
-class IMerkleIndex;
+class IKeyTabulator;
 class IMessageSender;
 class IPeerTracker;
 
@@ -16,7 +16,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex, IMessageSender& messenger, IPeerTracker& peers);
+	void initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex, IMessageSender& messenger, IPeerTracker& peers);
 
 protected:
 };

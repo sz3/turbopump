@@ -1,14 +1,14 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "IMerkleTree.h"
+#include "IDigestKeys.h"
 #include "TreeId.h"
 #include "data_structures/merkle_tree.h"
 
-class MerkleTree : public IMerkleTree
+class DigestTree : public IDigestKeys
 {
 public:
-	static const MerkleTree& null();
+	static const DigestTree& null();
 
 public:
 	void setId(const TreeId& id);

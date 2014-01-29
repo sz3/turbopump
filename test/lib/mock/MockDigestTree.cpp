@@ -1,49 +1,49 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "MockMerkleTree.h"
+#include "MockDigestTree.h"
 
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-MockMerkleTree::MockMerkleTree()
+MockDigestTree::MockDigestTree()
 	: _empty(false)
 	, _id("tim", 3)
 {
 }
 
-const TreeId& MockMerkleTree::id() const
+const TreeId& MockDigestTree::id() const
 {
 	return _id;
 }
 
-void MockMerkleTree::add(const std::string& key)
+void MockDigestTree::add(const std::string& key)
 {
 	_history.call("add", key);
 }
 
-void MockMerkleTree::remove(const std::string& key)
+void MockDigestTree::remove(const std::string& key)
 {
 	_history.call("remove", key);
 }
 
-bool MockMerkleTree::empty() const
+bool MockDigestTree::empty() const
 {
 	_history.call("empty");
 	return _empty;
 }
 
-MerklePoint MockMerkleTree::top() const
+MerklePoint MockDigestTree::top() const
 {
 	_history.call("top");
 	return _top;
 }
 
-std::deque<MerklePoint> MockMerkleTree::diff(const MerklePoint& point) const
+std::deque<MerklePoint> MockDigestTree::diff(const MerklePoint& point) const
 {
 	_history.call("diff", MerklePointSerializer::toString(point));
 	return _diff;
 }
 
-std::deque<std::string> MockMerkleTree::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
+std::deque<std::string> MockDigestTree::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
 {
 	_history.call("enumerate", first, last);
 	return _enumerate;

@@ -6,14 +6,14 @@
 #include "TreeId.h"
 #include "membership/Peer.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockMerkleIndex.h"
+#include "mock/MockKeyTabulator.h"
 #include "mock/MockWriteActionSender.h"
 
 using std::string;
 
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 {
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockDataStore store;
 	MockWriteActionSender writer;
 	SkewCorrector corrector(index, store, writer);
@@ -33,7 +33,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Offload", "[unit]" )
 {
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockDataStore store;
 	MockWriteActionSender writer;
 	SkewCorrector corrector(index, store, writer);
@@ -53,7 +53,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Offload", "[unit]" )
 
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )
 {
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockDataStore store;
 	MockWriteActionSender writer;
 	SkewCorrector corrector(index, store, writer);
@@ -67,7 +67,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )
 
 TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 {
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	MockDataStore store;
 	MockWriteActionSender writer;
 	SkewCorrector corrector(index, store, writer);

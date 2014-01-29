@@ -5,18 +5,18 @@
 
 class IHashRing;
 class IMembership;
-class IMerkleIndex;
+class IKeyTabulator;
 class KeyMetadata;
 
 class AddPeer
 {
 public:
-	AddPeer(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex);
+	AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex);
 
 	bool run(KeyMetadata md, IDataStoreReader::ptr contents);
 
 protected:
 	IHashRing& _ring;
 	IMembership& _membership;
-	IMerkleIndex& _merkleIndex;
+	IKeyTabulator& _merkleIndex;
 };

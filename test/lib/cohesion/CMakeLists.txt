@@ -4,15 +4,15 @@ project(cohesion_test)
 
 set (SOURCES
 	test.cpp
+	DigestIndexerTest.cpp
+	DigestTreeTest.cpp
 	KeyRangeTest.cpp
-	MerkleIndexTest.cpp
-	MerkleIndexDynamicHashRingTest.cpp
-	MerkleRingTest.cpp
-	MerkleTreeTest.cpp
+	KeyTabulatorTest.cpp
+	KeyTabulatorDynamicHashRingTest.cpp
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
 	SynchronizerExchangeTest.cpp
-	ThreadLockedMerkleIndexTest.cpp
+	ThreadLockedKeyTabulatorTest.cpp
 )
 
 include_directories(

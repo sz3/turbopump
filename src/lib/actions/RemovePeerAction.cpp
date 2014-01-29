@@ -1,13 +1,13 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "RemovePeerAction.h"
 
-#include "cohesion/IMerkleIndex.h"
+#include "cohesion/IKeyTabulator.h"
 #include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
 using std::map;
 using std::string;
 
-RemovePeerAction::RemovePeerAction(IHashRing& ring, IMembership& membership, IMerkleIndex& merkleIndex)
+RemovePeerAction::RemovePeerAction(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex)
 	: _ring(ring)
 	, _membership(membership)
 	, _merkleIndex(merkleIndex)

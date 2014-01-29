@@ -1,15 +1,15 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "cohesion/IMerkleTree.h"
+#include "cohesion/IDigestKeys.h"
 #include "cohesion/TreeId.h"
 #include "util/CallHistory.h"
 #include <deque>
 
-class MockMerkleTree : public IMerkleTree
+class MockDigestTree : public IDigestKeys
 {
 public:
-	MockMerkleTree();
+	MockDigestTree();
 	const TreeId& id() const;
 
 	void add(const std::string& key);

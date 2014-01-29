@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "MerkleTree.h"
+#include "DigestTree.h"
 
 #include "KeyRange.h"
 #include "consistent_hashing/Hash.h"
@@ -11,9 +11,9 @@
 using std::deque;
 using std::string;
 
-TEST_CASE( "MerkleTreeTest/testBasics", "[unit]" )
+TEST_CASE( "DigestTreeTest/testBasics", "[unit]" )
 {
-	MerkleTree tree;
+	DigestTree tree;
 	assertTrue( tree.empty() );
 
 	tree.add("one");
@@ -42,9 +42,9 @@ TEST_CASE( "MerkleTreeTest/testBasics", "[unit]" )
 	assertTrue( tree.empty() );
 }
 
-TEST_CASE( "MerkleTreeTest/testTop", "[unit]" )
+TEST_CASE( "DigestTreeTest/testTop", "[unit]" )
 {
-	MerkleTree tree;
+	DigestTree tree;
 
 	tree.add("one");
 	unsigned long long hash1 = Hash::compute("one").integer();
@@ -62,13 +62,13 @@ TEST_CASE( "MerkleTreeTest/testTop", "[unit]" )
 	assertEquals( (hash1 xor hash2 xor hash3), top.hash );
 }
 
-TEST_CASE( "MerkleTreeTest/testTraverse_Case1", "[unit]" )
+TEST_CASE( "DigestTreeTest/testTraverse_Case1", "[unit]" )
 {
-	// make a generic test to iterate over two MerkleTreees recursively,
+	// make a generic test to iterate over two DigestTreees recursively,
 	// and enforce that the appropriate missing key ranges are pushed to a list
 
-	MerkleTree treeOne;
-	MerkleTree treeTwo;
+	DigestTree treeOne;
+	DigestTree treeTwo;
 
 	treeOne.add("one0");
 	treeOne.add("one1");

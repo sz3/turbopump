@@ -2,8 +2,8 @@
 #include "unittest.h"
 
 #include "ICorrectSkew.h"
-#include "IMerkleTree.h"
-#include "MerkleIndex.h"
+#include "IDigestKeys.h"
+#include "KeyTabulator.h"
 #include "Synchronizer.h"
 #include "TreeId.h"
 #include "actions_req/IMessageSender.h"
@@ -46,7 +46,7 @@ namespace
 	class TestSkewCorrector : public ICorrectSkew
 	{
 	public:
-		TestSkewCorrector(const MerkleIndex& index)
+		TestSkewCorrector(const KeyTabulator& index)
 			: _index(index)
 		{}
 
@@ -63,7 +63,7 @@ namespace
 		}
 
 	public:
-		const MerkleIndex& _index;
+		const KeyTabulator& _index;
 		deque<string> _corrected;
 		CallHistory _history;
 	};
@@ -74,8 +74,8 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 	MockHashRing ring;
 	ring._workers.push_back("fooid"); // will be used as the MerkleTree's id
 	MockMembership membership;
-	MerkleIndex indexOne(ring, membership);
-	MerkleIndex indexTwo(ring, membership);
+	KeyTabulator indexOne(ring, membership);
+	KeyTabulator indexTwo(ring, membership);
 
 	indexOne.add("one0");
 	indexOne.add("one1");
@@ -127,8 +127,8 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	MockHashRing ring;
 	ring._workers.push_back("fooid");
 	MockMembership membership;
-	MerkleIndex indexOne(ring, membership);
-	MerkleIndex indexTwo(ring, membership);
+	KeyTabulator indexOne(ring, membership);
+	KeyTabulator indexTwo(ring, membership);
 
 	for (int i = 0; i < 100; ++i)
 	{

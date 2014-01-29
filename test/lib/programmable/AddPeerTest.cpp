@@ -8,14 +8,14 @@
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
-#include "mock/MockMerkleIndex.h"
+#include "mock/MockKeyTabulator.h"
 using std::string;
 
 TEST_CASE( "AddPeerTest/testAdd", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	AddPeer action(ring, membership, index);
 
 	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
@@ -32,7 +32,7 @@ TEST_CASE( "AddPeerTest/testAddExistingWorker", "[unit]" )
 	MockMembership membership;
 	membership.add("fooid");
 	membership._history.clear();
-	MockMerkleIndex index;
+	MockKeyTabulator index;
 	AddPeer action(ring, membership, index);
 
 	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
