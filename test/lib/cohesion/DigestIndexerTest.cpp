@@ -390,8 +390,7 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Middle", "[unit]" )
 	assertEquals( "five three four", StringUtil::join(files) );
 }
 
-// not sure about the contents of this test case, as far as desired behavior goes.
-// however, at least it doesn't core.
+// try not to eat the last section
 TEST_CASE( "DigestIndexerTest/testCannibalizeSection.ToEmpty", "[unit]" )
 {
 	MockHashRing ring;
@@ -403,5 +402,8 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.ToEmpty", "[unit]" )
 	index.add("two");
 
 	index.cannibalizeSection("aaa");
-	assertEquals( "", StringUtil::join(index.list()) );
+	assertEquals( "aaa", StringUtil::join(index.list()) );
+
+	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "two one", StringUtil::join(files) );
 }

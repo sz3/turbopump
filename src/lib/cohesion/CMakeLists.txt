@@ -21,6 +21,8 @@ set(SOURCES
 	ThreadLockedKeyTabulator.cpp
 	ThreadLockedKeyTabulator.h
 	TreeId.h
+	UniversalDigestIndexer.cpp
+	UniversalDigestIndexer.h
 )
 
 include_directories(

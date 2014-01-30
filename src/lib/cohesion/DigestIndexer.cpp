@@ -35,9 +35,7 @@ void DigestIndexer::add(const std::string& key)
 	 * merkle sections can be looked up by this hash token
 	 **/
 
-	string section;
-	if (_mirrors != 0)
-		section = _ring.section(key);
+	string section = _ring.section(key);
 
 	DigestTree& tree = _forest[section];
 	initTree(tree, section);
@@ -46,9 +44,7 @@ void DigestIndexer::add(const std::string& key)
 
 void DigestIndexer::remove(const string& key)
 {
-	string section;
-	if (_mirrors != 0)
-		section = _ring.section(key);
+	string section = _ring.section(key);
 
 	std::map<string, DigestTree>::iterator it = _forest.find(section);
 	if (it == _forest.end())
@@ -141,6 +137,8 @@ void DigestIndexer::cannibalizeSection(const string& where)
 		return;
 
 	std::map<string, DigestTree>::iterator next = nextTree(it);
+	if (next == it)
+		return;
 	DigestTree& dyingTree = it->second;
 	DigestTree& refugeeTree = next->second;
 

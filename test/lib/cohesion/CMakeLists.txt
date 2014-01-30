@@ -13,6 +13,7 @@ set (SOURCES
 	SynchronizerTest.cpp
 	SynchronizerExchangeTest.cpp
 	ThreadLockedKeyTabulatorTest.cpp
+	UniversalDigestIndexerTest.cpp
 )
 
 include_directories(

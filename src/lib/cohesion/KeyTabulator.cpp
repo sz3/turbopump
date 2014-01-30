@@ -3,6 +3,7 @@
 
 #include "DigestIndexer.h"
 #include "DigestTree.h"
+#include "UniversalDigestIndexer.h"
 #include "consistent_hashing/IHashRing.h"
 #include "membership/IMembership.h"
 
@@ -28,7 +29,12 @@ void KeyTabulator::add(const string& key, unsigned mirrors)
 
 	unique_ptr<IDigestIndexer>& forest = _forest[mirrors];
 	if (!forest)
-		forest.reset( new DigestIndexer(_ring, _membership, mirrors) );
+	{
+		if (mirrors == 0)
+			forest.reset(new UniversalDigestIndexer());
+		else
+			forest.reset(new DigestIndexer(_ring, _membership, mirrors));
+	}
 	forest->add(key);
 }
 
