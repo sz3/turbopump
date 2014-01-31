@@ -5,19 +5,19 @@
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-void MockMessageSender::merklePing(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
+void MockMessageSender::digestPing(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
 {
-	_history.call("merklePing", peer.uid, treeid.id, MerklePointSerializer::toString(point));
+	_history.call("digestPing", peer.uid, treeid.id, MerklePointSerializer::toString(point));
 }
 
-void MockMessageSender::merklePing(const Peer& peer, const TreeId& treeid, const std::deque<MerklePoint>& points)
+void MockMessageSender::digestPing(const Peer& peer, const TreeId& treeid, const std::deque<MerklePoint>& points)
 {
 	std::string pstr;
 	if (!points.empty())
 		pstr += MerklePointSerializer::toString(points.front());
 	for (auto it = ++points.begin(); it != points.end(); ++it)
 		pstr += "|" + MerklePointSerializer::toString(*it);
-	_history.call("merklePing", peer.uid, treeid.id, pstr);
+	_history.call("digestPing", peer.uid, treeid.id, pstr);
 }
 
 void MockMessageSender::requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last)

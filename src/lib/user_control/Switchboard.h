@@ -19,7 +19,7 @@ class TurboApi;
 class Switchboard
 {
 public:
-	Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex, const IProcessState& state, const TurboApi& callbacks);
+	Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks);
 
 	void run();
 
@@ -31,7 +31,7 @@ protected:
 	IDataStore& _dataStore;
 	IHashRing& _ring;
 	IMembership& _membership;
-	IKeyTabulator& _merkleIndex;
+	IKeyTabulator& _keyTabulator;
 	const IProcessState& _state;
 	const TurboApi& _callbacks;
 };

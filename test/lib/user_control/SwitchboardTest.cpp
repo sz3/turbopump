@@ -15,7 +15,7 @@ TEST_CASE( "SwitchboardTest/testDefault", "[unit]" )
 	MockDataStore dataStore;
 	MockHashRing ring;
 	MockMembership membership;
-	MockKeyTabulator merkleIndex;
+	MockKeyTabulator keyTabulator;
 	MockProcessState state;
 	TurboApi callbacks;
 
@@ -23,7 +23,7 @@ TEST_CASE( "SwitchboardTest/testDefault", "[unit]" )
 
 	{
 		StringByteStream stream("state||");
-		Switchboard board(stream, dataStore, ring, membership, merkleIndex, state, callbacks);
+		Switchboard board(stream, dataStore, ring, membership, keyTabulator, state, callbacks);
 		board.run();
 
 		assertEquals( "dancing", stream.writeBuffer() );

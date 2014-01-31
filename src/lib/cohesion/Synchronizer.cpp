@@ -34,7 +34,7 @@ void Synchronizer::pingRandomPeer()
 	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
 	if (!peer)
 		return;
-	_messenger.merklePing(*peer, tree.id(), tree.top());
+	_messenger.digestPing(*peer, tree.id(), tree.top());
 }
 
 void Synchronizer::offloadUnwantedKeys()
@@ -115,7 +115,7 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 	else if (diffs.size() >= 2)
 	{
 		// respond!
-		_messenger.merklePing(peer, treeid, diffs);
+		_messenger.digestPing(peer, treeid, diffs);
 	}
 }
 

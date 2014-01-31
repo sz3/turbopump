@@ -69,7 +69,7 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	createMemberFile();
 
 	TurboApi api;
-	api.options.merkle = true;
+	api.options.active_sync = true;
 	api.options.write_chaining = false;
 	api.options.partition_keys = false;
 	TurboPumpApp workerOne(api, "/tmp/workerOne", 9001);
@@ -159,7 +159,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	createMemberFile();
 
 	TurboApi api;
-	api.options.merkle = false;
+	api.options.active_sync = false;
 	api.options.write_chaining = true;
 	api.options.partition_keys = false;
 

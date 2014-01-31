@@ -21,12 +21,12 @@
 #include <vector>
 using std::string;
 
-Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex, const IProcessState& state, const TurboApi& callbacks)
+Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
 	, _ring(ring)
 	, _membership(membership)
-	, _merkleIndex(merkleIndex)
+	, _keyTabulator(keyTabulator)
 	, _state(state)
 	, _callbacks(callbacks)
 {

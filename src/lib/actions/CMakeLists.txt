@@ -12,8 +12,8 @@ set(SOURCES
 	LocalListAction.h
 	LocalStateAction.cpp
 	LocalStateAction.h
-	MerkleAction.cpp
-	MerkleAction.h
+	SyncAction.cpp
+	SyncAction.h
 	MessageAction.cpp
 	MessageAction.h
 	ReadAction.cpp

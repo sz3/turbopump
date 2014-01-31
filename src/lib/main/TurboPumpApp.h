@@ -41,7 +41,7 @@ protected:
 	Callbacks _callbacks;
 
 	// healing
-	KeyTabulator _merkleIndex;
+	KeyTabulator _keyTabulator;
 	ThreadLockedKeyTabulator _threadLockedKeyTabulator;
 	SkewCorrector _corrector;
 	Synchronizer _synchronizer;

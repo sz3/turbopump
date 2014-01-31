@@ -9,10 +9,10 @@
 #include "membership/IMembership.h"
 using std::string;
 
-AddPeer::AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex)
+AddPeer::AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	: _ring(ring)
 	, _membership(membership)
-	, _merkleIndex(merkleIndex)
+	, _keyTabulator(keyTabulator)
 {
 }
 
@@ -31,6 +31,6 @@ bool AddPeer::run(KeyMetadata md, IDataStoreReader::ptr contents)
 		return true;
 
 	_ring.addWorker(uid);
-	_merkleIndex.splitSection(uid);
+	_keyTabulator.splitSection(uid);
 	return true;
 }

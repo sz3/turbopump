@@ -6,10 +6,10 @@
 #include "membership/Peer.h"
 class ISynchronize;
 
-class MerkleAction : public IAction
+class SyncAction : public IAction
 {
 public:
-	MerkleAction(const Peer& peer, ISynchronize& sync);
+	SyncAction(const Peer& peer, ISynchronize& sync);
 
 	std::string name() const;
 	bool run(const DataBuffer& data);

@@ -7,7 +7,7 @@
 #include "VirtualConnection.h"
 #include "actions/DropAction.h"
 #include "actions/KeyReqAction.h"
-#include "actions/MerkleAction.h"
+#include "actions/SyncAction.h"
 #include "actions/ReadAction.h"
 #include "actions/WriteAction.h"
 
@@ -160,8 +160,8 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 		action.reset(new WriteAction(_dataStore, _callbacks.when_mirror_write_finishes));
 	else if (cmdname == "drop")
 		action.reset(new DropAction(_dataStore, _ring, _membership));
-	else if (cmdname == "merkle")
-		action.reset(new MerkleAction(peer, _sync));
+	else if (cmdname == "sync")
+		action.reset(new SyncAction(peer, _sync));
 	else if (cmdname == "key-req")
 		action.reset(new KeyReqAction(peer, _sync));
 	//else if (cmdname == "ip")

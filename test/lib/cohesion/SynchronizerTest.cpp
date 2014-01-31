@@ -43,7 +43,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 
 	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
 	assertEquals( "randomPeer()", membership._history.calls() );
-	assertEquals( "merklePing(dude,oak,5 5 50)", messenger._history.calls() );
+	assertEquals( "digestPing(dude,oak,5 5 50)", messenger._history.calls() );
 	assertEquals( "randomTree()", index._history.calls() );
 	assertEquals( "top()", index._tree._history.calls() );
 }
@@ -66,7 +66,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 
 	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
 	assertEquals( "randomPeerFromList()", membership._history.calls() );
-	assertEquals( "merklePing(dude,oak,5 5 50)", messenger._history.calls() );
+	assertEquals( "digestPing(dude,oak,5 5 50)", messenger._history.calls() );
 	assertEquals( "randomTree()", index._history.calls() );
 	assertEquals( "top()", index._tree._history.calls() );
 }
@@ -227,7 +227,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Climb", "default" )
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "merklePing(fooid,oak,1 1 10|2 2 20)", messenger._history.calls() );
+	assertEquals( "digestPing(fooid,oak,1 1 10|2 2 20)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 

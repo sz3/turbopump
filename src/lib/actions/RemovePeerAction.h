@@ -10,7 +10,7 @@ class IKeyTabulator;
 class RemovePeerAction : public IAction
 {
 public:
-	RemovePeerAction(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex);
+	RemovePeerAction(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator);
 
 	std::string name() const;
 	bool run(const DataBuffer& data);
@@ -19,7 +19,7 @@ public:
 protected:
 	IHashRing& _ring;
 	IMembership& _membership;
-	IKeyTabulator& _merkleIndex;
+	IKeyTabulator& _keyTabulator;
 
 	std::string _uid;
 };

@@ -11,7 +11,7 @@
 
 #include "socket/IpAddress.h"
 
-TEST_CASE( "MessageSenderTest/testMerklePing", "[unit]" )
+TEST_CASE( "MessageSenderTest/testDigestPing", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -23,26 +23,26 @@ TEST_CASE( "MessageSenderTest/testMerklePing", "[unit]" )
 	point.location.key = 1;
 	point.location.keybits = 2;
 	point.hash = 3;
-	messenger.merklePing(Peer("dude"), TreeId("oak"), point);
+	messenger.digestPing(Peer("dude"), TreeId("oak"), point);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle|tree=oak n=3|1 2 3)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,sync|tree=oak n=3|1 2 3)|flush()", writer->_history.calls() );
 }
 
-TEST_CASE( "MessageSenderTest/testMerklePing.Null", "[unit]" )
+TEST_CASE( "MessageSenderTest/testDigestPing.Null", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
-	messenger.merklePing(Peer("dude"), TreeId("oak"), MerklePoint::null());
+	messenger.digestPing(Peer("dude"), TreeId("oak"), MerklePoint::null());
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle|tree=oak n=3|0 65535 0)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,sync|tree=oak n=3|0 65535 0)|flush()", writer->_history.calls() );
 }
 
-TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
+TEST_CASE( "MessageSenderTest/testDigestPing.Many", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -59,10 +59,10 @@ TEST_CASE( "MessageSenderTest/testMerklePing.Many", "[unit]" )
 		point.hash = i*10;
 		points.push_back(point);
 	}
-	messenger.merklePing(Peer("dude"), TreeId("oak",2), points);
+	messenger.digestPing(Peer("dude"), TreeId("oak",2), points);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,merkle|tree=oak n=2|1 1 10|2 2 20|3 3 30)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,sync|tree=oak n=2|1 1 10|2 2 20|3 3 30)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )

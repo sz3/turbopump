@@ -16,7 +16,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex, IMessageSender& messenger, IPeerTracker& peers);
+	void initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, IPeerTracker& peers);
 
 protected:
 };

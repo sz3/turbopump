@@ -7,10 +7,10 @@
 using std::map;
 using std::string;
 
-RemovePeerAction::RemovePeerAction(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex)
+RemovePeerAction::RemovePeerAction(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	: _ring(ring)
 	, _membership(membership)
-	, _merkleIndex(merkleIndex)
+	, _keyTabulator(keyTabulator)
 {
 }
 
@@ -25,7 +25,7 @@ bool RemovePeerAction::run(const DataBuffer& data)
 		return true;
 	if (!_membership.save())
 		return false;
-	_merkleIndex.cannibalizeSection(_uid);
+	_keyTabulator.cannibalizeSection(_uid);
 	_ring.removeWorker(_uid);
 	return true;
 }

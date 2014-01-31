@@ -14,7 +14,7 @@ struct TurboApi
 	{
 		bool partition_keys = true;
 		bool write_chaining = true;
-		bool merkle = true;
+		bool active_sync = true;
 		bool udt = true;
 	} options;
 };

@@ -8,7 +8,7 @@ set (SOURCES
 	DropActionTest.cpp
 	KeyReqActionTest.cpp
 	LocalListActionTest.cpp
-	MerkleActionTest.cpp
+	SyncActionTest.cpp
 	RemovePeerActionTest.cpp
 	WriteActionTest.cpp
 )

@@ -19,12 +19,12 @@ namespace
 	class TestMessageSender : public IMessageSender
 	{
 	public:
-		void merklePing(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
+		void digestPing(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
 		{
 			_other->compare(peer, treeid, point);
 		}
 
-		void merklePing(const Peer& peer, const TreeId& treeid, const deque<MerklePoint>& points)
+		void digestPing(const Peer& peer, const TreeId& treeid, const deque<MerklePoint>& points)
 		{
 			for (deque<MerklePoint>::const_iterator it = points.begin(); it != points.end(); ++it)
 				_other->compare(peer, treeid, *it);

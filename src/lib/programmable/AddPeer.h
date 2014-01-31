@@ -11,12 +11,12 @@ class KeyMetadata;
 class AddPeer
 {
 public:
-	AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex);
+	AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator);
 
 	bool run(KeyMetadata md, IDataStoreReader::ptr contents);
 
 protected:
 	IHashRing& _ring;
 	IMembership& _membership;
-	IKeyTabulator& _merkleIndex;
+	IKeyTabulator& _keyTabulator;
 };

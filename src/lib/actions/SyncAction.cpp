@@ -1,5 +1,5 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "MerkleAction.h"
+#include "SyncAction.h"
 
 #include "cohesion/ISynchronize.h"
 
@@ -11,15 +11,15 @@ using std::map;
 using std::string;
 using std::vector;
 
-MerkleAction::MerkleAction(const Peer& peer, ISynchronize& sync)
+SyncAction::SyncAction(const Peer& peer, ISynchronize& sync)
 	: _peer(peer)
 	, _sync(sync)
 {
 }
 
-std::string MerkleAction::name() const
+std::string SyncAction::name() const
 {
-	return "merkle";
+	return "sync";
 }
 
 /*
@@ -35,7 +35,7 @@ std::string MerkleAction::name() const
  * binary encoding feels most attractive long term, but it may not make sense to do it now.
  */
 
-bool MerkleAction::run(const DataBuffer& data)
+bool SyncAction::run(const DataBuffer& data)
 {
 	vector<string> points = StringUtil::split(data.str(), '|');
 	for (vector<string>::const_iterator it = points.begin(); it != points.end(); ++it)
@@ -49,7 +49,7 @@ bool MerkleAction::run(const DataBuffer& data)
 	return true;
 }
 
-void MerkleAction::setParams(const std::map<std::string,std::string>& params)
+void SyncAction::setParams(const std::map<std::string,std::string>& params)
 {
 	map<string,string>::const_iterator it = params.find("tree");
 	if (it != params.end())

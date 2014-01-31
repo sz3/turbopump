@@ -20,28 +20,28 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex)
+	std::function<void(KeyMetadata, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	{
 		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
 		{
-			AddPeer adder(ring, membership, merkleIndex);
+			AddPeer adder(ring, membership, keyTabulator);
 			adder.run(md, contents);
 		};
 	}
 
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> merkleAddFunct(IKeyTabulator& merkleIndex)
+	std::function<void(KeyMetadata, IDataStoreReader::ptr)> digestAddFunct(IKeyTabulator& keyTabulator)
 	{
 		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
 		{
-			merkleIndex.add(md.filename, md.totalCopies);
+			keyTabulator.add(md.filename, md.totalCopies);
 		};
 	}
 
-	std::function<void(KeyMetadata)> merkleDelFunct(IKeyTabulator& merkleIndex)
+	std::function<void(KeyMetadata)> digestDelFunct(IKeyTabulator& keyTabulator)
 	{
 		return [&] (KeyMetadata md)
 		{
-			merkleIndex.remove(md.filename, md.totalCopies);
+			keyTabulator.remove(md.filename, md.totalCopies);
 		};
 	}
 
@@ -73,7 +73,7 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& merkleIndex, IMessageSender& messenger, IPeerTracker& peers)
+void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, IPeerTracker& peers)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"
@@ -81,8 +81,8 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 	// on local write
 	{
 		FunctionChainer<KeyMetadata, IDataStoreReader::ptr> chain(when_local_write_finishes);
-		if (TurboApi::options.merkle)
-			chain.add( merkleAddFunct(merkleIndex) );
+		if (TurboApi::options.active_sync)
+			chain.add( digestAddFunct(keyTabulator) );
 
 		if (TurboApi::options.write_chaining)
 		{
@@ -91,7 +91,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 			else
 				chain.add( writeChainFunct_cloneMode(membership, peers) );
 		}
-		chain.add( membershipAddFunct(ring, membership, merkleIndex) );
+		chain.add( membershipAddFunct(ring, membership, keyTabulator) );
 
 		when_local_write_finishes = chain.generate();
 	}
@@ -99,14 +99,14 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 	// on mirror write
 	{
 		FunctionChainer<KeyMetadata, IDataStoreReader::ptr> chain(when_mirror_write_finishes);
-		if (TurboApi::options.merkle)
-			chain.add( merkleAddFunct(merkleIndex) );
+		if (TurboApi::options.active_sync)
+			chain.add( digestAddFunct(keyTabulator) );
 
 		if (TurboApi::options.write_chaining && TurboApi::options.partition_keys)
 			chain.add( writeChainFunct_partitionMode(ring, membership, peers) );
 
 		chain.add( notifyWriteComplete(membership, messenger) );
-		chain.add( membershipAddFunct(ring, membership, merkleIndex) );
+		chain.add( membershipAddFunct(ring, membership, keyTabulator) );
 
 		when_mirror_write_finishes = chain.generate();
 	}
@@ -114,8 +114,8 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 	// on drop
 	{
 		FunctionChainer<KeyMetadata> chain(when_drop_finishes);
-		if (TurboApi::options.merkle)
-			chain.add( merkleDelFunct(merkleIndex) );
+		if (TurboApi::options.active_sync)
+			chain.add( digestDelFunct(keyTabulator) );
 		when_drop_finishes = chain.generate();
 	}
 }
