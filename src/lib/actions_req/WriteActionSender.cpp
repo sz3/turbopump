@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "WriteActionSender.h"
 
-#include "common/KeyMetadata.h"
+#include "actions/WriteParams.h"
 #include "membership/Peer.h"
 #include "wan_server/BufferedConnectionWriter.h"
 #include "wan_server/ConnectionWriteStream.h"
@@ -16,7 +16,7 @@ WriteActionSender::WriteActionSender(IPeerTracker& peers)
 {
 }
 
-bool WriteActionSender::store(const Peer& peer, const KeyMetadata& file, IDataStoreReader::ptr contents)
+bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents)
 {
 	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
 	if (!writer)
@@ -25,9 +25,9 @@ bool WriteActionSender::store(const Peer& peer, const KeyMetadata& file, IDataSt
 	ConnectionWriteStream stream(writer, peer.nextActionId());
 
 	std::stringstream ss;
-	ss << "write|name=" << file.filename << " i=" << file.mirror << " n=" << file.totalCopies;
-	if (!file.source.empty())
-		ss << " source=" << file.source;
+	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies;
+	if (!write.source.empty())
+		ss << " source=" << write.source;
 	ss << "|";
 	std::string buff(ss.str());
 	stream.write(buff.data(), buff.size());

@@ -3,9 +3,9 @@
 
 #include "IKeyTabulator.h"
 #include "IDigestKeys.h"
+#include "actions/WriteParams.h"
 #include "actions_req/IWriteActionSender.h"
 #include "cohesion/TreeId.h"
-#include "common/KeyMetadata.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
 #include "membership/Peer.h"
@@ -40,13 +40,13 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 		if (!reader)
 			continue;
 
-		KeyMetadata md(*it, 0, reader->data().totalCopies);
+		WriteParams write(*it, 0, reader->data().totalCopies);
 		if (!offloadFrom.empty())
 		{
-			md.source = offloadFrom;
-			md.mirror = md.totalCopies;
+			write.source = offloadFrom;
+			write.mirror = write.totalCopies;
 		}
-		if (!_sender.store(peer, md, reader))
+		if (!_sender.store(peer, write, reader))
 		{
 			std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
 			return; // TODO: last error?

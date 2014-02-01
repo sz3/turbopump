@@ -3,7 +3,7 @@
 
 #include "MirrorToPeer.h"
 
-#include "common/KeyMetadata.h"
+#include "actions/WriteParams.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
 #include "mock/MockBufferedConnectionWriter.h"
@@ -46,7 +46,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(KeyMetadata({"file",0,3}), reader) );
+	assertTrue( command.run(WriteParams({"file",0,3}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );

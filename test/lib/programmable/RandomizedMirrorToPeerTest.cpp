@@ -3,7 +3,7 @@
 
 #include "RandomizedMirrorToPeer.h"
 
-#include "common/KeyMetadata.h"
+#include "actions/WriteParams.h"
 #include "data_store/IDataStoreReader.h"
 #include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"

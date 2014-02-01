@@ -2,8 +2,8 @@
 #include "unittest.h"
 
 #include "DropAction.h"
+#include "actions/DropParams.h"
 #include "common/DataBuffer.h"
-#include "common/KeyMetadata.h"
 #include "membership/Peer.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
@@ -65,7 +65,7 @@ TEST_CASE( "DropActionTest/testCallback", "[unit]" )
 	MockHashRing ring;
 	ring._workers = {"aaa", "bbb", "ccc"};
 	MockMembership membership;
-	DropAction action(store, ring, membership, [&](KeyMetadata md){ history.call("onDrop", md.filename, md.totalCopies); });
+	DropAction action(store, ring, membership, [&](DropParams md){ history.call("onDrop", md.filename, md.totalCopies); });
 
 	map<string,string> params;
 	params["name"] = "myfile";

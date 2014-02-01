@@ -2,13 +2,14 @@
 #pragma once
 
 #include "data_store/IDataStoreReader.h"
-class KeyMetadata;
+class DropParams;
+class WriteParams;
 
 struct TurboApi
 {
-	std::function<void(KeyMetadata md, IDataStoreReader::ptr contents)> when_local_write_finishes;
-	std::function<void(KeyMetadata md, IDataStoreReader::ptr contents)> when_mirror_write_finishes;
-	std::function<void(KeyMetadata md)>                                 when_drop_finishes;
+	std::function<void(WriteParams, IDataStoreReader::ptr contents)> when_local_write_finishes;
+	std::function<void(WriteParams, IDataStoreReader::ptr contents)> when_mirror_write_finishes;
+	std::function<void(DropParams)>                                  when_drop_finishes;
 
 	struct Options
 	{

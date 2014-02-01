@@ -5,14 +5,14 @@
 
 class IMembership;
 class IPeerTracker;
-class KeyMetadata;
+class WriteParams;
 
 class RandomizedMirrorToPeer
 {
 public:
 	RandomizedMirrorToPeer(const IMembership& membership, IPeerTracker& peers);
 
-	bool run(KeyMetadata md, IDataStoreReader::ptr contents);
+	bool run(WriteParams params, IDataStoreReader::ptr contents);
 
 protected:
 	const IMembership& _membership;

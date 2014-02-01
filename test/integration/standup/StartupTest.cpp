@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "common/KeyMetadata.h"
+#include "actions/WriteParams.h"
 #include "main/TurboPumpApp.h"
 
 #include "command_line/CommandLine.h"
@@ -169,9 +169,9 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	for (unsigned i = 0; i < numFiles; ++i)
 		checkpoints[StringUtil::str(i)];
 
-	api.when_local_write_finishes = api.when_mirror_write_finishes = [&checkpoints] (KeyMetadata md, IDataStoreReader::ptr)
+	api.when_local_write_finishes = api.when_mirror_write_finishes = [&checkpoints] (WriteParams params, IDataStoreReader::ptr)
 	{
-		checkpoints[md.filename].add();
+		checkpoints[params.filename].add();
 	};
 
 	TurboPumpApp workerOne(api, "/tmp/workerOne", 9001);

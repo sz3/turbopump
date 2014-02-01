@@ -2,13 +2,13 @@
 #pragma once
 
 #include "data_store/IDataStoreReader.h"
-class KeyMetadata;
 class Peer;
+class WriteParams;
 
 class IWriteActionSender
 {
 public:
 	virtual ~IWriteActionSender() {}
 
-	virtual bool store(const Peer& peer, const KeyMetadata& file, IDataStoreReader::ptr contents) = 0;
+	virtual bool store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents) = 0;
 };

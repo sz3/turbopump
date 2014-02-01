@@ -9,7 +9,7 @@ class MockWriteActionSender : public IWriteActionSender
 {
 public:
 	MockWriteActionSender();
-	bool store(const Peer& peer, const KeyMetadata& file, IDataStoreReader::ptr contents);
+	bool store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents);
 
 public:
 	CallHistory _history;

@@ -1,8 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "NotifyWriteComplete.h"
 
+#include "actions/WriteParams.h"
 #include "actions_req/IMessageSender.h"
-#include "common/KeyMetadata.h"
 #include "membership/IMembership.h"
 using std::shared_ptr;
 
@@ -12,13 +12,13 @@ NotifyWriteComplete::NotifyWriteComplete(const IMembership& membership, IMessage
 {
 }
 
-void NotifyWriteComplete::run(KeyMetadata md, IDataStoreReader::ptr contents)
+void NotifyWriteComplete::run(WriteParams params, IDataStoreReader::ptr contents)
 {
-	if (md.mirror >= md.totalCopies && !md.source.empty())
+	if (params.mirror >= params.totalCopies && !params.source.empty())
 	{
-		shared_ptr<Peer> extraMirror = _membership.lookup(md.source);
+		shared_ptr<Peer> extraMirror = _membership.lookup(params.source);
 		if (extraMirror)
-			_messenger.dropKey(*extraMirror, md.filename);
+			_messenger.dropKey(*extraMirror, params.filename);
 	}
 }
 

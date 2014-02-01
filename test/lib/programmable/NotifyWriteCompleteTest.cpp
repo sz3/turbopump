@@ -3,7 +3,7 @@
 
 #include "NotifyWriteComplete.h"
 
-#include "common/KeyMetadata.h"
+#include "actions/WriteParams.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
 #include "mock/MockMembership.h"
@@ -18,8 +18,8 @@ TEST_CASE( "NotifyWriteCompleteTest/testNotLastCopy", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	KeyMetadata md("myfile", 0, 2);
-	command.run(md, NULL);
+	WriteParams params("myfile", 0, 2);
+	command.run(params, NULL);
 
 	assertEquals( "", membership._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -31,8 +31,8 @@ TEST_CASE( "NotifyWriteCompleteTest/testNoExtraMirror", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	KeyMetadata md("myfile", 2, 2);
-	command.run(md, NULL);
+	WriteParams params("myfile", 2, 2);
+	command.run(params, NULL);
 
 	assertEquals( "", membership._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -44,9 +44,9 @@ TEST_CASE( "NotifyWriteCompleteTest/testExtraMirrorNotAMember", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	KeyMetadata md("myfile", 2, 2);
-	md.source = "bob";
-	command.run(md, NULL);
+	WriteParams params("myfile", 2, 2);
+	params.source = "bob";
+	command.run(params, NULL);
 
 	assertEquals( "lookup(bob)", membership._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -60,9 +60,9 @@ TEST_CASE( "NotifyWriteCompleteTest/testDropExtraMirror", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	KeyMetadata md("myfile", 3, 2);
-	md.source = "peer";
-	command.run(md, NULL);
+	WriteParams params("myfile", 3, 2);
+	params.source = "peer";
+	command.run(params, NULL);
 
 	assertEquals( "lookup(peer)", membership._history.calls() );
 	assertEquals( "dropKey(peer,myfile)", messenger._history.calls() );

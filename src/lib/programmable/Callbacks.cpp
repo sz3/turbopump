@@ -6,8 +6,9 @@
 #include "NotifyWriteComplete.h"
 #include "RandomizedMirrorToPeer.h"
 
+#include "actions/DropParams.h"
+#include "actions/WriteParams.h"
 #include "cohesion/IKeyTabulator.h"
-#include "common/KeyMetadata.h"
 #include "util/FunctionChainer.h"
 
 #include <deque>
@@ -20,44 +21,44 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
+	std::function<void(WriteParams, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	{
-		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
+		return [&] (WriteParams params, IDataStoreReader::ptr contents)
 		{
 			AddPeer adder(ring, membership, keyTabulator);
-			adder.run(md, contents);
+			adder.run(params, contents);
 		};
 	}
 
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> digestAddFunct(IKeyTabulator& keyTabulator)
+	std::function<void(WriteParams, IDataStoreReader::ptr)> digestAddFunct(IKeyTabulator& keyTabulator)
 	{
-		return [&] (KeyMetadata md, IDataStoreReader::ptr contents)
+		return [&] (WriteParams params, IDataStoreReader::ptr contents)
 		{
-			keyTabulator.add(md.filename, md.totalCopies);
+			keyTabulator.add(params.filename, params.totalCopies);
 		};
 	}
 
-	std::function<void(KeyMetadata)> digestDelFunct(IKeyTabulator& keyTabulator)
+	std::function<void(DropParams)> digestDelFunct(IKeyTabulator& keyTabulator)
 	{
-		return [&] (KeyMetadata md)
+		return [&] (DropParams params)
 		{
-			keyTabulator.remove(md.filename, md.totalCopies);
+			keyTabulator.remove(params.filename, params.totalCopies);
 		};
 	}
 
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
+	std::function<void(WriteParams, IDataStoreReader::ptr)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
 	{
 		std::shared_ptr<NotifyWriteComplete> cmd(new NotifyWriteComplete(membership, messenger));
 		return bind(&NotifyWriteComplete::run, cmd, _1, _2);
 	}
 
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IMembership& membership, IPeerTracker& peers)
+	std::function<void(WriteParams, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IMembership& membership, IPeerTracker& peers)
 	{
 		std::shared_ptr<RandomizedMirrorToPeer> cmd(new RandomizedMirrorToPeer(membership, peers));
 		return bind(&RandomizedMirrorToPeer::run, cmd, _1, _2);
 	}
 
-	std::function<void(KeyMetadata, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers)
+	std::function<void(WriteParams, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers)
 	{
 		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, peers));
 		return bind(&MirrorToPeer::run, cmd, _1, _2);
@@ -80,7 +81,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 
 	// on local write
 	{
-		FunctionChainer<KeyMetadata, IDataStoreReader::ptr> chain(when_local_write_finishes);
+		FunctionChainer<WriteParams, IDataStoreReader::ptr> chain(when_local_write_finishes);
 		if (TurboApi::options.active_sync)
 			chain.add( digestAddFunct(keyTabulator) );
 
@@ -98,7 +99,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 
 	// on mirror write
 	{
-		FunctionChainer<KeyMetadata, IDataStoreReader::ptr> chain(when_mirror_write_finishes);
+		FunctionChainer<WriteParams, IDataStoreReader::ptr> chain(when_mirror_write_finishes);
 		if (TurboApi::options.active_sync)
 			chain.add( digestAddFunct(keyTabulator) );
 
@@ -113,7 +114,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 
 	// on drop
 	{
-		FunctionChainer<KeyMetadata> chain(when_drop_finishes);
+		FunctionChainer<DropParams> chain(when_drop_finishes);
 		if (TurboApi::options.active_sync)
 			chain.add( digestDelFunct(keyTabulator) );
 		when_drop_finishes = chain.generate();

@@ -3,15 +3,15 @@
 
 #include "IAction.h"
 #include <functional>
+class DropParams;
 class IDataStore;
 class IHashRing;
 class IMembership;
-class KeyMetadata;
 
 class DropAction : public IAction
 {
 public:
-	DropAction(IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, std::function<void(KeyMetadata)> onDrop=NULL);
+	DropAction(IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, std::function<void(DropParams)> onDrop=NULL);
 
 	std::string name() const;
 	bool run(const DataBuffer& data);
@@ -21,7 +21,7 @@ protected:
 	IDataStore& _dataStore;
 	const IHashRing& _ring;
 	const IMembership& _membership;
-	std::function<void(KeyMetadata)> _onDrop;
+	std::function<void(DropParams)> _onDrop;
 
 	std::string _filename;
 };

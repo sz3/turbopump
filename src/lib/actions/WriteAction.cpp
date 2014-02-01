@@ -13,7 +13,7 @@ using std::string;
 // and *pushes* data into the datastore. WriteActions would thus live across multiple buffers, updating the offset
 // accordingly.
 // and probably not taking the params on their run() function...
-WriteAction::WriteAction(IDataStore& dataStore, std::function<void(KeyMetadata, IDataStoreReader::ptr)> onCommit)
+WriteAction::WriteAction(IDataStore& dataStore, std::function<void(WriteParams, IDataStoreReader::ptr)> onCommit)
 	: _dataStore(dataStore)
 	, _onCommit(std::move(onCommit))
 	, _started(false)
@@ -40,7 +40,7 @@ bool WriteAction::commit()
 		return false;
 
 	if (_onCommit)
-		_onCommit(_metadata, reader);
+		_onCommit(_params, reader);
 	_writer.reset();
 	return true;
 }
@@ -74,29 +74,29 @@ bool WriteAction::run(const DataBuffer& data)
 
 void WriteAction::setParams(const map<string,string>& params)
 {
-	_metadata.mirror = 0;
+	_params.mirror = 0;
 
 	map<string,string>::const_iterator it = params.find("name");
 	if (it != params.end())
 	{
-		_metadata.filename = it->second;
+		_params.filename = it->second;
 		_writer = _dataStore.write(it->second);
 	}
 
 	it = params.find("i");
 	if (it != params.end())
-		_metadata.mirror = std::stoi(it->second);
+		_params.mirror = std::stoi(it->second);
 
 	it = params.find("n");
 	if (it != params.end())
-		_metadata.totalCopies = std::stoi(it->second);
+		_params.totalCopies = std::stoi(it->second);
 
 	it = params.find("source");
 	if (it != params.end())
-		_metadata.source = it->second;
+		_params.source = it->second;
 
 	if (_writer)
-		_writer->data().totalCopies = _metadata.totalCopies;
+		_writer->data().totalCopies = _params.totalCopies;
 }
 
 bool WriteAction::multiPacket() const

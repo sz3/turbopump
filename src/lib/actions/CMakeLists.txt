@@ -5,6 +5,7 @@ set(SOURCES
 	AddPeerAction.h
 	DropAction.cpp
 	DropAction.h
+	DropParams.h
 	IAction.h
 	KeyReqAction.cpp
 	KeyReqAction.h
@@ -26,6 +27,7 @@ set(SOURCES
 	ViewMembershipAction.h
 	WriteAction.cpp
 	WriteAction.h
+	WriteParams.h
 )
 
 include_directories(

@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "DropAction.h"
 
-#include "common/KeyMetadata.h"
+#include "actions/DropParams.h"
 #include "consistent_hashing/IHashRing.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
@@ -15,7 +15,7 @@ using std::map;
 using std::string;
 using std::vector;
 
-DropAction::DropAction(IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, std::function<void(KeyMetadata)> onDrop)
+DropAction::DropAction(IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, std::function<void(DropParams)> onDrop)
 	: _dataStore(dataStore)
 	, _ring(ring)
 	, _membership(membership)
@@ -30,7 +30,7 @@ std::string DropAction::name() const
 
 bool DropAction::run(const DataBuffer& data)
 {
-	KeyMetadata md;
+	DropParams params;
 	{
 		IDataStoreReader::ptr read = _dataStore.read(_filename);
 		if (!read)
@@ -40,14 +40,14 @@ bool DropAction::run(const DataBuffer& data)
 		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) != locs.end())
 			return false;
 
-		md.filename = _filename;
-		md.totalCopies = read->data().totalCopies;
+		params.filename = _filename;
+		params.totalCopies = read->data().totalCopies;
 	}
 	if (!_dataStore.erase(_filename))
 		return false;
 
 	if (_onDrop)
-		_onDrop(std::move(md));
+		_onDrop(std::move(params));
 	return true;
 }
 

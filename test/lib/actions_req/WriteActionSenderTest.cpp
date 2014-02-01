@@ -3,7 +3,7 @@
 
 #include "WriteActionSender.h"
 
-#include "common/KeyMetadata.h"
+#include "actions/WriteParams.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
 #include "mock/MockBufferedConnectionWriter.h"
@@ -46,9 +46,9 @@ TEST_CASE( "WriteActionSenderTest/testWithSource", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	KeyMetadata md({"file",2,3});
-	md.source = "dude";
-	assertTrue( client.store(Peer("dude"), md, reader) );
+	WriteParams params({"file",2,3});
+	params.source = "dude";
+	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
 	assertEquals( "write(0,write|name=file i=2 n=3 source=dude|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );

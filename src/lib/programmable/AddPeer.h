@@ -6,14 +6,14 @@
 class IHashRing;
 class IMembership;
 class IKeyTabulator;
-class KeyMetadata;
+class WriteParams;
 
 class AddPeer
 {
 public:
 	AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator);
 
-	bool run(KeyMetadata md, IDataStoreReader::ptr contents);
+	bool run(WriteParams params, IDataStoreReader::ptr contents);
 
 protected:
 	IHashRing& _ring;

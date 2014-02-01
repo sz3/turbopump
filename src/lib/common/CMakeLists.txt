@@ -6,7 +6,6 @@ set(SOURCES
 	ActionParser.h
 	DataBuffer.cpp
 	DataBuffer.h
-	KeyMetadata.h
 	MerklePoint.cpp
 	MerklePoint.h
 )
