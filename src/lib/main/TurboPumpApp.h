@@ -10,7 +10,7 @@
 #include "cohesion/SkewCorrector.h"
 #include "cohesion/Synchronizer.h"
 #include "consistent_hashing/HashRing.h"
-#include "data_store/LocalDataStore.h"
+#include "data_store/RamDataStore.h"
 #include "logging/StderrLogger.h"
 #include "membership/Membership.h"
 #include "programmable/Callbacks.h"
@@ -54,7 +54,7 @@ protected:
 	// core. hashring, membership, connection tracking, data store...
 	HashRing _ring;
 	Membership _membership;
-	LocalDataStore _localDataStore;
+	RamDataStore _localDataStore;
 	PeerTracker _peers;
 
 	// servers!

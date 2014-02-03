@@ -2,7 +2,7 @@
 #include "unittest.h"
 
 #include "DataEntry.h"
-#include "LocalDataStore.h"
+#include "RamDataStore.h"
 #include "IDataStoreReader.h"
 #include "IDataStoreWriter.h"
 #include "socket/IByteStream.h"
@@ -10,15 +10,15 @@
 
 using std::string;
 
-class TestableLocalDataStore : public LocalDataStore
+class TestableRamDataStore : public RamDataStore
 {
 public:
-	using LocalDataStore::_store;
-	using LocalDataStore::Reader;
-	using LocalDataStore::Writer;
+	using RamDataStore::_store;
+	using RamDataStore::Reader;
+	using RamDataStore::Writer;
 };
 
-class TestableWriter : public TestableLocalDataStore::Writer
+class TestableWriter : public TestableRamDataStore::Writer
 {
 public:
 	const std::string& filename() const
@@ -32,9 +32,9 @@ public:
 	}
 };
 
-TEST_CASE( "LocalDataStoreTest/testWrite", "default" )
+TEST_CASE( "RamDataStoreTest/testWrite", "default" )
 {
-	TestableLocalDataStore dataStore;
+	TestableRamDataStore dataStore;
 
 	IDataStoreWriter::ptr writer = dataStore.write("foo");
 	TestableWriter* testView = (TestableWriter*)writer.get();
@@ -53,9 +53,9 @@ TEST_CASE( "LocalDataStoreTest/testWrite", "default" )
 	assertEquals( "", testView->data().data ); // got std::move'd
 }
 
-TEST_CASE( "LocalDataStoreTest/testOverwrite", "default" )
+TEST_CASE( "RamDataStoreTest/testOverwrite", "default" )
 {
-	TestableLocalDataStore dataStore;
+	TestableRamDataStore dataStore;
 	{
 		IDataStoreWriter::ptr writer = dataStore.write("foo");
 		assertTrue( writer->write("012345", 6) );
@@ -93,9 +93,9 @@ public:
 	string _buffer;
 };
 
-TEST_CASE( "LocalDataStoreTest/testRead", "default" )
+TEST_CASE( "RamDataStoreTest/testRead", "default" )
 {
-	TestableLocalDataStore dataStore;
+	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"readme"}));
 
 	StringBackedByteStream stream;
@@ -116,9 +116,9 @@ TEST_CASE( "LocalDataStoreTest/testRead", "default" )
 	assertEquals( "me", stream._buffer );
 }
 
-TEST_CASE( "LocalDataStoreTest/testConcurrentRead", "default" )
+TEST_CASE( "RamDataStoreTest/testConcurrentRead", "default" )
 {
-	TestableLocalDataStore dataStore;
+	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"readme"}));
 
 	StringBackedByteStream stream;
@@ -137,9 +137,9 @@ TEST_CASE( "LocalDataStoreTest/testConcurrentRead", "default" )
 	assertEquals( "readme", stream._buffer );
 }
 
-TEST_CASE( "LocalDataStoreTest/testReport", "default" )
+TEST_CASE( "RamDataStoreTest/testReport", "default" )
 {
-	TestableLocalDataStore dataStore;
+	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"bytes"}));
 	dataStore._store["foobar"].reset(new DataEntry({"bytes"}));
 	dataStore._store["bar"].reset(new DataEntry({"bytes"}));
@@ -151,9 +151,9 @@ TEST_CASE( "LocalDataStoreTest/testReport", "default" )
 	assertEquals( "\n(foobar)=>5", stream._buffer );
 }
 
-TEST_CASE( "LocalDataStoreTest/testReport.Exclude", "default" )
+TEST_CASE( "RamDataStoreTest/testReport.Exclude", "default" )
 {
-	TestableLocalDataStore dataStore;
+	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"bytes"}));
 	dataStore._store["foobar"].reset(new DataEntry({"bytes"}));
 	dataStore._store["bar"].reset(new DataEntry({"bytes"}));

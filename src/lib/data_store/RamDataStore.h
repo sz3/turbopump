@@ -9,13 +9,13 @@
 
 #include "tbb/concurrent_unordered_map.h"
 
-class LocalDataStore : public IDataStore
+class RamDataStore : public IDataStore
 {
 protected:
 	class Writer : public IDataStoreWriter
 	{
 	public:
-		Writer(std::string filename, LocalDataStore& store);
+		Writer(std::string filename, RamDataStore& store);
 		DataEntry& data();
 
 		bool write(const char* buffer, unsigned size);
@@ -27,7 +27,7 @@ protected:
 	protected:
 		std::string _filename;
 		DataEntry _data;
-		LocalDataStore& _store;
+		RamDataStore& _store;
 	};
 
 	class Reader : public IDataStoreReader
@@ -43,6 +43,7 @@ protected:
 		std::shared_ptr<DataEntry> _data;
 		unsigned long long _offset;
 	};
+
 public:
 	std::shared_ptr<IDataStoreWriter> write(const std::string& filename);
 	std::shared_ptr<IDataStoreReader> read(const std::string& filename) const;

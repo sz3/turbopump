@@ -5,8 +5,8 @@ set(SOURCES
 	IDataStore.h
 	IDataStoreReader.h
 	IDataStoreWriter.h
-	LocalDataStore.cpp
-	LocalDataStore.h
+	RamDataStore.cpp
+	RamDataStore.h
 )
 
 include_directories(
