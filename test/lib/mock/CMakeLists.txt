@@ -17,6 +17,8 @@ set(SOURCES
 	MockIpSocket.h
 	MockKeyTabulator.cpp
 	MockKeyTabulator.h
+	MockLocateKeys.cpp
+	MockLocateKeys.h
 	MockLogger.cpp
 	MockLogger.h
 	MockMembership.cpp

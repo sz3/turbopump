@@ -76,14 +76,7 @@ void WriteAction::setParams(const map<string,string>& params)
 {
 	_params.mirror = 0;
 
-	map<string,string>::const_iterator it = params.find("name");
-	if (it != params.end())
-	{
-		_params.filename = it->second;
-		_writer = _dataStore.write(it->second);
-	}
-
-	it = params.find("i");
+	map<string,string>::const_iterator it = params.find("i");
 	if (it != params.end())
 		_params.mirror = std::stoi(it->second);
 
@@ -95,8 +88,21 @@ void WriteAction::setParams(const map<string,string>& params)
 	if (it != params.end())
 		_params.source = it->second;
 
-	if (_writer)
+	it = params.find("name");
+	if (it != params.end())
+	{
+		_params.filename = it->second;
+		_writer = open(_params);
 		_writer->data().totalCopies = _params.totalCopies;
+	}
+}
+
+// virtual method. See LocalWriteAction::open() for an alternate take
+IDataStoreWriter::ptr WriteAction::open(const WriteParams& params)
+{
+	// if !params.version.empty()
+	// return _dataStore.write(params.filename, params.version);
+	return _dataStore.write(params.filename);
 }
 
 bool WriteAction::multiPacket() const

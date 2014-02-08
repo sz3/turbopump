@@ -91,6 +91,28 @@ TEST_CASE( "MembershipTest/testLoadFilterSelf", "[unit]" )
 	assertFalse( membership.lookupIp("localhost:1337") );
 }
 
+TEST_CASE( "MembershipTest/testContainSelf", "[unit]" )
+{
+	// some slight gymnastics to load self...
+	FileRemover remover(_myfile);
+	std::string contents = "barid bar:9001\n"
+						   "fooid foo:1337\n"
+						   "myself localhost:1337\n";
+	assertTrue( File::save(_myfile, contents) );
+
+	Membership membership(_myfile, "localhost:1337");
+	assertTrue( membership.load() );
+
+	std::vector<std::string> list({"myself", "barid"});
+	assertTrue( membership.containsSelf(list) );
+
+	assertFalse( membership.containsSelf({"barid"}) );
+	assertFalse( membership.containsSelf({"fooid", "barid"}) );
+	assertFalse( membership.containsSelf({"oof", "rab"}) );
+	assertTrue( membership.containsSelf({"fooid", "barid", "myself"}) );
+	assertTrue( membership.containsSelf({"myself"}) );
+}
+
 TEST_CASE( "MembershipTest/testRandomPeerFromList", "[unit]" )
 {
 	Membership membership(_myfile, "localhost:1337");

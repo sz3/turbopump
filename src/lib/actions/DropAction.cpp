@@ -3,11 +3,10 @@
 
 #include "actions/DropParams.h"
 #include "consistent_hashing/IHashRing.h"
+#include "consistent_hashing/ILocateKeys.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
 #include "data_store/IDataStoreReader.h"
-#include "membership/IMembership.h"
-#include "membership/Peer.h"
 
 #include "socket/IByteStream.h"
 #include <algorithm>
@@ -15,10 +14,9 @@ using std::map;
 using std::string;
 using std::vector;
 
-DropAction::DropAction(IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, std::function<void(DropParams)> onDrop)
+DropAction::DropAction(IDataStore& dataStore, const ILocateKeys& locator, std::function<void(DropParams)> onDrop)
 	: _dataStore(dataStore)
-	, _ring(ring)
-	, _membership(membership)
+	, _locator(locator)
 	, _onDrop(onDrop)
 {
 }
@@ -36,8 +34,7 @@ bool DropAction::run(const DataBuffer& data)
 		if (!read)
 			return false;
 
-		vector<string> locs = _ring.locations(_filename, read->data().totalCopies);
-		if (std::find(locs.begin(), locs.end(), _membership.self()->uid) != locs.end())
+		if (_locator.keyIsMine(_filename, read->data().totalCopies))
 			return false;
 
 		params.filename = _filename;

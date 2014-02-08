@@ -9,6 +9,9 @@ set(SOURCES
 	HashRing.cpp
 	HashRing.h
 	IHashRing.h
+	ILocateKeys.h
+	LocateKeys.cpp
+	LocateKeys.h
 )
 
 include_directories(

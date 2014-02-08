@@ -2,6 +2,7 @@
 #include "MockMembership.h"
 
 #include "membership/Peer.h"
+#include "serialize/StringUtil.h"
 
 MockMembership::MockMembership()
 	: _self( new Peer("me") )
@@ -55,6 +56,12 @@ std::shared_ptr<Peer> MockMembership::self() const
 {
 	_history.call("self");
 	return _self;
+}
+
+bool MockMembership::containsSelf(const std::vector<std::string>& list) const
+{
+	_history.call("containsSelf", StringUtil::join(list, '|'));
+	return !!_self;
 }
 
 std::shared_ptr<Peer> MockMembership::randomPeer() const

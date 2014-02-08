@@ -5,13 +5,12 @@
 #include <functional>
 class DropParams;
 class IDataStore;
-class IHashRing;
-class IMembership;
+class ILocateKeys;
 
 class DropAction : public IAction
 {
 public:
-	DropAction(IDataStore& dataStore, const IHashRing& ring, const IMembership& membership, std::function<void(DropParams)> onDrop=NULL);
+	DropAction(IDataStore& dataStore, const ILocateKeys& locator, std::function<void(DropParams)> onDrop=NULL);
 
 	std::string name() const;
 	bool run(const DataBuffer& data);
@@ -19,8 +18,7 @@ public:
 
 protected:
 	IDataStore& _dataStore;
-	const IHashRing& _ring;
-	const IMembership& _membership;
+	const ILocateKeys& _locator;
 	std::function<void(DropParams)> _onDrop;
 
 	std::string _filename;

@@ -7,6 +7,7 @@
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockIpSocket.h"
+#include "mock/MockLocateKeys.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
@@ -29,14 +30,15 @@ namespace {
 TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
 {
 	SimpleExecutor executor;
-	MockHashRing ring;
-	MockMembership membership;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockHashRing ring;
+	MockLocateKeys locator;
+	MockMembership membership;
 	MockLogger logger;
 	MockPeerTracker peers;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, ring, membership, peers, dataStore, sync, logger, callbacks);
+	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
 
 	PeerConnection conn;
 	conn.pushRecv(formatPacket(33, "key-req|first=1 last=10|"));
@@ -52,14 +54,15 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
 TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ConcurrentFileWrite", "default" )
 {
 	SimpleExecutor executor;
-	MockHashRing ring;
-	MockMembership membership;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockHashRing ring;
+	MockLocateKeys locator;
+	MockMembership membership;
 	MockLogger logger;
 	MockPeerTracker peers;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, ring, membership, peers, dataStore, sync, logger, callbacks);
+	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
 
 	PeerConnection conn;
 	conn.pushRecv(formatPacket(33, "write|name=foo|i am a file"));
@@ -78,14 +81,15 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ConcurrentFileWrite",
 TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ReuseOldVirtid", "default" )
 {
 	SimpleExecutor executor;
-	MockHashRing ring;
-	MockMembership membership;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockHashRing ring;
+	MockLocateKeys locator;
+	MockMembership membership;
 	MockLogger logger;
 	MockPeerTracker peers;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, ring, membership, peers, dataStore, sync, logger, callbacks);
+	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
 
 	PeerConnection conn;
 	conn.pushRecv(formatPacket(33, "write|name=foo|i am a file"));
@@ -102,14 +106,15 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ReuseOldVirtid", "def
 TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 {
 	SimpleExecutor executor;
-	MockHashRing ring;
-	MockMembership membership;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockHashRing ring;
+	MockLocateKeys locator;
+	MockMembership membership;
 	MockLogger logger;
 	MockPeerTracker peers;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, ring, membership, peers, dataStore, sync, logger, callbacks);
+	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
 
 	MockIpSocket sock;
 	sock._target = IpAddress("1.2.3.4", 10);
@@ -133,14 +138,15 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 {
 	SimpleExecutor executor;
-	MockHashRing ring;
-	MockMembership membership;
 	MockDataStore dataStore;
+	MockHashRing ring;
+	MockLocateKeys locator;
+	MockMembership membership;
 	MockLogger logger;
 	MockPeerTracker peers;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, ring, membership, peers, dataStore, sync, logger, callbacks);
+	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
 
 	MockIpSocket sock;
 	sock._target = IpAddress("1.2.3.4", 10);
@@ -161,14 +167,15 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 /*TEST_CASE( "WanPacketHandlerTest/testOnPacket_RecoverOnRetransmit", "default" )
 {
 	SimpleExecutor executor;
-	MockHashRing ring;
-	MockMembership membership;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
+	MockHashRing ring;
+	MockLocateKeys locator;
+	MockMembership membership;
 	MockLogger logger;
 	MockPeerTracker peers;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, ring, membership, peers, dataStore, sync, logger, callbacks);
+	WanPacketHandler handler(executor, dataStore, ring, membership, peers, sync, logger, callbacks);
 
 	MockIpSocket sock;
 	sock._target = IpAddress("1.2.3.4", 10);

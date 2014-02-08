@@ -20,6 +20,8 @@ public:
 	bool run(const DataBuffer& data);
 	void setParams(const std::map<std::string,std::string>& params);
 
+	virtual IDataStoreWriter::ptr open(const WriteParams& params);
+
 	bool multiPacket() const;
 	bool good() const;
 	bool finished() const;

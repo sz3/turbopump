@@ -30,6 +30,8 @@ public:
 	std::shared_ptr<Peer> lookup(const std::string& uid) const;
 	std::shared_ptr<Peer> lookupIp(const std::string& ip) const;
 	std::shared_ptr<Peer> self() const;
+	bool containsSelf(const std::vector<std::string>& list) const;
+
 	std::shared_ptr<Peer> randomPeer() const;
 	std::shared_ptr<Peer> randomPeerFromList(std::vector<std::string> list) const;
 

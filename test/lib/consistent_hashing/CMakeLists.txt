@@ -6,6 +6,7 @@ set (SOURCES
 	test.cpp
 	HashTest.cpp
 	HashRingTest.cpp
+	LocateKeysTest.cpp
 )
 
 include_directories(
@@ -23,5 +24,10 @@ add_test(consistent_hashing_test consistent_hashing_test)
 
 target_link_libraries(consistent_hashing_test
 	consistent_hashing
+
+	membership
+	mock
+
+	serialize
 )
 

@@ -30,13 +30,13 @@
 using std::string;
 using std::shared_ptr;
 
-// TODO: Lots of member objects, ala IDataStore&?
-WanPacketHandler::WanPacketHandler(IExecutor& executor, const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, IDataStore& dataStore, ISynchronize& sync, ILog& logger, const TurboApi& callbacks)
+WanPacketHandler::WanPacketHandler(IExecutor& executor, IDataStore& dataStore, const IHashRing& ring, const ILocateKeys& locator, const IMembership& membership, IPeerTracker& peers, ISynchronize& sync, ILog& logger, const TurboApi& callbacks)
 	: _executor(executor)
+	, _dataStore(dataStore)
 	, _ring(ring)
+	, _locator(locator)
 	, _membership(membership)
 	, _peers(peers)
-	, _dataStore(dataStore)
 	, _sync(sync)
 	, _logger(logger)
 	, _callbacks(callbacks)
@@ -159,7 +159,7 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 	if (cmdname == "write")
 		action.reset(new WriteAction(_dataStore, _callbacks.when_mirror_write_finishes));
 	else if (cmdname == "drop")
-		action.reset(new DropAction(_dataStore, _ring, _membership));
+		action.reset(new DropAction(_dataStore, _locator, _callbacks.when_drop_finishes));
 	else if (cmdname == "sync")
 		action.reset(new SyncAction(peer, _sync));
 	else if (cmdname == "key-req")

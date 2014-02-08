@@ -13,6 +13,8 @@ set(SOURCES
 	LocalListAction.h
 	LocalStateAction.cpp
 	LocalStateAction.h
+	LocalWriteAction.cpp
+	LocalWriteAction.h
 	SyncAction.cpp
 	SyncAction.h
 	MessageAction.cpp

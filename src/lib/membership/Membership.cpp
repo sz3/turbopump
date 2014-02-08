@@ -124,6 +124,11 @@ shared_ptr<Peer> Membership::self() const
 	return _self;
 }
 
+bool Membership::containsSelf(const std::vector<std::string>& list) const
+{
+	return std::find(list.begin(), list.end(), _self->uid) != list.end();
+}
+
 shared_ptr<Peer> Membership::randomPeer() const
 {
 	unordered_map< string,shared_ptr<Peer> >::const_iterator it = Random::select(_ips.begin(), _ips.end(), _ips.size());

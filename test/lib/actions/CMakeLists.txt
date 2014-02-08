@@ -8,6 +8,7 @@ set (SOURCES
 	DropActionTest.cpp
 	KeyReqActionTest.cpp
 	LocalListActionTest.cpp
+	LocalWriteActionTest.cpp
 	SyncActionTest.cpp
 	RemovePeerActionTest.cpp
 	WriteActionTest.cpp

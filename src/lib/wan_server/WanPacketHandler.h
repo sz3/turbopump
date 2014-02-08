@@ -10,6 +10,7 @@ class IDataStore;
 class IExecutor;
 class IHashRing;
 class IIpSocket;
+class ILocateKeys;
 class ILog;
 class IMembership;
 class IPeerTracker;
@@ -24,8 +25,8 @@ class TurboApi;
 class WanPacketHandler
 {
 public:
-	WanPacketHandler(IExecutor& executor, const IHashRing& ring, const IMembership& membership, IPeerTracker& peers,
-					 IDataStore& dataStore, ISynchronize& sync, ILog& logger, const TurboApi& callbacks);
+	WanPacketHandler(IExecutor& executor, IDataStore& dataStore, const IHashRing& ring, const ILocateKeys& locator,
+					 const IMembership& membership, IPeerTracker& peers, ISynchronize& sync, ILog& logger, const TurboApi& callbacks);
 
 	bool onPacket(const IIpSocket& socket, const std::string& buffer);
 	void doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerConnection> weakConn);
@@ -36,10 +37,11 @@ protected:
 
 protected:
 	IExecutor& _executor;
+	IDataStore& _dataStore;
 	const IHashRing& _ring;
+	const ILocateKeys& _locator;
 	const IMembership& _membership;
 	IPeerTracker&  _peers;
-	IDataStore& _dataStore;
 	ISynchronize& _sync;
 	ILog& _logger;
 	const TurboApi& _callbacks;

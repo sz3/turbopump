@@ -6,8 +6,7 @@
 #include "common/DataBuffer.h"
 #include "membership/Peer.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockHashRing.h"
-#include "mock/MockMembership.h"
+#include "mock/MockLocateKeys.h"
 using std::map;
 using std::string;
 
@@ -15,11 +14,9 @@ TEST_CASE( "DropActionTest/testFileIsMine", "[unit]" )
 {
 	MockDataStore store;
 	store._store["myfile"] = "foo";
-	MockHashRing ring;
-	ring._workers = {"aaa", "bbb", "ccc"};
-	MockMembership membership;
-	membership._self.reset( new Peer("aaa") );
-	DropAction action(store, ring, membership);
+	MockLocateKeys locator;
+	locator._mine = true;
+	DropAction action(store, locator);
 
 	map<string,string> params;
 	params["name"] = "myfile";
@@ -30,18 +27,16 @@ TEST_CASE( "DropActionTest/testFileIsMine", "[unit]" )
 	assertEquals( "", store._history.calls() );
 	assertEquals( "foo", store._store["myfile"] );
 
-	assertEquals( "locations(myfile,1)", ring._history.calls() );
-	assertEquals( "self()", membership._history.calls() );
+	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
 }
 
 TEST_CASE( "DropActionTest/testFileIsntMine", "[unit]" )
 {
 	MockDataStore store;
 	store._store["myfile"] = "foo";
-	MockHashRing ring;
-	ring._workers = {"aaa", "bbb", "ccc"};
-	MockMembership membership;
-	DropAction action(store, ring, membership);
+	MockLocateKeys locator;
+	locator._mine = false;
+	DropAction action(store, locator);
 
 	map<string,string> params;
 	params["name"] = "myfile";
@@ -52,8 +47,7 @@ TEST_CASE( "DropActionTest/testFileIsntMine", "[unit]" )
 	assertEquals( "erase(myfile)", store._history.calls() );
 	assertEquals( "", store._store["myfile"] );
 
-	assertEquals( "locations(myfile,1)", ring._history.calls() );
-	assertEquals( "self()", membership._history.calls() );
+	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
 }
 
 TEST_CASE( "DropActionTest/testCallback", "[unit]" )
@@ -62,10 +56,9 @@ TEST_CASE( "DropActionTest/testCallback", "[unit]" )
 
 	MockDataStore store;
 	store._store["myfile"] = "foo";
-	MockHashRing ring;
-	ring._workers = {"aaa", "bbb", "ccc"};
-	MockMembership membership;
-	DropAction action(store, ring, membership, [&](DropParams md){ history.call("onDrop", md.filename, md.totalCopies); });
+	MockLocateKeys locator;
+	locator._mine = false;
+	DropAction action(store, locator, [&](DropParams md){ history.call("onDrop", md.filename, md.totalCopies); });
 
 	map<string,string> params;
 	params["name"] = "myfile";
@@ -75,6 +68,6 @@ TEST_CASE( "DropActionTest/testCallback", "[unit]" )
 
 	assertEquals( "erase(myfile)", store._history.calls() );
 	assertEquals( "", store._store["myfile"] );
-	assertEquals( "locations(myfile,1)", ring._history.calls() );
+	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
 	assertEquals( "onDrop(myfile,1)", history.calls() );
 }
