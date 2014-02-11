@@ -16,7 +16,7 @@ protected:
 	{
 	public:
 		Writer(std::string filename, RamDataStore& store);
-		DataEntry& data();
+		KeyMetadata& metadata();
 
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();
@@ -34,7 +34,7 @@ protected:
 	{
 	public:
 		Reader(const std::shared_ptr<DataEntry>& data);
-		const DataEntry& data() const;
+		const KeyMetadata& metadata() const;
 
 		bool seek(unsigned long long offset);
 		int read(IByteStream& out);
@@ -46,6 +46,7 @@ protected:
 
 public:
 	std::shared_ptr<IDataStoreWriter> write(const std::string& filename);
+	std::shared_ptr<IDataStoreWriter> write(const std::string& filename, const std::string& version);
 	std::shared_ptr<IDataStoreReader> read(const std::string& filename) const;
 	bool erase(const std::string& filename);
 

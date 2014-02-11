@@ -7,6 +7,7 @@
 #include "consistent_hashing/IHashRing.h"
 #include "data_store/DataEntry.h"
 #include "membership/IMembership.h"
+#include "socket/StringByteStream.h"
 using std::string;
 
 AddPeer::AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
@@ -21,7 +22,10 @@ bool AddPeer::run(WriteParams params, IDataStoreReader::ptr contents)
 	if (params.filename.find(MEMBERSHIP_FILE_PREFIX) == string::npos)
 		return false;
 	string uid = params.filename.substr(MEMBERSHIP_FILE_PREFIX_LENGTH-1);
-	string ip = contents->data().data;
+
+	StringByteStream stream;
+	contents->read(stream);
+	string ip = stream.writeBuffer();
 
 	bool isNew = _membership.add(uid);
 	_membership.addIp(ip, uid);

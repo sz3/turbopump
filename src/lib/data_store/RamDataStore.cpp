@@ -16,6 +16,13 @@ using std::string;
 
 std::shared_ptr<IDataStoreWriter> RamDataStore::write(const string& filename)
 {
+	// atomically increment the next version here???
+	// needs to happen somewhere...
+	return IDataStoreWriter::ptr(new Writer(filename, *this));
+}
+
+std::shared_ptr<IDataStoreWriter> RamDataStore::write(const string& filename, const string& version)
+{
 	return IDataStoreWriter::ptr(new Writer(filename, *this));
 }
 
@@ -51,9 +58,9 @@ DataEntry&& RamDataStore::Writer::move_data()
 	return std::move(_data);
 }
 
-DataEntry& RamDataStore::Writer::data()
+KeyMetadata& RamDataStore::Writer::metadata()
 {
-	return _data;
+	return _data.md;
 }
 /*
   </end child class>
@@ -109,9 +116,9 @@ int RamDataStore::Reader::read(IByteStream& out)
 	return out.write(start, numBytes);
 }
 
-const DataEntry& RamDataStore::Reader::data() const
+const KeyMetadata& RamDataStore::Reader::metadata() const
 {
-	return *_data;
+	return _data->md;
 }
 /*
   </end child class>

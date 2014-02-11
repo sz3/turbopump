@@ -10,6 +10,11 @@ std::shared_ptr<IDataStoreWriter> MockDataStore::write(const string& filename)
 	return IDataStoreWriter::ptr(new Writer(filename, *this));
 }
 
+std::shared_ptr<IDataStoreWriter> MockDataStore::write(const string& filename, const string& version)
+{
+	return IDataStoreWriter::ptr(new Writer(filename, *this));
+}
+
 /*
   ******************************************
   M o c k  D a t a  S t o r e  ::  W r i t e r
@@ -31,13 +36,13 @@ bool MockDataStore::Writer::write(const char* buffer, unsigned size)
 
 IDataStoreReader::ptr MockDataStore::Writer::commit()
 {
-	_store._history.call("Writer::commit", _filename, _data.totalCopies);
+	_store._history.call("Writer::commit", _filename, _data.md.totalCopies);
 	return _store.commit(*this);
 }
 
-DataEntry& MockDataStore::Writer::data()
+KeyMetadata& MockDataStore::Writer::metadata()
 {
-	return _data;
+	return _data.md;
 }
 
 /*
@@ -93,9 +98,9 @@ int MockDataStore::Reader::read(IByteStream& out)
 	return out.write(start, numBytes);
 }
 
-const DataEntry& MockDataStore::Reader::data() const
+const KeyMetadata& MockDataStore::Reader::metadata() const
 {
-	return _data;
+	return _data.md;
 }
 /*
   </end child class>

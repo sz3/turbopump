@@ -40,7 +40,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 		if (!reader)
 			continue;
 
-		WriteParams write(*it, 0, reader->data().totalCopies);
+		WriteParams write(*it, 0, reader->metadata().totalCopies);
 		if (!offloadFrom.empty())
 		{
 			write.source = offloadFrom;

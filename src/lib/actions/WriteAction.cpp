@@ -93,7 +93,7 @@ void WriteAction::setParams(const map<string,string>& params)
 	{
 		_params.filename = it->second;
 		_writer = open(_params);
-		_writer->data().totalCopies = _params.totalCopies;
+		_writer->metadata().totalCopies = _params.totalCopies;
 	}
 }
 

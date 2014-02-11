@@ -34,11 +34,11 @@ bool DropAction::run(const DataBuffer& data)
 		if (!read)
 			return false;
 
-		if (_locator.keyIsMine(_filename, read->data().totalCopies))
+		if (_locator.keyIsMine(_filename, read->metadata().totalCopies))
 			return false;
 
 		params.filename = _filename;
-		params.totalCopies = read->data().totalCopies;
+		params.totalCopies = read->metadata().totalCopies;
 	}
 	if (!_dataStore.erase(_filename))
 		return false;

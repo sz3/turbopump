@@ -2,8 +2,8 @@
 #pragma once
 
 #include <memory>
-class DataEntry;
 class IDataStoreReader;
+class KeyMetadata;
 
 class IDataStoreWriter
 {
@@ -15,5 +15,5 @@ public:
 	virtual bool write(const char* buffer, unsigned size) = 0;
 	virtual std::shared_ptr<IDataStoreReader> commit() = 0;
 
-	virtual DataEntry& data() = 0;
+	virtual KeyMetadata& metadata() = 0;
 };
