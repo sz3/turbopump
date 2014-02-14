@@ -22,9 +22,9 @@ std::shared_ptr<IDataStoreWriter> MockDataStore::write(const string& filename, c
 */
 MockDataStore::Writer::Writer(std::string filename, MockDataStore& store)
 	: _filename(std::move(filename))
-	, _data({"",1})
 	, _store(store)
 {
+	_data.md.totalCopies = 1;
 }
 
 bool MockDataStore::Writer::write(const char* buffer, unsigned size)
@@ -71,9 +71,10 @@ std::shared_ptr<IDataStoreReader> MockDataStore::read(const string& filename) co
 */
 
 MockDataStore::Reader::Reader(const std::string& data)
-	: _data({data,1})
-	, _offset(0)
+	: _offset(0)
 {
+	_data.data = data;
+	_data.md.totalCopies = 1;
 }
 
 bool MockDataStore::Reader::seek(unsigned long long offset)

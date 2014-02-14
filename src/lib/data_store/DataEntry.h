@@ -3,8 +3,9 @@
 #include "common/KeyMetadata.h"
 #include <string>
 
-struct DataEntry
+class DataEntry
 {
+public:
 	std::string data;
 	KeyMetadata md;
 };
