@@ -4,7 +4,8 @@ project(data_store_test)
 
 set (SOURCES
 	test.cpp
-	RamDataStoreTest.cpp	
+	DataChainTest.cpp
+	RamDataStoreTest.cpp
 )
 
 include_directories(

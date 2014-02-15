@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	DataChain.cpp
+	DataChain.h
 	DataEntry.h
 	IDataStore.h
 	IDataStoreReader.h
