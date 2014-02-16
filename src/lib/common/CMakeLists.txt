@@ -9,6 +9,8 @@ set(SOURCES
 	KeyMetadata.h
 	MerklePoint.cpp
 	MerklePoint.h
+	MyMemberId.cpp
+	MyMemberId.h
 	VectorClock.h
 )
 

@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "DataChain.h"
 
+#include "common/MyMemberId.h"
 #include "common/VectorClock.h"
 using std::shared_ptr;
 
@@ -9,7 +10,7 @@ std::shared_ptr<DataEntry> DataChain::create()
 	// get version increment from a singleton
 	tbb::spin_rw_mutex::scoped_lock(_mutex);
 	VectorClock version = bestVersion();
-	version.increment("1");
+	version.increment( MyMemberId() );
 	return create_unlocked(version);
 }
 

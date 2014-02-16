@@ -24,6 +24,8 @@ add_test(data_store_test data_store_test)
 target_link_libraries(data_store_test
 	data_store
 
+	common
+
 	tbb
 )
 
