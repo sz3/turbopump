@@ -14,6 +14,7 @@ namespace {
 	{
 	public:
 		using DataChain::bestVersion;
+		using DataChain::clearLesser_unlocked;
 		using DataChain::_entries;
 	};
 
@@ -55,6 +56,7 @@ TEST_CASE( "DataChainTest/testStore", "[unit]" )
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "data!";
 		entry->md.totalCopies = 2;
+		entry->md.supercede = false;
 		entry->md.version.increment("foo");
 		chain.store(entry);
 	}
@@ -63,6 +65,7 @@ TEST_CASE( "DataChainTest/testStore", "[unit]" )
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "other!";
 		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
 		entry->md.version.increment("bar");
 		chain.store(entry);
 	}
@@ -79,6 +82,43 @@ TEST_CASE( "DataChainTest/testStore", "[unit]" )
 	assertEquals( "bar:1", StringUtil::join(entries[1]->md.version.clocks()) );
 }
 
+TEST_CASE( "DataChainTest/testStore.Supercede", "[unit]" )
+{
+	DataChain chain;
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "data!";
+		entry->md.totalCopies = 2;
+		entry->md.version.increment("foo");
+		chain.store(entry);
+	}
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "other!";
+		entry->md.totalCopies = 3;
+		entry->md.version.increment("bar");
+		chain.store(entry);
+	}
+
+	assertEquals( 2, chain.entries().size() );
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "superceder!";
+		entry->md.version.increment("bar");
+		entry->md.version.increment("foo");
+		chain.store(entry);
+	}
+
+	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
+	assertEquals( 1, chain.entries().size() );
+
+	assertEquals( "superceder!", entries[0]->data );
+	assertEquals( "foo:1 bar:1", StringUtil::join(entries[0]->md.version.clocks()) );
+}
+
 TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 {
 	MyMemberId("me");
@@ -88,6 +128,7 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "data!";
 		entry->md.totalCopies = 2;
+		entry->md.supercede = false;
 		chain.storeAsBestVersion(entry);
 	}
 
@@ -95,6 +136,7 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "other!";
 		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
 		chain.storeAsBestVersion(entry);
 	}
 
@@ -102,15 +144,16 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "conflict!";
 		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
 		entry->md.version.increment("conflict");
 		chain.store(entry);
 	}
-
 
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "four!";
 		entry->md.totalCopies = 4;
+		entry->md.supercede = false;
 		chain.storeAsBestVersion(entry);
 	}
 
@@ -134,6 +177,43 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 	assertEquals( "me:3 conflict:1", StringUtil::join(entries[3]->md.version.clocks()) );
 }
 
+TEST_CASE( "DataChainTest/testStoreAsBestVersion.Supercede", "[unit]" )
+{
+	MyMemberId("me");
+	DataChain chain;
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "data!";
+		chain.storeAsBestVersion(entry);
+	}
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "other!";
+		chain.storeAsBestVersion(entry);
+	}
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "conflict!";
+		entry->md.version.increment("conflict");
+		chain.store(entry);
+	}
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "four!";
+		chain.storeAsBestVersion(entry);
+	}
+
+	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
+	assertEquals( 1, entries.size() );
+
+	assertEquals( "four!", entries[0]->data );
+	assertEquals( "me:3 conflict:1", StringUtil::join(entries[0]->md.version.clocks()) );
+}
+
 TEST_CASE( "DataChainTest/testFind", "[unit]" )
 {
 	DataChain chain;
@@ -144,7 +224,7 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "data!";
-		entry->md.totalCopies = 2;
+		entry->md.supercede = false;
 		entry->md.version.increment("foo");
 		chain.store(entry);
 	}
@@ -152,7 +232,7 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "other!";
-		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
 		entry->md.version.increment("bar");
 		chain.store(entry);
 	}
@@ -160,7 +240,7 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "third!";
-		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
 		entry->md.version.increment("foo");
 		entry->md.version.increment("bar");
 		chain.store(entry);
@@ -173,14 +253,12 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 	version.increment("foo");
 	found = chain.find(version);
 	assertEquals( "data!", found->data );
-	assertEquals( 2, found->md.totalCopies );
 	assertEquals( "foo:1", StringUtil::join(found->md.version.clocks()) );
 
 	version.clear();
 	version.increment("bar");
 	found = chain.find(version);
 	assertEquals( "other!", found->data );
-	assertEquals( 3, found->md.totalCopies );
 	assertEquals( "bar:1", StringUtil::join(found->md.version.clocks()) );
 
 	version.clear();
@@ -188,7 +266,6 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 	version.increment("bar");
 	found = chain.find(version);
 	assertEquals( "third!", found->data );
-	assertEquals( 3, found->md.totalCopies );
 	assertEquals( "bar:1 foo:1", StringUtil::join(found->md.version.clocks()) );
 }
 
@@ -199,7 +276,7 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "data!";
-		entry->md.totalCopies = 2;
+		entry->md.supercede = false;
 		entry->md.version.increment("foo");
 		chain.store(entry);
 	}
@@ -207,7 +284,7 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "other!";
-		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
 		entry->md.version.increment("bar");
 		chain.store(entry);
 	}
@@ -215,7 +292,7 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "third!";
-		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
 		entry->md.version.increment("foo");
 		entry->md.version.increment("bar");
 		chain.store(entry);
@@ -263,4 +340,42 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 	// remove nothing
 	assertEquals( 0, chain.erase(version) );
 	assertEquals( 0, chain.entries().size() );
+}
+
+TEST_CASE( "DataChainTest/testClearLesser.Some", "[unit]" )
+{
+	TestableDataChain chain;
+	chain._entries.push_back(makeEntry("foo"));
+	chain._entries.push_back(makeEntry("bar"));
+	chain._entries.push_back(makeEntry("bar", "foo"));
+	chain._entries.push_back(makeEntry("bar", "foo", "foo"));
+	chain._entries.push_back(makeEntry("rab"));
+	assertEquals( 5, chain.entries().size() );
+	assertEquals( 5, chain.entries().size() );
+
+	VectorClock version;
+	version.increment("bar");
+	version.increment("foo");
+	assertEquals( 3, chain.clearLesser_unlocked(version) );
+	assertEquals( 3, chain.entries().size() );
+}
+
+TEST_CASE( "DataChainTest/testClearLesser.Most", "[unit]" )
+{
+	TestableDataChain chain;
+	chain._entries.push_back(makeEntry("foo"));
+	chain._entries.push_back(makeEntry("bar"));
+	chain._entries.push_back(makeEntry("bar", "foo"));
+	chain._entries.push_back(makeEntry("bar", "foo", "foo"));
+	chain._entries.push_back(makeEntry("rab"));
+	assertEquals( 5, chain.entries().size() );
+	assertEquals( 5, chain.entries().size() );
+
+	VectorClock version;
+	version.increment("bar");
+	version.increment("bar");
+	version.increment("foo");
+	version.increment("foo");
+	assertEquals( 1, chain.clearLesser_unlocked(version) );
+	assertEquals( 1, chain.entries().size() );
 }

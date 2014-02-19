@@ -23,7 +23,21 @@ void DataChain::store(const std::shared_ptr<DataEntry>& entry)
 // already have lock
 void DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
 {
+	if (entry->md.supercede)
+		clearLesser_unlocked(entry->md.version);
 	_entries.push_back(entry);
+}
+
+unsigned DataChain::clearLesser_unlocked(const VectorClock& version)
+{
+	auto test_version_lesser = [&version](shared_ptr<DataEntry>& entry)
+	{
+		if (!entry)
+			return false;
+		return entry->md.version.compare(version) == VectorClock::LESS_THAN;
+	};
+	_entries.erase(std::remove_if(_entries.begin(), _entries.end(), test_version_lesser), _entries.end());
+	return _entries.size();
 }
 
 unsigned DataChain::erase(const VectorClock& version)

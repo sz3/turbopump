@@ -19,6 +19,7 @@ public:
 	std::vector< std::shared_ptr<DataEntry> > entries() const;
 
 protected:
+	unsigned clearLesser_unlocked(const VectorClock& version);
 	void store_unlocked(const std::shared_ptr<DataEntry>& entry);
 	std::vector< std::shared_ptr<DataEntry> >::iterator find_unlocked(const VectorClock& version) const;
 	VectorClock bestVersion() const;
