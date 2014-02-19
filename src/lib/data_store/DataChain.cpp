@@ -4,29 +4,55 @@
 #include "common/MyMemberId.h"
 #include "common/VectorClock.h"
 using std::shared_ptr;
+using std::vector;
 
-std::shared_ptr<DataEntry> DataChain::create()
+void DataChain::storeAsBestVersion(const std::shared_ptr<DataEntry>& entry)
 {
-	// get version increment from a singleton
 	tbb::spin_rw_mutex::scoped_lock(_mutex);
-	VectorClock version = bestVersion();
-	version.increment( MyMemberId() );
-	return create_unlocked(version);
+	entry->md.version = bestVersion();
+	entry->md.version.increment( MyMemberId() );
+	store_unlocked(entry);
 }
 
-std::shared_ptr<DataEntry> DataChain::createVersion(const VectorClock& version)
+void DataChain::store(const std::shared_ptr<DataEntry>& entry)
 {
 	tbb::spin_rw_mutex::scoped_lock(_mutex);
-	return create_unlocked(version);
+	store_unlocked(entry);
 }
 
 // already have lock
-std::shared_ptr<DataEntry> DataChain::create_unlocked(const VectorClock& version)
+void DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
 {
-	std::shared_ptr<DataEntry> entry(new DataEntry);
-	entry->md.version = version;
 	_entries.push_back(entry);
-	return entry;
+}
+
+unsigned DataChain::erase(const VectorClock& version)
+{
+	tbb::spin_rw_mutex::scoped_lock(_mutex);
+	vector< shared_ptr<DataEntry> >::iterator elem = find_unlocked(version);
+	if (elem != _entries.end())
+		_entries.erase(elem);
+	return _entries.size();
+}
+
+std::shared_ptr<DataEntry> DataChain::find(const VectorClock& version) const
+{
+	tbb::spin_rw_mutex::scoped_lock(_mutex, false);
+	vector< shared_ptr<DataEntry> >::const_iterator elem = find_unlocked(version);
+	if (elem == _entries.end())
+		return NULL;
+	return *elem;
+}
+
+std::vector< std::shared_ptr<DataEntry> >::iterator DataChain::find_unlocked(const VectorClock& version) const
+{
+	auto test_version_equals = [&version](shared_ptr<DataEntry>& entry)
+	{
+		if (!entry)
+			return false;
+		return entry->md.version.compare(version) == VectorClock::EQUAL;
+	};
+	return std::find_if(const_cast<vector<shared_ptr<DataEntry>>&>(_entries).begin(), const_cast<vector<shared_ptr<DataEntry>>&>(_entries).end(), test_version_equals);
 }
 
 std::vector< std::shared_ptr<DataEntry> > DataChain::entries() const

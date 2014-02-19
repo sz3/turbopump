@@ -11,12 +11,16 @@
 class DataChain
 {
 public:
-	std::shared_ptr<DataEntry> create();
-	std::shared_ptr<DataEntry> createVersion(const VectorClock& version);
+	void storeAsBestVersion(const std::shared_ptr<DataEntry>& entry);
+	void store(const std::shared_ptr<DataEntry>& entry);
+	unsigned erase(const VectorClock& version);
+
+	std::shared_ptr<DataEntry> find(const VectorClock& version) const;
 	std::vector< std::shared_ptr<DataEntry> > entries() const;
 
 protected:
-	std::shared_ptr<DataEntry> create_unlocked(const VectorClock& version);
+	void store_unlocked(const std::shared_ptr<DataEntry>& entry);
+	std::vector< std::shared_ptr<DataEntry> >::iterator find_unlocked(const VectorClock& version) const;
 	VectorClock bestVersion() const;
 
 protected:
