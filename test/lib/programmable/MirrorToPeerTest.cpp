@@ -40,7 +40,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -74,7 +74,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -108,7 +108,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -141,7 +141,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -174,7 +174,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -208,7 +208,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();

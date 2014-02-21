@@ -22,5 +22,6 @@ protected:
 	IByteStream& _writer;
 
 	std::string _filename;
+	std::string _version;
 };
 

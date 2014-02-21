@@ -12,6 +12,7 @@
 
 #include "serialize/StringUtil.h"
 #include <deque>
+#include <vector>
 #include <iostream>
 using std::string;
 
@@ -36,20 +37,20 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 	std::cout << "pushing " << files.size() << " keys to peer " << peer.uid << ": " << StringUtil::join(files) << std::endl;
 	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
 	{
-		IDataStoreReader::ptr reader = _store.read(*it);
-		if (!reader)
-			continue;
-
-		WriteParams write(*it, 0, reader->metadata().totalCopies);
-		if (!offloadFrom.empty())
+		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);
+		for (auto read = readers.begin(); read != readers.end(); ++read)
 		{
-			write.source = offloadFrom;
-			write.mirror = write.totalCopies;
-		}
-		if (!_sender.store(peer, write, reader))
-		{
-			std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
-			return; // TODO: last error?
+			WriteParams write(*it, 0, (*read)->metadata().totalCopies);
+			if (!offloadFrom.empty())
+			{
+				write.source = offloadFrom;
+				write.mirror = write.totalCopies;
+			}
+			if (!_sender.store(peer, write, *read))
+			{
+				std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
+				return; // TODO: last error?
+			}
 		}
 	}
 }

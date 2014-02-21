@@ -20,7 +20,7 @@ TEST_CASE( "WriteActionSenderTest/testDefault", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -40,7 +40,7 @@ TEST_CASE( "WriteActionSenderTest/testWithSource", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -62,7 +62,7 @@ TEST_CASE( "WriteActionSenderTest/testMultipleBuffers", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "0123456789abcdeABCDEturtle";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
@@ -83,7 +83,7 @@ TEST_CASE( "WriteActionSenderTest/testNeedsFinPacket", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "0123456789abcdeABCDE";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();

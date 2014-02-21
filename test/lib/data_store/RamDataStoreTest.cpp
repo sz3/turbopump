@@ -9,6 +9,7 @@
 #include <string>
 
 using std::string;
+using std::vector;
 
 class TestableRamDataStore : public RamDataStore
 {
@@ -32,7 +33,7 @@ public:
 	}
 };
 
-TEST_CASE( "RamDataStoreTest/testWrite", "default" )
+TEST_CASE( "RamDataStoreTest/testWrite", "[unit]" )
 {
 	TestableRamDataStore dataStore;
 
@@ -53,7 +54,7 @@ TEST_CASE( "RamDataStoreTest/testWrite", "default" )
 	assertEquals( "", testView->data().data ); // got std::move'd
 }
 
-TEST_CASE( "RamDataStoreTest/testOverwrite", "default" )
+TEST_CASE( "RamDataStoreTest/testOverwrite", "[unit]" )
 {
 	TestableRamDataStore dataStore;
 	{
@@ -93,13 +94,18 @@ public:
 	string _buffer;
 };
 
-TEST_CASE( "RamDataStoreTest/testRead", "default" )
+TEST_CASE( "RamDataStoreTest/testRead", "[unit]" )
 {
 	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"readme"}));
 
+	vector<IDataStoreReader::ptr> readerList = dataStore.read("foo");
+	assertEquals( 1, readerList.size() );
+
+	IDataStoreReader::ptr reader = dataStore.read("foo", "");
+	assertEquals( reader.get(), readerList.front().get() );
+
 	StringBackedByteStream stream;
-	IDataStoreReader::ptr reader = dataStore.read("foo");
 	assertEquals( 6, reader->read(stream) );
 	assertEquals( "readme", stream._buffer );
 
@@ -116,19 +122,24 @@ TEST_CASE( "RamDataStoreTest/testRead", "default" )
 	assertEquals( "me", stream._buffer );
 }
 
-TEST_CASE( "RamDataStoreTest/testConcurrentRead", "default" )
+TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 {
 	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"readme"}));
 
 	StringBackedByteStream stream;
-	IDataStoreReader::ptr reader = dataStore.read("foo");
+	IDataStoreReader::ptr reader = dataStore.read("foo", "");
 
 	IDataStoreWriter::ptr writer = dataStore.write("foo");
 	assertTrue( writer->write("0123456789", 10) );
 	assertTrue( writer->commit() );
 
-	IDataStoreReader::ptr lateReader = dataStore.read("foo");
+	vector<IDataStoreReader::ptr> lateReaderList = dataStore.read("foo");
+	assertEquals( 1, lateReaderList.size() );
+
+	IDataStoreReader::ptr lateReader = dataStore.read("foo", "");
+	assertEquals( lateReader.get(), lateReaderList.front().get() );
+
 	assertEquals( 10, lateReader->read(stream) );
 	assertEquals( "0123456789", stream._buffer );
 
@@ -137,7 +148,7 @@ TEST_CASE( "RamDataStoreTest/testConcurrentRead", "default" )
 	assertEquals( "readme", stream._buffer );
 }
 
-TEST_CASE( "RamDataStoreTest/testReport", "default" )
+TEST_CASE( "RamDataStoreTest/testReport", "[unit]" )
 {
 	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"bytes"}));
@@ -151,7 +162,7 @@ TEST_CASE( "RamDataStoreTest/testReport", "default" )
 	assertEquals( "\n(foobar)=>5", stream._buffer );
 }
 
-TEST_CASE( "RamDataStoreTest/testReport.Exclude", "default" )
+TEST_CASE( "RamDataStoreTest/testReport.Exclude", "[unit]" )
 {
 	TestableRamDataStore dataStore;
 	dataStore._store["foo"].reset(new DataEntry({"bytes"}));

@@ -6,8 +6,10 @@
 #include "socket/IByteStream.h"
 #include <map>
 #include <string>
+#include <vector>
 using std::map;
 using std::string;
+using std::vector;
 
 ReadAction::ReadAction(IDataStore& dataStore, IByteStream& writer)
 	: _dataStore(dataStore)
@@ -22,7 +24,16 @@ std::string ReadAction::name() const
 
 bool ReadAction::run(const DataBuffer& data)
 {
-	IDataStoreReader::ptr reader = _dataStore.read(_filename);
+	IDataStoreReader::ptr reader;
+	if (_version.empty())
+	{
+		vector<IDataStoreReader::ptr> reads = _dataStore.read(_filename);
+		if (!reads.empty())
+			reader = reads.front();
+	}
+	else
+		reader = _dataStore.read(_filename, _version);
+
 	if (!reader)
 		return false;
 	while (reader->read(_writer) > 0);
@@ -34,5 +45,9 @@ void ReadAction::setParams(const map<string,string>& params)
 	map<string,string>::const_iterator it = params.find("name");
 	if (it != params.end())
 		_filename = it->second;
+
+	it = params.find("version");
+	if (it != params.end())
+		_version = it->second;
 }
 

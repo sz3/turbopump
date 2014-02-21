@@ -29,7 +29,7 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testDefault", "[unit]" )
 	// input
 	MockDataStore store;
 	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy");
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();

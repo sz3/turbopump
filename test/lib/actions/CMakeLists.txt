@@ -9,8 +9,9 @@ set (SOURCES
 	KeyReqActionTest.cpp
 	LocalListActionTest.cpp
 	LocalWriteActionTest.cpp
-	SyncActionTest.cpp
+	ReadActionTest.cpp
 	RemovePeerActionTest.cpp
+	SyncActionTest.cpp
 	WriteActionTest.cpp
 )
 

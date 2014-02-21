@@ -30,17 +30,20 @@ bool DropAction::run(const DataBuffer& data)
 {
 	DropParams params;
 	{
-		IDataStoreReader::ptr read = _dataStore.read(_filename);
-		if (!read)
+		vector<IDataStoreReader::ptr> reads = _dataStore.read(_filename);
+		if (reads.empty())
 			return false;
 
-		if (_locator.keyIsMine(_filename, read->metadata().totalCopies))
+		// TODO: need to restrict totalCopies to static-per-file.
+		//  for sanity's sake.
+		unsigned totalCopies = reads.front()->metadata().totalCopies;
+		if (_locator.keyIsMine(_filename, totalCopies))
 			return false;
 
 		params.filename = _filename;
-		params.totalCopies = read->metadata().totalCopies;
+		params.totalCopies = totalCopies;
 	}
-	if (!_dataStore.erase(_filename))
+	if (!_dataStore.drop(_filename))
 		return false;
 
 	if (_onDrop)

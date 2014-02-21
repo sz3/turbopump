@@ -55,8 +55,20 @@ IDataStoreReader::ptr MockDataStore::commit(Writer& writer)
 	return IDataStoreReader::ptr(new Reader(writer._data.data));
 }
 
-std::shared_ptr<IDataStoreReader> MockDataStore::read(const string& filename) const
+std::vector<std::shared_ptr<IDataStoreReader> > MockDataStore::read(const string& filename) const
 {
+	_history.call("read", filename);
+	std::vector<IDataStoreReader::ptr> reads;
+	data_map_type::const_iterator it = _store.find(filename);
+	if (it != _store.end())
+		reads.push_back(IDataStoreReader::ptr(new Reader(it->second)));
+
+	return reads;
+}
+
+std::shared_ptr<IDataStoreReader> MockDataStore::read(const string& filename, const string& version) const
+{
+	_history.call("read", filename, version);
 	data_map_type::const_iterator it = _store.find(filename);
 	if (it == _store.end())
 		return NULL;
@@ -107,9 +119,9 @@ const KeyMetadata& MockDataStore::Reader::metadata() const
   </end child class>
 */
 
-bool MockDataStore::erase(const string& filename)
+bool MockDataStore::drop(const string& filename)
 {
-	_history.call("erase", filename);
+	_history.call("drop", filename);
 	return _store.erase(filename) > 0;
 }
 

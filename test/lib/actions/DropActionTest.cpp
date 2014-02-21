@@ -24,7 +24,7 @@ TEST_CASE( "DropActionTest/testFileIsMine", "[unit]" )
 
 	assertFalse( action.run(DataBuffer::Null()) );
 
-	assertEquals( "", store._history.calls() );
+	assertEquals( "read(myfile)", store._history.calls() );
 	assertEquals( "foo", store._store["myfile"] );
 
 	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
@@ -44,7 +44,7 @@ TEST_CASE( "DropActionTest/testFileIsntMine", "[unit]" )
 
 	assertTrue( action.run(DataBuffer::Null()) );
 
-	assertEquals( "erase(myfile)", store._history.calls() );
+	assertEquals( "read(myfile)|drop(myfile)", store._history.calls() );
 	assertEquals( "", store._store["myfile"] );
 
 	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
@@ -66,7 +66,7 @@ TEST_CASE( "DropActionTest/testCallback", "[unit]" )
 
 	assertTrue( action.run(DataBuffer::Null()) );
 
-	assertEquals( "erase(myfile)", store._history.calls() );
+	assertEquals( "read(myfile)|drop(myfile)", store._history.calls() );
 	assertEquals( "", store._store["myfile"] );
 	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
 	assertEquals( "onDrop(myfile,1)", history.calls() );

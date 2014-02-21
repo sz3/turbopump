@@ -66,6 +66,7 @@ KeyMetadata& RamDataStore::Writer::metadata()
   </end child class>
 */
 
+// version on commit?
 IDataStoreReader::ptr RamDataStore::commit(Writer& writer)
 {
 	shared_ptr<DataEntry>& data = _store[writer.move_filename()];
@@ -73,7 +74,19 @@ IDataStoreReader::ptr RamDataStore::commit(Writer& writer)
 	return IDataStoreReader::ptr(new Reader(data));
 }
 
-shared_ptr<IDataStoreReader> RamDataStore::read(const string& filename) const
+std::vector< shared_ptr<IDataStoreReader> > RamDataStore::read(const string& filename) const
+{
+	std::vector<IDataStoreReader::ptr> reads;
+
+	data_map_type::const_iterator it = _store.find(filename);
+	if (it == _store.end())
+		return reads;
+
+	reads.push_back(IDataStoreReader::ptr(new Reader(it->second)));
+	return reads;
+}
+
+shared_ptr<IDataStoreReader> RamDataStore::read(const string& filename, const string& version) const
 {
 	data_map_type::const_iterator it = _store.find(filename);
 	if (it == _store.end())
@@ -124,7 +137,9 @@ const KeyMetadata& RamDataStore::Reader::metadata() const
   </end child class>
 */
 
-bool RamDataStore::erase(const string& filename)
+// drop all knowledge of a key.
+// generally only used after offloading a key to another box.
+bool RamDataStore::drop(const string& filename)
 {
 	// TODO: reader/writer locks.
 	// this is the only "writer"
