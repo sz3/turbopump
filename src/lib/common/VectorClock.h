@@ -3,4 +3,12 @@
  
 #include "data_structures/bounded_version_vector.h"
 
-using VectorClock = bounded_version_vector<std::string,10>;
+class VectorClock : public bounded_version_vector<std::string,10>
+{
+public:
+	VectorClock();
+	VectorClock(const std::deque<VectorClock::clock>& clocks);
+
+	std::string toString() const;
+	bool fromString(std::string str);
+};

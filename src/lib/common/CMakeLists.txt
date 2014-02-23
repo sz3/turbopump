@@ -11,6 +11,7 @@ set(SOURCES
 	MerklePoint.h
 	MyMemberId.cpp
 	MyMemberId.h
+	VectorClock.cpp
 	VectorClock.h
 )
 

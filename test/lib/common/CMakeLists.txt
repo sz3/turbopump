@@ -8,6 +8,7 @@ set (SOURCES
 	DataBufferTest.cpp
 	MerklePointTest.cpp
 	MyMemberIdTest.cpp
+	VectorClockTest.cpp
 )
 
 include_directories(
