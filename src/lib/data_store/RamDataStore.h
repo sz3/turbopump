@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "DataEntry.h"
+#include "DataChain.h"
 #include "IDataStore.h"
 #include "IDataStoreReader.h"
 #include "IDataStoreWriter.h"
@@ -21,6 +21,7 @@ protected:
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();
 
+		void setVersion(const std::string& version);
 		std::string&& move_filename();
 		DataEntry&& move_data();
 
@@ -57,7 +58,7 @@ protected:
 	IDataStoreReader::ptr commit(Writer& writer);
 
 protected:
-	using data_map_type = tbb::concurrent_unordered_map< std::string, std::shared_ptr<DataEntry> >;
+	using data_map_type = tbb::concurrent_unordered_map<std::string, DataChain>;
 	data_map_type _store;
 };
 

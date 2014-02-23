@@ -16,14 +16,14 @@ using std::string;
 
 std::shared_ptr<IDataStoreWriter> RamDataStore::write(const string& filename)
 {
-	// atomically increment the next version here???
-	// needs to happen somewhere...
 	return IDataStoreWriter::ptr(new Writer(filename, *this));
 }
 
 std::shared_ptr<IDataStoreWriter> RamDataStore::write(const string& filename, const string& version)
 {
-	return IDataStoreWriter::ptr(new Writer(filename, *this));
+	Writer* writer = new Writer(filename, *this);
+	writer->setVersion(version);
+	return IDataStoreWriter::ptr(writer);
 }
 
 /*
@@ -48,6 +48,11 @@ IDataStoreReader::ptr RamDataStore::Writer::commit()
 	return _store.commit(*this);
 }
 
+void RamDataStore::Writer::setVersion(const std::string& version)
+{
+	_data.md.version.fromString(version);
+}
+
 std::string&& RamDataStore::Writer::move_filename()
 {
 	return std::move(_filename);
@@ -69,8 +74,12 @@ KeyMetadata& RamDataStore::Writer::metadata()
 // version on commit?
 IDataStoreReader::ptr RamDataStore::commit(Writer& writer)
 {
-	shared_ptr<DataEntry>& data = _store[writer.move_filename()];
-	data.reset(new DataEntry(writer.move_data()));
+	DataChain& chain = _store[writer.move_filename()];
+	shared_ptr<DataEntry> data(new DataEntry(writer.move_data()));
+	if (data->md.version.empty())
+		chain.storeAsBestVersion(data);
+	else
+		chain.store(data);
 	return IDataStoreReader::ptr(new Reader(data));
 }
 
@@ -82,7 +91,9 @@ std::vector< shared_ptr<IDataStoreReader> > RamDataStore::read(const string& fil
 	if (it == _store.end())
 		return reads;
 
-	reads.push_back(IDataStoreReader::ptr(new Reader(it->second)));
+	std::vector< shared_ptr<DataEntry> > entries = it->second.entries();
+	for (auto entry = entries.begin(); entry != entries.end(); ++entry)
+		reads.push_back(IDataStoreReader::ptr(new Reader(*entry)));
 	return reads;
 }
 
@@ -92,7 +103,14 @@ shared_ptr<IDataStoreReader> RamDataStore::read(const string& filename, const st
 	if (it == _store.end())
 		return NULL;
 
-	return IDataStoreReader::ptr( new Reader(it->second) );
+	VectorClock versionClock;
+	if (!versionClock.fromString(version))
+		return NULL;
+
+	shared_ptr<DataEntry> data = it->second.find(versionClock);
+	if (!data)
+		return NULL;
+	return IDataStoreReader::ptr( new Reader(data) );
 }
 
 /*
@@ -154,7 +172,16 @@ void RamDataStore::report(IByteStream& writer, const string& exclude) const
 		if (!exclude.empty() && it->first.find(exclude) != string::npos)
 			continue;
 
-		string fileReport = "(" + it->first + ")=>" + StringUtil::str(it->second->data.size());
+		std::vector< shared_ptr<DataEntry> > entries = it->second.entries();
+		string fileReport = "(" + it->first + ")=>";
+		for (auto entry = entries.begin(); entry != entries.end(); ++entry)
+		{
+			if (entry != entries.begin())
+				fileReport += " ";
+			fileReport += StringUtil::str((*entry)->data.size());
+			fileReport += "|" + (*entry)->md.version.toString();
+		}
+
 		if (!first)
 			fileReport = "\n" + fileReport;
 		first &= false;

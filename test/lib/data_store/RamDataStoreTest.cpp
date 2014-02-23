@@ -1,37 +1,85 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
+#include "DataChain.h"
 #include "DataEntry.h"
 #include "RamDataStore.h"
 #include "IDataStoreReader.h"
 #include "IDataStoreWriter.h"
+
+#include "common/KeyMetadata.h"
+#include "common/MyMemberId.h"
+#include "serialize/StringUtil.h"
 #include "socket/IByteStream.h"
+#include "socket/StringByteStream.h"
 #include <string>
 
 using std::string;
 using std::vector;
 
-class TestableRamDataStore : public RamDataStore
-{
-public:
-	using RamDataStore::_store;
-	using RamDataStore::Reader;
-	using RamDataStore::Writer;
-};
-
-class TestableWriter : public TestableRamDataStore::Writer
-{
-public:
-	const std::string& filename() const
+namespace {
+	class TestableRamDataStore : public RamDataStore
 	{
-		return _filename;
+	public:
+		using RamDataStore::_store;
+		using RamDataStore::Reader;
+		using RamDataStore::Writer;
+
+		void store(const std::string& filename, const std::string& content)
+		{
+			std::shared_ptr<DataEntry> data(new DataEntry{content});
+			_store[filename].storeAsBestVersion(data);
+		}
+	};
+
+	class TestableWriter : public TestableRamDataStore::Writer
+	{
+	public:
+		const std::string& filename() const
+		{
+			return _filename;
+		}
+
+		const DataEntry& data() const
+		{
+			return _data;
+		}
+	};
+
+	class StringBackedByteStream : public IByteStream
+	{
+	public:
+		unsigned maxPacketLength() const
+		{
+			return 1000;
+		}
+
+		int read(char* buffer, unsigned length)
+		{
+			return 0;
+		}
+
+		int write(const char* buffer, unsigned length)
+		{
+			_buffer = string(buffer, length);
+			return length;
+		}
+
+	public:
+		string _buffer;
+	};
+
+	std::ostream& operator<<(std::ostream& outstream, const bounded_version_vector<string>::clock& clock)
+	{
+		outstream << clock.key << ":" << clock.count;
+		return outstream;
 	}
 
-	const DataEntry& data() const
+	std::string versionStr(const IDataStoreReader::ptr& reader)
 	{
-		return _data;
+		return StringUtil::join( reader->metadata().version.clocks() );
 	}
-};
+}
 
 TEST_CASE( "RamDataStoreTest/testWrite", "[unit]" )
 {
@@ -50,7 +98,7 @@ TEST_CASE( "RamDataStoreTest/testWrite", "[unit]" )
 	assertTrue( dataStore._store.find("foo") == dataStore._store.end() );
 	assertTrue( writer->commit() );
 
-	assertEquals( "0123456789", dataStore._store["foo"]->data );
+	assertEquals( "0123456789", dataStore._store["foo"].entries().front()->data );
 	assertEquals( "", testView->data().data ); // got std::move'd
 }
 
@@ -61,49 +109,33 @@ TEST_CASE( "RamDataStoreTest/testOverwrite", "[unit]" )
 		IDataStoreWriter::ptr writer = dataStore.write("foo");
 		assertTrue( writer->write("012345", 6) );
 		assertTrue( writer->commit() );
-		assertEquals( "012345", dataStore._store["foo"]->data );
+		assertEquals( "012345", dataStore._store["foo"].entries().front()->data );
 	}
 	{
 		IDataStoreWriter::ptr writer = dataStore.write("foo");
 		assertTrue( writer->write("different!", 10) );
 		assertTrue( writer->commit() );
-		assertEquals( "different!", dataStore._store["foo"]->data );
+		assertEquals( "different!", dataStore._store["foo"].entries().front()->data );
 	}
 }
 
-class StringBackedByteStream : public IByteStream
-{
-public:
-	unsigned maxPacketLength() const
-	{
-		return 1000;
-	}
-
-	int read(char* buffer, unsigned length)
-	{
-		return 0;
-	}
-
-	int write(const char* buffer, unsigned length)
-	{
-		_buffer = string(buffer, length);
-		return length;
-	}
-
-public:
-	string _buffer;
-};
-
 TEST_CASE( "RamDataStoreTest/testRead", "[unit]" )
 {
+	MyMemberId("me");
+
 	TestableRamDataStore dataStore;
-	dataStore._store["foo"].reset(new DataEntry({"readme"}));
+	dataStore.store("foo", "readme");
 
 	vector<IDataStoreReader::ptr> readerList = dataStore.read("foo");
 	assertEquals( 1, readerList.size() );
+	assertEquals( "me:1", versionStr(readerList.front()) );
 
-	IDataStoreReader::ptr reader = dataStore.read("foo", "");
-	assertEquals( reader.get(), readerList.front().get() );
+	IDataStoreReader::ptr reader = dataStore.read("foo", "badversion");
+	assertFalse( reader );
+
+	reader = dataStore.read("foo", "1|me:1");
+	assertTrue( reader );
+	assertEquals( versionStr(reader), versionStr(readerList.front()) );
 
 	StringBackedByteStream stream;
 	assertEquals( 6, reader->read(stream) );
@@ -124,11 +156,14 @@ TEST_CASE( "RamDataStoreTest/testRead", "[unit]" )
 
 TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 {
+	MyMemberId("me");
+
 	TestableRamDataStore dataStore;
-	dataStore._store["foo"].reset(new DataEntry({"readme"}));
+	dataStore.store("foo", "readme");
 
 	StringBackedByteStream stream;
-	IDataStoreReader::ptr reader = dataStore.read("foo", "");
+	IDataStoreReader::ptr reader = dataStore.read("foo", "1|me:1");
+	assertTrue( reader );
 
 	IDataStoreWriter::ptr writer = dataStore.write("foo");
 	assertTrue( writer->write("0123456789", 10) );
@@ -136,9 +171,11 @@ TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 
 	vector<IDataStoreReader::ptr> lateReaderList = dataStore.read("foo");
 	assertEquals( 1, lateReaderList.size() );
+	assertEquals( "me:2", versionStr(lateReaderList.front()) );
 
-	IDataStoreReader::ptr lateReader = dataStore.read("foo", "");
-	assertEquals( lateReader.get(), lateReaderList.front().get() );
+	IDataStoreReader::ptr lateReader = dataStore.read("foo", "1|me:2");
+	assertTrue( lateReader );
+	assertEquals( versionStr(lateReader), versionStr(lateReaderList.front()) );
 
 	assertEquals( 10, lateReader->read(stream) );
 	assertEquals( "0123456789", stream._buffer );
@@ -151,26 +188,29 @@ TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 TEST_CASE( "RamDataStoreTest/testReport", "[unit]" )
 {
 	TestableRamDataStore dataStore;
-	dataStore._store["foo"].reset(new DataEntry({"bytes"}));
-	dataStore._store["foobar"].reset(new DataEntry({"bytes"}));
-	dataStore._store["bar"].reset(new DataEntry({"bytes"}));
+	dataStore.store("foo", "bytes");
+	dataStore.store("foobar", "bytes");
+	dataStore.store("bar", "bytes");
+	assertEquals( 3, dataStore._store.size() );
 
-	StringBackedByteStream stream;
+	StringByteStream stream;
 	dataStore.report(stream);
 
 	// TODO: have a proper ByteStream mock...
-	assertEquals( "\n(foobar)=>5", stream._buffer );
+	assertEquals( "(foo)=>5|1|me:1\n"
+				  "(bar)=>5|1|me:1\n"
+				  "(foobar)=>5|1|me:1", stream.writeBuffer() );
 }
 
 TEST_CASE( "RamDataStoreTest/testReport.Exclude", "[unit]" )
 {
 	TestableRamDataStore dataStore;
-	dataStore._store["foo"].reset(new DataEntry({"bytes"}));
-	dataStore._store["foobar"].reset(new DataEntry({"bytes"}));
-	dataStore._store["bar"].reset(new DataEntry({"bytes"}));
+	dataStore.store("foo", "bytes");
+	dataStore.store("foobar", "bytes");
+	dataStore.store("bar", "bytes");
 
-	StringBackedByteStream stream;
+	StringByteStream stream;
 	dataStore.report(stream, "foo");
 
-	assertEquals( "(bar)=>5", stream._buffer );
+	assertEquals( "(bar)=>5|1|me:1", stream.writeBuffer() );
 }

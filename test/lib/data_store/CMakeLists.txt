@@ -25,6 +25,7 @@ target_link_libraries(data_store_test
 	data_store
 
 	common
+	socket
 
 	tbb
 )
