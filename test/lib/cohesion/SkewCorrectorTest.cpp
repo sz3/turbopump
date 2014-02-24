@@ -87,6 +87,6 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "store(fooid,file1,0,1,)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,0,1,mockReaderVersion:1,)", writer._history.calls() );
 	assertEquals( "read(file1)", store._history.calls() );
 }

@@ -40,7 +40,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);
 		for (auto read = readers.begin(); read != readers.end(); ++read)
 		{
-			WriteParams write(*it, 0, (*read)->metadata().totalCopies);
+			WriteParams write(*it, 0, (*read)->metadata().totalCopies, (*read)->metadata().version.toString());
 			if (!offloadFrom.empty())
 			{
 				write.source = offloadFrom;

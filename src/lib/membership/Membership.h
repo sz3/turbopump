@@ -29,6 +29,8 @@ public:
 	bool addIp(const std::string& ip, const std::string& uid);
 	std::shared_ptr<Peer> lookup(const std::string& uid) const;
 	std::shared_ptr<Peer> lookupIp(const std::string& ip) const;
+
+	void setSelf(std::shared_ptr<Peer> self);
 	std::shared_ptr<Peer> self() const;
 	bool containsSelf(const std::vector<std::string>& list) const;
 

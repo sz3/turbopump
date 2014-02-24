@@ -14,13 +14,13 @@ TEST_CASE( "VectorClockTest/testToString", "[unit]" )
 	version.increment("three");
 	version.increment("three");
 
-	assertEquals("3|three:3|two:2|one:1", version.toString());
+	assertEquals("3,three:3,two:2,one:1", version.toString());
 }
 
 TEST_CASE( "VectorClockTest/testFromString", "[unit]" )
 {
 	VectorClock version;
-	assertTrue( version.fromString("3|one:1|two:2|three:3") );
+	assertTrue( version.fromString("3,one:1,two:2,three:3") );
 
 	std::deque<VectorClock::clock> clocks = version.clocks();
 	assertEquals( 3, clocks.size() );

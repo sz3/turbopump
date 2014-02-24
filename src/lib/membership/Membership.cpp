@@ -3,6 +3,7 @@
 
 #include "Peer.h"
 #include "common/turbopump_defaults.h"
+#include "common/MyMemberId.h"
 #include "data_store/IDataStore.h"
 #include "data_store/IDataStoreWriter.h"
 
@@ -57,7 +58,7 @@ void Membership::loadLine(const std::string& line)
 					_ips[splits.front()] = mem;
 			}
 			else
-				_self = mem;
+				setSelf(mem);
 		}
 	}
 }
@@ -117,8 +118,12 @@ shared_ptr<Peer> Membership::lookupIp(const std::string& ip) const
 	return it->second;
 }
 
-// right now, we track our identity by using the port passed into TurboPumpApp.
-// once we have uids working properly, we'll use that and it'll all make a lot more sense.
+void Membership::setSelf(shared_ptr<Peer> self)
+{
+	_self = self;
+	MyMemberId(self->uid);
+}
+
 shared_ptr<Peer> Membership::self() const
 {
 	return _self;

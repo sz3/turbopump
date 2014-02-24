@@ -102,16 +102,17 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 
 	CommandLine::run("sleep 10");
 
-	string expected = "(one4)=>11\n"
-					  "(two4)=>11\n"
-					  "(one0)=>11\n"
-					  "(two0)=>11\n"
-					  "(one2)=>11\n"
-					  "(two2)=>11\n"
-					  "(one1)=>11\n"
-					  "(two1)=>11\n"
-					  "(one3)=>11\n"
-					  "(two3)=>11";
+	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
+	string expected = "(one4)=>11|1,two:1\n"
+					  "(two4)=>11|1,two:1\n"
+					  "(one0)=>11|1,two:1\n"
+					  "(two0)=>11|1,two:1\n"
+					  "(one2)=>11|1,two:1\n"
+					  "(two2)=>11|1,two:1\n"
+					  "(one1)=>11|1,two:1\n"
+					  "(two1)=>11|1,two:1\n"
+					  "(one3)=>11|1,two:1\n"
+					  "(two3)=>11|1,two:1";
 
 	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerTwo");
 	assertEquals( expected, response );
@@ -201,12 +202,13 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 		std::cout << "local write " << i <<  " finished at " << checkpoints[num].timer().micros() << "us" << std::endl;
 	}
 
-	string expected = "(0)=>7\n"
-			"(4)=>7\n"
-			"(2)=>7\n"
-			"(1)=>7\n"
-			"(primer)=>21\n"
-			"(3)=>7";
+	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
+	string expected = "(0)=>7|1,two:1\n"
+			"(4)=>7|1,two:1\n"
+			"(2)=>7|1,two:1\n"
+			"(1)=>7|1,two:1\n"
+			"(primer)=>21|1,two:1\n"
+			"(3)=>7|1,two:1";
 
 	string response;
 	Timer t;

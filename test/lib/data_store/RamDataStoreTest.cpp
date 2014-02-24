@@ -133,7 +133,7 @@ TEST_CASE( "RamDataStoreTest/testRead", "[unit]" )
 	IDataStoreReader::ptr reader = dataStore.read("foo", "badversion");
 	assertFalse( reader );
 
-	reader = dataStore.read("foo", "1|me:1");
+	reader = dataStore.read("foo", "1,me:1");
 	assertTrue( reader );
 	assertEquals( versionStr(reader), versionStr(readerList.front()) );
 
@@ -162,7 +162,7 @@ TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 	dataStore.store("foo", "readme");
 
 	StringBackedByteStream stream;
-	IDataStoreReader::ptr reader = dataStore.read("foo", "1|me:1");
+	IDataStoreReader::ptr reader = dataStore.read("foo", "1,me:1");
 	assertTrue( reader );
 
 	IDataStoreWriter::ptr writer = dataStore.write("foo");
@@ -173,7 +173,7 @@ TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 	assertEquals( 1, lateReaderList.size() );
 	assertEquals( "me:2", versionStr(lateReaderList.front()) );
 
-	IDataStoreReader::ptr lateReader = dataStore.read("foo", "1|me:2");
+	IDataStoreReader::ptr lateReader = dataStore.read("foo", "1,me:2");
 	assertTrue( lateReader );
 	assertEquals( versionStr(lateReader), versionStr(lateReaderList.front()) );
 
@@ -197,9 +197,9 @@ TEST_CASE( "RamDataStoreTest/testReport", "[unit]" )
 	dataStore.report(stream);
 
 	// TODO: have a proper ByteStream mock...
-	assertEquals( "(foo)=>5|1|me:1\n"
-				  "(bar)=>5|1|me:1\n"
-				  "(foobar)=>5|1|me:1", stream.writeBuffer() );
+	assertEquals( "(foo)=>5|1,me:1\n"
+				  "(bar)=>5|1,me:1\n"
+				  "(foobar)=>5|1,me:1", stream.writeBuffer() );
 }
 
 TEST_CASE( "RamDataStoreTest/testReport.Exclude", "[unit]" )
@@ -212,5 +212,5 @@ TEST_CASE( "RamDataStoreTest/testReport.Exclude", "[unit]" )
 	StringByteStream stream;
 	dataStore.report(stream, "foo");
 
-	assertEquals( "(bar)=>5|1|me:1", stream.writeBuffer() );
+	assertEquals( "(bar)=>5|1,me:1", stream.writeBuffer() );
 }

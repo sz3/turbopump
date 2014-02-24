@@ -23,7 +23,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 {
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies); });
+		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]"); });
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
@@ -40,7 +40,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 	}
 	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
 	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::write(foobar.txt,abcde)|Writer::commit(foobar.txt,3)", dataStore._history.calls() );
-	assertEquals( "onCommit(foobar.txt,0,3)", _history.calls() );
+	assertEquals( "onCommit(foobar.txt,0,3,[1,mockReaderVersion:1])", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testExtraParams", "default" )
@@ -48,13 +48,15 @@ TEST_CASE( "WriteActionTest/testExtraParams", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, params.source); });
+		auto callback = [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]", params.source); };
+		WriteAction action(dataStore, callback);
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
 		params["name"] = "foobar.txt";
 		params["n"] = "5";
 		params["i"] = "3";
+		params["v"] = "v1";
 		params["source"] = "someguy";
 		action.setParams(params);
 		assertTrue( action.good() );
@@ -66,7 +68,7 @@ TEST_CASE( "WriteActionTest/testExtraParams", "default" )
 	}
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
 	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", dataStore._history.calls() );
-	assertEquals( "onCommit(foobar.txt,3,5,someguy)", _history.calls() );
+	assertEquals( "onCommit(foobar.txt,3,5,[1,mockReaderVersion:1],someguy)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )

@@ -11,15 +11,17 @@ struct WriteParams
 		, totalCopies(DEFAULT_MIRRORS)
 	{}
 
-	WriteParams(std::string filename, short mirror, short totalCopies)
+	WriteParams(std::string filename, short mirror, short totalCopies, std::string version)
 		: filename(filename)
 		, mirror(mirror)
 		, totalCopies(totalCopies)
+		, version(version)
 		, source("")
 	{}
 
 	std::string filename;
 	short mirror;
 	short totalCopies;
+	std::string version;
 	std::string source;
 };

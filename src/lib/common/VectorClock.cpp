@@ -26,7 +26,7 @@ namespace {
 	{
 		outstream << clocks.size();
 		for (auto it = clocks.begin(); it != clocks.end(); ++it)
-			outstream << "|" << *it;
+			outstream << "," << *it;
 		return outstream;
 	}
 
@@ -66,7 +66,7 @@ std::string VectorClock::toString() const
 
 bool VectorClock::fromString(std::string str)
 {
-	std::replace(str.begin(), str.end(), '|', ' ');
+	std::replace(str.begin(), str.end(), ',', ' ');
 
 	std::deque<VectorClock::clock> clocks;
 	std::istringstream iss(str);

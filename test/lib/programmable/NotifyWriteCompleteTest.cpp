@@ -18,7 +18,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testNotLastCopy", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 0, 2);
+	WriteParams params("myfile", 0, 2, "v1");
 	command.run(params, NULL);
 
 	assertEquals( "", membership._history.calls() );
@@ -31,7 +31,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testNoExtraMirror", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 2, 2);
+	WriteParams params("myfile", 2, 2, "v1");
 	command.run(params, NULL);
 
 	assertEquals( "", membership._history.calls() );
@@ -44,7 +44,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testExtraMirrorNotAMember", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 2, 2);
+	WriteParams params("myfile", 2, 2, "v1");
 	params.source = "bob";
 	command.run(params, NULL);
 
@@ -60,7 +60,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testDropExtraMirror", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 3, 2);
+	WriteParams params("myfile", 3, 2, "v1");
 	params.source = "peer";
 	command.run(params, NULL);
 

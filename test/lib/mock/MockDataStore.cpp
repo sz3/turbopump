@@ -87,6 +87,7 @@ MockDataStore::Reader::Reader(const std::string& data)
 {
 	_data.data = data;
 	_data.md.totalCopies = 1;
+	_data.md.version.increment("mockReaderVersion");
 }
 
 bool MockDataStore::Reader::seek(unsigned long long offset)

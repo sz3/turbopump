@@ -39,6 +39,7 @@ bool WriteAction::commit()
 	if (!reader)
 		return false;
 
+	_params.version = reader->metadata().version.toString();
 	if (_onCommit)
 		_onCommit(_params, reader);
 	_writer.reset();
@@ -84,6 +85,10 @@ void WriteAction::setParams(const map<string,string>& params)
 	if (it != params.end())
 		_params.totalCopies = std::stoi(it->second);
 
+	it = params.find("v");
+	if (it != params.end())
+		_params.version = it->second;
+
 	it = params.find("source");
 	if (it != params.end())
 		_params.source = it->second;
@@ -94,6 +99,7 @@ void WriteAction::setParams(const map<string,string>& params)
 		_params.filename = it->second;
 		_writer = open(_params);
 		_writer->metadata().totalCopies = _params.totalCopies;
+		_writer->metadata().version.fromString(_params.version);
 	}
 }
 

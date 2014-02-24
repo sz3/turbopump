@@ -46,12 +46,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(WriteParams({"file",0,3}), reader) );
+	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=1 n=3 source=me|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=me|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
@@ -80,12 +80,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run({"file",0,3}, reader) );
+	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)|lookup(bbb)", membership._history.calls() );
 	assertEquals( "getWriter(bbb)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
@@ -114,12 +114,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run({"file",0,3}, reader) );
+	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=1 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
@@ -147,12 +147,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run({"file",2,3}, reader) );
+	assertTrue( command.run(WriteParams({"file",2,3,"v1"}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=3 n=3|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=3 n=3 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
@@ -180,7 +180,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertFalse( command.run({"file",3,3}, reader) );
+	assertFalse( command.run(WriteParams({"file",3,3,"v1"}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()", membership._history.calls() );
@@ -214,7 +214,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertFalse( command.run({"file",3,4}, reader) );
+	assertFalse( command.run(WriteParams({"file",3,4,"v1"}), reader) );
 
 	assertEquals( "locations(file,4)", ring._history.calls() );
 	assertEquals( "self()|lookup(ddd)", membership._history.calls() );

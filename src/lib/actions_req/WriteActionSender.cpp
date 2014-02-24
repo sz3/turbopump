@@ -25,7 +25,7 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 	ConnectionWriteStream stream(writer, peer.nextActionId());
 
 	std::stringstream ss;
-	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies;
+	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies << " v=" << write.version;
 	if (!write.source.empty())
 		ss << " source=" << write.source;
 	ss << "|";

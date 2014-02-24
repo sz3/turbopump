@@ -18,7 +18,7 @@ namespace {
 
 TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 {
-	TurboCluster cluster(6, "--udp");
+	TurboCluster cluster(6, "--udp --no-active-sync");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
@@ -50,35 +50,35 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 
 	// again, 2,6,1,5,4,3
 	response = cluster[2].local_list();
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(4)=>7", response );
+	assertEquals( "(2)=>7|1,1:1\n"
+				  "(3)=>7|1,1:1\n"
+				  "(4)=>7|1,1:1", response );
 
 	response = cluster[3].local_list();
-	assertEquals( "(3)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
+	assertEquals( "(3)=>7|1,1:1\n"
+				  "(4)=>7|1,1:1\n"
+				  "(5)=>7|1,1:1", response );
 
 	response = cluster[4].local_list();
-	assertEquals( "(1)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
+	assertEquals( "(1)=>7|1,1:1\n"
+				  "(4)=>7|1,1:1\n"
+				  "(5)=>7|1,1:1", response );
 
 	response = cluster[5].local_list();
-	assertEquals( "(1)=>7\n"
-				  "(5)=>7\n"
-				  "(6)=>7", response );
+	assertEquals( "(1)=>7|1,1:1\n"
+				  "(5)=>7|1,1:1\n"
+				  "(6)=>7|1,1:1", response );
 
 	response = cluster[6].local_list();
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(6)=>7", response );
+	assertEquals( "(2)=>7|1,1:1\n"
+				  "(3)=>7|1,1:1\n"
+				  "(6)=>7|1,1:1", response );
 
 	// runner1 should drop the files he's not responsible for
 	response = cluster[1].local_list();
-	assertEquals( "(1)=>7\n"
-				  "(2)=>7\n"
-				  "(6)=>7", response );
+	assertEquals( "(1)=>7|1,1:1\n"
+				  "(2)=>7|1,1:1\n"
+				  "(6)=>7|1,1:1", response );
 }
 
 TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
@@ -122,30 +122,30 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	// (5) => 5,4,3,2,6
 
 	response = cluster[2].local_list();
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
+	assertEquals( "(2)=>7|1,1:1\n"
+				  "(3)=>7|1,1:1\n"
+				  "(4)=>7|1,1:1\n"
+				  "(5)=>7|1,1:1", response );
 
 	response = cluster[3].local_list();
-	assertEquals( "(3)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
+	assertEquals( "(3)=>7|1,1:1\n"
+				  "(4)=>7|1,1:1\n"
+				  "(5)=>7|1,1:1", response );
 
 	response = cluster[4].local_list();
-	assertEquals( "(4)=>7\n"
-				  "(5)=>7", response );
+	assertEquals( "(4)=>7|1,1:1\n"
+				  "(5)=>7|1,1:1", response );
 
 	response = cluster[5].local_list();
 	assertEquals( "(5)=>7", response );
 
 	response = cluster[6].local_list();
-	assertEquals( "(2)=>7\n"
-				  "(3)=>7\n"
-				  "(4)=>7\n"
-				  "(5)=>7", response );
+	assertEquals( "(2)=>7|1,1:1\n"
+				  "(3)=>7|1,1:1\n"
+				  "(4)=>7|1,1:1\n"
+				  "(5)=>7|1,1:1", response );
 
 	// runner1 should drop the files he's not responsible for
 	response = cluster[1].local_list();
-	assertEquals( "(1)=>7", response );
+	assertEquals( "(1)=>7|1,1:1", response );
 }

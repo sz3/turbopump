@@ -20,6 +20,7 @@ add_executable (
 add_test(dynamic_membership_test dynamic_membership_test)
 
 target_link_libraries(dynamic_membership_test
+	common
 	integration
 	membership
 

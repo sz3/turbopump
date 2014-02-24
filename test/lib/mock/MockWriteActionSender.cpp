@@ -11,6 +11,6 @@ MockWriteActionSender::MockWriteActionSender()
 
 bool MockWriteActionSender::store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents)
 {
-	_history.call("store", peer.uid, write.filename, write.mirror, write.totalCopies, write.source);
+	_history.call("store", peer.uid, write.filename, write.mirror, write.totalCopies, "["+write.version+"]", write.source);
 	return !_storeFails;
 }
