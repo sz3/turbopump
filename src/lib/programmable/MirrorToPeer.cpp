@@ -41,11 +41,13 @@ bool MirrorToPeer::run(WriteParams params, IDataStoreReader::ptr contents)
 
 	for (; next < locations.size(); ++next)
 	{
+		if (locations[next] == params.source)
+			continue;
 		peer = _membership.lookup(locations[next]);
 		if (peer != self)
 			break;
 	}
-	if (!peer || peer == self)
+	if (!peer || peer == self || peer->uid == params.source)
 		return false;
 
 	params.mirror = next+1;

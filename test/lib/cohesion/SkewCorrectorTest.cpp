@@ -28,7 +28,8 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 
 	assertEquals( "find(oak,2)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "store(fooid,file1,0,1,)|store(fooid,file3,0,1,)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,0,1,[1,mockReaderVersion:1],)"
+				  "|store(fooid,file3,0,1,[1,mockReaderVersion:1],)", writer._history.calls() );
 	assertEquals( "read(file1)|read(badfile)|read(file3)", store._history.calls() );
 }
 
@@ -49,7 +50,8 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Offload", "[unit]" )
 
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "store(fooid,file1,1,1,offloadFrom)|store(fooid,file3,1,1,offloadFrom)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,1,1,[1,mockReaderVersion:1],offloadFrom)"
+				  "|store(fooid,file3,1,1,[1,mockReaderVersion:1],offloadFrom)", writer._history.calls() );
 	assertEquals( "read(file1)|read(badfile)|read(file3)", store._history.calls() );
 }
 
@@ -87,6 +89,6 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "store(fooid,file1,0,1,mockReaderVersion:1,)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,0,1,[1,mockReaderVersion:1],)", writer._history.calls() );
 	assertEquals( "read(file1)", store._history.calls() );
 }
