@@ -15,7 +15,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _callbacks(instruct)
 	, _keyTabulator(_ring, _membership)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
-	, _corrector(_keyTabulator, _localDataStore, _writeActionSender)
+	, _corrector(_keyTabulator, _localDataStore, _writeActionSender, _logger)
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector)
 	, _messenger(_peers)
 	, _writeActionSender(_peers)

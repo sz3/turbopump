@@ -27,13 +27,10 @@ bool MirrorToPeer::run(WriteParams params, IDataStoreReader::ptr contents)
 	shared_ptr<Peer> self = _membership.self();
 	shared_ptr<Peer> peer;
 
-	// TODO: split this command into two? One for a local write, one for a wan one...
-	// if I'm the local write and shouldn't have the file long-term, update the params to say so
+	// the first write is the only one that might be out of order.
+	// also, it might be that the first guy (source) needs to drop the file once all copies are written.
 	if (params.mirror == 0)
-	{
-		if (std::find(locations.begin(), locations.end(), self->uid) == locations.end())
-			params.source = self->uid;
-	}
+		params.source = self->uid;
 
 	unsigned next = params.mirror;
 	if (next >= params.totalCopies)

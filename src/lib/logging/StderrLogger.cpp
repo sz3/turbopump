@@ -34,5 +34,6 @@ void StderrLogger::logMessage(const std::string& type, const std::string& msg)
 {
 	std::time_t t;
 	std::time(&t);
-	std::cerr << _myid << "  " << std::ctime(&t) << "  " << msg << std::endl;
+	std::string tstamp(std::ctime(&t));
+	std::cerr << _myid << "  " << tstamp.substr(0, tstamp.size()-1) << "  " << msg << std::endl;
 }

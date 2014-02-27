@@ -5,12 +5,13 @@
 
 class IDataStore;
 class IKeyTabulator;
+class ILog;
 class IWriteActionSender;
 
 class SkewCorrector : public ICorrectSkew
 {
 public:
-	SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender);
+	SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender, ILog& logger);
 
 	void healKey(const Peer& peer, unsigned long long key);
 	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="");
@@ -19,4 +20,5 @@ protected:
 	const IKeyTabulator& _index;
 	const IDataStore& _store;
 	IWriteActionSender& _sender;
+	ILog& _logger;
 };

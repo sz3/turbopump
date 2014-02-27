@@ -8,6 +8,7 @@
 #include "cohesion/TreeId.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
+#include "logging/ILog.h"
 #include "membership/Peer.h"
 
 #include "serialize/StringUtil.h"
@@ -16,10 +17,11 @@
 #include <iostream>
 using std::string;
 
-SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender)
+SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender, ILog& logger)
 	: _index(index)
 	, _store(store)
 	, _sender(sender)
+	, _logger(logger)
 {
 }
 
@@ -34,18 +36,17 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files = tree.enumerate(first, last);
-	std::cout << "pushing " << files.size() << " keys to peer " << peer.uid << ": " << StringUtil::join(files) << std::endl;
+	_logger.logDebug( "pushing " + StringUtil::str(files.size()) + " keys to peer " + peer.uid + ": " + StringUtil::join(files) );
 	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
 	{
 		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);
 		for (auto read = readers.begin(); read != readers.end(); ++read)
 		{
-			WriteParams write(*it, 0, (*read)->metadata().totalCopies, (*read)->metadata().version.toString());
+			// WriteParams sets mirror to totalCopies => "don't forward, and notify the source if there is one"
+			unsigned totalCopies = (*read)->metadata().totalCopies;
+			WriteParams write(*it, totalCopies, totalCopies, (*read)->metadata().version.toString());
 			if (!offloadFrom.empty())
-			{
 				write.source = offloadFrom;
-				write.mirror = write.totalCopies;
-			}
 			if (!_sender.store(peer, write, *read))
 			{
 				std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
