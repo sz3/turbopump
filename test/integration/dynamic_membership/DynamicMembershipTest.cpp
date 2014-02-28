@@ -24,7 +24,8 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 		string contents = "hello" + name;
 		response = CommandLine::run("echo 'write|name=" + name + " n=3|" + contents + "' | nc -U " + one.dataChannel());
 		assertEquals( "", response );
-		fileList.push_back("(" + name + ")=>" + StringUtil::str(contents.size()+1));
+
+		fileList.push_back("(" + name + ")=>" + StringUtil::str(contents.size()+1) + "|1,9001:1");
 	}
 
 	std::sort(fileList.begin(), fileList.end());

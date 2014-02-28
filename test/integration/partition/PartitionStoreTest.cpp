@@ -137,7 +137,7 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 				  "(5)=>7|1,1:1", response );
 
 	response = cluster[5].local_list();
-	assertEquals( "(5)=>7", response );
+	assertEquals( "(5)=>7|1,1:1", response );
 
 	response = cluster[6].local_list();
 	assertEquals( "(2)=>7|1,1:1\n"

@@ -52,49 +52,49 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 	waitFor(60, response, [&]()
 	{
 		response = cluster[1].local_list();
-		return "(1)=>7\n"
-			   "(2)=>7\n"
-			   "(6)=>7" == response;
+		return "(1)=>7|1,1:1\n"
+			   "(2)=>7|1,2:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 
 	waitFor(40, response, [&]()
 	{
 		response = cluster[2].local_list();
-		return "(2)=>7\n"
-			   "(3)=>7\n"
-			   "(4)=>7" == response;
+		return "(2)=>7|1,2:1\n"
+			   "(3)=>7|1,3:1\n"
+			   "(4)=>7|1,4:1" == response;
 	});
 
 	waitFor(40, response, [&]()
 	{
 		response = cluster[3].local_list();
-		return "(3)=>7\n"
-			   "(4)=>7\n"
-			   "(5)=>7" == response;
+		return "(3)=>7|1,3:1\n"
+			   "(4)=>7|1,4:1\n"
+			   "(5)=>7|1,5:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[4].local_list();
-		return "(1)=>7\n"
-			   "(4)=>7\n"
-			   "(5)=>7" == response;
+		return "(1)=>7|1,1:1\n"
+			   "(4)=>7|1,4:1\n"
+			   "(5)=>7|1,5:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[5].local_list();
-		return "(1)=>7\n"
-			   "(5)=>7\n"
-			   "(6)=>7" == response;
+		return "(1)=>7|1,1:1\n"
+			   "(5)=>7|1,5:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[6].local_list();
-		return "(2)=>7\n"
-			   "(3)=>7\n"
-			   "(6)=>7" == response;
+		return "(2)=>7|1,2:1\n"
+			   "(3)=>7|1,3:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 }
 
@@ -133,49 +133,49 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	waitFor(70, response, [&]()
 	{
 		response = cluster[1].local_list();
-		return "(1)=>7\n"
-			   "(2)=>7\n"
-			   "(6)=>7" == response;
+		return "(1)=>7|1,1:1\n"
+			   "(2)=>7|1,1:1\n"
+			   "(6)=>7|1,1:1" == response;
 	});
 
 	waitFor(40, response, [&]()
 	{
 		response = cluster[2].local_list();
-		return "(2)=>7\n"
-			   "(3)=>7\n"
-			   "(4)=>7" == response;
+		return "(2)=>7|1,1:1\n"
+			   "(3)=>7|1,1:1\n"
+			   "(4)=>7|1,1:1" == response;
 	});
 
 	waitFor(40, response, [&]()
 	{
 		response = cluster[3].local_list();
-		return "(3)=>7\n"
-			   "(4)=>7\n"
-			   "(5)=>7" == response;
+		return "(3)=>7|1,1:1\n"
+			   "(4)=>7|1,1:1\n"
+			   "(5)=>7|1,1:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[4].local_list();
-		return "(1)=>7\n"
-			   "(4)=>7\n"
-			   "(5)=>7" == response;
+		return "(1)=>7|1,1:1\n"
+			   "(4)=>7|1,1:1\n"
+			   "(5)=>7|1,1:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[5].local_list();
-		return "(1)=>7\n"
-			   "(5)=>7\n"
-			   "(6)=>7" == response;
+		return "(1)=>7|1,1:1\n"
+			   "(5)=>7|1,1:1\n"
+			   "(6)=>7|1,1:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[6].local_list();
-		return "(2)=>7\n"
-			   "(3)=>7\n"
-			   "(6)=>7" == response;
+		return "(2)=>7|1,1:1\n"
+			   "(3)=>7|1,1:1\n"
+			   "(6)=>7|1,1:1" == response;
 	});
 }
 
@@ -214,51 +214,51 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	waitFor(60, response, [&]()
 	{
 		response = cluster[1].local_list();
-		return "(1)=>7\n"
-			   "(6)=>7" == response;
+		return "(1)=>7|1,1:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 
 	waitFor(60, response, [&]()
 	{
 		response = cluster[2].local_list();
-		return "(2)=>7\n"
-			   "(3)=>7\n"
-			   "(4)=>7\n"
-			   "(5)=>7\n"
-			   "(6)=>7" == response;
+		return "(2)=>7|1,2:1\n"
+			   "(3)=>7|1,3:1\n"
+			   "(4)=>7|1,4:1\n"
+			   "(5)=>7|1,5:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 
 	waitFor(40, response, [&]()
 	{
 		response = cluster[3].local_list();
-		return "(3)=>7\n"
-			   "(4)=>7\n"
-			   "(5)=>7\n"
-			   "(6)=>7" == response;
+		return "(3)=>7|1,3:1\n"
+			   "(4)=>7|1,4:1\n"
+			   "(5)=>7|1,5:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[4].local_list();
-		return "(4)=>7\n"
-			   "(5)=>7\n"
-			   "(6)=>7" == response;
+		return "(4)=>7|1,4:1\n"
+			   "(5)=>7|1,5:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[5].local_list();
-		return "(5)=>7\n"
-			   "(6)=>7" == response;
+		return "(5)=>7|1,5:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 
 	waitFor(20, response, [&]()
 	{
 		response = cluster[6].local_list();
-		return "(2)=>7\n"
-			   "(3)=>7\n"
-			   "(4)=>7\n"
-			   "(5)=>7\n"
-			   "(6)=>7" == response;
+		return "(2)=>7|1,2:1\n"
+			   "(3)=>7|1,3:1\n"
+			   "(4)=>7|1,4:1\n"
+			   "(5)=>7|1,5:1\n"
+			   "(6)=>7|1,6:1" == response;
 	});
 }

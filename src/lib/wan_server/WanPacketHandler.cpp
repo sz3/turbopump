@@ -157,7 +157,10 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 {
 	std::shared_ptr<IAction> action;
 	if (cmdname == "write")
+	{
+		_logger.logDebug("peer " + peer.uid + " is sending me a file! " + params.find("name")->second);
 		action.reset(new WriteAction(_dataStore, _callbacks.when_mirror_write_finishes));
+	}
 	else if (cmdname == "drop")
 		action.reset(new DropAction(_dataStore, _locator, _callbacks.when_drop_finishes));
 	else if (cmdname == "sync")
