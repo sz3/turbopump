@@ -11,8 +11,8 @@
 class DataChain
 {
 public:
-	void storeAsBestVersion(const std::shared_ptr<DataEntry>& entry);
-	void store(const std::shared_ptr<DataEntry>& entry);
+	bool storeAsBestVersion(const std::shared_ptr<DataEntry>& entry);
+	bool store(const std::shared_ptr<DataEntry>& entry);
 	unsigned erase(const VectorClock& version);
 
 	std::shared_ptr<DataEntry> find(const VectorClock& version) const;
@@ -20,8 +20,10 @@ public:
 
 protected:
 	unsigned clearLesser_unlocked(const VectorClock& version);
-	void store_unlocked(const std::shared_ptr<DataEntry>& entry);
+	bool store_unlocked(const std::shared_ptr<DataEntry>& entry);
 	std::vector< std::shared_ptr<DataEntry> >::iterator find_unlocked(const VectorClock& version) const;
+
+	// should be mergeVersions
 	VectorClock bestVersion() const;
 
 protected:

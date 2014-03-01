@@ -58,7 +58,7 @@ TEST_CASE( "DataChainTest/testStore", "[unit]" )
 		entry->md.totalCopies = 2;
 		entry->md.supercede = false;
 		entry->md.version.increment("foo");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
@@ -67,7 +67,7 @@ TEST_CASE( "DataChainTest/testStore", "[unit]" )
 		entry->md.totalCopies = 3;
 		entry->md.supercede = false;
 		entry->md.version.increment("bar");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
@@ -82,6 +82,36 @@ TEST_CASE( "DataChainTest/testStore", "[unit]" )
 	assertEquals( "bar:1", StringUtil::join(entries[1]->md.version.clocks()) );
 }
 
+TEST_CASE( "DataChainTest/testStoreSameVersion", "[unit]" )
+{
+	DataChain chain;
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "data!";
+		entry->md.totalCopies = 2;
+		entry->md.supercede = false;
+		entry->md.version.increment("foo");
+		assertTrue( chain.store(entry) );
+	}
+
+	{
+		shared_ptr<DataEntry> entry(new DataEntry);
+		entry->data = "other!";
+		entry->md.totalCopies = 3;
+		entry->md.supercede = false;
+		entry->md.version.increment("foo");
+		assertFalse( chain.store(entry) );
+	}
+
+	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
+	assertEquals( 1, entries.size() );
+
+	assertEquals( "data!", entries[0]->data );
+	assertEquals( 2, entries[0]->md.totalCopies );
+	assertEquals( "foo:1", StringUtil::join(entries[0]->md.version.clocks()) );
+}
+
 TEST_CASE( "DataChainTest/testStore.Supercede", "[unit]" )
 {
 	DataChain chain;
@@ -91,7 +121,7 @@ TEST_CASE( "DataChainTest/testStore.Supercede", "[unit]" )
 		entry->data = "data!";
 		entry->md.totalCopies = 2;
 		entry->md.version.increment("foo");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
@@ -99,7 +129,7 @@ TEST_CASE( "DataChainTest/testStore.Supercede", "[unit]" )
 		entry->data = "other!";
 		entry->md.totalCopies = 3;
 		entry->md.version.increment("bar");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	assertEquals( 2, chain.entries().size() );
@@ -109,7 +139,7 @@ TEST_CASE( "DataChainTest/testStore.Supercede", "[unit]" )
 		entry->data = "superceder!";
 		entry->md.version.increment("bar");
 		entry->md.version.increment("foo");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
@@ -129,7 +159,7 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 		entry->data = "data!";
 		entry->md.totalCopies = 2;
 		entry->md.supercede = false;
-		chain.storeAsBestVersion(entry);
+		assertTrue( chain.storeAsBestVersion(entry) );
 	}
 
 	{
@@ -137,7 +167,7 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 		entry->data = "other!";
 		entry->md.totalCopies = 3;
 		entry->md.supercede = false;
-		chain.storeAsBestVersion(entry);
+		assertTrue( chain.storeAsBestVersion(entry) );
 	}
 
 	{
@@ -146,7 +176,7 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 		entry->md.totalCopies = 3;
 		entry->md.supercede = false;
 		entry->md.version.increment("conflict");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
@@ -154,7 +184,7 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 		entry->data = "four!";
 		entry->md.totalCopies = 4;
 		entry->md.supercede = false;
-		chain.storeAsBestVersion(entry);
+		assertTrue( chain.storeAsBestVersion(entry) );
 	}
 
 	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
@@ -185,26 +215,26 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion.Supercede", "[unit]" )
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "data!";
-		chain.storeAsBestVersion(entry);
+		assertTrue( chain.storeAsBestVersion(entry) );
 	}
 
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "other!";
-		chain.storeAsBestVersion(entry);
+		assertTrue( chain.storeAsBestVersion(entry) );
 	}
 
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "conflict!";
 		entry->md.version.increment("conflict");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
 		shared_ptr<DataEntry> entry(new DataEntry);
 		entry->data = "four!";
-		chain.storeAsBestVersion(entry);
+		assertTrue( chain.storeAsBestVersion(entry) );
 	}
 
 	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
@@ -226,7 +256,7 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 		entry->data = "data!";
 		entry->md.supercede = false;
 		entry->md.version.increment("foo");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
@@ -234,7 +264,7 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 		entry->data = "other!";
 		entry->md.supercede = false;
 		entry->md.version.increment("bar");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
@@ -243,7 +273,7 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 		entry->md.supercede = false;
 		entry->md.version.increment("foo");
 		entry->md.version.increment("bar");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	VectorClock version;
@@ -278,7 +308,7 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 		entry->data = "data!";
 		entry->md.supercede = false;
 		entry->md.version.increment("foo");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
@@ -286,7 +316,7 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 		entry->data = "other!";
 		entry->md.supercede = false;
 		entry->md.version.increment("bar");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	{
@@ -295,7 +325,7 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 		entry->md.supercede = false;
 		entry->md.version.increment("foo");
 		entry->md.version.increment("bar");
-		chain.store(entry);
+		assertTrue( chain.store(entry) );
 	}
 
 	assertEquals( 3, chain.entries().size() );

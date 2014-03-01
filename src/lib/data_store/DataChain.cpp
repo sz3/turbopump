@@ -6,26 +6,30 @@
 using std::shared_ptr;
 using std::vector;
 
-void DataChain::storeAsBestVersion(const std::shared_ptr<DataEntry>& entry)
+bool DataChain::storeAsBestVersion(const std::shared_ptr<DataEntry>& entry)
 {
 	tbb::spin_rw_mutex::scoped_lock(_mutex);
 	entry->md.version = bestVersion();
 	entry->md.version.increment( MyMemberId() );
-	store_unlocked(entry);
+	return store_unlocked(entry);
 }
 
-void DataChain::store(const std::shared_ptr<DataEntry>& entry)
+bool DataChain::store(const std::shared_ptr<DataEntry>& entry)
 {
 	tbb::spin_rw_mutex::scoped_lock(_mutex);
-	store_unlocked(entry);
+	return store_unlocked(entry);
 }
 
 // already have lock
-void DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
+bool DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
 {
 	if (entry->md.supercede)
 		clearLesser_unlocked(entry->md.version);
+	if (find_unlocked(entry->md.version) != _entries.end())
+		return false;
+
 	_entries.push_back(entry);
+	return true;
 }
 
 unsigned DataChain::clearLesser_unlocked(const VectorClock& version)
