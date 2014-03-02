@@ -1,0 +1,38 @@
+cmake_minimum_required(VERSION 2.6)
+
+project(integration_versioning_test)
+
+set (SOURCES
+	test.cpp
+	VersionChainingTest.cpp
+	VersionSyncTest.cpp
+)
+
+include_directories(
+	${corelib_SOURCE_DIR}/test
+	${turboproj_SOURCE_DIR}/test/lib
+)
+
+add_executable (
+	integration_versioning_test
+	${SOURCES}
+)
+
+add_test(integration_versioning_test integration_versioning_test)
+
+target_link_libraries(integration_versioning_test
+-Wl,--start-group
+	common
+	membership
+	integration
+
+	command_line
+	file
+	serialize
+	time
+-Wl,--end-group
+
+	boost_filesystem
+	boost_system
+)
+

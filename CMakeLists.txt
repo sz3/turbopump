@@ -50,6 +50,7 @@ set (PROJECTS
    test/lib/wan_server
 
    test/integration/standup
+   test/integration/versioning
    test/integration/dynamic_membership
    test/integration/load
    test/integration/partition
