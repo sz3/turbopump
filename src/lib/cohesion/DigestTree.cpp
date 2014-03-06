@@ -21,18 +21,20 @@ const TreeId& DigestTree::id() const
 	return _id;
 }
 
-void DigestTree::add(const std::string& key)
+void DigestTree::update(const std::string& key, unsigned long long value)
 {
-	// TODO: rather than storing "keyhash" as the value, we want something more interesting.
-	//   this is what we're using to detect errors, after all. So: file + file version + crc?
-	//   In any case this should become add(key, value)
-
-	// TODO: worry about endianness of keyhash.
-	// if different architectures can't agree on where a file hashes to... we're in trouble.
-	// right now, it's derived from a char*, so it's mostly ok...
-	//  except that the merkle_point::keybits don't act how you might expect...
+	// TODO: update merkle_tree::insert (or create alternate method) to allow updates to existing values!
 	unsigned long long keyhash = Hash::compute(key).integer();
-	_tree.insert(keyhash, keyhash, key);
+	_tree.remove(keyhash);
+	_tree.insert(keyhash, (value xor keyhash), key);
+}
+
+void DigestTree::add(const std::string& key, unsigned long long hash)
+{
+	// not part of the public interface. For places we need to load a hash we already have.
+	// (split section)
+	unsigned long long keyhash = Hash::compute(key).integer();
+	_tree.insert(keyhash, hash, key);
 }
 
 void DigestTree::remove(const std::string& key)

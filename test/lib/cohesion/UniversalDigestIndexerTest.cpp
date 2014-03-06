@@ -11,9 +11,9 @@ TEST_CASE( "UniversalDigestIndexerTest/testBasics", "[unit]" )
 {
 	UniversalDigestIndexer index;
 
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	deque<string> files = index.find("whocares").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertEquals( "two three one", StringUtil::join(files) );

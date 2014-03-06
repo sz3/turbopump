@@ -15,7 +15,7 @@ public:
 	virtual ~IDigestKeys() {}
 	virtual const TreeId& id() const = 0;
 
-	virtual void add(const std::string& key) = 0;
+	virtual void update(const std::string& key, unsigned long long value) = 0;
 	virtual void remove(const std::string& key) = 0;
 
 	virtual bool empty() const = 0;

@@ -17,7 +17,7 @@ class KeyTabulator : public IKeyTabulator
 public:
 	KeyTabulator(const IHashRing& ring, const IMembership& membership);
 
-	void add(const std::string& key, unsigned mirrors=3);
+	void update(const std::string& key, unsigned long long value, unsigned mirrors=3);
 	void remove(const std::string& key, unsigned mirrors=3);
 
 	void splitSection(const std::string& where);

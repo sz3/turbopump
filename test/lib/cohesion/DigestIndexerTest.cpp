@@ -19,9 +19,9 @@ TEST_CASE( "DigestIndexerTest/testNoRingMembers", "[unit]" )
 	MockMembership membership;
 	DigestIndexer index(ring, membership);
 
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	deque<string> files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "two three one", StringUtil::join(files) );
@@ -32,7 +32,7 @@ TEST_CASE( "DigestIndexerTest/testNoRingMembers", "[unit]" )
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one", StringUtil::join(files) );
 
-	index.add("four");
+	index.update("four", 0);
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one four", StringUtil::join(files) );
 
@@ -49,9 +49,9 @@ TEST_CASE( "DigestIndexerTest/testSingleTree", "[unit]" )
 	MockMembership membership;
 	DigestIndexer index(ring, membership);
 
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	deque<string> files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "two three one", StringUtil::join(files) );
@@ -62,7 +62,7 @@ TEST_CASE( "DigestIndexerTest/testSingleTree", "[unit]" )
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one", StringUtil::join(files) );
 
-	index.add("four");
+	index.update("four", 0);
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one four", StringUtil::join(files) );
 
@@ -80,18 +80,18 @@ TEST_CASE( "DigestIndexerTest/testManyTrees", "[unit]" )
 	DigestIndexer index(ring, membership);
 	assertEquals( 0, index.list().size() );
 
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 	assertEquals( 1, index.list().size() );
 
 	ring._workers[0] = "bbb";
-	index.add("three");
-	index.add("four");
+	index.update("three", 0);
+	index.update("four", 0);
 	assertEquals( 2, index.list().size() );
 
 	ring._workers[0] = "ccc";
-	index.add("five");
-	index.add("six");
+	index.update("five", 0);
+	index.update("six", 0);
 	assertEquals( 3, index.list().size() );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
@@ -132,8 +132,8 @@ TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted", "[unit]" )
 	MockMembership membership;
 	TestableDigestIndexer index(ring, membership);
 
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 	assertEquals( "section(one)|locationsFromHash(aaa,3)|section(two)", ring._history.calls() );
 	assertEquals( "aaa", StringUtil::join(index.list()) );
 	assertEquals( "aaa", StringUtil::join(index._unwanted) );
@@ -141,8 +141,8 @@ TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted", "[unit]" )
 
 	ring._workers[0] = "me";
 	ring._history.clear();
-	index.add("three");
-	index.add("four");
+	index.update("three", 0);
+	index.update("four", 0);
 	assertEquals( "section(three)|locationsFromHash(me,3)|section(four)", ring._history.calls() );
 	assertEquals( "aaa me", StringUtil::join(index.list()) );
 	assertEquals( "aaa", StringUtil::join(index._unwanted) );
@@ -171,8 +171,8 @@ TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted.NoRing", "[unit]" )
 	MockMembership membership;
 	TestableDigestIndexer index(ring, membership);
 
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 	assertEquals( "section(one)|locationsFromHash(,3)|section(two)", ring._history.calls() );
 	assertEquals( 1, index.list().size() );
 	assertEquals( 0, index._unwanted.size() );
@@ -186,13 +186,13 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.InHalf", "[unit]" )
 	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 
 	ring._workers[0] = "zzz";
-	index.add("three");
-	index.add("four");
-	index.add("five");
+	index.update("three", 0);
+	index.update("four", 0);
+	index.update("five", 0);
 
 	ring._workers[0] = "one";
 	ring._history.clear();
@@ -221,9 +221,9 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.NoKeys", "[unit]" )
 	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("two");
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	ring._workers[0] = "13";
 	ring._history.clear();
@@ -246,9 +246,9 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeFirst", "[unit]" )
 	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back(Hash::compute("four").base64());
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	ring._workers[0] = Hash::compute("one").base64();
 	ring._history.clear();
@@ -271,9 +271,9 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeLast", "[unit]" )
 	MockMembership membership;
 	TestableDigestIndexer index(ring, membership);
 	ring._workers.push_back(Hash::compute("2").base64());
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	//((const MerkleTree&)index.find(Hash::compute("2").base64())).print(5);
 
@@ -313,12 +313,12 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Last", "[unit]" )
 	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 
 	ring._workers[0] = "three";
-	index.add("three");
-	index.add("four");
+	index.update("three", 0);
+	index.update("four", 0);
 
 	assertEquals( "aaa three", StringUtil::join(index.list()) );
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
@@ -339,12 +339,12 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.First", "[unit]" )
 	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 
 	ring._workers[0] = "ccc";
-	index.add("three");
-	index.add("four");
+	index.update("three", 0);
+	index.update("four", 0);
 
 	assertEquals( "aaa ccc", StringUtil::join(index.list()) );
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
@@ -366,15 +366,15 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Middle", "[unit]" )
 	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 
 	ring._workers[0] = "ccc";
-	index.add("three");
-	index.add("four");
+	index.update("three", 0);
+	index.update("four", 0);
 
 	ring._workers[0] = "zzz";
-	index.add("five");
+	index.update("five", 0);
 
 	assertEquals( "aaa ccc zzz", StringUtil::join(index.list()) );
 
@@ -398,8 +398,8 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.ToEmpty", "[unit]" )
 	TestableDigestIndexer index(ring, membership);
 
 	ring._workers.push_back("aaa");
-	index.add("one");
-	index.add("two");
+	index.update("one", 0);
+	index.update("two", 0);
 
 	index.cannibalizeSection("aaa");
 	assertEquals( "aaa", StringUtil::join(index.list()) );

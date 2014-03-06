@@ -9,7 +9,7 @@ class IDigestIndexer
 public:
 	virtual ~IDigestIndexer() {}
 
-	virtual void add(const std::string& key) = 0;
+	virtual void update(const std::string& key, unsigned long long value) = 0;
 	virtual void remove(const std::string& key) = 0;
 
 	virtual void splitSection(const std::string& where) = 0;

@@ -8,7 +8,7 @@
 class MockKeyTabulator : public IKeyTabulator
 {
 public:
-	void add(const std::string& key, unsigned mirrors);
+	void update(const std::string& key, unsigned long long value, unsigned mirrors);
 	void remove(const std::string& key, unsigned mirrors);
 
 	void splitSection(const std::string& where);

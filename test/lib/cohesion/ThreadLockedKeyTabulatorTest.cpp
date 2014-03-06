@@ -13,11 +13,11 @@ TEST_CASE( "ThreadLockedKeyTabulatorTest/testAdd", "[unit]" )
 	MockSchedulerThread scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
-	index.add("foo", 2);
+	index.update("foo", 0, 2);
 	assertEquals( "schedule(0)", scheduler._history.calls() );
 
 	scheduler.run();
-	assertEquals( "add(foo,2)", realIndex._history.calls() );
+	assertEquals( "update(foo,0,2)", realIndex._history.calls() );
 }
 
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testRemove", "[unit]" )

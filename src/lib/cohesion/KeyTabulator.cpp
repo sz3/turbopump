@@ -23,7 +23,7 @@ KeyTabulator::KeyTabulator(const IHashRing& ring, const IMembership& membership)
 {
 }
 
-void KeyTabulator::add(const string& key, unsigned mirrors)
+void KeyTabulator::update(const string& key, unsigned long long value, unsigned mirrors)
 {
 	// find appropriate merkle tree based on hash, mirrors
 
@@ -35,7 +35,7 @@ void KeyTabulator::add(const string& key, unsigned mirrors)
 		else
 			forest.reset(new DigestIndexer(_ring, _membership, mirrors));
 	}
-	forest->add(key);
+	forest->update(key, value);
 }
 
 void KeyTabulator::remove(const string& key, unsigned mirrors)

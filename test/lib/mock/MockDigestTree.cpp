@@ -15,9 +15,9 @@ const TreeId& MockDigestTree::id() const
 	return _id;
 }
 
-void MockDigestTree::add(const std::string& key)
+void MockDigestTree::update(const std::string& key, unsigned long long value)
 {
-	_history.call("add", key);
+	_history.call("update", key, value);
 }
 
 void MockDigestTree::remove(const std::string& key)

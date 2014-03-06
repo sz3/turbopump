@@ -16,9 +16,9 @@ TEST_CASE( "DigestTreeTest/testBasics", "[unit]" )
 	DigestTree tree;
 	assertTrue( tree.empty() );
 
-	tree.add("one");
-	tree.add("two");
-	tree.add("three");
+	tree.update("one", 0);
+	tree.update("two", 0);
+	tree.update("three", 0);
 	assertFalse( tree.empty() );
 
 	deque<string> files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
@@ -30,7 +30,7 @@ TEST_CASE( "DigestTreeTest/testBasics", "[unit]" )
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one", StringUtil::join(files) );
 
-	tree.add("four");
+	tree.update("four", 0);
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one four", StringUtil::join(files) );
 
@@ -46,20 +46,46 @@ TEST_CASE( "DigestTreeTest/testTop", "[unit]" )
 {
 	DigestTree tree;
 
-	tree.add("one");
+	tree.update("one", 0);
 	unsigned long long hash1 = Hash::compute("one").integer();
 	MerklePoint top = tree.top();
 	assertEquals( hash1, top.hash );
 
-	tree.add("two");
+	tree.update("two", 0);
 	unsigned long long hash2 = Hash::compute("two").integer();
 	top = tree.top();
 	assertEquals( (hash1 xor hash2), top.hash );
 
-	tree.add("three");
+	tree.update("three", 0);
 	unsigned long long hash3 = Hash::compute("three").integer();
 	top = tree.top();
 	assertEquals( (hash1 xor hash2 xor hash3), top.hash );
+}
+
+TEST_CASE( "DigestTreeTest/testUpdateExistingKey", "[unit]" )
+{
+	DigestTree tree;
+
+	unsigned long long hash1 = Hash::compute("one").integer();
+	tree.update("one", 0x1234);
+	MerklePoint top = tree.top();
+	assertEquals( (hash1 xor 0x1234), top.hash );
+
+	// update existing key
+	hash1 = hash1 xor 0x5678;
+	tree.update("one", 0x5678);
+	top = tree.top();
+	assertEquals( hash1, top.hash );
+
+	unsigned long long hash2 = Hash::compute("two").integer();
+	tree.update("two", 0x4321);
+	top = tree.top();
+	assertEquals( (hash1 xor hash2 xor 0x4321), top.hash );
+
+	hash2 = hash2 xor 0x8765;
+	tree.update("two", 0x8765);
+	top = tree.top();
+	assertEquals( (hash1 xor hash2), top.hash );
 }
 
 TEST_CASE( "DigestTreeTest/testTraverse_Case1", "[unit]" )
@@ -70,26 +96,26 @@ TEST_CASE( "DigestTreeTest/testTraverse_Case1", "[unit]" )
 	DigestTree treeOne;
 	DigestTree treeTwo;
 
-	treeOne.add("one0");
-	treeOne.add("one1");
-	treeOne.add("one2");
-	treeOne.add("one3");
-	treeOne.add("one4");
-	treeOne.add("two1");
-	treeOne.add("two2");
-	treeOne.add("two3");
-	treeOne.add("two4");
+	treeOne.update("one0", 0);
+	treeOne.update("one1", 0);
+	treeOne.update("one2", 0);
+	treeOne.update("one3", 0);
+	treeOne.update("one4", 0);
+	treeOne.update("two1", 0);
+	treeOne.update("two2", 0);
+	treeOne.update("two3", 0);
+	treeOne.update("two4", 0);
 
-	treeTwo.add("one0");
-	treeTwo.add("one1");
-	treeTwo.add("one2");
-	treeTwo.add("one3");
-	treeTwo.add("one4");
-	treeTwo.add("two0");
-	treeTwo.add("two1");
-	treeTwo.add("two2");
-	treeTwo.add("two3");
-	treeTwo.add("two4");
+	treeTwo.update("one0", 0);
+	treeTwo.update("one1", 0);
+	treeTwo.update("one2", 0);
+	treeTwo.update("one3", 0);
+	treeTwo.update("one4", 0);
+	treeTwo.update("two0", 0);
+	treeTwo.update("two1", 0);
+	treeTwo.update("two2", 0);
+	treeTwo.update("two3", 0);
+	treeTwo.update("two4", 0);
 
 	// start on two
 	MerklePoint point = treeTwo.top();

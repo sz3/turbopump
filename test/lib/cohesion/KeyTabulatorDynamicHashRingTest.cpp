@@ -33,8 +33,8 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 	for (unsigned i = 50; i > 0; --i)
 	{
 		string file = StringUtil::str(i);
-		baseLine.add(file);
-		index.add(file);
+		baseLine.update(file, 0);
+		index.update(file, 0);
 	}
 
 	//index.print();

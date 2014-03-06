@@ -12,7 +12,7 @@ public:
 	MockDigestTree();
 	const TreeId& id() const;
 
-	void add(const std::string& key);
+	void update(const std::string& key, unsigned long long value);
 	void remove(const std::string& key);
 
 	bool empty() const;

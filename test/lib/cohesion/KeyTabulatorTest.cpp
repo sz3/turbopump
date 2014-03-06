@@ -21,9 +21,9 @@ TEST_CASE( "KeyTabulatorTest/testNoRingMembers", "[unit]" )
 	MockMembership membership;
 	KeyTabulator index(ring, membership);
 
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	deque<string> files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "two three one", StringUtil::join(files) );
@@ -34,7 +34,7 @@ TEST_CASE( "KeyTabulatorTest/testNoRingMembers", "[unit]" )
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one", StringUtil::join(files) );
 
-	index.add("four");
+	index.update("four", 0);
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one four", StringUtil::join(files) );
 
@@ -51,9 +51,9 @@ TEST_CASE( "KeyTabulatorTest/testSingleTree", "[unit]" )
 	MockMembership membership;
 	KeyTabulator index(ring, membership);
 
-	index.add("one");
-	index.add("two");
-	index.add("three");
+	index.update("one", 0);
+	index.update("two", 0);
+	index.update("three", 0);
 
 	deque<string> files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "two three one", StringUtil::join(files) );
@@ -64,7 +64,7 @@ TEST_CASE( "KeyTabulatorTest/testSingleTree", "[unit]" )
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one", StringUtil::join(files) );
 
-	index.add("four");
+	index.update("four", 0);
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertStringsEqual( "one four", StringUtil::join(files) );
 
@@ -81,14 +81,14 @@ TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted", "[unit]" )
 	KeyTabulator index(ring, membership);
 
 	ring._workers.push_back("fooid");
-	index.add("unwanted1", 1);
-	index.add("unwanted2", 2);
-	index.add("unwanted3", 3);
+	index.update("unwanted1", 0, 1);
+	index.update("unwanted2", 0, 2);
+	index.update("unwanted3", 0, 3);
 
 	ring._workers[0] = "me";
-	index.add("wanted1", 1);
-	index.add("wanted2", 2);
-	index.add("wanted3", 3);
+	index.update("wanted1", 0, 1);
+	index.update("wanted2", 0, 2);
+	index.update("wanted3", 0, 3);
 
 	for (unsigned i = 0; i < 10; ++i)
 	{
@@ -112,10 +112,10 @@ TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted.Exclude", "[unit]" )
 	KeyTabulator index(ring, membership);
 
 	ring._workers.push_back("fooid");
-	index.add("unwanted1", 1);
+	index.update("unwanted1", 0, 1);
 
 	ring._workers[0] = "me";
-	index.add("wanted1", 1);
+	index.update("wanted1", 0, 1);
 
 	{
 		const IDigestKeys& tree = index.randomTree();
@@ -140,9 +140,9 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	for (int i = 1; i <= 9; ++i)
 	{
 		string name = StringUtil::str(i);
-		index.add(name, 1);
-		index.add(name+name, 2);
-		index.add(name+name+name, 3);
+		index.update(name, 0, 1);
+		index.update(name+name, 0, 2);
+		index.update(name+name+name, 0, 3);
 	}
 
 	/*

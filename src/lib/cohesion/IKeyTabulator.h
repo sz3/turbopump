@@ -9,7 +9,7 @@ class IKeyTabulator
 public:
 	virtual ~IKeyTabulator() {}
 
-	virtual void add(const std::string& key, unsigned mirrors) = 0;
+	virtual void update(const std::string& key, unsigned long long value, unsigned mirrors) = 0;
 	virtual void remove(const std::string& key, unsigned mirrors) = 0;
 
 	virtual void splitSection(const std::string& where) = 0;

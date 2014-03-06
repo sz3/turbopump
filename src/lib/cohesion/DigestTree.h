@@ -14,7 +14,8 @@ public:
 	void setId(const TreeId& id);
 	const TreeId& id() const;
 
-	void add(const std::string& key);
+	void add(const std::string& key, unsigned long long hash);
+	void update(const std::string& key, unsigned long long value);
 	void remove(const std::string& key);
 
 	bool empty() const;

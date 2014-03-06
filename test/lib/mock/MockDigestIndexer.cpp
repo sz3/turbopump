@@ -4,9 +4,9 @@
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-void MockDigestIndexer::add(const std::string& key)
+void MockDigestIndexer::update(const std::string& key, unsigned long long value)
 {
-	_history.call("add", key);
+	_history.call("update", key, value);
 }
 
 void MockDigestIndexer::remove(const std::string& key)

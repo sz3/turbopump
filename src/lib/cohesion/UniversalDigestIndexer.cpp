@@ -9,9 +9,9 @@ UniversalDigestIndexer::UniversalDigestIndexer()
 	_tree.setId(id);
 }
 
-void UniversalDigestIndexer::add(const std::string& key)
+void UniversalDigestIndexer::update(const std::string& key, unsigned long long value)
 {
-	_tree.add(key);
+	_tree.update(key, value);
 }
 
 void UniversalDigestIndexer::remove(const string& key)

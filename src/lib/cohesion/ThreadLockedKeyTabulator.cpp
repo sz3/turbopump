@@ -9,9 +9,9 @@ ThreadLockedKeyTabulator::ThreadLockedKeyTabulator(IKeyTabulator& index, ISchedu
 {
 }
 
-void ThreadLockedKeyTabulator::add(const std::string& key, unsigned mirrors)
+void ThreadLockedKeyTabulator::update(const std::string& key, unsigned long long value, unsigned mirrors)
 {
-	_scheduler.schedule( bind(&IKeyTabulator::add, std::ref(_index), key, mirrors), 0 );
+	_scheduler.schedule( bind(&IKeyTabulator::update, std::ref(_index), key, value, mirrors), 0 );
 }
 
 void ThreadLockedKeyTabulator::remove(const std::string& key, unsigned mirrors)

@@ -9,7 +9,7 @@ class UniversalDigestIndexer : public IDigestIndexer
 public:
 	UniversalDigestIndexer();
 
-	void add(const std::string& key);
+	void update(const std::string& key, unsigned long long value);
 	void remove(const std::string& key);
 
 	void splitSection(const std::string& where);

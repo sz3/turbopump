@@ -4,9 +4,9 @@
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-void MockKeyTabulator::add(const std::string& key, unsigned mirrors)
+void MockKeyTabulator::update(const std::string& key, unsigned long long value, unsigned mirrors)
 {
-	_history.call("add", key, mirrors);
+	_history.call("update", key, value, mirrors);
 }
 
 void MockKeyTabulator::remove(const std::string& key, unsigned mirrors)

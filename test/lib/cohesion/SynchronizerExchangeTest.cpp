@@ -50,9 +50,9 @@ namespace
 			: _index(index)
 		{}
 
-		void healKey(const Peer& peer, unsigned long long key)
+		void healKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
 		{
-			_history.call("healKey", key);
+			_history.call("healKey", treeid.id, key);
 		}
 
 		void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const string& offloadFrom)
@@ -60,6 +60,12 @@ namespace
 			_history.call("pushKeyRange", treeid.id, first, last, offloadFrom);
 			deque<string> toPush = _index.find(treeid.id, treeid.mirrors).enumerate(first, last);
 			_corrected.insert(_corrected.end(), toPush.begin(), toPush.end());
+		}
+
+		bool sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
+		{
+			_history.call("sendKey", name, version, source);
+			return true;
 		}
 
 	public:
@@ -77,17 +83,17 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 	KeyTabulator indexOne(ring, membership);
 	KeyTabulator indexTwo(ring, membership);
 
-	indexOne.add("one0");
-	indexOne.add("one1");
-	indexOne.add("one2");
-	indexOne.add("one3");
-	indexOne.add("one4");
+	indexOne.update("one0", 0);
+	indexOne.update("one1", 0);
+	indexOne.update("one2", 0);
+	indexOne.update("one3", 0);
+	indexOne.update("one4", 0);
 
-	indexTwo.add("two0");
-	indexTwo.add("two1");
-	indexTwo.add("two2");
-	indexTwo.add("two3");
-	indexTwo.add("two4");
+	indexTwo.update("two0", 0);
+	indexTwo.update("two1", 0);
+	indexTwo.update("two2", 0);
+	indexTwo.update("two3", 0);
+	indexTwo.update("two4", 0);
 
 	// one0: 0001 0011 | 0110 1101 | 0100 1011 | 1101 0000 | 1011 0111 | 1101 0101 | 1110 1111 | 1101 0100
 	// one1: 0011 0001 | 0111 1011 | 1100 0001 | 0001 1101 | 1010 1110 | 0001 1111 | 0000 0111 | 1110 1010
@@ -133,7 +139,7 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	for (int i = 0; i < 100; ++i)
 	{
 		string id = StringUtil::str(i);
-		indexOne.add(id);
+		indexOne.update(id, 0);
 	}
 
 	//indexOne.print(2);
@@ -160,7 +166,7 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 
 	// set up trial two
 	for (deque<string>::const_iterator it = correctorOne._corrected.begin(); it != correctorOne._corrected.end(); ++it)
-		indexTwo.add(*it);
+		indexTwo.update(*it, 0);
 
 	correctorOne._corrected.clear();
 	correctorOne._history.clear();
@@ -175,7 +181,7 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	assertEquals( "", StringUtil::join(correctorTwo._corrected) );
 
 	for (deque<string>::const_iterator it = correctorOne._corrected.begin(); it != correctorOne._corrected.end(); ++it)
-		indexTwo.add(*it);
+		indexTwo.update(*it, 0);
 
 	deque<string> filesOne = indexOne.find("fooid").enumerate(0,~0ULL,100);
 	deque<string> filesTwo = indexTwo.find("fooid").enumerate(0,~0ULL,100);

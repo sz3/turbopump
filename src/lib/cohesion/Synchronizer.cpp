@@ -99,11 +99,14 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 			_messenger.requestKeyRange(peer, treeid, 0, ~0ULL);
 		else if (diff.location.keybits == 64)
 		{
-			//if (diff.location.key == point.location.key)
-			//	_corrector.healKey(peer, diff.location.key);
-
-			KeyRange range(point.location);
-			_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
+			// if keys are equal, we need to heal
+			if (diff.location.key == point.location.key)
+				_corrector.healKey(peer, treeid, diff.location.key);
+			else // if keys are not, we don't have the branch
+			{
+				KeyRange range(point.location);
+				_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
+			}
 		}
 		else
 		{

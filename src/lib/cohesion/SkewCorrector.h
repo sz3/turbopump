@@ -13,8 +13,9 @@ class SkewCorrector : public ICorrectSkew
 public:
 	SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender, ILog& logger);
 
-	void healKey(const Peer& peer, unsigned long long key);
+	void healKey(const Peer& peer, const TreeId& treeid, unsigned long long key);
 	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="");
+	bool sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source);
 
 protected:
 	const IKeyTabulator& _index;
