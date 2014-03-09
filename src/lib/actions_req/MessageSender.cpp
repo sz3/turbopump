@@ -51,6 +51,23 @@ void MessageSender::requestKeyRange(const Peer& peer, const TreeId& treeid, unsi
 	sendMessage(peer, msg.str());
 }
 
+void MessageSender::requestHealKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+{
+	std::stringstream msg;
+	msg << "heal-key|tree=" << treeid.id << " n=" << treeid.mirrors << " key=" << key << "|";
+	sendMessage(peer, msg.str());
+}
+
+void MessageSender::offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+{
+	sendMessage(peer, "offer-write|name=" + filename + " v=" + version + " source=" + source + "|");
+}
+
+void MessageSender::demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+{
+	sendMessage(peer, "demand-write|name=" + filename + " v=" + version + " source=" + source + "|");
+}
+
 void MessageSender::dropKey(const Peer& peer, const string& filename)
 {
 	sendMessage(peer, "drop|name=" + filename + "|");

@@ -17,6 +17,7 @@ public:
 
 	std::shared_ptr<DataEntry> find(const VectorClock& version) const;
 	std::vector< std::shared_ptr<DataEntry> > entries() const;
+	unsigned long long summary() const;
 
 protected:
 	unsigned clearLesser_unlocked(const VectorClock& version);

@@ -5,10 +5,13 @@ project(actions_test)
 set (SOURCES
 	test.cpp
 	AddPeerActionTest.cpp
+	DemandWriteActionTest.cpp
 	DropActionTest.cpp
+	HealKeyActionTest.cpp
 	KeyReqActionTest.cpp
 	LocalListActionTest.cpp
 	LocalWriteActionTest.cpp
+	OfferWriteActionTest.cpp
 	ReadActionTest.cpp
 	RemovePeerActionTest.cpp
 	SyncActionTest.cpp

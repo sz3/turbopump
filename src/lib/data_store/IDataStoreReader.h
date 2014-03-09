@@ -15,6 +15,6 @@ public:
 	virtual bool seek(unsigned long long offset) = 0;
 	virtual int read(IByteStream& out) = 0;
 
-	// this exists to expose access to the metadata... but there may be a better way to go about it
 	virtual const KeyMetadata& metadata() const = 0;
+	virtual unsigned long long summary() const = 0;
 };

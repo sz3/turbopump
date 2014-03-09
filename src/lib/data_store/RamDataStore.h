@@ -34,14 +34,16 @@ protected:
 	class Reader : public IDataStoreReader
 	{
 	public:
-		Reader(const std::shared_ptr<DataEntry>& data);
+		Reader(const std::shared_ptr<DataEntry>& data, unsigned long long summary=0);
 		const KeyMetadata& metadata() const;
+		unsigned long long summary() const;
 
 		bool seek(unsigned long long offset);
 		int read(IByteStream& out);
 
 	protected:
 		std::shared_ptr<DataEntry> _data;
+		unsigned long long _summary;
 		unsigned long long _offset;
 	};
 

@@ -116,6 +116,11 @@ const KeyMetadata& MockDataStore::Reader::metadata() const
 {
 	return _data.md;
 }
+
+unsigned long long MockDataStore::Reader::summary() const
+{
+	return 42;
+}
 /*
   </end child class>
 */

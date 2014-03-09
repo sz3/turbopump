@@ -4,7 +4,6 @@
 #include "DropAction.h"
 #include "actions/DropParams.h"
 #include "common/DataBuffer.h"
-#include "membership/Peer.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockLocateKeys.h"
 using std::map;

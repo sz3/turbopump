@@ -119,6 +119,36 @@ TEST_CASE( "RamDataStoreTest/testOverwrite", "[unit]" )
 	}
 }
 
+TEST_CASE( "RamDataStoreTest/testWrite.Summary", "[unit]" )
+{
+	TestableRamDataStore dataStore;
+
+	{
+		IDataStoreWriter::ptr writer = dataStore.write("foo", "1,first:1");
+		assertTrue( writer->write("012345", 6) );
+
+		IDataStoreReader::ptr reader = writer->commit();
+		assertTrue( reader );
+		assertEquals( "012345", dataStore._store["foo"].entries().front()->data );
+
+		assertEquals( reader->summary(), dataStore._store["foo"].summary() );
+		assertEquals( 15994994085745379211ULL, reader->summary() );
+	}
+
+	{
+		IDataStoreWriter::ptr writer = dataStore.write("foo", "1,second:1");
+		assertTrue( writer->write("abcde", 5) );
+
+		IDataStoreReader::ptr reader = writer->commit();
+		assertTrue( reader );
+		assertEquals( "012345", dataStore._store["foo"].entries().front()->data );
+		assertEquals( "abcde", dataStore._store["foo"].entries().back()->data );
+
+		assertEquals( reader->summary(), dataStore._store["foo"].summary() );
+		assertEquals( (15994994085745379211ULL xor 3401363377279187996ULL), reader->summary() );
+	}
+}
+
 TEST_CASE( "RamDataStoreTest/testRead", "[unit]" )
 {
 	MyMemberId("me");

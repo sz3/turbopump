@@ -3,6 +3,8 @@
 
 #include "common/MyMemberId.h"
 #include "common/VectorClock.h"
+#include "consistent_hashing/Hash.h"
+#include "serialize/StringUtil.h"
 using std::shared_ptr;
 using std::vector;
 
@@ -77,6 +79,18 @@ std::vector< std::shared_ptr<DataEntry> > DataChain::entries() const
 {
 	tbb::spin_rw_mutex::scoped_lock(_mutex, false);
 	return _entries;
+}
+
+unsigned long long DataChain::summary() const
+{
+	tbb::spin_rw_mutex::scoped_lock(_mutex, false);
+	unsigned long long sum = 0;
+	for (auto it = _entries.begin(); it != _entries.end(); ++it)
+	{
+		std::string str = StringUtil::str((*it)->data.size()) + (*it)->md.version.toString();
+		sum = sum xor Hash::compute(str).integer();
+	}
+	return sum;
 }
 
 // should already have lock

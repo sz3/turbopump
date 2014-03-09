@@ -34,7 +34,7 @@ namespace
 	{
 		return [&] (WriteParams params, IDataStoreReader::ptr contents)
 		{
-			keyTabulator.update(params.filename, 0, params.totalCopies);
+			keyTabulator.update(params.filename, contents->summary(), params.totalCopies);
 		};
 	}
 

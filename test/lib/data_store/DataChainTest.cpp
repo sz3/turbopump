@@ -3,6 +3,7 @@
 
 #include "DataChain.h"
 #include "common/MyMemberId.h"
+#include "consistent_hashing/Hash.h"
 #include "serialize/StringUtil.h"
 #include <sstream>
 #include <string>
@@ -408,4 +409,41 @@ TEST_CASE( "DataChainTest/testClearLesser.Most", "[unit]" )
 	version.increment("foo");
 	assertEquals( 1, chain.clearLesser_unlocked(version) );
 	assertEquals( 1, chain.entries().size() );
+}
+
+TEST_CASE( "DataChainTest/testSummary", "[unit]" )
+{
+	TestableDataChain chain;
+	chain._entries.push_back(makeEntry("foo"));
+	chain._entries.back()->data = "four";
+
+	{
+		VectorClock version;
+		version.increment("foo");
+		assertEquals( Hash::compute("4" + version.toString()).integer(), chain.summary() );
+	}
+
+	unsigned long long first = chain.summary();
+	chain._entries.push_back(makeEntry("bar"));
+
+	{
+		VectorClock version;
+		version.increment("bar");
+		assertEquals( (Hash::compute("0" + version.toString()).integer() xor first), chain.summary() );
+	}
+}
+
+TEST_CASE( "DataChainTest/testSummary.Transitive", "[unit]" )
+{
+	TestableDataChain one;
+	one._entries.push_back(makeEntry("foo"));
+	one._entries.push_back(makeEntry("bar"));
+	one._entries.push_back(makeEntry("foo", "bar", "bar"));
+
+	TestableDataChain two;
+	two._entries.push_back(makeEntry("foo", "bar", "bar"));
+	two._entries.push_back(makeEntry("bar"));
+	two._entries.push_back(makeEntry("foo"));
+
+	assertEquals( one.summary(), two.summary() );
 }

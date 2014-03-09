@@ -10,7 +10,9 @@
 #include "mock/MockLocateKeys.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
+#include "mock/MockMessageSender.h"
 #include "mock/MockPeerTracker.h"
+#include "mock/MockSkewCorrector.h"
 #include "mock/MockSynchronize.h"
 #include "programmable/TurboApi.h"
 #include "wan_server/PeerConnection.h"
@@ -34,13 +36,16 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
 	MockHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
+	MockMessageSender messenger;
 	MockLogger logger;
 	MockPeerTracker peers;
+	MockSkewCorrector corrector;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
+	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
 	PeerConnection conn;
+	conn.pushRecv(formatPacket(33, "garbage bad action lulz||"));
 	conn.pushRecv(formatPacket(33, "key-req|first=1 last=10|"));
 	conn.pushRecv(formatPacket(33, "key-req|first=2 last=20|"));
 	conn.pushRecv(formatPacket(33, "key-req|first=3 last=30|"));
@@ -58,11 +63,13 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ConcurrentFileWrite",
 	MockHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
+	MockMessageSender messenger;
 	MockLogger logger;
 	MockPeerTracker peers;
+	MockSkewCorrector corrector;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
+	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
 	PeerConnection conn;
 	conn.pushRecv(formatPacket(33, "write|name=foo|i am a file"));
@@ -85,11 +92,13 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ReuseOldVirtid", "def
 	MockHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
+	MockMessageSender messenger;
 	MockLogger logger;
 	MockPeerTracker peers;
+	MockSkewCorrector corrector;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
+	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
 	PeerConnection conn;
 	conn.pushRecv(formatPacket(33, "write|name=foo|i am a file"));
@@ -110,11 +119,13 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	MockHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
+	MockMessageSender messenger;
 	MockLogger logger;
 	MockPeerTracker peers;
+	MockSkewCorrector corrector;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
+	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
 	MockIpSocket sock;
 	sock._target = IpAddress("1.2.3.4", 10);
@@ -142,11 +153,13 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	MockHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
+	MockMessageSender messenger;
 	MockLogger logger;
 	MockPeerTracker peers;
+	MockSkewCorrector corrector;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, dataStore, ring, locator, membership, peers, sync, logger, callbacks);
+	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
 	MockIpSocket sock;
 	sock._target = IpAddress("1.2.3.4", 10);
@@ -171,11 +184,13 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	MockHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
+	MockMessageSender messenger;
 	MockLogger logger;
 	MockPeerTracker peers;
+	MockSkewCorrector corrector;
 	MockSynchronize sync;
 	TurboApi callbacks;
-	WanPacketHandler handler(executor, dataStore, ring, membership, peers, sync, logger, callbacks);
+	WanPacketHandler handler(executor, corrector, dataStore, ring, membership, messenger, peers, sync, logger, callbacks);
 
 	MockIpSocket sock;
 	sock._target = IpAddress("1.2.3.4", 10);

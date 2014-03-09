@@ -4,9 +4,10 @@
 #include "IKeyTabulator.h"
 #include "IDigestKeys.h"
 #include "actions/WriteParams.h"
+#include "actions_req/IMessageSender.h"
 #include "actions_req/IWriteActionSender.h"
 #include "cohesion/TreeId.h"
-#include "data_store/DataEntry.h"
+#include "common/KeyMetadata.h"
 #include "data_store/IDataStore.h"
 #include "logging/ILog.h"
 #include "membership/Peer.h"
@@ -17,14 +18,16 @@
 #include <iostream>
 using std::string;
 
-SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IWriteActionSender& sender, ILog& logger)
+SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IMessageSender& messenger, IWriteActionSender& sender, ILog& logger)
 	: _index(index)
 	, _store(store)
+	, _messenger(messenger)
 	, _sender(sender)
 	, _logger(logger)
 {
 }
 
+// test this!
 void SkewCorrector::healKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
 {
 	const IDigestKeys& tree = _index.find(treeid.id, treeid.mirrors);
@@ -37,11 +40,16 @@ void SkewCorrector::healKey(const Peer& peer, const TreeId& treeid, unsigned lon
 		return;
 	}
 
-	// instead of pushing, we initiate the exchange:
-	// me: write proposal action
-	// peer: write proposal response action (accept write / reject write)
+	// we initiate the exchange:
+	// me: propose write action
+	// peer: response -> demand write action
 	// me: write / don't
-
+	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
+	{
+		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);
+		for (auto read = readers.begin(); read != readers.end(); ++read)
+			_messenger.offerWrite(peer, *it, (*read)->metadata().version.toString(), "");
+	}
 }
 
 void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
@@ -83,7 +91,7 @@ bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std
 
 	if (!_sender.store(peer, write, reader))
 	{
-		std::cout << "uh oh, sendKey is having trouble" << std::endl;
+		_logger.logError("sendKey failed to store file [" + name + "," + version + "] to peer " + peer.uid);
 		return false; // TODO: last error?
 	}
 	return true;

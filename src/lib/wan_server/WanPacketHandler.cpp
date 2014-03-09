@@ -5,10 +5,13 @@
 #include "PacketParser.h"
 #include "PeerConnection.h"
 #include "VirtualConnection.h"
+#include "actions/DemandWriteAction.h"
 #include "actions/DropAction.h"
+#include "actions/HealKeyAction.h"
 #include "actions/KeyReqAction.h"
-#include "actions/SyncAction.h"
+#include "actions/OfferWriteAction.h"
 #include "actions/ReadAction.h"
+#include "actions/SyncAction.h"
 #include "actions/WriteAction.h"
 
 #include "common/ActionParser.h"
@@ -30,12 +33,16 @@
 using std::string;
 using std::shared_ptr;
 
-WanPacketHandler::WanPacketHandler(IExecutor& executor, IDataStore& dataStore, const IHashRing& ring, const ILocateKeys& locator, const IMembership& membership, IPeerTracker& peers, ISynchronize& sync, ILog& logger, const TurboApi& callbacks)
+WanPacketHandler::WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector, IDataStore& dataStore, const IHashRing& ring, const ILocateKeys& locator,
+								   const IMembership& membership, IMessageSender& messenger, IPeerTracker& peers, ISynchronize& sync,
+								   ILog& logger, const TurboApi& callbacks)
 	: _executor(executor)
+	, _corrector(corrector)
 	, _dataStore(dataStore)
 	, _ring(ring)
 	, _locator(locator)
 	, _membership(membership)
+	, _messenger(messenger)
 	, _peers(peers)
 	, _sync(sync)
 	, _logger(logger)
@@ -128,6 +135,8 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 				{
 					_logger.logTrace("received action '" + buffer + "' from " + peer.uid + ". virt " + StringUtil::str((unsigned)virtid) + ", action = " + parser.action());
 					action = newAction(peer, parser.action(), parser.params());
+					if (!action)
+						continue;
 					if (action->multiPacket())
 					{
 						//std::cout << "action is multipacket! " << action->name() << std::endl;
@@ -167,6 +176,12 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 		action.reset(new SyncAction(peer, _sync));
 	else if (cmdname == "key-req")
 		action.reset(new KeyReqAction(peer, _sync));
+	else if (cmdname == "heal-key")
+		action.reset(new HealKeyAction(peer, _corrector));
+	else if (cmdname == "offer-write")
+		action.reset(new OfferWriteAction(peer, _dataStore, _messenger));
+	else if (cmdname == "demand-write")
+		action.reset(new DemandWriteAction(peer, _corrector));
 	//else if (cmdname == "ip")
 		//action.reset(new IpUpdateAction());
 	else

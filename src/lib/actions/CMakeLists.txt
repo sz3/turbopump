@@ -3,9 +3,13 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	AddPeerAction.cpp
 	AddPeerAction.h
+	DemandWriteAction.cpp
+	DemandWriteAction.h
 	DropAction.cpp
 	DropAction.h
 	DropParams.h
+	HealKeyAction.cpp
+	HealKeyAction.h
 	IAction.h
 	KeyReqAction.cpp
 	KeyReqAction.h
@@ -15,14 +19,16 @@ set(SOURCES
 	LocalStateAction.h
 	LocalWriteAction.cpp
 	LocalWriteAction.h
-	SyncAction.cpp
-	SyncAction.h
 	MessageAction.cpp
 	MessageAction.h
+	OfferWriteAction.cpp
+	OfferWriteAction.h
 	ReadAction.cpp
 	ReadAction.h
 	RemovePeerAction.cpp
 	RemovePeerAction.h
+	SyncAction.cpp
+	SyncAction.h
 	ViewHashRingAction.cpp
 	ViewHashRingAction.h
 	ViewMembershipAction.cpp

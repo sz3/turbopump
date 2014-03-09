@@ -80,7 +80,7 @@ IDataStoreReader::ptr RamDataStore::commit(Writer& writer)
 		chain.storeAsBestVersion(data);
 	else
 		chain.store(data);
-	return IDataStoreReader::ptr(new Reader(data));
+	return IDataStoreReader::ptr(new Reader(data, chain.summary()));
 }
 
 std::vector< shared_ptr<IDataStoreReader> > RamDataStore::read(const string& filename) const
@@ -119,8 +119,9 @@ shared_ptr<IDataStoreReader> RamDataStore::read(const string& filename, const st
   **********************************************
 */
 
-RamDataStore::Reader::Reader(const std::shared_ptr<DataEntry>& data)
+RamDataStore::Reader::Reader(const std::shared_ptr<DataEntry>& data, unsigned long long summary)
 	: _data(data)
+	, _summary(summary)
 	, _offset(0)
 {
 }
@@ -150,6 +151,11 @@ int RamDataStore::Reader::read(IByteStream& out)
 const KeyMetadata& RamDataStore::Reader::metadata() const
 {
 	return _data->md;
+}
+
+unsigned long long RamDataStore::Reader::summary() const
+{
+	return _summary;
 }
 /*
   </end child class>

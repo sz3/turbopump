@@ -35,6 +35,18 @@ namespace
 			_other->pushKeyRange(peer, treeid, first, last);
 		}
 
+		void requestHealKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+		{
+		}
+
+		void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+		{
+		}
+
+		void demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+		{
+		}
+
 		void dropKey(const Peer& peer, const std::string& filename)
 		{
 		}

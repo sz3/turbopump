@@ -72,7 +72,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	// tell 3 to join
 	response = CommandLine::run("echo 'add_peer|uid=9001 ip=127.0.0.1:9001|' | nc -U " + three.dataChannel());
 	// membership changes should propagate to all members
-	waitFor(30, expectedMembers + " != " + response, [&]()
+	waitFor(60, expectedMembers + " != " + response, [&]()
 	{
 		response = three.query("membership");
 		return expectedMembers == response;
@@ -85,7 +85,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 
 	// and keys should propagate to three
 	expected = StringUtil::join(fileList, '\n');
-	waitFor(60, expected + " != " + response, [&]()
+	waitFor(100, expected + " != " + response, [&]()
 	{
 		response = three.local_list();
 		return expected == response;

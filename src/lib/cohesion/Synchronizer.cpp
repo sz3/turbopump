@@ -101,7 +101,11 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 		{
 			// if keys are equal, we need to heal
 			if (diff.location.key == point.location.key)
+			{
+				// send healKey packet to trigger complement check
+				_messenger.requestHealKey(peer, treeid, diff.location.key);
 				_corrector.healKey(peer, treeid, diff.location.key);
+			}
 			else // if keys are not, we don't have the branch
 			{
 				KeyRange range(point.location);

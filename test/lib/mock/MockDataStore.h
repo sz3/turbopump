@@ -32,6 +32,7 @@ public:
 	public:
 		Reader(const std::string& data);
 		const KeyMetadata& metadata() const;
+		unsigned long long summary() const;
 
 		bool seek(unsigned long long offset);
 		int read(IByteStream& out);

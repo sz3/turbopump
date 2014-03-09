@@ -25,6 +25,21 @@ void MockMessageSender::requestKeyRange(const Peer& peer, const TreeId& treeid, 
 	_history.call("requestKeyRange", peer.uid, treeid.id, first, last);
 }
 
+void MockMessageSender::requestHealKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+{
+	_history.call("requestHealKey", peer.uid, treeid.id, key);
+}
+
+void MockMessageSender::offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+{
+	_history.call("offerWrite", peer.uid, filename, version, source);
+}
+
+void MockMessageSender::demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+{
+	_history.call("demandWrite", peer.uid, filename, version, source);
+}
+
 void MockMessageSender::dropKey(const Peer& peer, const std::string& filename)
 {
 	_history.call("dropKey", peer.uid, filename);
