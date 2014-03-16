@@ -19,13 +19,6 @@ std::shared_ptr<IDataStoreWriter> RamDataStore::write(const string& filename)
 	return IDataStoreWriter::ptr(new Writer(filename, *this));
 }
 
-std::shared_ptr<IDataStoreWriter> RamDataStore::write(const string& filename, const string& version)
-{
-	Writer* writer = new Writer(filename, *this);
-	writer->setVersion(version);
-	return IDataStoreWriter::ptr(writer);
-}
-
 /*
   ******************************************
   R a m  D a t a  S t o r e  ::  W r i t e r
@@ -46,11 +39,6 @@ bool RamDataStore::Writer::write(const char* buffer, unsigned size)
 IDataStoreReader::ptr RamDataStore::Writer::commit()
 {
 	return _store.commit(*this);
-}
-
-void RamDataStore::Writer::setVersion(const std::string& version)
-{
-	_data.md.version.fromString(version);
 }
 
 std::string&& RamDataStore::Writer::move_filename()

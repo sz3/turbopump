@@ -18,7 +18,6 @@ public:
 	virtual ~IDataStore() {}
 
 	virtual std::shared_ptr<IDataStoreWriter> write(const std::string& filename) = 0;
-	virtual std::shared_ptr<IDataStoreWriter> write(const std::string& filename, const std::string& version) = 0;
 	virtual std::vector< std::shared_ptr<IDataStoreReader> > read(const std::string& filename) const = 0;
 	virtual std::shared_ptr<IDataStoreReader> read(const std::string& filename, const std::string& version) const = 0;
 	virtual bool drop(const std::string& filename) = 0;

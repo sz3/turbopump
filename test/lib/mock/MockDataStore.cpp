@@ -10,11 +10,6 @@ std::shared_ptr<IDataStoreWriter> MockDataStore::write(const string& filename)
 	return IDataStoreWriter::ptr(new Writer(filename, *this));
 }
 
-std::shared_ptr<IDataStoreWriter> MockDataStore::write(const string& filename, const string& version)
-{
-	return IDataStoreWriter::ptr(new Writer(filename, *this));
-}
-
 /*
   ******************************************
   M o c k  D a t a  S t o r e  ::  W r i t e r

@@ -3,9 +3,6 @@
 
 #include "IAction.h"
 
-class IHashRing;
-class IMembership;
-class IKeyTabulator;
 #include <memory>
 
 class AddPeerAction : public IAction

@@ -10,7 +10,87 @@
 #include <algorithm>
 using std::string;
 
+
 TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
+{
+	TurboRunner one(9001, "--udp");
+	one.start();
+	assertTrue( one.waitForRunning() );
+
+	std::vector<string> fileList;
+	fileList.push_back("(.membership/9001)=>14|1,9001:1");
+
+	string expected = StringUtil::join(fileList, '\n');
+	string response;
+	waitFor(5, expected + " != " + response, [&]()
+	{
+		response = one.local_list("all=true");
+		return expected == response;
+	});
+
+	std::cerr << "starting worker two" << std::endl;
+
+	TurboRunner two(9002, "--udp");
+	two.start();
+	assertTrue( two.waitForRunning() );
+
+	response = CommandLine::run("echo 'add_peer|uid=9002 ip=127.0.0.1:9002|' | nc -U " + one.dataChannel());
+	response = one.query("membership");
+	assertEquals( "9001 127.0.0.1:9001\n"
+				  "9002 127.0.0.1:9002", response );
+
+	response = CommandLine::run("echo 'add_peer|uid=9001 ip=127.0.0.1:9001|' | nc -U " + two.dataChannel());
+	response = two.query("membership");
+	assertEquals( "9001 127.0.0.1:9001\n"
+				  "9002 127.0.0.1:9002", response );
+
+	// test for member keys
+	fileList.push_back("(.membership/9002)=>14|1,9002:1");
+	expected = StringUtil::join(fileList, '\n');
+	waitFor(20, expected + " != " + response, [&]()
+	{
+		response = two.local_list("all=true");
+		return expected == response;
+	});
+
+	std::cerr << "starting worker three" << std::endl;
+
+	TurboRunner three(9003, "--udp");
+	three.start();
+	assertTrue( three.waitForRunning() );
+
+	response = CommandLine::run("echo 'add_peer|uid=9003 ip=127.0.0.1:9003|' | nc -U " + one.dataChannel());
+	string expectedMembers = "9001 127.0.0.1:9001\n"
+							 "9002 127.0.0.1:9002\n"
+							 "9003 127.0.0.1:9003";
+	response = one.query("membership");
+	assertEquals( expectedMembers, response );
+
+	// tell 3 to join
+	response = CommandLine::run("echo 'add_peer|uid=9001 ip=127.0.0.1:9001|' | nc -U " + three.dataChannel());
+	// membership changes should propagate to all members
+	waitFor(60, expectedMembers + " != " + response, [&]()
+	{
+		response = three.query("membership");
+		return expectedMembers == response;
+	});
+	waitFor(30, expectedMembers + " != " + response, [&]()
+	{
+		response = two.query("membership");
+		return expectedMembers == response;
+	});
+
+	// test for member keys
+	fileList.push_back("(.membership/9003)=>14|1,9003:1");
+	expected = StringUtil::join(fileList, '\n');
+	waitFor(100, expected + " != " + response, [&]()
+	{
+		response = three.local_list("all=true");
+		return expected == response;
+	});
+}
+
+TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 {
 	TurboRunner one(9001, "--udp");
 	one.start();
@@ -77,7 +157,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 		response = three.query("membership");
 		return expectedMembers == response;
 	});
-	waitFor(30, expectedMembers + " != " + response, [&]()
+	waitFor(60, expectedMembers + " != " + response, [&]()
 	{
 		response = two.query("membership");
 		return expectedMembers == response;

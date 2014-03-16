@@ -106,8 +106,6 @@ void WriteAction::setParams(const map<string,string>& params)
 // virtual method. See LocalWriteAction::open() for an alternate take
 IDataStoreWriter::ptr WriteAction::open(const WriteParams& params)
 {
-	// if !params.version.empty()
-	// return _dataStore.write(params.filename, params.version);
 	return _dataStore.write(params.filename);
 }
 

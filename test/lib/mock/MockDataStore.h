@@ -47,7 +47,6 @@ protected:
 
 public:
 	std::shared_ptr<IDataStoreWriter> write(const std::string& filename);
-	std::shared_ptr<IDataStoreWriter> write(const std::string& filename, const std::string& version);
 	std::vector< std::shared_ptr<IDataStoreReader> > read(const std::string& filename) const;
 	std::shared_ptr<IDataStoreReader> read(const std::string& filename, const std::string& version) const;
 	bool drop(const std::string& filename);

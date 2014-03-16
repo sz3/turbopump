@@ -1,11 +1,9 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "AddPeerAction.h"
 
-#include "cohesion/IKeyTabulator.h"
 #include "common/DataBuffer.h"
 #include "common/turbopump_defaults.h"
-#include "consistent_hashing/IHashRing.h"
-#include "membership/IMembership.h"
+#include "common/VectorClock.h"
 using std::map;
 using std::string;
 
@@ -21,9 +19,13 @@ std::string AddPeerAction::name() const
 
 bool AddPeerAction::run(const DataBuffer& data)
 {
+	VectorClock version;
+	version.increment(_uid);
+
 	map<string,string> params;
 	params["name"] = MEMBERSHIP_FILE_PREFIX + _uid;
 	params["n"] = "0";
+	params["v"] = version.toString();
 	_writeAction->setParams(params);
 
 	DataBuffer buff(_ip.data(), _ip.size());

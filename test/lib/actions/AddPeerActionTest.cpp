@@ -22,5 +22,5 @@ TEST_CASE( "AddPeerActionTest/testAdd", "[unit]" )
 
 	assertTrue( action.run(DataBuffer::Null()) );
 
-	assertEquals( "setParams(n=0 name=.membership/fooid)|run(localhost:9001)", mockWriter._history.calls() );
+	assertEquals( "setParams(n=0 name=.membership/fooid v=1,fooid:1)|run(localhost:9001)", mockWriter._history.calls() );
 }

@@ -53,14 +53,14 @@ void TurboRunner::stop()
 	int res = system(command.c_str());
 }
 
-std::string TurboRunner::query(std::string action) const
+std::string TurboRunner::query(std::string action, std::string params) const
 {
-	return CommandLine::run("echo '" + action + "||' | nc -U " + dataChannel());
+	return CommandLine::run("echo '" + action + "|" + params + "|' | nc -U " + dataChannel());
 }
 
-std::string TurboRunner::local_list() const
+std::string TurboRunner::local_list(std::string params) const
 {
-	string response = query("local_list");
+	string response = query("local_list", params);
 	vector<string> files = StringUtil::split(response, '\n');
 	std::sort(files.begin(), files.end());
 	return StringUtil::join(files, '\n');

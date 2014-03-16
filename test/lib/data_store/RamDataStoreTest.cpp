@@ -124,8 +124,9 @@ TEST_CASE( "RamDataStoreTest/testWrite.Summary", "[unit]" )
 	TestableRamDataStore dataStore;
 
 	{
-		IDataStoreWriter::ptr writer = dataStore.write("foo", "1,first:1");
+		IDataStoreWriter::ptr writer = dataStore.write("foo");
 		assertTrue( writer->write("012345", 6) );
+		writer->metadata().version.fromString("1,first:1");
 
 		IDataStoreReader::ptr reader = writer->commit();
 		assertTrue( reader );
@@ -136,8 +137,9 @@ TEST_CASE( "RamDataStoreTest/testWrite.Summary", "[unit]" )
 	}
 
 	{
-		IDataStoreWriter::ptr writer = dataStore.write("foo", "1,second:1");
+		IDataStoreWriter::ptr writer = dataStore.write("foo");
 		assertTrue( writer->write("abcde", 5) );
+		writer->metadata().version.fromString("1,second:1");
 
 		IDataStoreReader::ptr reader = writer->commit();
 		assertTrue( reader );
