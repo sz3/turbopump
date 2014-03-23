@@ -69,7 +69,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	// tell 3 to join
 	response = CommandLine::run("echo 'add_peer|uid=9001 ip=127.0.0.1:9001|' | nc -U " + three.dataChannel());
 	// membership changes should propagate to all members
-	waitFor(60, expectedMembers + " != " + response, [&]()
+	waitFor(30, expectedMembers + " != " + response, [&]()
 	{
 		response = three.query("membership");
 		return expectedMembers == response;

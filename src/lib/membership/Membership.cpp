@@ -3,6 +3,7 @@
 
 #include "Peer.h"
 #include "common/turbopump_defaults.h"
+#include "common/KeyMetadata.h"
 #include "common/MyMemberId.h"
 #include "data_store/IDataStore.h"
 #include "data_store/IDataStoreWriter.h"
@@ -164,11 +165,14 @@ void Membership::forEachPeer(std::function<void(const Peer&)> fun) const
 
 void Membership::syncToDataStore(IDataStore& store) const
 {
+	// TODO: this doesn't address the KeyTabulator!!
+	// crap is gonna be weird as a result.
 	auto fun = [&store] (const Peer& peer)
 	{
 		IDataStoreWriter::ptr writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid);
 		string data = peer.address();
 		writer->write(data.data(), data.size());
+		writer->metadata().totalCopies = 0;
 		writer->commit();
 	};
 	forEachPeer(fun);

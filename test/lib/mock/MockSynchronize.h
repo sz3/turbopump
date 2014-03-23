@@ -7,7 +7,7 @@
 class MockSynchronize : public ISynchronize
 {
 public:
-	 void compare(const Peer& peer, const TreeId& tree, const MerklePoint& point);
+	 void compare(const Peer& peer, const TreeId& tree, const MerklePoint& point, bool isSyncResponse);
 	 void pushKeyRange(const Peer& peer, const TreeId& tree, unsigned long long first, unsigned long long last);
 
 public:

@@ -16,7 +16,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _keyTabulator(_ring, _membership)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
 	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeActionSender, _logger)
-	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector)
+	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
 	, _messenger(_peers)
 	, _writeActionSender(_peers)
 	, _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())

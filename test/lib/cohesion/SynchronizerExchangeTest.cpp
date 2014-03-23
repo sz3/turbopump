@@ -9,6 +9,7 @@
 #include "actions_req/IMessageSender.h"
 #include "membership/Peer.h"
 #include "mock/MockHashRing.h"
+#include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
 #include "serialize/StringUtil.h"
 using std::deque;
@@ -26,8 +27,8 @@ namespace
 
 		void digestPing(const Peer& peer, const TreeId& treeid, const deque<MerklePoint>& points)
 		{
-			for (deque<MerklePoint>::const_iterator it = points.begin(); it != points.end(); ++it)
-				_other->compare(peer, treeid, *it);
+			for (unsigned i = 0; i < points.size(); ++i)
+				_other->compare(peer, treeid, points[i], i >= 2);
 		}
 
 		void requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last)
@@ -126,8 +127,9 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 	TestMessageSender senderTwo;
 	TestSkewCorrector correctorTwo(indexTwo);
 
-	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne);
-	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo);
+	MockLogger logger;
+	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne, logger);
+	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo, logger);
 
 	senderOne._other = &two;
 	senderTwo._other = &one;
@@ -136,8 +138,10 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 
 	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
-	assertEquals( "one0 one1 one2", StringUtil::join(correctorOne._corrected) );
-	assertEquals( "two3 two2 two4 two1", StringUtil::join(correctorTwo._corrected) );
+
+	// since we're not fixing anything, some keys are duplicated...
+	assertEquals( "one0 one1 one2 one3 one4 one3 one4", StringUtil::join(correctorOne._corrected) );
+	assertEquals( "two3 two2 two4 two1 two0 two3 two2 two4 two1", StringUtil::join(correctorTwo._corrected) );
 }
 
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]" )
@@ -161,8 +165,9 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	TestMessageSender senderTwo;
 	TestSkewCorrector correctorTwo(indexTwo);
 
-	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne);
-	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo);
+	MockLogger logger;
+	Synchronizer one(ring, membership, indexOne, senderOne, correctorOne, logger);
+	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo, logger);
 
 	senderOne._other = &two;
 	senderTwo._other = &one;

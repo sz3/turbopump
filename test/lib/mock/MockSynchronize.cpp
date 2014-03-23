@@ -5,9 +5,9 @@
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 
-void MockSynchronize::compare(const Peer& peer, const TreeId& tree, const MerklePoint& point)
+void MockSynchronize::compare(const Peer& peer, const TreeId& tree, const MerklePoint& point, bool isSyncResponse)
 {
-	_history.call("compare", peer.uid, tree.id, tree.mirrors, MerklePointSerializer::toString(point));
+	_history.call("compare", peer.uid, tree.id, tree.mirrors, MerklePointSerializer::toString(point), isSyncResponse);
 }
 
 void MockSynchronize::pushKeyRange(const Peer& peer, const TreeId& tree, unsigned long long first, unsigned long long last)

@@ -104,12 +104,17 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 
 	//std::cout << "   WanPacketHandler::doWork(" << std::this_thread::get_id() << ") for " << peer->uid << std::endl;
 
-	processPendingBuffers(*peer, *conn);
-	conn->end_processing();
+	do {
+		processPendingBuffers(*peer, *conn);
+		conn->end_processing();
+	}
+	while (!conn->empty() && conn->begin_processing());
 }
 
 void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& conn)
 {
+	_logger.logTrace("beginning processing for " + peer.uid);
+
 	string buffer;
 	while (conn.popRecv(buffer))
 	{
@@ -156,10 +161,11 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 					break;
 				}
 			}
-			//std::cout << "received packet '" << buffer << "' from " << peer.uid << ". Calling " << action->name() << std::endl;
+			//_logger.logDebug("received packet '" + buff.str() + "' from " + peer.uid + ". Calling " + action->name());
 			action->run(buff);
 		}
 	}
+	_logger.logTrace("ending processing for " + peer.uid);
 }
 
 std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const string& cmdname, const std::map<string,string>& params)

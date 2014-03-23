@@ -8,6 +8,7 @@
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
 #include "mock/MockKeyTabulator.h"
+#include "mock/MockLogger.h"
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
 #include "wan_server/PeerConnection.h"
@@ -37,8 +38,9 @@ TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 	index._tree._id = TreeId("oak", 2);
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.pingRandomPeer();
 
 	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
@@ -60,8 +62,9 @@ TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 	index._tree._id = TreeId("oak", 2);
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.pingRandomPeer();
 
 	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
@@ -83,8 +86,9 @@ TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
 	index._tree._id = TreeId("oak", 2);
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.offloadUnwantedKeys();
 
 	assertEquals( "unwantedTree()", index._history.calls() );
@@ -102,8 +106,9 @@ TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 	index._tree._top = whatsThePoint(10);
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak",4), MerklePoint::null());
 
 	assertEquals( "find(oak,4)", index._history.calls() );
@@ -120,10 +125,11 @@ TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
 	index._tree._diff.push_back( MerklePoint::null() );
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
 
 	assertEquals( "find(oak,3)", index._history.calls() );
@@ -141,8 +147,9 @@ TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 	index._tree._empty = true;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), MerklePoint::null());
 
 	assertEquals( "find(oak,3)", index._history.calls() );
@@ -159,8 +166,9 @@ TEST_CASE( "SynchronizerTest/testCompare.Same", "default" )
 	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
 
 	assertEquals( "find(oak,3)", index._history.calls() );
@@ -177,10 +185,11 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
 	index._tree._diff.push_back( whatsThePoint(10) );
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
 
 	assertEquals( "find(oak,3)", index._history.calls() );
@@ -197,10 +206,11 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey", "default" )
 	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
 	index._tree._diff.push_back( whatsThePoint(64) );
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(64));
 
 	assertEquals( "find(oak,3)", index._history.calls() );
@@ -217,10 +227,11 @@ TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
 	index._tree._diff.push_back( whatsThePoint(32) );
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
 
 	assertEquals( "find(oak,3)", index._history.calls() );
@@ -237,12 +248,36 @@ TEST_CASE( "SynchronizerTest/testCompare.Climb", "default" )
 	MockKeyTabulator index;
 	MockMessageSender messenger;
 	MockSkewCorrector corrector;
+	MockLogger logger;
 
 	index._tree._diff.push_back( whatsThePoint(1) );
 	index._tree._diff.push_back( whatsThePoint(2) );
 
-	Synchronizer sinkro(ring, membership, index, messenger, corrector);
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
+
+	assertEquals( "find(oak,3)", index._history.calls() );
+	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
+	assertEquals( "", corrector._history.calls() );
+	assertEquals( "digestPing(fooid,oak,1 1 10|2 2 20)", messenger._history.calls() );
+	assertEquals( "", membership._history.calls() );
+}
+
+TEST_CASE( "SynchronizerTest/testCompare.Climb.isSyncResponse", "default" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	MockKeyTabulator index;
+	MockMessageSender messenger;
+	MockSkewCorrector corrector;
+	MockLogger logger;
+
+	index._tree._diff.push_back( whatsThePoint(1) );
+	index._tree._diff.push_back( whatsThePoint(2) );
+	index._tree._diff.push_back( whatsThePoint(3) ); // should be discarded
+
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
+	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10), true);
 
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "diff(10 10 100)", index._tree._history.calls() );

@@ -17,7 +17,7 @@
 
 bool PeerConnection::begin_processing()
 {
-	return !_incoming.empty() && !_processing.test_and_set();
+	return !_processing.test_and_set();
 }
 
 void PeerConnection::end_processing()

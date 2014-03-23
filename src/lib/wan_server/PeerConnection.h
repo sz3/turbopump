@@ -31,7 +31,7 @@ public:
 	std::shared_ptr<IAction> action(unsigned char vid);
 
 protected:
-	std::atomic_flag _processing;
+	std::atomic_flag _processing = ATOMIC_FLAG_INIT;
 	tbb::concurrent_queue<std::string> _incoming;
 	std::array<std::shared_ptr<VirtualConnection>,256> _virts;
 };

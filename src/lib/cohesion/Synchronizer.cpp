@@ -10,19 +10,21 @@
 #include "cohesion/TreeId.h"
 #include "common/MerklePoint.h"
 #include "consistent_hashing/IHashRing.h"
+#include "logging/ILog.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 #include <deque>
-#include <iostream>
+#include <sstream>
 using std::shared_ptr;
 using std::string;
 
-Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector)
+Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector, ILog& logger)
 	: _ring(ring)
 	, _membership(membership)
 	, _index(index)
 	, _messenger(messenger)
 	, _corrector(corrector)
+	, _logger(logger)
 {
 }
 
@@ -34,6 +36,8 @@ void Synchronizer::pingRandomPeer()
 	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
 	if (!peer)
 		return;
+
+	_logger.logTrace("pingRandomPeer to " + peer->uid);
 	_messenger.digestPing(*peer, tree.id(), tree.top());
 }
 
@@ -56,8 +60,10 @@ void Synchronizer::offloadUnwantedKeys()
 	_corrector.pushKeyRange(*peer, tree.id(), 0, ~0ULL, _membership.self()->uid);
 }
 
-void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
+void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point, bool isSyncResponse)
 {
+	_logger.logTrace("Synchronizer compare from " + peer.uid);
+
 	// TODO: do we need to sanity check treeid against the _ring or _index to make sure we care?
 	const IDigestKeys& tree = _index.find(treeid.id, treeid.mirrors);
 	if (point == MerklePoint::null())
@@ -69,10 +75,12 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 	}
 
 	std::deque<MerklePoint> diffs = tree.diff(point);
-	/*std::cout << " Synchronizer compare. Point is " << MerklePointSerializer::toString(point) << ". Diffs are : ";
+
+	/*std::stringstream ss;
+	ss << " Synchronizer compare from " << peer.uid << " on tree " << treeid.id << ":" << treeid.mirrors << ". Point is " << MerklePointSerializer::toString(point) << ". Diffs are : ";
 	for (auto it = diffs.begin(); it != diffs.end(); ++it)
-		std::cout << MerklePointSerializer::toString(*it) << " , ";
-	std::cout << std::endl;*/
+		ss << MerklePointSerializer::toString(*it) << " , ";
+	_logger.logDebug(ss.str());*/
 
 	// 0 == no diff
 	if (diffs.empty())
@@ -119,8 +127,11 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 		}
 	}
 
-	else if (diffs.size() >= 2)
+	else //if (diffs.size() >= 2)
 	{
+		if (isSyncResponse)
+			diffs.pop_back();
+
 		// respond!
 		_messenger.digestPing(peer, treeid, diffs);
 	}

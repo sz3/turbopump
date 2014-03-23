@@ -5,7 +5,6 @@
 #include "common/DataBuffer.h"
 #include "common/MerklePoint.h"
 #include "serialize/StringUtil.h"
-
 using std::map;
 using std::string;
 using std::vector;
@@ -37,13 +36,13 @@ std::string SyncAction::name() const
 bool SyncAction::run(const DataBuffer& data)
 {
 	vector<string> points = StringUtil::split(data.str(), '|');
-	for (vector<string>::const_iterator it = points.begin(); it != points.end(); ++it)
+	for (unsigned i = 0; i < points.size(); ++i)
 	{
 		MerklePoint point;
-		if (!MerklePointSerializer::fromString(point, *it))
+		if (!MerklePointSerializer::fromString(point, points[i]))
 			return false;
 
-		_sync.compare(_peer, _tree, point);
+		_sync.compare(_peer, _tree, point, i >= 2);
 	}
 	return true;
 }

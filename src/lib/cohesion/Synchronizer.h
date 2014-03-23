@@ -7,16 +7,17 @@ class ICorrectSkew;
 class IHashRing;
 class IMembership;
 class IKeyTabulator;
+class ILog;
 class IMessageSender;
 
 class Synchronizer : public ISynchronize
 {
 public:
-	Synchronizer(const IHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector);
+	Synchronizer(const IHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector, ILog& logger);
 
 	void pingRandomPeer();
 	void offloadUnwantedKeys();
-	void compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point);
+	void compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point, bool isSyncResponse=false);
 	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last);
 
 protected:
@@ -25,4 +26,5 @@ protected:
 	const IKeyTabulator& _index;
 	IMessageSender& _messenger;
 	ICorrectSkew& _corrector;
+	ILog& _logger;
 };
