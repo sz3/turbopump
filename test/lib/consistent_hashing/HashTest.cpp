@@ -14,7 +14,6 @@ TEST_CASE( "HashTest/testFromBytes", "[unit]" )
 
 	Hash hash(bytes);
 	assertEquals( 0x0706050403020100, hash.integer() );
-	assertEquals( 0x03020100, hash.sizet() );
 
 	string result = hash.bytes();
 	for (int i = 0; i < 16; ++i)

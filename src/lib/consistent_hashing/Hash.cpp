@@ -44,8 +44,3 @@ unsigned long long Hash::integer() const
 
 	return *(unsigned long long*)_hash.data();
 }
-
-size_t Hash::sizet() const
-{
-	return *(size_t*)_hash.data();
-}

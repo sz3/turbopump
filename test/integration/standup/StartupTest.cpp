@@ -2,11 +2,13 @@
 #include "unittest.h"
 
 #include "actions/WriteParams.h"
+#include "integration/TurboRunner.h"
 #include "main/TurboPumpApp.h"
 
 #include "command_line/CommandLine.h"
 #include "serialize/StringUtil.h"
 #include "time/Timer.h"
+#include "time/WaitFor.h"
 #include <array>
 #include <functional>
 #include <iostream>
@@ -20,22 +22,23 @@
 using std::shared_ptr;
 using std::string;
 
-class TurboRunner
+class IntegratedTurboRunner : public TurboRunner
 {
 public:
-	TurboRunner(TurboPumpApp& worker)
-		: _worker(worker)
-		, _thread(std::bind(&TurboPumpApp::run, &worker))
+	IntegratedTurboRunner(const TurboApi& api, short port)
+		: TurboRunner(port)
+		, _app(api, dataChannel(), port)
+		, _thread(std::bind(&TurboPumpApp::run, &_app))
 	{}
 
-	~TurboRunner()
+	~IntegratedTurboRunner()
 	{
-		_worker.shutdown();
+		_app.shutdown();
 		_thread.join();
 	}
 
 protected:
-	TurboPumpApp& _worker;
+	TurboPumpApp _app;
 	std::thread _thread;
 };
 
@@ -72,53 +75,53 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	api.options.active_sync = true;
 	api.options.write_chaining = false;
 	api.options.partition_keys = false;
-	TurboPumpApp workerOne(api, "/tmp/workerOne", 9001);
-	TurboRunner runnerOne(workerOne);
 
-	TurboPumpApp workerTwo(api, "/tmp/workerTwo", 9002);
-	TurboRunner runnerTwo(workerTwo);
+	IntegratedTurboRunner workerOne(api, 9001);
+	IntegratedTurboRunner workerTwo(api, 9002);
 
-	// TODO: make this sleep go away
-	CommandLine::run("sleep 0.5");
+	workerOne.waitForRunning();
+	workerTwo.waitForRunning();
 
-	// test stuff!
-
-	string response = CommandLine::run("echo 'membership||' | nc -U /tmp/workerOne");
+	string response = workerOne.query("membership");
 	assertEquals( "one 127.0.0.1:9001\n"
 				  "two 127.0.0.1:9002", response );
 
 	for (unsigned i = 0; i < 5; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = CommandLine::run("echo 'write|name=one" + num + "|one hello" + num + "' | nc -U /tmp/workerOne");
+		response = CommandLine::run("echo 'write|name=one" + num + "|one hello" + num + "' | nc -U " + workerOne.dataChannel());
 		assertEquals( "", response );
 	}
 	for (unsigned i = 0; i < 5; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = CommandLine::run("echo 'write|name=two" + num + "|two hello" + num + "' | nc -U /tmp/workerTwo");
+		response = CommandLine::run("echo 'write|name=two" + num + "|two hello" + num + "' | nc -U " + workerTwo.dataChannel());
 		assertEquals( "", response );
 	}
 
-	CommandLine::run("sleep 10");
-
 	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
-	string expected = "(one4)=>11|1,two:1\n"
-					  "(two4)=>11|1,two:1\n"
-					  "(one0)=>11|1,two:1\n"
-					  "(two0)=>11|1,two:1\n"
-					  "(one2)=>11|1,two:1\n"
-					  "(two2)=>11|1,two:1\n"
-					  "(one1)=>11|1,two:1\n"
-					  "(two1)=>11|1,two:1\n"
-					  "(one3)=>11|1,two:1\n"
-					  "(two3)=>11|1,two:1";
+	string expected = "(one0)=>11|1,two:1\n"
+	                  "(one1)=>11|1,two:1\n"
+	                  "(one2)=>11|1,two:1\n"
+	                  "(one3)=>11|1,two:1\n"
+	                  "(one4)=>11|1,two:1\n"
+	                  "(two0)=>11|1,two:1\n"
+	                  "(two1)=>11|1,two:1\n"
+	                  "(two2)=>11|1,two:1\n"
+	                  "(two3)=>11|1,two:1\n"
+	                  "(two4)=>11|1,two:1";
 
-	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerTwo");
-	assertEquals( expected, response );
+	waitFor(5, response + " != " + expected, [&]()
+	{
+		response = workerTwo.local_list();
+		return expected == response;
+	});
 
-	response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerOne");
-	assertEquals( expected, response );
+	waitFor(5, response + " != " + expected, [&]()
+	{
+		response = workerOne.local_list();
+		return expected == response;
+	});
 }
 
 namespace
@@ -175,17 +178,14 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 		checkpoints[params.filename].add();
 	};
 
-	TurboPumpApp workerOne(api, "/tmp/workerOne", 9001);
-	TurboRunner runnerOne(workerOne);
+	IntegratedTurboRunner workerOne(api, 9001);
+	IntegratedTurboRunner workerTwo(api, 9002);
 
-	TurboPumpApp workerTwo(api, "/tmp/workerTwo", 9002);
-	TurboRunner runnerTwo(workerTwo);
-
-	// need some events to signal when we're running...
-	CommandLine::run("sleep 1");
+	workerOne.waitForRunning();
+	workerTwo.waitForRunning();
 
 	// test stuff!
-	CommandLine::run("echo 'write|name=primer|priming the wan pump' | nc -U /tmp/workerOne");
+	CommandLine::run("echo 'write|name=primer|priming the wan pump' | nc -U " + workerOne.dataChannel());
 	CommandLine::run("sleep 0.2");
 
 	for (unsigned i = 0; i < numFiles; ++i)
@@ -195,7 +195,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 		string packet = "write|name=" + num + "|hello" + num + "\n";
 
-		int socket_fd = openStreamSocket("/tmp/workerOne");
+		int socket_fd = openStreamSocket(workerOne.dataChannel());
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
 		close(socket_fd);
 
@@ -204,22 +204,18 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
 	string expected = "(0)=>7|1,two:1\n"
-			"(4)=>7|1,two:1\n"
-			"(2)=>7|1,two:1\n"
-			"(1)=>7|1,two:1\n"
-			"(primer)=>21|1,two:1\n"
-			"(3)=>7|1,two:1";
+	                  "(1)=>7|1,two:1\n"
+	                  "(2)=>7|1,two:1\n"
+	                  "(3)=>7|1,two:1\n"
+	                  "(4)=>7|1,two:1\n"
+	                  "(primer)=>21|1,two:1";
 
 	string response;
-	Timer t;
-	while (t.millis() < 5000)
+	waitFor(5, response + " != " + expected, [&]()
 	{
-		response = CommandLine::run("echo 'local_list||' | nc -U /tmp/workerTwo");
-		if (response == expected)
-			break;
-		CommandLine::run("sleep 1");
-	}
-	assertEquals( expected, response );
+		response = workerTwo.local_list();
+		return expected == response;
+	});
 
 	for (std::map<string,Checkpoint>::const_iterator it = checkpoints.begin(); it != checkpoints.end(); ++it)
 		std::cout << "  " << it->first << " : " << StringUtil::join(it->second.results()) << std::endl;

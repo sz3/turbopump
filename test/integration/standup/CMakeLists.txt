@@ -27,6 +27,7 @@ target_link_libraries(standup_test
 	common
 	consistent_hashing
 	data_store
+	integration
 	logging
 	main
 	membership
@@ -43,6 +44,8 @@ target_link_libraries(standup_test
 	udt_socket
 -Wl,--end-group
 
+	boost_filesystem
+	boost_system
 	pthread
 	tbb
 	udt
