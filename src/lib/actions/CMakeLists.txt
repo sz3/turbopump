@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	AddPeerAction.cpp
 	AddPeerAction.h
+	DeleteAction.cpp
+	DeleteAction.h
 	DemandWriteAction.cpp
 	DemandWriteAction.h
 	DropAction.cpp

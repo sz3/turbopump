@@ -27,10 +27,38 @@ bool DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
 {
 	if (entry->md.supercede)
 		clearLesser_unlocked(entry->md.version);
-	if (find_unlocked(entry->md.version) != _entries.end())
-		return false;
+
+	VectorClock deletedVersion = entry->md.version;
+	deletedVersion.increment("delete");
+
+	for (auto it = _entries.begin(); it != _entries.end(); ++it)
+	{
+		VectorClock::COMPARE comp = entry->md.version.compare( (*it)->md.version );
+		if (comp == VectorClock::EQUAL)
+			return false;
+		else if (comp == VectorClock::LESS_THAN && (*it)->md.supercede)
+			return false;
+		else if (deletedVersion.compare( (*it)->md.version ) == VectorClock::EQUAL)
+			return false;
+	}
 
 	_entries.push_back(entry);
+	return true;
+}
+
+// do we markDeleted at the initial DeleteAction level, or do we do some sort of flag thing?
+// to that end, maybe deletes aren't writes after all?
+// ...e.g. they also have their own callback...
+// also, if deletes are separate, the merkle tree needs to account for them...
+bool DataChain::markDeleted_unlocked(const std::shared_ptr<DataEntry>& entry)
+{
+	std::vector< std::shared_ptr<DataEntry> >::iterator it = find_unlocked(entry->md.version);
+	if (it == _entries.end())
+		return false;
+
+	shared_ptr<DataEntry>& elem = *it;
+	elem = entry;
+	elem->md.version.increment("delete");
 	return true;
 }
 
