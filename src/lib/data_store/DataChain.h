@@ -13,6 +13,7 @@ class DataChain
 public:
 	bool storeAsBestVersion(const std::shared_ptr<DataEntry>& entry);
 	bool store(const std::shared_ptr<DataEntry>& entry);
+	bool markDeleted(const VectorClock& version);
 	unsigned erase(const VectorClock& version);
 
 	std::shared_ptr<DataEntry> find(const VectorClock& version) const;

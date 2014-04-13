@@ -9,6 +9,9 @@ public:
 	VectorClock();
 	VectorClock(const std::deque<VectorClock::clock>& clocks);
 
+	bool isDeleted() const;
+	void markDeleted();
+
 	std::string toString() const;
 	bool fromString(std::string str);
 };

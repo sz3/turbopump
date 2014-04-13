@@ -217,6 +217,40 @@ TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 	assertEquals( "readme", stream._buffer );
 }
 
+TEST_CASE( "RamDataStoreTest/testMarkDeleted", "[unit]" )
+{
+	MyMemberId("me");
+
+	TestableRamDataStore dataStore;
+	dataStore.store("foo", "readme");
+
+	VectorClock badVersion;
+	badVersion.increment("nobody");
+	assertFalse( dataStore.markDeleted("nothing", badVersion.toString()) );
+	assertFalse( dataStore.markDeleted("foo", badVersion.toString()) );
+
+	VectorClock version;
+	version.increment("me");
+	assertTrue( dataStore.markDeleted("foo", version.toString()) );
+
+	assertEquals( "2,delete:1,me:1", dataStore._store["foo"].entries().front()->md.version.toString() );
+	assertEquals( "", dataStore._store["foo"].entries().front()->data );
+}
+
+TEST_CASE( "RamDataStoreTest/testReadDeleted", "[unit]" )
+{
+	MyMemberId("me");
+	VectorClock version;
+	version.increment("me");
+
+	TestableRamDataStore dataStore;
+	dataStore.store("deleteme", "deleteme");
+	dataStore.markDeleted("deleteme", version.toString());
+
+	vector<IDataStoreReader::ptr> readerList = dataStore.read("deleteme");
+	assertEquals( 0, readerList.size() );
+}
+
 TEST_CASE( "RamDataStoreTest/testReport", "[unit]" )
 {
 	TestableRamDataStore dataStore;

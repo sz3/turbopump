@@ -19,14 +19,6 @@ bool DataChain::storeAsBestVersion(const std::shared_ptr<DataEntry>& entry)
 bool DataChain::store(const std::shared_ptr<DataEntry>& entry)
 {
 	tbb::spin_rw_mutex::scoped_lock(_mutex);
-	return store_unlocked(entry);
-}
-
-// already have lock
-bool DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
-{
-	if (entry->md.supercede)
-		clearLesser_unlocked(entry->md.version);
 
 	VectorClock deletedVersion = entry->md.version;
 	deletedVersion.increment("delete");
@@ -41,6 +33,14 @@ bool DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
 		else if (deletedVersion.compare( (*it)->md.version ) == VectorClock::EQUAL)
 			return false;
 	}
+	return store_unlocked(entry);
+}
+
+// already have lock
+bool DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
+{
+	if (entry->md.supercede)
+		clearLesser_unlocked(entry->md.version);
 
 	_entries.push_back(entry);
 	return true;
@@ -50,15 +50,17 @@ bool DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
 // to that end, maybe deletes aren't writes after all?
 // ...e.g. they also have their own callback...
 // also, if deletes are separate, the merkle tree needs to account for them...
-bool DataChain::markDeleted_unlocked(const std::shared_ptr<DataEntry>& entry)
+bool DataChain::markDeleted(const VectorClock& version)
 {
-	std::vector< std::shared_ptr<DataEntry> >::iterator it = find_unlocked(entry->md.version);
+	tbb::spin_rw_mutex::scoped_lock(_mutex);
+
+	std::vector< std::shared_ptr<DataEntry> >::iterator it = find_unlocked(version);
 	if (it == _entries.end())
 		return false;
 
-	shared_ptr<DataEntry>& elem = *it;
-	elem = entry;
-	elem->md.version.increment("delete");
+	DataEntry& elem = *(*it);
+	elem.md.version.increment("delete");
+	elem.data.clear();
 	return true;
 }
 

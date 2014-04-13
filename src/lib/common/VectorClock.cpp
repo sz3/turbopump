@@ -57,6 +57,18 @@ namespace {
 	}
 }
 
+bool VectorClock::isDeleted() const
+{
+	if (empty())
+		return false;
+	return _clocks.front().key == "delete";
+}
+
+void VectorClock::markDeleted()
+{
+	increment("delete");
+}
+
 std::string VectorClock::toString() const
 {
 	std::stringstream ss;

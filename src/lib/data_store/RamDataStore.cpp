@@ -81,7 +81,10 @@ std::vector< shared_ptr<IDataStoreReader> > RamDataStore::read(const string& fil
 
 	std::vector< shared_ptr<DataEntry> > entries = it->second.entries();
 	for (auto entry = entries.begin(); entry != entries.end(); ++entry)
-		reads.push_back(IDataStoreReader::ptr(new Reader(*entry)));
+	{
+		if ( !(*entry)->md.version.isDeleted() )
+			reads.push_back(IDataStoreReader::ptr(new Reader(*entry)));
+	}
 	return reads;
 }
 
@@ -148,6 +151,19 @@ unsigned long long RamDataStore::Reader::summary() const
 /*
   </end child class>
 */
+
+bool RamDataStore::markDeleted(const string& filename, const string& version)
+{
+	data_map_type::const_iterator it = _store.find(filename);
+	if (it == _store.end())
+		return false;
+
+	VectorClock versionClock;
+	if (!versionClock.fromString(version))
+		return false;
+
+	return it->second.markDeleted(versionClock);
+}
 
 // drop all knowledge of a key.
 // generally only used after offloading a key to another box.

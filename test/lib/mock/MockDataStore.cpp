@@ -120,6 +120,12 @@ unsigned long long MockDataStore::Reader::summary() const
   </end child class>
 */
 
+bool MockDataStore::markDeleted(const string& filename, const std::string& version)
+{
+	_history.call("markDeleted", filename, version);
+	return _store.erase(filename) > 0;
+}
+
 bool MockDataStore::drop(const string& filename)
 {
 	_history.call("drop", filename);
