@@ -17,7 +17,7 @@ TEST_CASE( "LocalListActionTest/testAdd", "[unit]" )
 	LocalListAction action(store, stream);
 
 	assertTrue( action.run(DataBuffer::Null()) );
-	assertEquals( "report(.membership/)", store._history.calls() );
+	assertEquals( "report(0,.membership/)", store._history.calls() );
 }
 
 TEST_CASE( "LocalListActionTest/testAdd.ShowAll", "[unit]" )
@@ -28,8 +28,9 @@ TEST_CASE( "LocalListActionTest/testAdd.ShowAll", "[unit]" )
 
 	map<string,string> params;
 	params["all"] = "yes";
+	params["deleted"] = "true";
 	action.setParams(params);
 
 	assertTrue( action.run(DataBuffer::Null()) );
-	assertEquals( "report()", store._history.calls() );
+	assertEquals( "report(1,)", store._history.calls() );
 }

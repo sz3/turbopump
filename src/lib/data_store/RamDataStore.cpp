@@ -152,19 +152,6 @@ unsigned long long RamDataStore::Reader::summary() const
   </end child class>
 */
 
-bool RamDataStore::markDeleted(const string& filename, const string& version)
-{
-	data_map_type::const_iterator it = _store.find(filename);
-	if (it == _store.end())
-		return false;
-
-	VectorClock versionClock;
-	if (!versionClock.fromString(version))
-		return false;
-
-	return it->second.markDeleted(versionClock);
-}
-
 // drop all knowledge of a key.
 // generally only used after offloading a key to another box.
 bool RamDataStore::drop(const string& filename)
@@ -174,7 +161,7 @@ bool RamDataStore::drop(const string& filename)
 	return _store.unsafe_erase(filename) > 0;
 }
 
-void RamDataStore::report(IByteStream& writer, const string& exclude) const
+void RamDataStore::report(IByteStream& writer, bool showDeleted, const string& exclude) const
 {
 	bool first = true;
 	for (data_map_type::const_iterator it = _store.begin(); it != _store.end(); ++it)
@@ -183,15 +170,21 @@ void RamDataStore::report(IByteStream& writer, const string& exclude) const
 			continue;
 
 		std::vector< shared_ptr<DataEntry> > entries = it->second.entries();
-		string fileReport = "(" + it->first + ")=>";
+		string fileReport;
 		for (auto entry = entries.begin(); entry != entries.end(); ++entry)
 		{
+			const VectorClock& version = (*entry)->md.version;
+			if (!showDeleted && version.isDeleted())
+				continue;
 			if (entry != entries.begin())
 				fileReport += " ";
 			fileReport += StringUtil::str((*entry)->data.size());
-			fileReport += "|" + (*entry)->md.version.toString();
+			fileReport += "|" + version.toString();
 		}
+		if (fileReport.empty())
+			continue;
 
+		fileReport = "(" + it->first + ")=>" + fileReport;
 		if (!first)
 			fileReport = "\n" + fileReport;
 		first &= false;

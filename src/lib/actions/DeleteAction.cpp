@@ -20,7 +20,7 @@ bool DeleteAction::run(const DataBuffer& data)
 {
 	VectorClock version;
 	version.fromString(_version);
-	version.increment("delete");
+	version.markDeleted();
 
 	map<string,string> params;
 	params["name"] = _name;

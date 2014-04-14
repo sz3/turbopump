@@ -217,42 +217,30 @@ TEST_CASE( "RamDataStoreTest/testRead.Concurrent", "[unit]" )
 	assertEquals( "readme", stream._buffer );
 }
 
-TEST_CASE( "RamDataStoreTest/testMarkDeleted", "[unit]" )
-{
-	MyMemberId("me");
-
-	TestableRamDataStore dataStore;
-	dataStore.store("foo", "readme");
-
-	VectorClock badVersion;
-	badVersion.increment("nobody");
-	assertFalse( dataStore.markDeleted("nothing", badVersion.toString()) );
-	assertFalse( dataStore.markDeleted("foo", badVersion.toString()) );
-
-	VectorClock version;
-	version.increment("me");
-	assertTrue( dataStore.markDeleted("foo", version.toString()) );
-
-	assertEquals( "2,delete:1,me:1", dataStore._store["foo"].entries().front()->md.version.toString() );
-	assertEquals( "", dataStore._store["foo"].entries().front()->data );
-}
-
 TEST_CASE( "RamDataStoreTest/testReadDeleted", "[unit]" )
 {
-	MyMemberId("me");
-	VectorClock version;
-	version.increment("me");
-
 	TestableRamDataStore dataStore;
-	dataStore.store("deleteme", "deleteme");
-	dataStore.markDeleted("deleteme", version.toString());
+	{
+		std::shared_ptr<DataEntry> data(new DataEntry{"deleted"});
+		data->md.version.markDeleted();
+		dataStore._store["deleteme"].store(data);
+	}
 
 	vector<IDataStoreReader::ptr> readerList = dataStore.read("deleteme");
 	assertEquals( 0, readerList.size() );
+
+	IDataStoreReader::ptr reader = dataStore.read("deleteme", "1,delete:1");
+	assertTrue( reader );
+
+	StringBackedByteStream stream;
+	assertEquals( 7, reader->read(stream) );
+	assertEquals( "deleted", stream._buffer );
 }
 
 TEST_CASE( "RamDataStoreTest/testReport", "[unit]" )
 {
+	MyMemberId("me");
+
 	TestableRamDataStore dataStore;
 	dataStore.store("foo", "bytes");
 	dataStore.store("foobar", "bytes");
@@ -260,7 +248,7 @@ TEST_CASE( "RamDataStoreTest/testReport", "[unit]" )
 	assertEquals( 3, dataStore._store.size() );
 
 	StringByteStream stream;
-	dataStore.report(stream);
+	dataStore.report(stream, true);
 
 	// TODO: have a proper ByteStream mock...
 	assertEquals( "(foo)=>5|1,me:1\n"
@@ -270,13 +258,40 @@ TEST_CASE( "RamDataStoreTest/testReport", "[unit]" )
 
 TEST_CASE( "RamDataStoreTest/testReport.Exclude", "[unit]" )
 {
+	MyMemberId("me");
+
 	TestableRamDataStore dataStore;
 	dataStore.store("foo", "bytes");
 	dataStore.store("foobar", "bytes");
 	dataStore.store("bar", "bytes");
 
 	StringByteStream stream;
-	dataStore.report(stream, "foo");
+	dataStore.report(stream, true, "foo");
 
 	assertEquals( "(bar)=>5|1,me:1", stream.writeBuffer() );
+}
+
+TEST_CASE( "RamDataStoreTest/testReport.HandleDeleted", "[unit]" )
+{
+	MyMemberId("me");
+
+	TestableRamDataStore dataStore;
+	dataStore.store("foo", "bytes");
+	dataStore.store("bar", "bytes");
+	{
+		std::shared_ptr<DataEntry> data(new DataEntry{"deleted"});
+		data->md.version.markDeleted();
+		dataStore._store["deleted"].store(data);
+	}
+
+	StringByteStream showDeleted;
+	dataStore.report(showDeleted, true);
+	assertEquals( "(foo)=>5|1,me:1\n"
+				  "(bar)=>5|1,me:1\n"
+				  "(deleted)=>7|1,delete:1", showDeleted.writeBuffer() );
+
+	StringByteStream hideDeleted;
+	dataStore.report(hideDeleted, false);
+	assertEquals( "(foo)=>5|1,me:1\n"
+				  "(bar)=>5|1,me:1", hideDeleted.writeBuffer() );
 }

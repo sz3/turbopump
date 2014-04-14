@@ -18,11 +18,13 @@ bool DataChain::storeAsBestVersion(const std::shared_ptr<DataEntry>& entry)
 
 bool DataChain::store(const std::shared_ptr<DataEntry>& entry)
 {
-	tbb::spin_rw_mutex::scoped_lock(_mutex);
+	if (entry->md.version.isDeleted())
+		return storeDeleted(entry);
 
 	VectorClock deletedVersion = entry->md.version;
-	deletedVersion.increment("delete");
+	deletedVersion.markDeleted();
 
+	tbb::spin_rw_mutex::scoped_lock(_mutex);
 	for (auto it = _entries.begin(); it != _entries.end(); ++it)
 	{
 		VectorClock::COMPARE comp = entry->md.version.compare( (*it)->md.version );
@@ -46,22 +48,35 @@ bool DataChain::store_unlocked(const std::shared_ptr<DataEntry>& entry)
 	return true;
 }
 
-// do we markDeleted at the initial DeleteAction level, or do we do some sort of flag thing?
-// to that end, maybe deletes aren't writes after all?
-// ...e.g. they also have their own callback...
-// also, if deletes are separate, the merkle tree needs to account for them...
-bool DataChain::markDeleted(const VectorClock& version)
+bool DataChain::storeDeleted(const std::shared_ptr<DataEntry>& entry)
 {
 	tbb::spin_rw_mutex::scoped_lock(_mutex);
 
-	std::vector< std::shared_ptr<DataEntry> >::iterator it = find_unlocked(version);
-	if (it == _entries.end())
-		return false;
+	VectorClock candidate;
+	for (vector< shared_ptr<DataEntry> >::iterator it = _entries.begin(); it != _entries.end(); ++it)
+	{
+		candidate = (*it)->md.version;
+		VectorClock::COMPARE comp = entry->md.version.compare(candidate);
 
-	DataEntry& elem = *(*it);
-	elem.md.version.increment("delete");
-	elem.data.clear();
-	return true;
+		// if this version exists (delete already exists), or is superceded, bail out
+		if (comp == VectorClock::EQUAL)
+			return false;
+		else if (comp == VectorClock::LESS_THAN && (*it)->md.supercede)
+			return false;
+
+		// if we're deleting an existing entry, replace it with the deleted one.
+		candidate.markDeleted();
+		if (entry->md.version.compare(candidate) == VectorClock::EQUAL)
+		{
+			DataEntry& elem = *(*it);
+			elem.data = entry->data;
+			elem.md.version = candidate;
+			return true;
+		}
+	}
+
+	// else, just push_back this deleted entry.
+	return store_unlocked(entry);
 }
 
 unsigned DataChain::clearLesser_unlocked(const VectorClock& version)

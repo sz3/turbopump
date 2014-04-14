@@ -10,6 +10,7 @@ LocalListAction::LocalListAction(const IDataStore& dataStore, IByteStream& write
 	: _dataStore(dataStore)
 	, _writer(writer)
 	, _showAll(false)
+	, _showDeleted(false)
 {
 }
 
@@ -21,7 +22,7 @@ std::string LocalListAction::name() const
 bool LocalListAction::run(const DataBuffer& data)
 {
 	string excludes = _showAll? "" : MEMBERSHIP_FILE_PREFIX;
-	_dataStore.report(_writer, excludes);
+	_dataStore.report(_writer, _showDeleted, excludes);
 	return true;
 }
 
@@ -30,4 +31,8 @@ void LocalListAction::setParams(const std::map<std::string,std::string>& params)
 	map<string,string>::const_iterator it = params.find("all");
 	if (it != params.end())
 		_showAll = true;
+
+	it = params.find("deleted");
+	if (it != params.end())
+		_showDeleted = true;
 }

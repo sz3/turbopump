@@ -50,3 +50,34 @@ TEST_CASE( "VectorClockTest/testSerialize", "[unit]" )
 	assertEquals( 2, clocks[1].count );
 }
 
+TEST_CASE( "VectorClockTest/testMarkDeleted", "[unit]" )
+{
+	{
+		VectorClock version;
+		assertFalse( version.isDeleted() );
+	}
+
+	{
+		VectorClock version;
+		version.markDeleted();
+		assertEquals("1,delete:1", version.toString());
+		assertTrue( version.isDeleted() );
+	}
+
+	{
+		VectorClock version;
+		version.increment("foo");
+		version.markDeleted();
+		assertEquals("2,delete:1,foo:1", version.toString());
+		assertTrue( version.isDeleted() );
+	}
+
+	{
+		VectorClock version;
+		version.increment("foo");
+		version.markDeleted();
+		version.increment("foo");
+		assertEquals("2,foo:2,delete:1", version.toString());
+		assertFalse( version.isDeleted() );
+	}
+}

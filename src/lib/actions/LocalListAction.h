@@ -18,5 +18,6 @@ protected:
 	const IDataStore& _dataStore;
 	IByteStream& _writer;
 	bool _showAll;
+	bool _showDeleted;
 };
 
