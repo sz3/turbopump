@@ -38,7 +38,7 @@ void DeleteAction::setParams(const map<string,string>& params)
 	if (it != params.end())
 		_name = it->second;
 
-	it = params.find("version");
+	it = params.find("v");
 	if (it != params.end())
 		_version = it->second;
 }

@@ -3,6 +3,7 @@
 
 // actions
 #include "actions/AddPeerAction.h"
+#include "actions/DeleteAction.h"
 #include "actions/LocalListAction.h"
 #include "actions/LocalStateAction.h"
 #include "actions/ReadAction.h"
@@ -83,6 +84,8 @@ std::unique_ptr<IAction> Switchboard::newAction(const string& actionName, const 
 		action.reset(new WriteAction(_dataStore, _callbacks.when_local_write_finishes));
 	else if (actionName == "read")
 		action.reset(new ReadAction(_dataStore, _stream));
+	else if (actionName == "delete")
+		action.reset(new DeleteAction(std::move(newAction("write", std::map<string,string>()))));
 	else if (actionName == "local_list")
 		action.reset(new LocalListAction(_dataStore, _stream));
 	else if (actionName == "membership")

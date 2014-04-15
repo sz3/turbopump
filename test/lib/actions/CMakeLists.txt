@@ -5,6 +5,7 @@ project(actions_test)
 set (SOURCES
 	test.cpp
 	AddPeerActionTest.cpp
+	DeleteActionTest.cpp
 	DemandWriteActionTest.cpp
 	DropActionTest.cpp
 	HealKeyActionTest.cpp
