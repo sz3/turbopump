@@ -16,10 +16,10 @@ class IProcessState;
 class TurboApi;
 
 // "owns" the stream
-class Switchboard
+class UserPacketHandler
 {
 public:
-	Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks);
+	UserPacketHandler(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks);
 
 	void run();
 

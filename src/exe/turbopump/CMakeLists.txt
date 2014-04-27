@@ -23,8 +23,8 @@ target_link_libraries(turbopump
 	main
 	membership
 	programmable
+	user_server
 	wan_server
-	user_control
 
 	event
 	file

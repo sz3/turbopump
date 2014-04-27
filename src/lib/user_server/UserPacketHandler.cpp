@@ -1,5 +1,5 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "Switchboard.h"
+#include "UserPacketHandler.h"
 
 // actions
 #include "actions/AddPeerAction.h"
@@ -22,7 +22,7 @@
 #include <vector>
 using std::string;
 
-Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks)
+UserPacketHandler::UserPacketHandler(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
 	, _ring(ring)
@@ -33,7 +33,7 @@ Switchboard::Switchboard(IByteStream& stream, IDataStore& dataStore, IHashRing& 
 {
 }
 
-void Switchboard::run()
+void UserPacketHandler::run()
 {
 	std::unique_ptr<IAction> action;
 	std::vector<char> buff;
@@ -67,7 +67,7 @@ void Switchboard::run()
 	}
 }
 
-bool Switchboard::parse(DataBuffer& data, std::unique_ptr<IAction>& action)
+bool UserPacketHandler::parse(DataBuffer& data, std::unique_ptr<IAction>& action)
 {
 	ActionParser parser;
 	if (!parser.parse(data))
@@ -77,7 +77,7 @@ bool Switchboard::parse(DataBuffer& data, std::unique_ptr<IAction>& action)
 	return action && action->good();
 }
 
-std::unique_ptr<IAction> Switchboard::newAction(const string& actionName, const std::map<string,string>& params)
+std::unique_ptr<IAction> UserPacketHandler::newAction(const string& actionName, const std::map<string,string>& params)
 {
 	std::unique_ptr<IAction> action;
 	if (actionName == "write")

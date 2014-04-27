@@ -44,8 +44,8 @@ set (PROJECTS
    test/lib/membership
    src/lib/programmable
    test/lib/programmable
-   src/lib/user_control
-   test/lib/user_control
+   src/lib/user_server
+   test/lib/user_server
    src/lib/wan_server
    test/lib/wan_server
 

@@ -2,7 +2,7 @@
 #include "TurboPumpApp.h"
 
 #include "membership/Peer.h"
-#include "user_control/Switchboard.h"
+#include "user_server/UserPacketHandler.h"
 
 #include "socket/FileByteStream.h"
 #include "socket/IpAddress.h"
@@ -85,6 +85,6 @@ void TurboPumpApp::shutdown()
 void TurboPumpApp::onClientConnect(int fd)
 {
 	FileByteStream stream(fd);
-	Switchboard switcher(stream, _localDataStore, _ring, _membership, _threadLockedKeyTabulator, _state, _callbacks);
-	switcher.run();
+	UserPacketHandler handler(stream, _localDataStore, _ring, _membership, _threadLockedKeyTabulator, _state, _callbacks);
+	handler.run();
 }

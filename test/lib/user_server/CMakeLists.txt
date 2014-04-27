@@ -1,28 +1,28 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(user_control_test)
+project(user_server_test)
 
 set (SOURCES
 	test.cpp
-	SwitchboardTest.cpp
+	UserPacketHandlerTest.cpp
 )
 
 include_directories(
 	${corelib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
-	${turboproj_SOURCE_DIR}/src/lib/user_control
+	${turboproj_SOURCE_DIR}/src/lib/user_server
 )
 
 add_executable (
-	user_control_test
+	user_server_test
 	${SOURCES}
 )
 
-add_test(user_control_test user_control_test)
+add_test(user_server_test user_server_test)
 
-target_link_libraries(user_control_test
+target_link_libraries(user_server_test
 -Wl,--start-group
-	user_control
+	user_server
 
 	actions
 	common

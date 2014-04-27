@@ -32,8 +32,8 @@ target_link_libraries(standup_test
 	main
 	membership
 	programmable
+	user_server
 	wan_server
-	user_control
 
 	command_line
 	event
