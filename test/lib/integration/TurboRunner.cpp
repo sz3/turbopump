@@ -55,7 +55,7 @@ void TurboRunner::stop()
 
 std::string TurboRunner::query(std::string action, std::string params) const
 {
-	return CommandLine::run("echo '" + action + "|" + params + "|' | nc -U " + dataChannel());
+	return CommandLine::run("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -U " + dataChannel());
 }
 
 std::string TurboRunner::local_list(std::string params) const

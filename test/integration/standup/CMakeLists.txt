@@ -38,6 +38,7 @@ target_link_libraries(standup_test
 	command_line
 	event
 	file
+	http
 	serialize
 	socket
 	time

@@ -28,6 +28,7 @@ target_link_libraries(turbopump
 
 	event
 	file
+	http
 	serialize
 	socket
 	udt_socket

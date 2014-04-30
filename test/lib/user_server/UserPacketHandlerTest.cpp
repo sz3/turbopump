@@ -22,12 +22,30 @@ TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 	state._summary = "dancing";
 
 	{
-		StringByteStream stream("state||");
+		StringByteStream stream("GET /state HTTP/1.1\r\n\r\n");
 		UserPacketHandler board(stream, dataStore, ring, membership, keyTabulator, state, callbacks);
 		board.run();
 
 		assertEquals( "dancing", stream.writeBuffer() );
 		assertEquals( "", stream.readBuffer() );
+	}
+}
+
+TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
+{
+	MockDataStore dataStore;
+	MockHashRing ring;
+	MockMembership membership;
+	MockKeyTabulator keyTabulator;
+	MockProcessState state;
+	TurboApi callbacks;
+
+	{
+		StringByteStream stream("GET /local_list?deleted=true&all=true HTTP/1.1\r\n\r\n");
+		UserPacketHandler board(stream, dataStore, ring, membership, keyTabulator, state, callbacks);
+		board.run();
+
+		assertEquals( "report(1,)", dataStore._history.calls() );
 	}
 }
 

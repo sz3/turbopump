@@ -35,6 +35,8 @@ set(SOURCES
 	MockSkewCorrector.h
 	MockSynchronize.cpp
 	MockSynchronize.h
+	MockUserPacketHandler.cpp
+	MockUserPacketHandler.h
 	MockWriteActionSender.cpp
 	MockWriteActionSender.h
 )

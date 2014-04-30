@@ -11,6 +11,7 @@
 #include "actions/ViewMembershipAction.h"
 #include "actions/WriteAction.h"
 
+#include "UserActionContext.h"
 #include "common/ActionParser.h"
 #include "common/DataBuffer.h"
 #include "consistent_hashing/IHashRing.h"
@@ -18,7 +19,6 @@
 #include "socket/IByteStream.h"
 #include "programmable/TurboApi.h"
 
-#include <iostream>
 #include <vector>
 using std::string;
 
@@ -35,17 +35,9 @@ UserPacketHandler::UserPacketHandler(IByteStream& stream, IDataStore& dataStore,
 
 void UserPacketHandler::run()
 {
-	std::unique_ptr<IAction> action;
+	UserActionContext actionContext(*this);
 	std::vector<char> buff;
 	buff.resize(8192);
-
-	// some sort of length based packet format: length|action|params|[data][newline]
-	// if first token starts with a char, it's an action, no length. (run only one action)
-	//
-	//  * stream.read
-	//  * while (parse(buff))
-	//  *    do stuff
-	//  * save remainder + size into buff, append next read
 
 	while (1)
 	{
@@ -53,32 +45,18 @@ void UserPacketHandler::run()
 		if (bytesRead <= 0)
 			break;
 
-		DataBuffer data(buff.data(), bytesRead);
-		if (!parse(data, action) && !action)
-		{
-			string dumbuff(buff.data(), bytesRead);
-			std::cout << "failed to parse action out of packet size " << bytesRead << ":" << dumbuff << std::endl;
-			break;
-		}
-		action->run(data);
-
-		if (!action->multiPacket())
+		if (!actionContext.feed(buff.data(), bytesRead))
 			break;
 	}
 }
 
-bool UserPacketHandler::parse(DataBuffer& data, std::unique_ptr<IAction>& action)
+std::unique_ptr<IAction> UserPacketHandler::newAction(const string& actionName, const std::map<string,string>& params) const
 {
-	ActionParser parser;
-	if (!parser.parse(data))
-		return false;
+	// TODO: proper REST resource hanging?
+	//Switchboard resources;
+	//resources.put("/data/[name]", WriteAction::params());
+	//resources.get("/data/[name]", ReadAction::params());
 
-	action = newAction(parser.action(), parser.params());
-	return action && action->good();
-}
-
-std::unique_ptr<IAction> UserPacketHandler::newAction(const string& actionName, const std::map<string,string>& params)
-{
 	std::unique_ptr<IAction> action;
 	if (actionName == "write")
 		action.reset(new WriteAction(_dataStore, _callbacks.when_local_write_finishes));

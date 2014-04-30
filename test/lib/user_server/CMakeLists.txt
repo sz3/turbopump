@@ -4,6 +4,7 @@ project(user_server_test)
 
 set (SOURCES
 	test.cpp
+	UserActionContextTest.cpp
 	UserPacketHandlerTest.cpp
 )
 
@@ -30,6 +31,7 @@ target_link_libraries(user_server_test
 	membership
 	mock
 
+	http
 	serialize
 	socket
 -Wl,--end-group
