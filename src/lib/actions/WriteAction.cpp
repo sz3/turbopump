@@ -23,7 +23,7 @@ WriteAction::WriteAction(IDataStore& dataStore, std::function<void(WriteParams, 
 
 WriteAction::~WriteAction()
 {
-	if (!_finished)
+	if (!_finished && _writer)
 		commit();
 }
 

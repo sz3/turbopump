@@ -21,6 +21,7 @@ namespace {
 
 TEST_CASE( "WriteActionTest/testDefault", "default" )
 {
+	_history.clear();
 	MockDataStore dataStore;
 	{
 		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]"); });
@@ -89,6 +90,17 @@ TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
 	}
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
+}
+
+TEST_CASE( "WriteActionTest/testBadName", "default" )
+{
+	_history.clear();
+	MockDataStore dataStore;
+	{
+		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]"); });
+		assertFalse( action.good() );
+	}
+	assertEquals( "", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testZeroByteWrite", "default" )

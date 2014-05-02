@@ -49,6 +49,12 @@ std::shared_ptr<IBufferedConnectionWriter> PeerTracker::getWriter(const Peer& pe
 	}
 
 	shared_ptr<IIpSocket> sock(_server.sock(address));
+	if (!sock)
+	{
+		std::cerr << "BADNESS! Membership can't get a valid socket to peer " << peer.uid << "!!!" << std::endl;
+		return NULL;
+	}
+
 	std::pair<writerit, bool> pear = _writers.insert( std::pair<string,shared_ptr<IBufferedConnectionWriter> >(peer.uid, shared_ptr<IBufferedConnectionWriter>(new BufferedConnectionWriter(sock))) );
 	return pear.first->second;
 }

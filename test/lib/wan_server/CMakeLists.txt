@@ -5,6 +5,7 @@ project(wan_server_test)
 set (SOURCES
 	test.cpp
 	BufferedConnectionWriterTest.cpp
+	PeerTrackerTest.cpp
 	WanPacketHandlerTest.cpp
 )
 
