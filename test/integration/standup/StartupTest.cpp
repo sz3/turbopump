@@ -89,13 +89,13 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	for (unsigned i = 0; i < 5; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = CommandLine::run("echo 'write|name=one" + num + "|one hello" + num + "' | nc -U " + workerOne.dataChannel());
+		response = workerOne.write("one" + num, "one hello " + num);
 		assertEquals( "", response );
 	}
 	for (unsigned i = 0; i < 5; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = CommandLine::run("echo 'write|name=two" + num + "|two hello" + num + "' | nc -U " + workerTwo.dataChannel());
+		response = workerTwo.write("two" + num, "two hello " + num);
 		assertEquals( "", response );
 	}
 
@@ -185,7 +185,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	workerTwo.waitForRunning();
 
 	// test stuff!
-	CommandLine::run("echo 'write|name=primer|priming the wan pump' | nc -U " + workerOne.dataChannel());
+	workerOne.write("primer", "priming the wan pump");
 	CommandLine::run("sleep 0.2");
 
 	for (unsigned i = 0; i < numFiles; ++i)
@@ -193,7 +193,8 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 		string num = StringUtil::str(i);
 		checkpoints[num].reset();
 
-		string packet = "write|name=" + num + "|hello" + num + "\n";
+		string data = "hello " + num;
+		string packet = TurboRunner::headerForWrite(num, data.size()) + data;
 
 		int socket_fd = openStreamSocket(workerOne.dataChannel());
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
@@ -208,7 +209,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	                  "(2)=>7|1,two:1\n"
 	                  "(3)=>7|1,two:1\n"
 	                  "(4)=>7|1,two:1\n"
-	                  "(primer)=>21|1,two:1";
+					  "(primer)=>20|1,two:1";
 
 	string response;
 	waitFor(5, response + " != " + expected, [&]()

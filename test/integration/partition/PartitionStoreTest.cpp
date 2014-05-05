@@ -40,7 +40,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 	for (unsigned i = 1; i <= 6; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = CommandLine::run("echo 'write|name=" + num + " n=3|hello" + num + "' | nc -U " + cluster[1].dataChannel());
+		response = cluster[1].write(num, "hello!"+num, "n=3");
 		assertEquals( "", response );
 	}
 
@@ -105,7 +105,7 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	for (unsigned i = 1; i <= 5; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = CommandLine::run("echo 'write|name=" + num + " n=" + num + "|hello" + num + "' | nc -U " + cluster[1].dataChannel());
+		response = cluster[1].write(num, "hello!"+num, "n="+num);
 		assertEquals( "", response );
 	}
 

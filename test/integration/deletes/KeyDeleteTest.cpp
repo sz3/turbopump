@@ -14,10 +14,10 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
-	string response = CommandLine::run("echo 'write|name=deleteMe n=3|hello' | nc -U " + cluster[1].dataChannel());
+	string response = cluster[1].write("deleteMe", "hello");
 
 	// wait for file
-	string expected = "(deleteMe)=>6|1,1:1";
+	string expected = "(deleteMe)=>5|1,1:1";
 	waitFor(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list();
@@ -30,7 +30,7 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	});
 
 	// delete file
-	response = CommandLine::run("echo 'delete|name=deleteMe v=1,1:1|' | nc -U " + cluster[1].dataChannel());
+	response = cluster[1].query("delete", "name=deleteMe&v=1,1:1");
 	expected = "";
 	waitFor(10, expected + " != " + response, [&]()
 	{

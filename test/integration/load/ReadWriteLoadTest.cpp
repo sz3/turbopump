@@ -7,6 +7,8 @@
 
 #include "serialize/StringUtil.h"
 #include "time/Timer.h"
+#include "time/WaitFor.h"
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -37,6 +39,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
+	std::vector<string> fileList;
 	Timer elapsed;
 	for (int i = 0; i < 100; ++i)
 	{
@@ -44,27 +47,26 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 		std::cout << "write " << i <<  " connection open at " << elapsed.micros() << "us" << std::endl;
 
 		string name = StringUtil::str(i);
-		string packet = string("write|name=") + name + "|" + name;
-		//packet += StringUtil::str(packet.size()) + packet + '\n';
+		string packet = cluster[1].headerForWrite(name, name.size()) + name;
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
 
 		std::cout << "write " << i <<  " finished at " << elapsed.micros() << "us" << std::endl;
 
 		close(socket_fd);
 		std::cout << "write " << i <<  " connection close at " << elapsed.micros() << "us" << std::endl;
+		fileList.push_back("(" + name + ")=>" + StringUtil::str(name.size()) + "|1,1:1");
 	}
 	std::cout << "did 100 writes in " << elapsed.millis() << "ms" << std::endl;
 
+	std::sort(fileList.begin(), fileList.end());
+	string expected = StringUtil::join(fileList, '\n');
 	string response;
 	Timer t;
-	while (t.millis() < 30000)
+	waitFor(30, expected + " != " + response, [&]()
 	{
-		response = CommandLine::run("echo 'local_list||' | nc -U " + cluster[2].dataChannel() + " | wc | awk '{print $2}'");
-		if (response == "100\n")
-			break;
-		CommandLine::run("sleep 1");
-	}
-	assertEquals( "100\n", response );
+		response = cluster[2].local_list();
+		return expected == response;
+	});
 
 	// check contents of each file?
 }
@@ -85,7 +87,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		timingData.push_back("opened write socket at " + StringUtil::str(elapsed.micros()) + "us");
 
-		string packet = "write|name=bigfile|";
+		string packet = TurboRunner::headerForWrite("bigfile", bufsize);
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
 
 		for (unsigned c = 0; c < bufsize; ++c)
@@ -105,7 +107,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 		timingData.push_back("opened read socket at " + StringUtil::str(elapsed.micros()) + "us");
 		//std::cout << "opened read socket at " << elapsed.micros() << "us" << std::endl;
 
-		string packet = "read|name=bigfile|";
+		string packet = TurboRunner::headerForRead("bigfile");
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
 		assertEquals( packet.size(), bytesWrit );
 
@@ -124,7 +126,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 	assertEquals( expectedContents, actualContents );
 
 
-	actualContents = CommandLine::run("echo 'read|name=bigfile|' | nc -U " + cluster[1].dataChannel());
+	actualContents = cluster[1].query("read", "name=bigfile");
 	assertEquals( expectedContents, actualContents );
 
 	timingData.push_back("finished read 2 at " + StringUtil::str(elapsed.micros()) + "us");
@@ -134,7 +136,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 	Timer t;
 	while (t.millis() < 10000)
 	{
-		actualContents = CommandLine::run("echo 'read|name=bigfile|' | nc -U " + cluster[2].dataChannel());
+		actualContents = cluster[2].query("read", "name=bigfile");
 		if (!actualContents.empty())
 			break;
 	}
@@ -159,7 +161,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 
 		string name = StringUtil::str(i);
-		string packet = string("write|name=") + name + "|";
+		string packet = cluster[1].headerForWrite(name, bufsize);
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
 
 		for (unsigned c = 0; c < bufsize; ++c)
@@ -171,15 +173,12 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 
 	std::vector<string> results;
 	Timer t;
-	while (t.millis() < 30000)
+	waitFor(30, results.size() + " != 90", [&]()
 	{
-		string response = CommandLine::run("echo 'local_list||' | nc -U " + cluster[2].dataChannel());
+		string response = cluster[2].local_list();
 		results = StringUtil::split(response, '\n');
-		if (results.size() == 90)
-			break;
-		CommandLine::run("sleep 1");
-	}
-	assertEquals( 90, results.size() );
+		return results.size() == 90;
+	});
 
 	std::vector<string> badResults;
 	for (std::vector<string>::const_iterator it = results.begin(); it != results.end(); ++it)

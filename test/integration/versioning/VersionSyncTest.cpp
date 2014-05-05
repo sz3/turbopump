@@ -16,11 +16,11 @@ TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
 
 	string filename = "conflict";
 	// write different versions to multiple machines at once
-	string response = CommandLine::run("echo 'write|name=" + filename + "|first' | nc -U " + cluster[1].dataChannel());
-	response = CommandLine::run("echo 'write|name=" + filename + "|second' | nc -U " + cluster[2].dataChannel());
+	string response = cluster[1].write(filename, "first", "v=1,foo:1");
+	response = cluster[2].write(filename, "second", "v=1,bar:1");
 
 	// wait for propagation
-	string expected = "(conflict)=>6|1,1:1 7|1,2:1";
+	string expected = "(conflict)=>5|1,foo:1 6|1,bar:1";
 	waitFor(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list();
@@ -28,7 +28,7 @@ TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
 	});
 
 	// same keys stored in a different order
-	expected = "(conflict)=>7|1,2:1 6|1,1:1";
+	expected = "(conflict)=>6|1,bar:1 5|1,foo:1";
 	waitFor(10, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();

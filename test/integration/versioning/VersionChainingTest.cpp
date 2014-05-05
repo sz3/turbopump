@@ -16,18 +16,18 @@ TEST_CASE( "VersionChainingTest/testCreateAndFixConflict", "[integration]" )
 
 	string filename = "conflict";
 	// write different versions to multiple machines at once
-	string response = CommandLine::run("echo 'write|name=" + filename + " v=1,foo:1|first' | nc -U " + cluster[1].dataChannel());
-	response = CommandLine::run("echo 'write|name=" + filename + " v=1,bar:1|second' | nc -U " + cluster[2].dataChannel());
+	string response = cluster[1].write(filename, "first", "v=1,foo:1");
+	response = cluster[2].write(filename, "second", "v=1,bar:1");
 
 	// check for both versions
-	string expected = "(conflict)=>6|1,foo:1 7|1,bar:1";
+	string expected = "(conflict)=>5|1,foo:1 6|1,bar:1";
 	assertEquals( expected, cluster[1].local_list() );
 	assertEquals( expected, cluster[2].local_list() );
 
 	// fix it
-	response = CommandLine::run("echo 'write|name=" + filename + "|thereIfixedit' | nc -U " + cluster[1].dataChannel());
+	response = cluster[1].write(filename, "thereIfixedit");
 
-	expected = "(conflict)=>14|3,1:1,foo:1,bar:1";
+	expected = "(conflict)=>13|3,1:1,foo:1,bar:1";
 	assertEquals( expected, cluster[1].local_list() );
 	assertEquals( expected, cluster[2].local_list() );
 }

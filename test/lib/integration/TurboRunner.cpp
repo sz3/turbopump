@@ -58,6 +58,12 @@ std::string TurboRunner::query(std::string action, std::string params) const
 	return CommandLine::run("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -U " + dataChannel());
 }
 
+std::string TurboRunner::post(std::string action, std::string params, std::string body) const
+{
+	return CommandLine::run("echo 'POST /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n"
+							"content-length:" + StringUtil::str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel());
+}
+
 std::string TurboRunner::local_list(std::string params) const
 {
 	string response = query("local_list", params);
@@ -78,6 +84,23 @@ bool TurboRunner::waitForRunning(unsigned seconds) const
 		CommandLine::run("sleep 0.25");
 	}
 	return false;
+}
+
+std::string TurboRunner::headerForWrite(std::string name, unsigned contentLength, std::string params/*=""*/)
+{
+	return "POST /write?name=" + name + (params.empty()? "" : "&" + params) + " HTTP/1.1\r\n"
+			"content-length:" + StringUtil::str(contentLength) + "\r\n\r\n";
+}
+
+std::string TurboRunner::headerForRead(std::string name, std::string params/*=""*/)
+{
+	return "GET /read?name=" + name + (params.empty()? "" : "&" + params) + " HTTP/1.1\r\n\r\n";
+}
+
+std::string TurboRunner::write(std::string name, std::string data, std::string params/*=""*/)
+{
+	string req = headerForWrite(name, data.size(), params) + data;
+	return CommandLine::run("echo '" + req + "' | nc -U " + dataChannel());
 }
 
 void TurboRunner::createMemberFile(short firstPort, int firstUid, int members)
