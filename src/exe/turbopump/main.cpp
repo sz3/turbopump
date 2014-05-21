@@ -71,6 +71,7 @@ int main(int argc, const char** argv)
 	_app.reset( new TurboPumpApp(api, turbopath, port) );
 
 	::signal(SIGINT, &onShutdown);
+	::signal(SIGPIPE, SIG_IGN); // may use SO_NOSIGPIPE and/or MSG_NOSIGNAL instead...
 	_app->run();
 	return 0;
 }
