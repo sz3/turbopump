@@ -3,6 +3,7 @@
 
 #include "actions/IAction.h"
 #include "http/HttpParser.h"
+#include "http/StatusCode.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -11,18 +12,21 @@ class IUserPacketHandler;
 class UserActionContext
 {
 public:
-	UserActionContext(const IUserPacketHandler& handler);
+	UserActionContext(IUserPacketHandler& handler);
 
 	bool feed(const char* buff, unsigned len);
+	StatusCode status() const;
 
+protected:
 	int onUrl(const char* data, size_t len);
 	int onBegin(HttpParser::Status status);
 	int onBody(const char* data, size_t len);
 	int onComplete();
 
 protected:
-	const IUserPacketHandler& _handler;
+	IUserPacketHandler& _handler;
 	HttpParser _parser;
+	StatusCode _status;
 
 	std::string _url;
 	std::unique_ptr<IAction> _action;

@@ -2,6 +2,7 @@
 #include "unittest.h"
 
 #include "UserPacketHandler.h"
+#include "http/HttpByteStream.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
@@ -23,10 +24,15 @@ TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 
 	{
 		StringByteStream stream("GET /state HTTP/1.1\r\n\r\n");
-		UserPacketHandler board(stream, dataStore, ring, membership, keyTabulator, state, callbacks);
+		HttpByteStream httpStream(stream);
+		UserPacketHandler board(httpStream, dataStore, ring, membership, keyTabulator, state, callbacks);
 		board.run();
 
-		assertEquals( "dancing", stream.writeBuffer() );
+		assertEquals( "HTTP/1.1 200 Success\r\n"
+					  "transfer-encoding: chunked\r\n\r\n"
+					  "7\r\n"
+					  "dancing\r\n"
+					  "0\r\n\r\n", stream.writeBuffer() );
 		assertEquals( "", stream.readBuffer() );
 	}
 }
@@ -42,10 +48,15 @@ TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 
 	{
 		StringByteStream stream("GET /local_list?deleted=true&all=true HTTP/1.1\r\n\r\n");
-		UserPacketHandler board(stream, dataStore, ring, membership, keyTabulator, state, callbacks);
+		HttpByteStream httpStream(stream);
+		UserPacketHandler board(httpStream, dataStore, ring, membership, keyTabulator, state, callbacks);
 		board.run();
 
 		assertEquals( "report(1,)", dataStore._history.calls() );
+		assertEquals( "HTTP/1.1 200 Success\r\n"
+					  "transfer-encoding: chunked\r\n\r\n"
+					  "0\r\n\r\n", stream.writeBuffer() );
+		assertEquals( "", stream.readBuffer() );
 	}
 }
 

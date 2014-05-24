@@ -4,6 +4,7 @@
 #include "membership/Peer.h"
 #include "user_server/UserPacketHandler.h"
 
+#include "http/HttpByteStream.h"
 #include "socket/FileByteStream.h"
 #include "socket/IpAddress.h"
 #include <functional>
@@ -84,7 +85,8 @@ void TurboPumpApp::shutdown()
 // TODO: split into server class.
 void TurboPumpApp::onClientConnect(int fd)
 {
-	FileByteStream stream(fd);
-	UserPacketHandler handler(stream, _localDataStore, _ring, _membership, _threadLockedKeyTabulator, _state, _callbacks);
+	FileByteStream fileStream(fd);
+	HttpByteStream httpStream(fileStream);
+	UserPacketHandler handler(httpStream, _localDataStore, _ring, _membership, _threadLockedKeyTabulator, _state, _callbacks);
 	handler.run();
 }

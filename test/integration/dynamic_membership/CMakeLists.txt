@@ -26,6 +26,7 @@ target_link_libraries(dynamic_membership_test
 
 	command_line
 	file
+	http
 	serialize
 	time
 

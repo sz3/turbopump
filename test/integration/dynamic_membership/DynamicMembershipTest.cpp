@@ -102,7 +102,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 		string name = StringUtil::str(i);
 		string contents = "hello" + name;
 		response = one.write(name, contents, "n=3");
-		assertEquals( "", response );
+		assertEquals( "200", response );
 
 		fileList.push_back("(" + name + ")=>" + StringUtil::str(contents.size()) + "|1,9001:1");
 	}

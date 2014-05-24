@@ -29,6 +29,7 @@ target_link_libraries(partition_test
 
 	command_line
 	file
+	http
 	serialize
 	time
 -Wl,--end-group

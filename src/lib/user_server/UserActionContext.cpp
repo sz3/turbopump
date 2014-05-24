@@ -10,8 +10,9 @@
 using std::string;
 using namespace std::placeholders;
 
-UserActionContext::UserActionContext(const IUserPacketHandler& handler)
+UserActionContext::UserActionContext(IUserPacketHandler& handler)
 	: _handler(handler)
+	, _status(0)
 {
 	_parser.setOnUrl( std::bind(&UserActionContext::onUrl, this, _1, _2) );
 	_parser.setOnHeadersComplete( std::bind(&UserActionContext::onBegin, this, _1) );
@@ -24,8 +25,15 @@ bool UserActionContext::feed(const char* buff, unsigned len)
 	return _parser.parseBuffer(buff, len);
 }
 
+StatusCode UserActionContext::status() const
+{
+	return _status;
+}
+
 int UserActionContext::onUrl(const char* data, size_t len)
 {
+	// if we have an action at this point, somebody effed up the protocol (either us or the client)
+	// bail.
 	if (_action)
 		return 1;
 	_url.append(string(data, len));
@@ -38,26 +46,43 @@ int UserActionContext::onBegin(HttpParser::Status status)
 	std::vector<string> parts = url.components();
 	if (!parts.empty())
 		_action = _handler.newAction(parts.front(), url.params());
+	if (!_action)
+		_status = StatusCode::BadRequest;
 	return 0;
 }
 
 int UserActionContext::onBody(const char* data, size_t len)
 {
+	// that is, if the action is bad, just eat the body and do nothing w/ it
+	// we'll be complaining back to the client momentarily. :)
 	if (_action && _action->good())
 	{
 		DataBuffer dbuf(data, len);
-		_action->run(dbuf);
+		if (!_action->run(dbuf))
+			_status = StatusCode::InternalServerError;
+		else
+			_status = StatusCode::Success;
 	}
 	return 0;
 }
 
 int UserActionContext::onComplete()
 {
-	if (_action && _action->good())
-		_action->run(DataBuffer::Null());
+	if (_action && _action->good() && (_status == 0 || _action->multiPacket()))
+	{
+		if (!_action->run(DataBuffer::Null()))
+			_status = StatusCode::InternalServerError;
+		else
+			_status = StatusCode::Success;
+	}
+
+	if (_status == 0)
+		_status = StatusCode::NotAcceptable;
+	_handler.sendResponse(_status);
 
 	_params.clear();
 	_url.clear();
 	_action.reset();
+	_status = 0;
 	return 0;
 }

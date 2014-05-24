@@ -13,8 +13,19 @@ namespace {
 	}
 }
 
+MockUserPacketHandler::MockUserPacketHandler()
+	: _action(NULL)
+{}
+
+void MockUserPacketHandler::sendResponse(StatusCode status)
+{
+	_history.call("sendResponse", status.str());
+}
+
 std::unique_ptr<IAction> MockUserPacketHandler::newAction(const std::string& actionName, const std::map<std::string,std::string>& params) const
 {
 	_history.call("newAction", actionName, StringUtil::join(params));
-	return NULL;
+	std::unique_ptr<IAction> action(_action);
+	_action = NULL;
+	return action;
 }

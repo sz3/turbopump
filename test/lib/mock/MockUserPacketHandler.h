@@ -7,8 +7,12 @@
 class MockUserPacketHandler : public IUserPacketHandler
 {
 public:
+	MockUserPacketHandler();
+
+	void sendResponse(StatusCode status);
 	std::unique_ptr<IAction> newAction(const std::string& actionName, const std::map<std::string,std::string>& params) const;
 
 public:
 	mutable CallHistory _history;
+	mutable IAction* _action;
 };

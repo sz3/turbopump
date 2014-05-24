@@ -41,7 +41,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 	{
 		string num = StringUtil::str(i);
 		response = cluster[1].write(num, "hello!"+num, "n=3");
-		assertEquals( "", response );
+		assertEquals( "200", response );
 	}
 
 	// wait for files to propagate
@@ -106,7 +106,7 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	{
 		string num = StringUtil::str(i);
 		response = cluster[1].write(num, "hello!"+num, "n="+num);
-		assertEquals( "", response );
+		assertEquals( "200", response );
 	}
 
 	// wait for files to propagate

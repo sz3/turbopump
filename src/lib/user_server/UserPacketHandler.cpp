@@ -15,14 +15,14 @@
 #include "common/ActionParser.h"
 #include "common/DataBuffer.h"
 #include "consistent_hashing/IHashRing.h"
+#include "http/IHttpByteStream.h"
 #include "membership/IMembership.h"
-#include "socket/IByteStream.h"
 #include "programmable/TurboApi.h"
 
 #include <vector>
 using std::string;
 
-UserPacketHandler::UserPacketHandler(IByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks)
+UserPacketHandler::UserPacketHandler(IHttpByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
 	, _ring(ring)
@@ -48,6 +48,12 @@ void UserPacketHandler::run()
 		if (!actionContext.feed(buff.data(), bytesRead))
 			break;
 	}
+}
+
+void UserPacketHandler::sendResponse(StatusCode status)
+{
+	_stream.setStatus(status.integer());
+	_stream.write(NULL, 0);
 }
 
 std::unique_ptr<IAction> UserPacketHandler::newAction(const string& actionName, const std::map<string,string>& params) const

@@ -1,7 +1,9 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "TurboRunner.h"
-#include "command_line/CommandLine.h"
 #include "membership/Membership.h"
+
+#include "command_line/CommandLine.h"
+#include "http/HttpResponse.h"
 #include "serialize/StringUtil.h"
 #include "time/Timer.h"
 
@@ -55,7 +57,8 @@ void TurboRunner::stop()
 
 std::string TurboRunner::query(std::string action, std::string params) const
 {
-	return CommandLine::run("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -U " + dataChannel());
+	string response = CommandLine::run("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -U " + dataChannel());
+	return HttpResponse().parse(response).body();
 }
 
 std::string TurboRunner::post(std::string action, std::string params, std::string body) const
@@ -66,8 +69,10 @@ std::string TurboRunner::post(std::string action, std::string params, std::strin
 
 std::string TurboRunner::local_list(std::string params) const
 {
-	string response = query("local_list", params);
-	vector<string> files = StringUtil::split(response, '\n');
+	string body = query("local_list", params);
+	vector<string> files = StringUtil::split(body, '\n');
+	if (files.empty())
+		return "";
 	std::sort(files.begin(), files.end());
 	return StringUtil::join(files, '\n');
 }
@@ -100,7 +105,8 @@ std::string TurboRunner::headerForRead(std::string name, std::string params/*=""
 std::string TurboRunner::write(std::string name, std::string data, std::string params/*=""*/)
 {
 	string req = headerForWrite(name, data.size(), params) + data;
-	return CommandLine::run("echo '" + req + "' | nc -U " + dataChannel());
+	string res = CommandLine::run("echo '" + req + "' | nc -U " + dataChannel());
+	return HttpResponse().parse(res).status().str();
 }
 
 void TurboRunner::createMemberFile(short firstPort, int firstUid, int members)

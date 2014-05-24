@@ -44,7 +44,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 	{
 		string num = StringUtil::str(i);
 		response = cluster[i].write(num, "hello!"+num, "n=3");
-		assertEquals( "", response );
+		assertEquals( "200", response );
 	}
 
 	// wait for files to propagate
@@ -124,7 +124,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	{
 		string num = StringUtil::str(i);
 		response = cluster[1].write(num, "hello!"+num, "n=3");
-		assertEquals( "", response );
+		assertEquals( "200", response );
 	}
 
 	// wait for files to propagate
@@ -206,7 +206,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	{
 		string num = StringUtil::str(i);
 		response = cluster[i].write(num, "hello!"+num, "n="+num);
-		assertEquals( "", response );
+		assertEquals( "200", response );
 	}
 
 	// wait for files to propagate

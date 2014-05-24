@@ -28,6 +28,7 @@ target_link_libraries(integration_versioning_test
 
 	command_line
 	file
+	http
 	serialize
 	time
 -Wl,--end-group

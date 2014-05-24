@@ -27,6 +27,7 @@ target_link_libraries(load_test
 
 	command_line
 	file
+	http
 	serialize
 	time
 -Wl,--end-group

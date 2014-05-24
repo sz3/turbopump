@@ -90,13 +90,13 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	{
 		string num = StringUtil::str(i);
 		response = workerOne.write("one" + num, "one hello " + num);
-		assertEquals( "", response );
+		assertEquals( "200", response );
 	}
 	for (unsigned i = 0; i < 5; ++i)
 	{
 		string num = StringUtil::str(i);
 		response = workerTwo.write("two" + num, "two hello " + num);
-		assertEquals( "", response );
+		assertEquals( "200", response );
 	}
 
 	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
@@ -188,6 +188,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	workerOne.write("primer", "priming the wan pump");
 	CommandLine::run("sleep 0.2");
 
+	char readBuff[100];
 	for (unsigned i = 0; i < numFiles; ++i)
 	{
 		string num = StringUtil::str(i);
@@ -198,7 +199,11 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 		int socket_fd = openStreamSocket(workerOne.dataChannel());
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
+
+		size_t bytesRead = read(socket_fd, readBuff, 100);
 		close(socket_fd);
+
+		assertStringContains( "200 Success", string(readBuff, bytesRead) );
 
 		std::cout << "local write " << i <<  " finished at " << checkpoints[num].timer().micros() << "us" << std::endl;
 	}
