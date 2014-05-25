@@ -32,12 +32,15 @@ StatusCode UserActionContext::status() const
 
 int UserActionContext::onUrl(const char* data, size_t len)
 {
-	// if we have an action at this point, somebody effed up the protocol (either us or the client)
-	// bail.
-	if (_action)
-		return 1;
-	_url.append(string(data, len));
-	return 0;
+	// we shouldn't have an action at this point.
+	// If we do, somebody effed up the protocol (either us or the client) ...
+	// return 1 == bail out.
+	if (!_action)
+	{
+		_url.append(string(data, len));
+		return 0;
+	}
+	return 1;
 }
 
 int UserActionContext::onBegin(HttpParser::Status status)
@@ -55,7 +58,7 @@ int UserActionContext::onBody(const char* data, size_t len)
 {
 	// that is, if the action is bad, just eat the body and do nothing w/ it
 	// we'll be complaining back to the client momentarily. :)
-	if (_action && _action->good())
+	if (!!_action && _action->good())
 	{
 		DataBuffer dbuf(data, len);
 		if (!_action->run(dbuf))
@@ -68,7 +71,7 @@ int UserActionContext::onBody(const char* data, size_t len)
 
 int UserActionContext::onComplete()
 {
-	if (_action && _action->good() && (_status == 0 || _action->multiPacket()))
+	if (!!_action && _action->good() && (_status == 0 || _action->multiPacket()))
 	{
 		if (!_action->run(DataBuffer::Null()))
 			_status = StatusCode::InternalServerError;

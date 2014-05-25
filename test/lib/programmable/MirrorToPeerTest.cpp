@@ -21,6 +21,26 @@ namespace {
 	CallHistory _history;
 }
 
+TEST_CASE( "MirrorToPeerTest/testMirror_SelfIsNull", "[unit]" )
+{
+	MockHashRing ring;
+	MockMembership membership;
+	membership._self.reset();
+	MockPeerTracker peers;
+	MirrorToPeer command(ring, membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
+
+	assertFalse( command.run(WriteParams({"file",0,3,"v1"}), reader) );
+
+	assertEquals( "locations(file,3)", ring._history.calls() );
+	assertEquals( "self()", membership._history.calls() );
+	assertEquals( "", peers._history.calls() );
+}
+
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 {
 	MockHashRing ring;

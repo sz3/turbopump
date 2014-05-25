@@ -18,14 +18,15 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 
 ### What works
 
-* static cluster membership
+* static and dynamic cluster membership. Online addition of peers. (removal is broken-ish)
 * RAM data store
-* local storage and retrieval of small keys via unix domain sockets
-* immutable writes
+* local storage and retrieval of keys via HTTP over unix domain sockets
+* auto-versioned writes
+* primitive deletes
 * cross-peer sync
 	* efficient synchronization of changes to data store based on a hierarchical merkle-tree-like summary data structure
 * basic function callbacks on write completion
-* inter-box UDP communication for small packets.
+* inter-box UDP communication for small writes.
 	* No reliability, nor congestion control. YMMV.
 * inter-box UDT communication.
 	* No ability to reuse bound socket for outgoing connection -> :(
@@ -42,22 +43,23 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 * encryption of socket layer via libsodium.
 * a "transient" mode, where keys are only kept until they have been successfully propagated to the destination.
 * API for function callbacks on key execution. Hook for arbitrary code execution via system()?
-* dynamic membership, with online addition/removal of peers to the cluster.
+* dynamic membership -- authenticated (signed) peer removal.
 * libnice NAT traversal
 
 ### What about...? (TODO)
 
-* key deletes! Are probably a good idea.
-* paxos and write versioning.
+* deleted key cleanup (age-out of deleted metadata)
+* append/mutate of given version
 * windows support...
 
 ### Q&A
 
 Q. I am a possible wizard who somehow got this built and running. How do I store and retrieve files?
 
-A. The current method is to send primitive commands over domain sockets. For example:
+A. The API is still in flux, but you can use HTTP over unix domain sockets. For example:
 
-* echo 'write|name=foo|haha I am a great value' | nc -U /tmp/turbopump
-* echo 'read|name=foo|' | nc -U /tmp/turbopump
-* echo 'local_list||' | nc -U /tmp/turbopump
+* echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+* echo -e -n 'GET /local_list HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+* echo -e -n 'POST /write?name=foo HTTP/1.1\r\ncontent-length:5\r\n\r\n012345' | nc -U /tmp/turbopump
+* echo -e -n 'GET /read?name=foo HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
 

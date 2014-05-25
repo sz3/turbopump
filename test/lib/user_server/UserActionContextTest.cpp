@@ -38,6 +38,18 @@ TEST_CASE( "UserActionContextTest/testFeed", "[unit]" )
 	assertEquals( "newAction(local_list,all=true deleted=true)|sendResponse(200)", handler._history.calls() );
 }
 
+TEST_CASE( "UserActionContextTest/testFeed.Minimal", "[unit]" )
+{
+	MockUserPacketHandler handler;
+	UserActionContext context(handler);
+
+	handler._action = new MockAction;
+	string buff = "GET /status HTTP/1.1\r\n\r\n";
+	assertTrue( context.feed(buff.data(), buff.size()) );
+
+	assertEquals( "newAction(status,)|sendResponse(200)", handler._history.calls() );
+}
+
 TEST_CASE( "UserActionContextTest/testOnUrl", "[unit]" )
 {
 	MockUserPacketHandler handler;

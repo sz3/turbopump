@@ -119,6 +119,28 @@ shared_ptr<Peer> Membership::lookupIp(const std::string& ip) const
 	return it->second;
 }
 
+// TODO: randomly generate id
+bool Membership::addSelf()
+{
+	if (!!_self)
+		return false;
+
+	std::vector<string> splits = StringUtil::split(_myip, ':');
+	if (splits.empty())
+		return false;
+
+	std::shared_ptr<Peer> me = lookupIp(splits.front());
+	if (!me)
+	{
+		me.reset(new Peer(splits.back()));
+		me->ips.push_back(_myip);
+		_members[me->uid] = me;
+		_ips[splits.front()] = me;
+	}
+	setSelf(me);
+	return true;
+}
+
 void Membership::setSelf(shared_ptr<Peer> self)
 {
 	_self = self;

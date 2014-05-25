@@ -25,6 +25,8 @@ bool MirrorToPeer::run(WriteParams params, IDataStoreReader::ptr contents)
 {
 	std::vector<std::string> locations = _ring.locations(params.filename, params.totalCopies);
 	shared_ptr<Peer> self = _membership.self();
+	if (!self)
+		return false;
 	shared_ptr<Peer> peer;
 
 	// the first write is the only one that might be out of order.

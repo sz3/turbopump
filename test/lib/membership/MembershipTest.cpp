@@ -76,6 +76,15 @@ TEST_CASE( "MembershipTest/testSaveLoad", "[unit]" )
 	assertEquals( "fooid", other.lookupIp("someip")->uid );
 }
 
+TEST_CASE( "MembershipTest/testAddSelf", "[unit]" )
+{
+	Membership membership(_myfile, "localhost:1337");
+
+	assertTrue( membership.addSelf() );
+	assertEquals( "1337 localhost:1337", membership.toString() );
+	assertEquals( "1337", membership.self()->uid );
+}
+
 // special case, since UDT doesn't currently allow a new outgoing connection to use a bound port
 TEST_CASE( "MembershipTest/testLoadFilterSelf", "[unit]" )
 {

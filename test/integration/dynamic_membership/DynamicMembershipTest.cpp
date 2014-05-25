@@ -34,11 +34,13 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	assertTrue( two.waitForRunning() );
 
 	response = one.post("add_peer", "uid=9002&ip=127.0.0.1:9002");
+	assertEquals( "200", response );
 	response = one.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
 				  "9002 127.0.0.1:9002", response );
 
 	response = two.post("add_peer", "uid=9001&ip=127.0.0.1:9001");
+	assertEquals( "200", response );
 	response = two.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
 				  "9002 127.0.0.1:9002", response );

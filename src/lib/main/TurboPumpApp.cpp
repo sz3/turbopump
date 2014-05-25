@@ -33,19 +33,24 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 void TurboPumpApp::run()
 {
 	_state.starting();
-	if (!_membership.load())
-		std::cerr << "failed to load membership. Warn." << std::endl;
+
+	// membership
+	if (_membership.load())
+		_membership.syncToDataStore(_localDataStore);
 	else
 	{
-		_membership.syncToDataStore(_localDataStore);
-		if (_callbacks.options.partition_keys)
-		{
-			HashRing& ring(_ring);
-			auto fun = [&ring] (const Peer& peer) { ring.addWorker(peer.uid); };
-			_membership.forEachPeer(fun);
-		}
+		std::cerr << "failed to load membership. Warn." << std::endl;
+		_membership.addSelf();
 	}
 
+	if (_callbacks.options.partition_keys)
+	{
+		HashRing& ring(_ring);
+		auto fun = [&ring] (const Peer& peer) { ring.addWorker(peer.uid); };
+		_membership.forEachPeer(fun);
+	}
+
+	// servers
 	if (!_wanExecutor.start())
 	{
 		std::cerr << "failed to start udp handler threads. Abort." << std::endl;

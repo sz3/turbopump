@@ -63,8 +63,9 @@ std::string TurboRunner::query(std::string action, std::string params) const
 
 std::string TurboRunner::post(std::string action, std::string params, std::string body) const
 {
-	return CommandLine::run("echo 'POST /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n"
-							"content-length:" + StringUtil::str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel());
+	string response = CommandLine::run("echo 'POST /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n"
+	       "content-length:" + StringUtil::str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel());
+	return HttpResponse().parse(response).status().str();
 }
 
 std::string TurboRunner::local_list(std::string params) const
