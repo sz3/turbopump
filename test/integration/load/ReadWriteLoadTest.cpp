@@ -77,8 +77,53 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	// check contents of each file?
 }
 
-TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
+
+TEST_CASE( "ReadWriteLoadTest/testBigWrite.Solo", "[integration]" )
 {
+	std::cout << std::endl << "*** testBigWrite.Solo ***" << std::endl;
+	std::vector<string> timingData;
+
+	TurboCluster cluster(1, "--clone");
+	cluster.start();
+	assertMsg( cluster.waitForRunning(), cluster.lastError() );
+
+	const unsigned bufsize = 65536;
+	char buffer[bufsize];
+	char readBuff[100];
+
+	Timer elapsed;
+	{
+		int socket_fd = openStreamSocket(cluster[1].dataChannel());
+		timingData.push_back("opened write socket at " + StringUtil::str(elapsed.micros()) + "us");
+
+		string packet = TurboRunner::headerForWrite("bigfile", bufsize);
+		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
+
+		for (unsigned c = 0; c < bufsize; ++c)
+			buffer[c] = 48+(c>>10);
+		bytesWrit = write(socket_fd, buffer, bufsize);
+		timingData.push_back("wrote all bytes at " + StringUtil::str(elapsed.micros()) + "us");
+
+		size_t bytesRead = read(socket_fd, readBuff, 100);
+		close(socket_fd);
+		timingData.push_back("write returned at " + StringUtil::str(elapsed.micros()) + "us");
+
+		assertEquals(bufsize, bytesWrit);
+		assertStringContains( "200 Success", string(readBuff, bytesRead) );
+	}
+
+	string expectedContents = string(buffer, bufsize);
+	string actualContents = cluster[1].query("read", "name=bigfile");
+	assertEquals( expectedContents, actualContents );
+	timingData.push_back("finished read at " + StringUtil::str(elapsed.micros()) + "us");
+
+	for (std::vector<string>::const_iterator it = timingData.begin(); it != timingData.end(); ++it)
+		std::cout << *it << std::endl;
+}
+
+TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
+{
+	std::cout << std::endl << "*** testBigWrite.Duo ***" << std::endl;
 	std::vector<string> timingData;
 
 	TurboCluster cluster(2, "--clone");
@@ -104,7 +149,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 
 		size_t bytesRead = read(socket_fd, readBuff, 100);
 		close(socket_fd);
-		timingData.push_back("finished write at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("write returned at " + StringUtil::str(elapsed.micros()) + "us");
 
 		assertEquals(bufsize, bytesWrit);
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
@@ -137,13 +182,9 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 	string actualContents = resp.body();
 	assertEquals( expectedContents, actualContents );
 
-
 	actualContents = cluster[1].query("read", "name=bigfile");
 	assertEquals( expectedContents, actualContents );
-
 	timingData.push_back("finished read 2 at " + StringUtil::str(elapsed.micros()) + "us");
-	//std::cout << "finished read 2 at " << elapsed.micros() << "us" << std::endl;
-
 
 	Timer t;
 	while (t.millis() < 10000)
@@ -153,7 +194,6 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite", "[integration]" )
 			break;
 	}
 	timingData.push_back("finished read 3 at " + StringUtil::str(elapsed.millis()) + "ms");
-	//std::cout << "read 3 finished at " << elapsed.millis() << "ms" << std::endl;
 	assertEquals( expectedContents, actualContents );
 
 	for (std::vector<string>::const_iterator it = timingData.begin(); it != timingData.end(); ++it)
