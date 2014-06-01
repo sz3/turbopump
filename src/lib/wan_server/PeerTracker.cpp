@@ -55,7 +55,9 @@ std::shared_ptr<IBufferedConnectionWriter> PeerTracker::getWriter(const Peer& pe
 		return NULL;
 	}
 
-	std::pair<writerit, bool> pear = _writers.insert( std::pair<string,shared_ptr<IBufferedConnectionWriter> >(peer.uid, shared_ptr<IBufferedConnectionWriter>(new BufferedConnectionWriter(sock))) );
+	std::pair<writerit, bool> pear = _writers.insert( std::pair<string,shared_ptr<IBufferedConnectionWriter> >(peer.uid, NULL) );
+	if (pear.second)
+		pear.first->second.reset(new BufferedConnectionWriter(sock)); // TODO: race?
 	return pear.first->second;
 }
 

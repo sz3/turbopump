@@ -17,3 +17,13 @@ int MockBufferedConnectionWriter::flush()
 	_history.call("flush");
 	return 0;
 }
+
+void MockBufferedConnectionWriter::ensureDelivery_inc()
+{
+	_history.call("ensureDelivery_inc");
+}
+
+void MockBufferedConnectionWriter::ensureDelivery_dec()
+{
+	_history.call("ensureDelivery_dec");
+}

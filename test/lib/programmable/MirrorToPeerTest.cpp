@@ -27,7 +27,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfIsNull", "[unit]" )
 	MockMembership membership;
 	membership._self.reset();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -55,7 +55,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	membership.addIp("ddd", "ddd");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -74,6 +74,39 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=me|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
+TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList_EnsureDelivery", "[unit]" )
+{
+	MockHashRing ring;
+	ring._workers.push_back("aaa");
+	ring._workers.push_back("bbb");
+	ring._workers.push_back("ccc");
+	ring._workers.push_back("ddd");
+	MockMembership membership;
+	membership.addIp("aaa", "aaa");
+	membership.addIp("bbb", "bbb");
+	membership.addIp("ccc", "ccc");
+	membership.addIp("ddd", "ddd");
+	membership._history.clear();
+	MockPeerTracker peers;
+	MirrorToPeer command(ring, membership, peers, true);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
+
+	assertEquals( "locations(file,3)", ring._history.calls() );
+	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
+	assertEquals( "getWriter(aaa)", peers._history.calls() );
+	assertEquals( "ensureDelivery_inc()|write(0,write|name=file i=1 n=3 v=v1 source=me|)|write(0,contents)|write(0,)|flush()|ensureDelivery_dec()", writer->_history.calls() );
+}
+
 TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
 {
 	MockHashRing ring;
@@ -89,7 +122,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
 	membership._self = membership.lookup("aaa");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -123,7 +156,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	membership._self = membership.lookup("bbb");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -157,7 +190,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	membership._self = membership.lookup("ccc");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -190,7 +223,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	membership.addIp("ddd", "ddd");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -223,7 +256,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	membership.addIp("ddd", "ddd");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -257,7 +290,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	membership._self = membership.lookup("ddd");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;
@@ -291,7 +324,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_AlreadyHitSource", "[unit]" )
 	membership._self = membership.lookup("ddd");
 	membership._history.clear();
 	MockPeerTracker peers;
-	MirrorToPeer command(ring, membership, peers);
+	MirrorToPeer command(ring, membership, peers, false);
 
 	// input
 	MockDataStore store;

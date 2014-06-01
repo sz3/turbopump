@@ -58,9 +58,9 @@ namespace
 		return bind(&RandomizedMirrorToPeer::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteParams, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers)
+	std::function<void(WriteParams, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
 	{
-		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, peers));
+		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, peers, blocking));
 		return bind(&MirrorToPeer::run, cmd, _1, _2);
 	}
 }
@@ -88,7 +88,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 		if (TurboApi::options.write_chaining)
 		{
 			if (TurboApi::options.partition_keys)
-				chain.add( writeChainFunct_partitionMode(ring, membership, peers) );
+				chain.add( writeChainFunct_partitionMode(ring, membership, peers, true) );
 			else
 				chain.add( writeChainFunct_cloneMode(membership, peers) );
 		}
@@ -104,7 +104,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 			chain.add( digestAddFunct(keyTabulator) );
 
 		if (TurboApi::options.write_chaining && TurboApi::options.partition_keys)
-			chain.add( writeChainFunct_partitionMode(ring, membership, peers) );
+			chain.add( writeChainFunct_partitionMode(ring, membership, peers, false) );
 
 		chain.add( notifyWriteComplete(membership, messenger) );
 		chain.add( membershipAddFunct(ring, membership, keyTabulator) );

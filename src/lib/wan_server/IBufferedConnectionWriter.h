@@ -9,4 +9,7 @@ public:
 	virtual unsigned capacity() const = 0;
 	virtual int write(unsigned char virtid, const char* buffer, unsigned length) = 0;
 	virtual int flush() = 0;
+
+	virtual void ensureDelivery_inc() = 0;
+	virtual void ensureDelivery_dec() = 0;
 };

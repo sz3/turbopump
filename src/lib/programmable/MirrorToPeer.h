@@ -11,7 +11,7 @@ class WriteParams;
 class MirrorToPeer
 {
 public:
-	MirrorToPeer(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers);
+	MirrorToPeer(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking);
 
 	bool run(WriteParams params, IDataStoreReader::ptr contents);
 
@@ -19,4 +19,5 @@ protected:
 	const IHashRing& _ring;
 	const IMembership& _membership;
 	IPeerTracker& _peers;
+	bool _blocking;
 };

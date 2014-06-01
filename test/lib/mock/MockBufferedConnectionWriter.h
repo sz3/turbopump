@@ -11,6 +11,9 @@ public:
 	int write(unsigned char virtid, const char* buffer, unsigned length);
 	int flush();
 
+	void ensureDelivery_inc();
+	void ensureDelivery_dec();
+
 public:
 	unsigned _capacity = 1000;
 	mutable CallHistory _history;

@@ -77,3 +77,42 @@ TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
 	assertEquals( "getWriter(foo)", peers._history.calls() );
 	assertEquals( "write(0,key-req|tree=oak n=2 first=1234 last=5678|)|flush()", writer->_history.calls() );
 }
+
+TEST_CASE( "MessageSenderTest/testOfferWrite", "[unit]" )
+{
+	MockPeerTracker peers;
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	MessageSender messenger(peers);
+	messenger.offerWrite(Peer("foo"), "file1", "version1", "source1");
+
+	assertEquals( "getWriter(foo)", peers._history.calls() );
+	assertEquals( "write(0,offer-write|name=file1 v=version1 source=source1|)|flush()", writer->_history.calls() );
+}
+
+TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
+{
+	MockPeerTracker peers;
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	MessageSender messenger(peers);
+	messenger.demandWrite(Peer("foo"), "file1", "version1", "source1");
+
+	assertEquals( "getWriter(foo)", peers._history.calls() );
+	assertEquals( "write(0,demand-write|name=file1 v=version1 source=source1|)|flush()", writer->_history.calls() );
+}
+
+TEST_CASE( "MessageSenderTest/testDropKey", "[unit]" )
+{
+	MockPeerTracker peers;
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	MessageSender messenger(peers);
+	messenger.dropKey(Peer("foo"), "file1");
+
+	assertEquals( "getWriter(foo)", peers._history.calls() );
+	assertEquals( "write(0,drop|name=file1|)|flush()", writer->_history.calls() );
+}

@@ -5,14 +5,17 @@
 #include "membership/Peer.h"
 #include "wan_server/BufferedConnectionWriter.h"
 #include "wan_server/ConnectionWriteStream.h"
+#include "wan_server/EnsureDelivery.h"
 #include "wan_server/IPeerTracker.h"
+#include <iostream>
 #include <memory>
 #include <sstream>
 using std::string;
 using std::shared_ptr;
 
-WriteActionSender::WriteActionSender(IPeerTracker& peers)
+WriteActionSender::WriteActionSender(IPeerTracker& peers, bool blocking)
 	: _peers(peers)
+	, _blocking(blocking)
 {
 }
 
@@ -23,6 +26,7 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 		return false;
 
 	ConnectionWriteStream stream(writer, peer.nextActionId());
+	EnsureDelivery deliverer(_blocking, *writer);
 
 	std::stringstream ss;
 	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies << " v=" << write.version;
@@ -32,12 +36,24 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 	std::string buff(ss.str());
 	stream.write(buff.data(), buff.size());
 
-	int lastSuccess = 0;
-	int written = 0;
-	while ((written = contents->read(stream)) > 0)
-		lastSuccess = written;
+	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
+	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto IDataStoreReader::ptrs
+	//  and our transfer progress (bytesWrit)
 
-	//if (lastSuccess == stream.maxPacketLength())
+	// TODO: rewrite read loop entirely to be callback driven, in prep for disk IO which occurs on a different thread.
+
+	int bytesWrit = 0;
+	int wrote = 0;
+	while ((wrote = contents->read(stream)) > 0)
+		bytesWrit += wrote;
+
+	if (wrote == -1)
+	{
+		// TODO: push into PartialTransfers
+		std::cout << "write of " << write.filename << " to peer " << peer.uid << " blew up after " << bytesWrit << " bytes" << std::endl;
+		return false;
+	}
+
 	stream.write(NULL, 0);
 	stream.flush();
 	return true;

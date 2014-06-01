@@ -39,6 +39,6 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testDefault", "[unit]" )
 
 	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=123 n=456 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "ensureDelivery_inc()|write(0,write|name=file i=123 n=456 v=v1|)|write(0,contents)|write(0,)|flush()|ensureDelivery_dec()", writer->_history.calls() );
 }
 

@@ -6,9 +6,6 @@
 #include <mutex>
 class IIpSocket;
 
-// TODO: scheduler thread!
-// set up nagle-style flush at ~200 ms.
-
 // TODO: can this class be parameterized and/or swapped out (via interface)
 // for the thing that handles outgoing encryption...?
 // I bet it can... would make the extra buffer copy moot, since encryption needs it to happen anyway...
@@ -22,12 +19,17 @@ public:
 	int write(unsigned char virtid, const char* buffer, unsigned length);
 	int flush();
 
+	void ensureDelivery_inc();
+	void ensureDelivery_dec();
+
 protected:
 	void pushBytes(unsigned char virtid, const char* buff, unsigned length);
+	int send(const char* buff, unsigned length);
 
 protected:
 	std::recursive_mutex _mutex;
 	std::string _buffer;
 	unsigned _capacity;
 	std::shared_ptr<IIpSocket> _sock;
+	int _blocking;
 };

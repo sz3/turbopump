@@ -11,10 +11,11 @@
 #include <memory>
 using std::shared_ptr;
 
-MirrorToPeer::MirrorToPeer(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers)
+MirrorToPeer::MirrorToPeer(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
 	: _ring(ring)
 	, _membership(membership)
 	, _peers(peers)
+	, _blocking(blocking)
 {
 }
 
@@ -50,6 +51,6 @@ bool MirrorToPeer::run(WriteParams params, IDataStoreReader::ptr contents)
 		return false;
 
 	params.mirror = next+1;
-	WriteActionSender client(_peers);
+	WriteActionSender client(_peers, _blocking);
 	return client.store(*peer, params, contents);
 }

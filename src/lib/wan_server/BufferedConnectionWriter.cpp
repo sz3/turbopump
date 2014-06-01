@@ -12,6 +12,7 @@ using std::lock_guard;
 BufferedConnectionWriter::BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize)
 	: _sock(sock)
 	, _capacity(packetsize-3) // will be -6 when encrypted?
+	, _blocking(0)
 {
 	_buffer.reserve(packetsize);
 }
@@ -29,6 +30,9 @@ void BufferedConnectionWriter::pushBytes(unsigned char virtid, const char* buff,
 	_buffer.append(buff, length);
 }
 
+// TODO: needs to account for both async and sync writes.
+// async writes fail if a flush is needed (try again later). Sync writes call flush.
+// flush() needs to not occur under the mutex! Of course.
 int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsigned length)
 {
 	lock_guard<recursive_mutex> lock(_mutex);
@@ -66,7 +70,25 @@ int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsi
 int BufferedConnectionWriter::flush()
 {
 	lock_guard<recursive_mutex> lock(_mutex);
-	int res = _sock->send(_buffer.data(), _buffer.size());
+	int res = send(_buffer.data(), _buffer.size());
 	_buffer.clear();
 	return res;
+}
+
+int BufferedConnectionWriter::send(const char* buff, unsigned length)
+{
+	if (_blocking > 0)
+		return _sock->send(buff, length);
+	else
+		return _sock->try_send(buff, length);
+}
+
+void BufferedConnectionWriter::ensureDelivery_inc()
+{
+	++_blocking;
+}
+
+void BufferedConnectionWriter::ensureDelivery_dec()
+{
+	--_blocking;
 }

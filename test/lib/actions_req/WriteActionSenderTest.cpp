@@ -15,7 +15,7 @@ using std::string;
 TEST_CASE( "WriteActionSenderTest/testDefault", "[unit]" )
 {
 	MockPeerTracker peers;
-	WriteActionSender client(peers);
+	WriteActionSender client(peers, false);
 
 	// input
 	MockDataStore store;
@@ -32,10 +32,30 @@ TEST_CASE( "WriteActionSenderTest/testDefault", "[unit]" )
 	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
 }
 
+TEST_CASE( "WriteActionSenderTest/testEnsureDelivery", "[unit]" )
+{
+	MockPeerTracker peers;
+	WriteActionSender client(peers, true);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	assertTrue( client.store(Peer("dude"), {"file",2,3,"v1"}, reader) );
+
+	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "ensureDelivery_inc()|write(0,write|name=file i=2 n=3 v=v1|)|write(0,contents)|write(0,)|flush()|ensureDelivery_dec()", writer->_history.calls() );
+}
+
 TEST_CASE( "WriteActionSenderTest/testWithSource", "[unit]" )
 {
 	MockPeerTracker peers;
-	WriteActionSender client(peers);
+	WriteActionSender client(peers, false);
 
 	// input
 	MockDataStore store;
@@ -57,7 +77,7 @@ TEST_CASE( "WriteActionSenderTest/testWithSource", "[unit]" )
 TEST_CASE( "WriteActionSenderTest/testMultipleBuffers", "[unit]" )
 {
 	MockPeerTracker peers;
-	WriteActionSender client(peers);
+	WriteActionSender client(peers, false);
 
 	// input
 	MockDataStore store;
@@ -78,7 +98,7 @@ TEST_CASE( "WriteActionSenderTest/testMultipleBuffers", "[unit]" )
 TEST_CASE( "WriteActionSenderTest/testNeedsFinPacket", "[unit]" )
 {
 	MockPeerTracker peers;
-	WriteActionSender client(peers);
+	WriteActionSender client(peers, false);
 
 	// input
 	MockDataStore store;

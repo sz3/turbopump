@@ -23,6 +23,6 @@ bool RandomizedMirrorToPeer::run(WriteParams params, IDataStoreReader::ptr conte
 	if (params.mirror >= params.totalCopies)
 		return false;
 
-	WriteActionSender client(_peers);
+	WriteActionSender client(_peers, true);
 	return client.store(*peer, params, contents);
 }

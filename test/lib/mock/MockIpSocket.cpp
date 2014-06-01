@@ -3,6 +3,11 @@
 
 #include "serialize/StringUtil.h"
 
+MockIpSocket::MockIpSocket()
+	: _trySendError(false)
+{
+}
+
 IpAddress MockIpSocket::getTarget() const
 {
 	_history.call("getTarget");
@@ -13,6 +18,14 @@ std::string MockIpSocket::destination() const
 {
 	_history.call("destination");
 	return _target.ip();
+}
+
+int MockIpSocket::try_send(const char* buffer, unsigned size) const
+{
+	_history.call("try_send", std::string(buffer, size));
+	if (_trySendError)
+		return -1;
+	return size;
 }
 
 int MockIpSocket::send(const char* buffer, unsigned size) const
