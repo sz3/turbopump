@@ -29,7 +29,7 @@ TEST_CASE( "WriteActionSenderTest/testDefault", "[unit]" )
 	assertTrue( client.store(Peer("dude"), {"file",2,3,"v1"}, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteActionSenderTest/testEnsureDelivery", "[unit]" )
@@ -49,7 +49,7 @@ TEST_CASE( "WriteActionSenderTest/testEnsureDelivery", "[unit]" )
 	assertTrue( client.store(Peer("dude"), {"file",2,3,"v1"}, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "ensureDelivery_inc()|write(0,write|name=file i=2 n=3 v=v1|)|write(0,contents)|write(0,)|flush()|ensureDelivery_dec()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|,true)|write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteActionSenderTest/testWithSource", "[unit]" )
@@ -71,7 +71,7 @@ TEST_CASE( "WriteActionSenderTest/testWithSource", "[unit]" )
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 source=dude|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 source=dude|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteActionSenderTest/testMultipleBuffers", "[unit]" )
@@ -92,7 +92,7 @@ TEST_CASE( "WriteActionSenderTest/testMultipleBuffers", "[unit]" )
 	assertTrue( client.store(Peer("dude"), {"file",2,3,"v1"}, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|)|write(0,0123456789)|write(0,abcdeABCDE)|write(0,turtle)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|,false)|write(0,0123456789,false)|write(0,abcdeABCDE,false)|write(0,turtle,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteActionSenderTest/testNeedsFinPacket", "[unit]" )
@@ -113,6 +113,6 @@ TEST_CASE( "WriteActionSenderTest/testNeedsFinPacket", "[unit]" )
 	assertTrue( client.store(Peer("dude"), {"file",2,3,"v1"}, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|)|write(0,0123456789)|write(0,abcdeABCDE)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1|,false)|write(0,0123456789,false)|write(0,abcdeABCDE,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 

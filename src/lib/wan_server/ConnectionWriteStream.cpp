@@ -3,11 +3,10 @@
 
 #include "IBufferedConnectionWriter.h"
 
-// TODO: do virtual connections here?
-// maybe only for buffered writes?
-ConnectionWriteStream::ConnectionWriteStream(const std::shared_ptr<IBufferedConnectionWriter>& writer, unsigned char virtid)
+ConnectionWriteStream::ConnectionWriteStream(const std::shared_ptr<IBufferedConnectionWriter>& writer, unsigned char virtid, bool blocking)
 	: _writer(writer)
 	, _virtid(virtid)
+	, _blocking(blocking)
 {
 }
 
@@ -18,10 +17,10 @@ unsigned ConnectionWriteStream::maxPacketLength() const
 
 int ConnectionWriteStream::write(const char* buff, unsigned length)
 {
-	return _writer->write(_virtid, buff, length);
+	return _writer->write(_virtid, buff, length, _blocking);
 }
 
-int ConnectionWriteStream::flush()
+bool ConnectionWriteStream::flush()
 {
-	return _writer->flush();
+	return _writer->flush(_blocking);
 }

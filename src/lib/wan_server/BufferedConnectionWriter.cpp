@@ -4,15 +4,36 @@
 #include "socket/IIpSocket.h"
 #include <arpa/inet.h>
 #include <iostream>
-using std::recursive_mutex;
+using std::mutex;
 using std::lock_guard;
+using std::string;
+
+namespace {
+	template <typename M>
+	class unlock_guard
+	{
+	public:
+		unlock_guard(M& myMutex)
+			: _mutex(myMutex)
+		{
+			_mutex.unlock();
+		}
+
+		~unlock_guard()
+		{
+			_mutex.lock();
+		}
+
+	protected:
+		M& _mutex;
+	};
+}
 
 // TODO: do virtual connections here?
 // maybe only for buffered writes?
 BufferedConnectionWriter::BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize)
 	: _sock(sock)
 	, _capacity(packetsize-3) // will be -6 when encrypted?
-	, _blocking(0)
 {
 	_buffer.reserve(packetsize);
 }
@@ -33,62 +54,85 @@ void BufferedConnectionWriter::pushBytes(unsigned char virtid, const char* buff,
 // TODO: needs to account for both async and sync writes.
 // async writes fail if a flush is needed (try again later). Sync writes call flush.
 // flush() needs to not occur under the mutex! Of course.
-int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsigned length)
+int BufferedConnectionWriter::write(unsigned char virtid, const char* buff, unsigned length, bool blocking)
 {
-	lock_guard<recursive_mutex> lock(_mutex);
 	// [6 0 data1][12 1 data2-part1]
 	// [34 1 data2-part2]
 	// [30 1 data2-part3]
 
+	// if buffer is already "full", flush
+	// while bytes, push (+flush) until length bytes have been consumed
+
+	// if blocking, flush is async -- and we crash out with bytesWritten when it fails.
+
+
+	// 1) test is buffer is full, flush
+	//   a) async -- asyncMutex for buffer test + flush
+	//   b) sync -- asyncMutex for buffer copy+clear + syncMutex for flush + release asyncMutex + flush()
+	// 2) pushBytes -- asyncMutex for buffer write
+
 	unsigned maxBufferSize = capacity();
-	int res = 0;
-	if (_buffer.size() > 0 && _buffer.size() + length > maxBufferSize)
-		res = flush();
-	while(true)
+	unsigned remaining = length;
+	bool good = true;
+
 	{
-		unsigned packetSize = _buffer.size() + length;
+		lock_guard<mutex> lock(_buffMutex);
+		if (_buffer.size() > 0 && _buffer.size() + remaining > maxBufferSize)
+			good = flush_internal(blocking);
+	}
+
+	while (good)
+	{
+		lock_guard<mutex> lock(_buffMutex);
+		unsigned packetSize = _buffer.size() + remaining;
 		if (packetSize >= maxBufferSize)
 		{
 			packetSize = maxBufferSize;//-_buffer.size();
 			pushBytes(virtid, buff, packetSize);
-			res = flush();
+			good = flush_internal(blocking);
 		}
 		else
 		{
-			packetSize = length;
+			packetSize = remaining;
 			pushBytes(virtid, buff, packetSize);
 		}
 
 		buff += packetSize;
-		length -= packetSize;
-		if (length == 0)
+		remaining -= packetSize;
+		if (remaining == 0)
 			break;
 	}
-	return res;
+	return length-remaining;
 }
 
-int BufferedConnectionWriter::flush()
+bool BufferedConnectionWriter::flush(bool blocking)
 {
-	lock_guard<recursive_mutex> lock(_mutex);
-	int res = send(_buffer.data(), _buffer.size());
-	_buffer.clear();
-	return res;
+	lock_guard<mutex> lock(_buffMutex);
+	return flush_internal(blocking);
 }
 
-int BufferedConnectionWriter::send(const char* buff, unsigned length)
+bool BufferedConnectionWriter::flush_internal(bool blocking)
 {
-	if (_blocking > 0)
-		return _sock->send(buff, length);
+	if (blocking)
+	{
+		lock_guard<mutex> lock(_syncFlushMutex);
+		string buff(_buffer);
+		_buffer.clear();
+		unlock_guard<mutex> unlock(_buffMutex);
+
+		// TODO: retry if sent < buff.size()?
+		return _sock->send(buff.data(), buff.size());
+	}
 	else
-		return _sock->try_send(buff, length);
-}
-
-void BufferedConnectionWriter::ensureDelivery_inc()
-{
-	++_blocking;
-}
-
-void BufferedConnectionWriter::ensureDelivery_dec()
-{
-	--_blocking;
+	{
+		int res = _sock->try_send(_buffer.data(), _buffer.size());
+		if (res == _buffer.size())
+		{
+			_buffer.clear();
+			return true;
+		}
+		if (res > 0)
+			_buffer = _buffer.substr(res);
+		return false;
+	}
 }

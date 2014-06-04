@@ -16,20 +16,17 @@ public:
 	BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize=1450);
 
 	unsigned capacity() const;
-	int write(unsigned char virtid, const char* buffer, unsigned length);
-	int flush();
-
-	void ensureDelivery_inc();
-	void ensureDelivery_dec();
+	int write(unsigned char virtid, const char* buffer, unsigned length, bool blocking);
+	bool flush(bool blocking);
 
 protected:
 	void pushBytes(unsigned char virtid, const char* buff, unsigned length);
-	int send(const char* buff, unsigned length);
+	bool flush_internal(bool blocking);
 
 protected:
-	std::recursive_mutex _mutex;
+	std::mutex _buffMutex;
+	std::mutex _syncFlushMutex;
 	std::string _buffer;
 	unsigned _capacity;
 	std::shared_ptr<IIpSocket> _sock;
-	int _blocking;
 };

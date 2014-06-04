@@ -22,8 +22,8 @@ bool MessageSender::sendMessage(const Peer& peer, const string& message)
 	if (!writer)
 		return false;
 
-	writer->write(peer.nextActionId(), message.data(), message.size());
-	writer->flush();
+	writer->write(peer.nextActionId(), message.data(), message.size(), false);
+	writer->flush(false);
 	return true;
 }
 

@@ -8,12 +8,8 @@ class MockBufferedConnectionWriter : public IBufferedConnectionWriter
 {
 public:
 	unsigned capacity() const;
-	int write(unsigned char virtid, const char* buffer, unsigned length);
-	int flush();
-
-	void ensureDelivery_inc();
-	void ensureDelivery_dec();
-
+	int write(unsigned char virtid, const char* buffer, unsigned length, bool blocking);
+	bool flush(bool blocking);
 public:
 	unsigned _capacity = 1000;
 	mutable CallHistory _history;

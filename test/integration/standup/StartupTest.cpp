@@ -18,6 +18,7 @@
 
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <signal.h>
 #include <unistd.h>
 using std::shared_ptr;
 using std::string;
@@ -29,7 +30,9 @@ public:
 		: TurboRunner(port)
 		, _app(api, dataChannel(), port)
 		, _thread(std::bind(&TurboPumpApp::run, &_app))
-	{}
+	{
+		::signal(SIGPIPE, SIG_IGN);
+	}
 
 	~IntegratedTurboRunner()
 	{

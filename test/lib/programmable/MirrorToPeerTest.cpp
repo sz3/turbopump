@@ -71,7 +71,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=me|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=me|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList_EnsureDelivery", "[unit]" )
@@ -104,7 +104,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList_EnsureDelivery", "[unit]" 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "ensureDelivery_inc()|write(0,write|name=file i=1 n=3 v=v1 source=me|)|write(0,contents)|write(0,)|flush()|ensureDelivery_dec()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=me|,true)|write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
@@ -138,7 +138,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(bbb)", membership._history.calls() );
 	assertEquals( "getWriter(bbb)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 source=aaa|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 source=aaa|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
@@ -172,7 +172,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(bbb)|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=3 n=3 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=3 n=3 v=v1|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
@@ -206,7 +206,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=ccc|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=ccc|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
@@ -239,7 +239,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=3 n=3 v=v1|)|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=3 n=3 v=v1|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
@@ -342,8 +342,8 @@ TEST_CASE( "MirrorToPeerTest/testMirror_AlreadyHitSource", "[unit]" )
 	assertEquals( "locations(file,2)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=3 n=2 v=v1 source=bbb|)"
-				  "|write(0,contents)|write(0,)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=3 n=2 v=v1 source=bbb|,false)"
+				  "|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 

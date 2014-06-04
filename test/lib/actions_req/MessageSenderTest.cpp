@@ -26,7 +26,7 @@ TEST_CASE( "MessageSenderTest/testDigestPing", "[unit]" )
 	messenger.digestPing(Peer("dude"), TreeId("oak"), point);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,sync|tree=oak n=3|1 2 3)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,sync|tree=oak n=3|1 2 3,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDigestPing.Null", "[unit]" )
@@ -39,7 +39,7 @@ TEST_CASE( "MessageSenderTest/testDigestPing.Null", "[unit]" )
 	messenger.digestPing(Peer("dude"), TreeId("oak"), MerklePoint::null());
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,sync|tree=oak n=3|0 65535 0)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,sync|tree=oak n=3|0 65535 0,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDigestPing.Many", "[unit]" )
@@ -62,7 +62,7 @@ TEST_CASE( "MessageSenderTest/testDigestPing.Many", "[unit]" )
 	messenger.digestPing(Peer("dude"), TreeId("oak",2), points);
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,sync|tree=oak n=2|1 1 10|2 2 20|3 3 30)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,sync|tree=oak n=2|1 1 10|2 2 20|3 3 30,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
@@ -75,7 +75,7 @@ TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
 	messenger.requestKeyRange(Peer("foo"), TreeId("oak",2), 1234, 5678);
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "write(0,key-req|tree=oak n=2 first=1234 last=5678|)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,key-req|tree=oak n=2 first=1234 last=5678|,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testOfferWrite", "[unit]" )
@@ -88,7 +88,7 @@ TEST_CASE( "MessageSenderTest/testOfferWrite", "[unit]" )
 	messenger.offerWrite(Peer("foo"), "file1", "version1", "source1");
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "write(0,offer-write|name=file1 v=version1 source=source1|)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,offer-write|name=file1 v=version1 source=source1|,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
@@ -101,7 +101,7 @@ TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
 	messenger.demandWrite(Peer("foo"), "file1", "version1", "source1");
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "write(0,demand-write|name=file1 v=version1 source=source1|)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,demand-write|name=file1 v=version1 source=source1|,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDropKey", "[unit]" )
@@ -114,5 +114,5 @@ TEST_CASE( "MessageSenderTest/testDropKey", "[unit]" )
 	messenger.dropKey(Peer("foo"), "file1");
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "write(0,drop|name=file1|)|flush()", writer->_history.calls() );
+	assertEquals( "write(0,drop|name=file1|,false)|flush(false)", writer->_history.calls() );
 }

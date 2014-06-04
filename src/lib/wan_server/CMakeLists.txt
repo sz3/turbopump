@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	BufferedConnectionWriter.cpp
 	BufferedConnectionWriter.h
-	EnsureDelivery.h
 	ConnectionWriteStream.cpp
 	ConnectionWriteStream.h
 	IBufferedConnectionWriter.h

@@ -5,7 +5,6 @@
 #include "membership/Peer.h"
 #include "wan_server/BufferedConnectionWriter.h"
 #include "wan_server/ConnectionWriteStream.h"
-#include "wan_server/EnsureDelivery.h"
 #include "wan_server/IPeerTracker.h"
 #include <iostream>
 #include <memory>
@@ -25,8 +24,7 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 	if (!writer)
 		return false;
 
-	ConnectionWriteStream stream(writer, peer.nextActionId());
-	EnsureDelivery deliverer(_blocking, *writer);
+	ConnectionWriteStream stream(writer, peer.nextActionId(), _blocking);
 
 	std::stringstream ss;
 	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies << " v=" << write.version;
