@@ -21,6 +21,7 @@ public:
 	IpAddress _target;
 	std::string _recvBuff;
 	bool _trySendError;
+	int _trySendErrorBytes;
 
 	mutable CallHistory _history;
 };

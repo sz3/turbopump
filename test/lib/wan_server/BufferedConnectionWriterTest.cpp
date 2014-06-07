@@ -15,6 +15,7 @@ namespace {
 			: BufferedConnectionWriter(sock, packetsize)
 		{}
 
+		using BufferedConnectionWriter::findFirstTruncatedPacket;
 		using BufferedConnectionWriter::_buffer;
 	};
 }
@@ -135,6 +136,31 @@ TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort", "[unit]" )
 	assertEquals( (string{0,4,33} + "abc"), writer._buffer );
 }
 
+TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort.PartialPacket", "[unit]" )
+{
+	MockIpSocket* sock = new MockIpSocket;
+	sock->_trySendError = true;
+	sock->_trySendErrorBytes = 20; // claim to have sent 20 bytes on failure
+	TestableBufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 50);
+
+	// write succeeds, but only flushes twice
+	string buff = "0123456789";
+	assertEquals( 10, writer.write(33, buff.data(), buff.size(), false) );
+
+	buff = "abcdef";
+	assertEquals( 6, writer.write(35, buff.data(), buff.size(), false) );
+	assertEquals( "", sock->_history.calls() );
+	assertEquals( (string{0,11,33} + "0123456789" + (string{0,7,35} + "abcdef")), writer._buffer );
+
+	// flush partially fails
+	sock->_history.clear();
+	assertFalse( writer.flush(false) );
+	assertEquals( ("try_send(" + string{0,11,33} + "0123456789" + string{0,7,35} + "abcdef)"), sock->_history.calls() );
+
+	// hold onto the *entire* failed packet. We sent 20 bytes successfully, but we needed to send 22...
+	assertEquals( (string{0,7,35} + "abcdef"), writer._buffer );
+}
+
 TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.Reliable", "[unit]" )
 {
 	MockIpSocket* sock = new MockIpSocket;
@@ -152,4 +178,32 @@ TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.Reliable", "[unit]" )
 	assertTrue( writer.flush(true) );
 	assertEquals( ("send(" + string{0,6,33} + "01234)"), sock->_history.calls() );
 	assertEquals( "", writer._buffer );
+}
+
+TEST_CASE( "BufferedConnectionWriterTest/testFindFirstTruncatedPacket", "[unit]" )
+{
+	string buff = (string{0,6,33} + "01234") + (string{0,6,33} + "abcde");
+	unsigned index = TestableBufferedConnectionWriter::findFirstTruncatedPacket(buff.data(), 15);
+	assertEquals( 8, index );
+	assertEquals( (string{0,6,33} + "abcde"), buff.substr(index) );
+
+	index = TestableBufferedConnectionWriter::findFirstTruncatedPacket(buff.data(), 9);
+	assertEquals( 8, index );
+	assertEquals( (string{0,6,33} + "abcde"), buff.substr(index) );
+
+	index = TestableBufferedConnectionWriter::findFirstTruncatedPacket(buff.data(), 8);
+	assertEquals( 8, index );
+	assertEquals( (string{0,6,33} + "abcde"), buff.substr(index) );
+
+	index = TestableBufferedConnectionWriter::findFirstTruncatedPacket(buff.data(), 7);
+	assertEquals( 0, index );
+	assertEquals( buff, buff.substr(index) );
+
+	index = TestableBufferedConnectionWriter::findFirstTruncatedPacket(buff.data(), 1);
+	assertEquals( 0, index );
+	assertEquals( buff, buff.substr(index) );
+
+	index = TestableBufferedConnectionWriter::findFirstTruncatedPacket(buff.data(), buff.size());
+	assertEquals( buff.size(), index );
+	assertEquals( "", buff.substr(index) );
 }

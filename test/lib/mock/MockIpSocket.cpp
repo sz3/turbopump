@@ -5,6 +5,7 @@
 
 MockIpSocket::MockIpSocket()
 	: _trySendError(false)
+	, _trySendErrorBytes(-1)
 {
 }
 
@@ -24,7 +25,7 @@ int MockIpSocket::try_send(const char* buffer, unsigned size) const
 {
 	_history.call("try_send", std::string(buffer, size));
 	if (_trySendError)
-		return -1;
+		return _trySendErrorBytes;
 	return size;
 }
 

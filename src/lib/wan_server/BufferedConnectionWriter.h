@@ -23,6 +23,8 @@ protected:
 	void pushBytes(unsigned char virtid, const char* buff, unsigned length);
 	bool flush_internal(bool blocking);
 
+	static unsigned findFirstTruncatedPacket(const char* buff, unsigned size);
+
 protected:
 	std::mutex _buffMutex;
 	std::mutex _syncFlushMutex;
