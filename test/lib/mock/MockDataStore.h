@@ -17,6 +17,7 @@ public:
 	public:
 		Writer(std::string filename, MockDataStore& store);
 		KeyMetadata& metadata();
+		void setOffset(unsigned long long offset);
 
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();

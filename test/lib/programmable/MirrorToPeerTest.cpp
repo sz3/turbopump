@@ -34,7 +34,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfIsNull", "[unit]" )
 	store._store["dummy"] = "contents";
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
-	assertFalse( command.run(WriteParams({"file",0,3,"v1"}), reader) );
+	assertFalse( command.run(WriteParams({"file",0,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()", membership._history.calls() );
@@ -66,12 +66,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
+	assertTrue( command.run(WriteParams({"file",0,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=me|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 offset=0 source=me|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList_EnsureDelivery", "[unit]" )
@@ -99,12 +99,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList_EnsureDelivery", "[unit]" 
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
+	assertTrue( command.run(WriteParams({"file",0,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=me|,true)|write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 offset=0 source=me|,true)|write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
@@ -133,12 +133,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
+	assertTrue( command.run(WriteParams({"file",0,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(bbb)", membership._history.calls() );
 	assertEquals( "getWriter(bbb)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 source=aaa|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0 source=aaa|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
@@ -167,12 +167,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(WriteParams({"file",1,3,"v1"}), reader) );
+	assertTrue( command.run(WriteParams({"file",1,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(bbb)|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=3 n=3 v=v1|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=3 n=3 v=v1 offset=0|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
@@ -201,12 +201,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(WriteParams({"file",0,3,"v1"}), reader) );
+	assertTrue( command.run(WriteParams({"file",0,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(aaa)", membership._history.calls() );
 	assertEquals( "getWriter(aaa)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 source=ccc|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=1 n=3 v=v1 offset=0 source=ccc|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
@@ -234,12 +234,12 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run(WriteParams({"file",2,3,"v1"}), reader) );
+	assertTrue( command.run(WriteParams({"file",2,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=3 n=3 v=v1|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=3 n=3 v=v1 offset=0|,false)|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
@@ -267,7 +267,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertFalse( command.run(WriteParams({"file",3,3,"v1"}), reader) );
+	assertFalse( command.run(WriteParams({"file",3,3,"v1",0}), reader) );
 
 	assertEquals( "locations(file,3)", ring._history.calls() );
 	assertEquals( "self()", membership._history.calls() );
@@ -301,7 +301,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertFalse( command.run(WriteParams({"file",3,4,"v1"}), reader) );
+	assertFalse( command.run(WriteParams({"file",3,4,"v1",0}), reader) );
 
 	assertEquals( "locations(file,4)", ring._history.calls() );
 	assertEquals( "self()|lookup(ddd)", membership._history.calls() );
@@ -335,14 +335,14 @@ TEST_CASE( "MirrorToPeerTest/testMirror_AlreadyHitSource", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	WriteParams params({"file",1,2,"v1"});
+	WriteParams params({"file",1,2,"v1",0});
 	params.source = "bbb";
 	assertTrue( command.run(params, reader) );
 
 	assertEquals( "locations(file,2)", ring._history.calls() );
 	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "getWriter(ccc)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=3 n=2 v=v1 source=bbb|,false)"
+	assertEquals( "write(0,write|name=file i=3 n=2 v=v1 offset=0 source=bbb|,false)"
 				  "|write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
 }
 

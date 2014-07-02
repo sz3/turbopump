@@ -67,7 +67,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 		{
 			// WriteParams sets mirror to totalCopies => "don't forward, and notify the source if there is one"
 			unsigned totalCopies = (*read)->metadata().totalCopies;
-			WriteParams write(*it, totalCopies, totalCopies, (*read)->metadata().version.toString());
+			WriteParams write(*it, totalCopies, totalCopies, (*read)->metadata().version.toString(), 0);
 			if (!offloadFrom.empty())
 				write.source = offloadFrom;
 			if (!_sender.store(peer, write, *read))
@@ -86,7 +86,7 @@ bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std
 		return false;
 
 	unsigned totalCopies = reader->metadata().totalCopies;
-	WriteParams write(name, totalCopies, totalCopies, version);
+	WriteParams write(name, totalCopies, totalCopies, version, 0);
 	write.source = source;
 
 	if (!_sender.store(peer, write, reader))

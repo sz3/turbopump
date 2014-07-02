@@ -69,6 +69,8 @@ bool WriteAction::run(const DataBuffer& data)
 	}
 
 	_started |= true;
+	// wan: write to mirror (nonblocking, could fail -> get pushed into PendingWrites), then write (on same thread) to disk
+	// local: pass buffer for write to disk (on other thread), write to mirror (blocking), then wait for disk write to finish
 	_writer->write(data.buffer(), data.size());
 	return true;
 }
@@ -93,11 +95,16 @@ void WriteAction::setParams(const map<string,string>& params)
 	if (it != params.end())
 		_params.source = it->second;
 
+	it = params.find("offset");
+	if (it != params.end())
+		_params.offset = std::stoi(it->second);
+
 	it = params.find("name");
 	if (it != params.end())
 	{
 		_params.filename = it->second;
 		_writer = open(_params);
+		_writer->setOffset(_params.offset);
 		_writer->metadata().totalCopies = _params.totalCopies;
 		_writer->metadata().version.fromString(_params.version);
 	}
@@ -106,6 +113,13 @@ void WriteAction::setParams(const map<string,string>& params)
 // virtual method. See LocalWriteAction::open() for an alternate take
 IDataStoreWriter::ptr WriteAction::open(const WriteParams& params)
 {
+	// perhaps instead of a virtual, pass the mirror number in here?
+	// if it's a weird value (e.g. DATASTORE::NOVERSION) we could do something special?
+	// key is that we're going to need a layer of IDataStore abstraction anyway to do the mirror to peer stuff...
+	//   DistributedDataStore()?
+
+	// could handle just writes (all we need him for here...) could also do reads. Most exciting part will be in his IDataStore::Writer,
+	//  which will have to know who he's forwarding to.
 	return _dataStore.write(params.filename);
 }
 

@@ -16,7 +16,7 @@ bool DataChain::storeAsBestVersion(const std::shared_ptr<DataEntry>& entry)
 	return store_unlocked(entry);
 }
 
-bool DataChain::store(const std::shared_ptr<DataEntry>& entry)
+bool DataChain::store(const std::shared_ptr<DataEntry>& entry, unsigned long long offset)
 {
 	if (entry->md.version.isDeleted())
 		return storeDeleted(entry);
@@ -29,7 +29,15 @@ bool DataChain::store(const std::shared_ptr<DataEntry>& entry)
 	{
 		VectorClock::COMPARE comp = entry->md.version.compare( (*it)->md.version );
 		if (comp == VectorClock::EQUAL)
-			return false;
+		{
+			if (offset != (*it)->data.size())
+				return false;
+
+			entry->md.totalCopies = (*it)->md.totalCopies;
+			entry->data = (*it)->data + entry->data;
+			_entries.erase(it);
+			break;
+		}
 		else if (comp == VectorClock::LESS_THAN && (*it)->md.supercede)
 			return false;
 		else if (deletedVersion.compare( (*it)->md.version ) == VectorClock::EQUAL)

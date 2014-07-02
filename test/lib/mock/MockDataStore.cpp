@@ -40,6 +40,11 @@ KeyMetadata& MockDataStore::Writer::metadata()
 	return _data.md;
 }
 
+void MockDataStore::Writer::setOffset(unsigned long long offset)
+{
+	_store._history.call("Writer::setOffset", offset);
+}
+
 /*
   </end child class>
 */

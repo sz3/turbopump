@@ -46,7 +46,7 @@ TEST_CASE( "LocalWriteActionTest/testTransientWrite", "[unit]" )
 	}
 
 	assertEquals( "keyIsMine(foobar.txt,5)", locator._history.calls() );
-	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", transientStore._history.calls() );
+	assertEquals( "Writer::setOffset(0)|Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", transientStore._history.calls() );
 	assertEquals( "", dataStore._history.calls() );
 	assertEquals( "0123456789", transientStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt,3,5,someguy)", _history.calls() );
@@ -81,7 +81,7 @@ TEST_CASE( "LocalWriteActionTest/testPermanentWrite", "[unit]" )
 
 	assertEquals( "keyIsMine(foobar.txt,5)", locator._history.calls() );
 	assertEquals( "", transientStore._history.calls() );
-	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", dataStore._history.calls() );
+	assertEquals( "Writer::setOffset(0)|Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", dataStore._history.calls() );
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt,3,5,someguy)", _history.calls() );
 }

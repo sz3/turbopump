@@ -26,6 +26,7 @@ std::shared_ptr<IDataStoreWriter> RamDataStore::write(const string& filename)
 */
 RamDataStore::Writer::Writer(std::string filename, RamDataStore& store)
 	: _filename(std::move(filename))
+	, _offset(0)
 	, _store(store)
 {
 }
@@ -51,6 +52,16 @@ DataEntry&& RamDataStore::Writer::move_data()
 	return std::move(_data);
 }
 
+void RamDataStore::Writer::setOffset(unsigned long long offset)
+{
+	_offset = offset;
+}
+
+unsigned long long RamDataStore::Writer::offset() const
+{
+	return _offset;
+}
+
 KeyMetadata& RamDataStore::Writer::metadata()
 {
 	return _data.md;
@@ -67,7 +78,7 @@ IDataStoreReader::ptr RamDataStore::commit(Writer& writer)
 	if (data->md.version.empty())
 		chain.storeAsBestVersion(data);
 	else
-		chain.store(data);
+		chain.store(data, writer.offset());
 	return IDataStoreReader::ptr(new Reader(data, chain.summary()));
 }
 

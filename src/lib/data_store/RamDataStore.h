@@ -24,8 +24,12 @@ protected:
 		std::string&& move_filename();
 		DataEntry&& move_data();
 
+		void setOffset(unsigned long long offset);
+		unsigned long long offset() const;
+
 	protected:
 		std::string _filename;
+		unsigned long long _offset;
 		DataEntry _data;
 		RamDataStore& _store;
 	};

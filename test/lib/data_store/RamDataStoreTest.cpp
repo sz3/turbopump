@@ -223,7 +223,7 @@ TEST_CASE( "RamDataStoreTest/testReadDeleted", "[unit]" )
 	{
 		std::shared_ptr<DataEntry> data(new DataEntry{"deleted"});
 		data->md.version.markDeleted();
-		dataStore._store["deleteme"].store(data);
+		dataStore._store["deleteme"].store(data, 0);
 	}
 
 	vector<IDataStoreReader::ptr> readerList = dataStore.read("deleteme");
@@ -281,7 +281,7 @@ TEST_CASE( "RamDataStoreTest/testReport.HandleDeleted", "[unit]" )
 	{
 		std::shared_ptr<DataEntry> data(new DataEntry{"deleted"});
 		data->md.version.markDeleted();
-		dataStore._store["deleted"].store(data);
+		dataStore._store["deleted"].store(data, 0);
 	}
 
 	StringByteStream showDeleted;

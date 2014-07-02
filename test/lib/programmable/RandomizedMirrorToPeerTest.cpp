@@ -35,10 +35,10 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testDefault", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run({"file", 123, 456, "v1"}, reader) );
+	assertTrue( command.run({"file", 123, 456, "v1", 0}, reader) );
 
 	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=123 n=456 v=v1|,true)|write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=123 n=456 v=v1 offset=0|,true)|write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
 }
 

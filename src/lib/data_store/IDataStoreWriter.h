@@ -15,5 +15,6 @@ public:
 	virtual bool write(const char* buffer, unsigned size) = 0;
 	virtual std::shared_ptr<IDataStoreReader> commit() = 0;
 
+	virtual void setOffset(unsigned long long offset) = 0;
 	virtual KeyMetadata& metadata() = 0;
 };

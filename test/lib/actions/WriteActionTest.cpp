@@ -40,7 +40,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 		assertFalse( action.run(DataBuffer("closed", 6)) );
 	}
 	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
-	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::write(foobar.txt,abcde)|Writer::commit(foobar.txt,3)", dataStore._history.calls() );
+	assertEquals( "Writer::setOffset(0)|Writer::write(foobar.txt,0123456789)|Writer::write(foobar.txt,abcde)|Writer::commit(foobar.txt,3)", dataStore._history.calls() );
 	assertEquals( "onCommit(foobar.txt,0,3,[1,mockReaderVersion:1])", _history.calls() );
 }
 
@@ -59,6 +59,7 @@ TEST_CASE( "WriteActionTest/testExtraParams", "default" )
 		params["i"] = "3";
 		params["v"] = "v1";
 		params["source"] = "someguy";
+		params["offset"] = "20";
 		action.setParams(params);
 		assertTrue( action.good() );
 		assertEquals( "", _history.calls() );
@@ -68,7 +69,7 @@ TEST_CASE( "WriteActionTest/testExtraParams", "default" )
 		assertTrue( action.finished() );
 	}
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
-	assertEquals( "Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", dataStore._history.calls() );
+	assertEquals( "Writer::setOffset(20)|Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", dataStore._history.calls() );
 	assertEquals( "onCommit(foobar.txt,3,5,[1,mockReaderVersion:1],someguy)", _history.calls() );
 }
 

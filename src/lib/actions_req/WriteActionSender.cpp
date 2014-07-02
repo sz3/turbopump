@@ -27,7 +27,7 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 	ConnectionWriteStream stream(writer, peer.nextActionId(), _blocking);
 
 	std::stringstream ss;
-	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies << " v=" << write.version;
+	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies << " v=" << write.version << " offset=" << write.offset;
 	if (!write.source.empty())
 		ss << " source=" << write.source;
 	ss << "|";
@@ -37,6 +37,23 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
 	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto IDataStoreReader::ptrs
 	//  and our transfer progress (bytesWrit)
+
+	// TODO: writer will be totally different, since we're doing:
+	// WAN writes:
+	//     open(), version(), getMirror()
+	//     mirror_write() to next mirror
+	//     dataStore_write() to local dataStore
+
+	// need effective way to handle failed mirror_write() calls.
+	//  have PartialTransfers hold send buffers?
+	//  (before eventually paging to the file stored on disk?)
+
+	// threading:
+	//   local writes: disk (data store) write occurs on different thread.
+	//                 network write blocks on my thread.
+	//   wan writes: disk write blocks on my thread
+	//               network writes are async.
+
 
 	// TODO: rewrite read loop entirely to be callback driven, in prep for disk IO which occurs on a different thread.
 
