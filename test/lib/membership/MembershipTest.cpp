@@ -169,9 +169,9 @@ TEST_CASE( "MembershipTest/testSyncToDataStore", "[unit]" )
 	MockDataStore store;
 	membership.syncToDataStore(store);
 
-	assertEquals( "Writer::write(.membership/barid,ip2)|Writer::commit(.membership/barid,0,0)"
-				  "|Writer::write(.membership/fooid,1.2.3.4)|Writer::commit(.membership/fooid,0,0)"
-				  "|Writer::write(.membership/rabid,ip3)|Writer::commit(.membership/rabid,0,0)", store._history.calls() );
+	assertEquals( "Writer::write(.membership/barid,ip2)|Writer::commit(.membership/barid,0)"
+				  "|Writer::write(.membership/fooid,1.2.3.4)|Writer::commit(.membership/fooid,0)"
+				  "|Writer::write(.membership/rabid,ip3)|Writer::commit(.membership/rabid,0)", store._history.calls() );
 	assertEquals( "1.2.3.4", store._store[".membership/fooid"] );
 }
 
