@@ -27,6 +27,7 @@ public:
 	bool finished() const;
 
 protected:
+	bool flush();
 	bool commit();
 
 protected:
@@ -34,6 +35,7 @@ protected:
 	std::function<void(WriteParams, IDataStoreReader::ptr)> _onCommit;
 	bool _started;
 	bool _finished;
+	unsigned _bytesSinceLastFlush;
 
 	WriteParams _params;
 	IDataStoreWriter::ptr _writer;

@@ -16,5 +16,6 @@ public:
 	virtual int read(IByteStream& out) = 0;
 
 	virtual const KeyMetadata& metadata() const = 0;
+	virtual unsigned long long size() const = 0;
 	virtual unsigned long long summary() const = 0;
 };

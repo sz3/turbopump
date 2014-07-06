@@ -104,15 +104,15 @@ TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
 	assertEquals( "write(0,demand-write|name=file1 v=version1 source=source1|,false)|flush(false)", writer->_history.calls() );
 }
 
-TEST_CASE( "MessageSenderTest/testDropKey", "[unit]" )
+TEST_CASE( "MessageSenderTest/testAcknowledgeWrite", "[unit]" )
 {
 	MockPeerTracker peers;
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
 	MessageSender messenger(peers);
-	messenger.dropKey(Peer("foo"), "file1");
+	messenger.acknowledgeWrite(Peer("foo"), "file1", "version1", 1234);
 
 	assertEquals( "getWriter(foo)", peers._history.calls() );
-	assertEquals( "write(0,drop|name=file1|,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "write(0,ack-write|name=file1 v=version1 size=1234|,true)|flush(true)", writer->_history.calls() );
 }

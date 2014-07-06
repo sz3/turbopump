@@ -42,14 +42,19 @@ IDataStoreReader::ptr RamDataStore::Writer::commit()
 	return _store.commit(*this);
 }
 
-std::string&& RamDataStore::Writer::move_filename()
+void RamDataStore::Writer::reset()
 {
-	return std::move(_filename);
+	_data.data.clear();
 }
 
-DataEntry&& RamDataStore::Writer::move_data()
+const std::string& RamDataStore::Writer::filename() const
 {
-	return std::move(_data);
+	return _filename;
+}
+
+const DataEntry& RamDataStore::Writer::data() const
+{
+	return _data;
 }
 
 void RamDataStore::Writer::setOffset(unsigned long long offset)
@@ -73,12 +78,18 @@ KeyMetadata& RamDataStore::Writer::metadata()
 // version on commit?
 IDataStoreReader::ptr RamDataStore::commit(Writer& writer)
 {
-	DataChain& chain = _store[writer.move_filename()];
-	shared_ptr<DataEntry> data(new DataEntry(writer.move_data()));
+	DataChain& chain = _store[writer.filename()];
+	shared_ptr<DataEntry> data(new DataEntry(writer.data()));
 	if (data->md.version.empty())
+	{
 		chain.storeAsBestVersion(data);
+		writer.metadata().version = data->md.version;
+	}
 	else
 		chain.store(data, writer.offset());
+
+	writer.setOffset(writer.offset() + writer.data().data.size());
+	writer.reset();
 	return IDataStoreReader::ptr(new Reader(data, chain.summary()));
 }
 
@@ -153,6 +164,11 @@ int RamDataStore::Reader::read(IByteStream& out)
 const KeyMetadata& RamDataStore::Reader::metadata() const
 {
 	return _data->md;
+}
+
+unsigned long long RamDataStore::Reader::size() const
+{
+	return _data->data.size();
 }
 
 unsigned long long RamDataStore::Reader::summary() const

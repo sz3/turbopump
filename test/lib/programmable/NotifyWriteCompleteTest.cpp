@@ -6,6 +6,7 @@
 #include "actions/WriteParams.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
+#include "mock/MockDataStore.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMessageSender.h"
 #include <string>
@@ -62,8 +63,9 @@ TEST_CASE( "NotifyWriteCompleteTest/testDropExtraMirror", "[unit]" )
 
 	WriteParams params("myfile", 3, 2, "v1", 0);
 	params.source = "peer";
-	command.run(params, NULL);
+	IDataStoreReader::ptr reader(new MockDataStore::Reader("data"));
+	command.run(params, reader);
 
 	assertEquals( "lookup(peer)", membership._history.calls() );
-	assertEquals( "dropKey(peer,myfile)", messenger._history.calls() );
+	assertEquals( "acknowledgeWrite(peer,myfile,v1,4)", messenger._history.calls() );
 }

@@ -83,6 +83,7 @@ namespace {
 
 TEST_CASE( "RamDataStoreTest/testWrite", "[unit]" )
 {
+	MyMemberId("me");
 	TestableRamDataStore dataStore;
 
 	IDataStoreWriter::ptr writer = dataStore.write("foo");
@@ -99,11 +100,13 @@ TEST_CASE( "RamDataStoreTest/testWrite", "[unit]" )
 	assertTrue( writer->commit() );
 
 	assertEquals( "0123456789", dataStore._store["foo"].entries().front()->data );
-	assertEquals( "", testView->data().data ); // got std::move'd
+	assertEquals( "", testView->data().data ); // got cleared
+	assertEquals( "1,me:1", dataStore._store["foo"].entries().front()->md.version.toString() );
 }
 
 TEST_CASE( "RamDataStoreTest/testOverwrite", "[unit]" )
 {
+	MyMemberId("me");
 	TestableRamDataStore dataStore;
 	{
 		IDataStoreWriter::ptr writer = dataStore.write("foo");
@@ -116,6 +119,28 @@ TEST_CASE( "RamDataStoreTest/testOverwrite", "[unit]" )
 		assertTrue( writer->write("different!", 10) );
 		assertTrue( writer->commit() );
 		assertEquals( "different!", dataStore._store["foo"].entries().front()->data );
+		assertEquals( "1,me:2", dataStore._store["foo"].entries().front()->md.version.toString() );
+	}
+}
+
+TEST_CASE( "RamDataStoreTest/testWrite.ReuseCommit", "[unit]" )
+{
+	MyMemberId("me");
+	TestableRamDataStore dataStore;
+	{
+		IDataStoreWriter::ptr writer = dataStore.write("foo");
+		assertTrue( writer->write("012345", 6) );
+		assertTrue( writer->commit() );
+		assertEquals( "012345", dataStore._store["foo"].entries().front()->data );
+
+		assertTrue( writer->write("abcde", 5) );
+		assertTrue( writer->commit() );
+		assertEquals( "012345abcde", dataStore._store["foo"].entries().front()->data );
+
+		assertTrue( writer->write("xyz", 3) );
+		assertTrue( writer->commit() );
+		assertEquals( "012345abcdexyz", dataStore._store["foo"].entries().front()->data );
+		assertEquals( "1,me:1", dataStore._store["foo"].entries().front()->md.version.toString() );
 	}
 }
 

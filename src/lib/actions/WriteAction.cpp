@@ -18,6 +18,7 @@ WriteAction::WriteAction(IDataStore& dataStore, std::function<void(WriteParams, 
 	, _onCommit(std::move(onCommit))
 	, _started(false)
 	, _finished(false)
+	, _bytesSinceLastFlush(0)
 {
 }
 
@@ -32,16 +33,28 @@ bool WriteAction::finished() const
 	return _finished;
 }
 
-bool WriteAction::commit()
+bool WriteAction::flush()
 {
-	_finished = true;
 	IDataStoreReader::ptr reader = _writer->commit();
 	if (!reader)
 		return false;
 
-	_params.version = reader->metadata().version.toString();
+	if (_params.version.empty())
+		_params.version = reader->metadata().version.toString();
 	if (_onCommit)
 		_onCommit(_params, reader);
+
+	_params.offset = reader->size();
+	_bytesSinceLastFlush = 0;
+	return true;
+}
+
+bool WriteAction::commit()
+{
+	_finished = true;
+	if ( !flush() )
+		return false;
+
 	_writer.reset();
 	return true;
 }
@@ -69,9 +82,31 @@ bool WriteAction::run(const DataBuffer& data)
 	}
 
 	_started |= true;
+
+	// TODO: if we end up having to separate flush() and commit()/close() into separate calls in IDataStoreWriter anyway,
+	//   then arguably we can also be more sloppy about what we write. (since the hashing algorithm could be choosy and still do his 64k blocks)
+
 	// wan: write to mirror (nonblocking, could fail -> get pushed into PendingWrites), then write (on same thread) to disk
 	// local: pass buffer for write to disk (on other thread), write to mirror (blocking), then wait for disk write to finish
-	_writer->write(data.buffer(), data.size());
+
+	unsigned nextSize = _bytesSinceLastFlush + data.size();
+	if (nextSize > 0x10000) // need to flush()
+	{
+		unsigned overfill = nextSize - 0x10000;
+		unsigned topoff = data.size() - overfill;
+		if (topoff > 0)
+			_writer->write(data.buffer(), topoff);
+		if ( !flush() )
+			return false;
+		_writer->write(data.buffer()+topoff, overfill);
+		_bytesSinceLastFlush += overfill;
+	}
+	else
+	{
+		_writer->write(data.buffer(), data.size());
+		_bytesSinceLastFlush = nextSize;
+	}
+
 	return true;
 }
 

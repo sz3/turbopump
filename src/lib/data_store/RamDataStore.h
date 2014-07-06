@@ -21,8 +21,9 @@ protected:
 		bool write(const char* buffer, unsigned size);
 		IDataStoreReader::ptr commit();
 
-		std::string&& move_filename();
-		DataEntry&& move_data();
+		void reset();
+		const std::string& filename() const;
+		const DataEntry& data() const;
 
 		void setOffset(unsigned long long offset);
 		unsigned long long offset() const;
@@ -39,6 +40,7 @@ protected:
 	public:
 		Reader(const std::shared_ptr<DataEntry>& data, unsigned long long summary=0);
 		const KeyMetadata& metadata() const;
+		unsigned long long size() const;
 		unsigned long long summary() const;
 
 		bool seek(unsigned long long offset);

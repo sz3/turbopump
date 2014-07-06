@@ -16,14 +16,14 @@ MessageSender::MessageSender(IPeerTracker& peers)
 {
 }
 
-bool MessageSender::sendMessage(const Peer& peer, const string& message)
+bool MessageSender::sendMessage(const Peer& peer, const string& message, bool blocking)
 {
 	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
 	if (!writer)
 		return false;
 
-	writer->write(peer.nextActionId(), message.data(), message.size(), false);
-	writer->flush(false);
+	writer->write(peer.nextActionId(), message.data(), message.size(), blocking);
+	writer->flush(blocking);
 	return true;
 }
 
@@ -68,7 +68,11 @@ void MessageSender::demandWrite(const Peer& peer, const std::string& filename, c
 	sendMessage(peer, "demand-write|name=" + filename + " v=" + version + " source=" + source + "|");
 }
 
-void MessageSender::dropKey(const Peer& peer, const string& filename)
+// TODO: since this could block, may need to move write acks to their own thread.
+// or do a two stage "try -> fail -> schedule retry" thing.
+void MessageSender::acknowledgeWrite(const Peer& peer, const string& filename, const std::string& version, unsigned long long size)
 {
-	sendMessage(peer, "drop|name=" + filename + "|");
+	std::stringstream msg;
+	msg << "ack-write|name=" << filename << " v=" << version << " size=" << size << "|";
+	sendMessage(peer, msg.str(), true);
 }

@@ -18,10 +18,10 @@ public:
 	// used by actions, SkewCorrector, Callbacks, etc
 	void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source);
 	void demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source);
-	void dropKey(const Peer& peer, const std::string& filename);
+	void acknowledgeWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size);
 
 protected:
-	bool sendMessage(const Peer& peer, const std::string& message);
+	bool sendMessage(const Peer& peer, const std::string& message, bool blocking=false);
 
 protected:
 	IPeerTracker& _peers;

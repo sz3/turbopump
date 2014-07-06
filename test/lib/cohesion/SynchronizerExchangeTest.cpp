@@ -48,7 +48,7 @@ namespace
 		{
 		}
 
-		void dropKey(const Peer& peer, const std::string& filename)
+		void acknowledgeWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size)
 		{
 		}
 

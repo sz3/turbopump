@@ -57,6 +57,13 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 
 	// TODO: rewrite read loop entirely to be callback driven, in prep for disk IO which occurs on a different thread.
 
+	// TODO: some question as to whether we should always seek or not...
+	if (write.offset > 0)
+	{
+		if (!contents->seek(write.offset))
+			return false;
+	}
+
 	int bytesWrit = 0;
 	int wrote = 0;
 	while ((wrote = contents->read(stream)) > 0)

@@ -18,5 +18,5 @@ public:
 
 	virtual void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source) = 0;
 	virtual void demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source) = 0;
-	virtual void dropKey(const Peer& peer, const std::string& filename) = 0;
+	virtual void acknowledgeWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size) = 0;
 };

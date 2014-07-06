@@ -16,9 +16,9 @@ void NotifyWriteComplete::run(WriteParams params, IDataStoreReader::ptr contents
 {
 	if (params.mirror >= params.totalCopies && !params.source.empty())
 	{
-		shared_ptr<Peer> extraMirror = _membership.lookup(params.source);
-		if (extraMirror)
-			_messenger.dropKey(*extraMirror, params.filename);
+		shared_ptr<Peer> source = _membership.lookup(params.source);
+		if (source)
+			_messenger.acknowledgeWrite(*source, params.filename, params.version, contents->size());
 	}
 }
 

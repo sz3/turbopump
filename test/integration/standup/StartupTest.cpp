@@ -230,3 +230,44 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 		std::cout << "  " << it->first << " : " << StringUtil::join(it->second.results()) << std::endl;
 }
 
+TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
+{
+	createMemberFile();
+
+	TurboApi api;
+	api.options.active_sync = false;
+	api.options.write_chaining = true;
+	api.options.partition_keys = false;
+
+	IntegratedTurboRunner workerOne(api, 9001);
+	IntegratedTurboRunner workerTwo(api, 9002);
+
+	workerOne.waitForRunning();
+	workerTwo.waitForRunning();
+
+	char readBuff[100];
+	{
+		string data;
+		data.resize(1024, 'a');
+		string header = TurboRunner::headerForWrite("0", data.size()*65);
+
+		int socket_fd = openStreamSocket(workerOne.dataChannel());
+		size_t bytesWrit = write(socket_fd, header.data(), header.size());
+		for (unsigned i = 0; i < 65; ++i)
+			bytesWrit = write(socket_fd, data.data(), data.size());
+
+		size_t bytesRead = read(socket_fd, readBuff, 100);
+		close(socket_fd);
+
+		assertStringContains( "200 Success", string(readBuff, bytesRead) );
+	}
+
+	string expected = "(0)=>66560|1,two:1";
+	string response;
+	waitFor(5, response + " != " + expected, [&]()
+	{
+		response = workerTwo.local_list();
+		return expected == response;
+	});
+}
+

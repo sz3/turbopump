@@ -40,7 +40,7 @@ void MockMessageSender::demandWrite(const Peer& peer, const std::string& filenam
 	_history.call("demandWrite", peer.uid, filename, version, source);
 }
 
-void MockMessageSender::dropKey(const Peer& peer, const std::string& filename)
+void MockMessageSender::acknowledgeWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size)
 {
-	_history.call("dropKey", peer.uid, filename);
+	_history.call("acknowledgeWrite", peer.uid, filename, version, size);
 }
