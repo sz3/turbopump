@@ -4,6 +4,7 @@ project(actions_test)
 
 set (SOURCES
 	test.cpp
+	AckWriteActionTest.cpp
 	AddPeerActionTest.cpp
 	DeleteActionTest.cpp
 	DemandWriteActionTest.cpp

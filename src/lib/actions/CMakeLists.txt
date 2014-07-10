@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	AckWriteAction.cpp
+	AckWriteAction.h
 	AddPeerAction.cpp
 	AddPeerAction.h
 	DeleteAction.cpp

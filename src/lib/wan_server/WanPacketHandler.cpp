@@ -5,6 +5,7 @@
 #include "PacketParser.h"
 #include "PeerConnection.h"
 #include "VirtualConnection.h"
+#include "actions/AckWriteAction.h"
 #include "actions/DemandWriteAction.h"
 #include "actions/DropAction.h"
 #include "actions/HealKeyAction.h"
@@ -176,6 +177,8 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 		_logger.logDebug("peer " + peer.uid + " is sending me a file! " + params.find("name")->second);
 		action.reset(new WriteAction(_dataStore, _callbacks.when_mirror_write_finishes));
 	}
+	else if (cmdname == "ack-write")
+		action.reset(new AckWriteAction(_dataStore, _locator, _callbacks.when_drop_finishes));
 	else if (cmdname == "drop")
 		action.reset(new DropAction(_dataStore, _locator, _callbacks.when_drop_finishes));
 	else if (cmdname == "sync")
