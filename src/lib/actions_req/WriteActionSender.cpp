@@ -18,6 +18,7 @@ WriteActionSender::WriteActionSender(IPeerTracker& peers, bool blocking)
 {
 }
 
+// split up WriteActionSender to be usable w/ multiple DataStoreReader iterations
 bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents)
 {
 	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
@@ -37,6 +38,7 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
 	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto IDataStoreReader::ptrs
 	//  and our transfer progress (bytesWrit)
+	//
 
 	// TODO: writer will be totally different, since we're doing:
 	// WAN writes:
@@ -71,7 +73,10 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 
 	if (wrote == -1)
 	{
-		// TODO: push into PartialTransfers
+		// TODO: event trigger on socket underneath BufferedConnectionWriter. Only is triggered if work is pending...
+		//   when trigger goes, we look in PartialTransfers for work to do involving said peer.
+
+		// here, we load PartialTransfers with the WriteParams and maybe reader. (we might make him go get it out of the DataStore...)
 		std::cout << "write of " << write.filename << " to peer " << peer.uid << " blew up after " << bytesWrit << " bytes" << std::endl;
 		return false;
 	}
