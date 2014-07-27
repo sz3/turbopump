@@ -21,7 +21,7 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(WriteParams, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	{
 		return [&] (WriteParams params, IDataStoreReader::ptr contents)
 		{
@@ -30,7 +30,7 @@ namespace
 		};
 	}
 
-	std::function<void(WriteParams, IDataStoreReader::ptr)> digestAddFunct(IKeyTabulator& keyTabulator)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> digestAddFunct(IKeyTabulator& keyTabulator)
 	{
 		return [&] (WriteParams params, IDataStoreReader::ptr contents)
 		{
@@ -46,19 +46,19 @@ namespace
 		};
 	}
 
-	std::function<void(WriteParams, IDataStoreReader::ptr)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
 	{
 		std::shared_ptr<NotifyWriteComplete> cmd(new NotifyWriteComplete(membership, messenger));
 		return bind(&NotifyWriteComplete::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteParams, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IMembership& membership, IPeerTracker& peers)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IMembership& membership, IPeerTracker& peers)
 	{
 		std::shared_ptr<RandomizedMirrorToPeer> cmd(new RandomizedMirrorToPeer(membership, peers));
 		return bind(&RandomizedMirrorToPeer::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteParams, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
 	{
 		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, peers, blocking));
 		return bind(&MirrorToPeer::run, cmd, _1, _2);
@@ -81,7 +81,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 
 	// on local write
 	{
-		FunctionChainer<WriteParams, IDataStoreReader::ptr> chain(when_local_write_finishes);
+		FunctionChainer<WriteParams&, IDataStoreReader::ptr> chain(when_local_write_finishes);
 		if (TurboApi::options.active_sync)
 			chain.add( digestAddFunct(keyTabulator) );
 
@@ -99,7 +99,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 
 	// on mirror write
 	{
-		FunctionChainer<WriteParams, IDataStoreReader::ptr> chain(when_mirror_write_finishes);
+		FunctionChainer<WriteParams&, IDataStoreReader::ptr> chain(when_mirror_write_finishes);
 		if (TurboApi::options.active_sync)
 			chain.add( digestAddFunct(keyTabulator) );
 

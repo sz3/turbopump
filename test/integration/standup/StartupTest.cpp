@@ -263,7 +263,10 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 	}
 
 	string expected = "(0)=>66560|1,two:1";
-	string response;
+	string response = workerOne.local_list();
+	assertEquals(expected, response);
+
+	expected = "(0)=>66560|1,two:1";
 	waitFor(5, response + " != " + expected, [&]()
 	{
 		response = workerTwo.local_list();

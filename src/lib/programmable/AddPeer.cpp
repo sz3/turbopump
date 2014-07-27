@@ -17,7 +17,7 @@ AddPeer::AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTab
 {
 }
 
-bool AddPeer::run(WriteParams params, IDataStoreReader::ptr contents)
+bool AddPeer::run(WriteParams& params, IDataStoreReader::ptr contents)
 {
 	if (params.filename.find(MEMBERSHIP_FILE_PREFIX) == string::npos)
 		return false;

@@ -4,7 +4,7 @@
 #include "consistent_hashing/ILocateKeys.h"
 #include "data_store/IDataStore.h"
 
-LocalWriteAction::LocalWriteAction(IDataStore& transientStore, IDataStore& dataStore, const ILocateKeys& locator, std::function<void(WriteParams, IDataStoreReader::ptr)> onCommit)
+LocalWriteAction::LocalWriteAction(IDataStore& transientStore, IDataStore& dataStore, const ILocateKeys& locator, std::function<void(WriteParams&, IDataStoreReader::ptr)> onCommit)
 	: WriteAction(dataStore, onCommit)
 	, _transientStore(transientStore)
 	, _locator(locator)

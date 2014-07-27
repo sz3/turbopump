@@ -18,8 +18,9 @@ TEST_CASE( "AddPeerTest/testAdd", "[unit]" )
 	MockKeyTabulator index;
 	AddPeer action(ring, membership, index);
 
+	WriteParams params(MEMBERSHIP_FILE_PREFIX + string("fooid"), 0, 0, "v1", 0);
 	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
-	assertTrue( action.run(WriteParams(MEMBERSHIP_FILE_PREFIX + string("fooid"), 0, 0, "v1", 0), contents) );
+	assertTrue( action.run(params, contents) );
 
 	assertEquals( "add(fooid)|addIp(localhost:9001,fooid)|save()", membership._history.calls() );
 	assertEquals( "addWorker(fooid)", ring._history.calls() );
@@ -35,8 +36,9 @@ TEST_CASE( "AddPeerTest/testAddExistingWorker", "[unit]" )
 	MockKeyTabulator index;
 	AddPeer action(ring, membership, index);
 
+	WriteParams params(MEMBERSHIP_FILE_PREFIX + string("fooid"), 0, 0, "v1", 0);
 	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
-	assertTrue( action.run(WriteParams(MEMBERSHIP_FILE_PREFIX + string("fooid"), 0, 0, "v1", 0), contents) );
+	assertTrue( action.run(params, contents) );
 
 	assertEquals( "add(fooid)|addIp(localhost:9001,fooid)|save()", membership._history.calls() );
 	assertEquals( "", ring._history.calls() );

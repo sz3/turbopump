@@ -22,13 +22,28 @@ MirrorToPeer::MirrorToPeer(const IHashRing& ring, const IMembership& membership,
 // need to tell me what mirror number I'm supposed to be. e.g. 0, 1, 2, 3. Also need number of desired copies. (0 == infinite?)
 // TODO: specify number of copies -- 1,2,3,5
 // TODO: specify consistency?
-bool MirrorToPeer::run(WriteParams params, IDataStoreReader::ptr contents)
+bool MirrorToPeer::run(WriteParams& params, IDataStoreReader::ptr contents)
+{
+	WriteActionSender client(_peers, _blocking);
+	if (!params.outstream)
+	{
+		shared_ptr<Peer> peer;
+		if (!chooseMirror(params, peer))
+			return false;
+		params.outstream = client.open(*peer, params);
+		if (!params.outstream)
+			return false;
+	}
+
+	return client.store(*params.outstream, params, contents);
+}
+
+bool MirrorToPeer::chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer)
 {
 	std::vector<std::string> locations = _ring.locations(params.filename, params.totalCopies);
 	shared_ptr<Peer> self = _membership.self();
 	if (!self)
 		return false;
-	shared_ptr<Peer> peer;
 
 	// the first write is the only one that might be out of order.
 	// also, it might be that the first guy (source) needs to drop the file once all copies are written.
@@ -51,6 +66,5 @@ bool MirrorToPeer::run(WriteParams params, IDataStoreReader::ptr contents)
 		return false;
 
 	params.mirror = next+1;
-	WriteActionSender client(_peers, _blocking);
-	return client.store(*peer, params, contents);
+	return true;
 }

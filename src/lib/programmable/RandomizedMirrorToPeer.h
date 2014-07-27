@@ -12,7 +12,7 @@ class RandomizedMirrorToPeer
 public:
 	RandomizedMirrorToPeer(const IMembership& membership, IPeerTracker& peers);
 
-	bool run(WriteParams params, IDataStoreReader::ptr contents);
+	bool run(WriteParams& params, IDataStoreReader::ptr contents);
 
 protected:
 	const IMembership& _membership;

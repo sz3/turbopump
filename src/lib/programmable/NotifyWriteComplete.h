@@ -11,7 +11,7 @@ class NotifyWriteComplete
 public:
 	NotifyWriteComplete(const IMembership& membership, IMessageSender& messenger);
 
-	void run(WriteParams params, IDataStoreReader::ptr contents);
+	void run(WriteParams& params, IDataStoreReader::ptr contents);
 
 protected:
 	const IMembership& _membership;

@@ -12,7 +12,7 @@ NotifyWriteComplete::NotifyWriteComplete(const IMembership& membership, IMessage
 {
 }
 
-void NotifyWriteComplete::run(WriteParams params, IDataStoreReader::ptr contents)
+void NotifyWriteComplete::run(WriteParams& params, IDataStoreReader::ptr contents)
 {
 	if (params.mirror >= params.totalCopies && !params.source.empty())
 	{

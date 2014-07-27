@@ -14,15 +14,21 @@ RandomizedMirrorToPeer::RandomizedMirrorToPeer(const IMembership& membership, IP
 {
 }
 
-bool RandomizedMirrorToPeer::run(WriteParams params, IDataStoreReader::ptr contents)
+bool RandomizedMirrorToPeer::run(WriteParams& params, IDataStoreReader::ptr contents)
 {
-	shared_ptr<Peer> peer = _membership.randomPeer();
-	if (!peer)
-		return false;
-
-	if (params.mirror >= params.totalCopies)
-		return false;
-
 	WriteActionSender client(_peers, true);
-	return client.store(*peer, params, contents);
+	if (!params.outstream)
+	{
+		shared_ptr<Peer> peer = _membership.randomPeer();
+		if (!peer)
+			return false;
+
+		if (params.mirror >= params.totalCopies)
+			return false;
+
+		params.outstream = client.open(*peer, params);
+		if (!params.outstream)
+			return false;
+	}
+	return client.store(*params.outstream, params, contents);
 }

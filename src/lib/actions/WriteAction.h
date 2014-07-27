@@ -13,7 +13,7 @@ class WriteAction : public IAction
 {
 public:
 	// instead of passing in a function, dedicate an interface to predefined functions, and have the params select from it?
-	WriteAction(IDataStore& dataStore, std::function<void(WriteParams, IDataStoreReader::ptr)> onCommit=NULL);
+	WriteAction(IDataStore& dataStore, std::function<void(WriteParams&, IDataStoreReader::ptr)> onCommit=NULL);
 	~WriteAction();
 
 	std::string name() const;
@@ -32,7 +32,7 @@ protected:
 
 protected:
 	IDataStore& _dataStore;
-	std::function<void(WriteParams, IDataStoreReader::ptr)> _onCommit;
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> _onCommit;
 	bool _started;
 	bool _finished;
 	unsigned _bytesSinceLastFlush;

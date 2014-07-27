@@ -6,6 +6,7 @@
 class IHashRing;
 class IMembership;
 class IPeerTracker;
+class Peer;
 class WriteParams;
 
 class MirrorToPeer
@@ -13,7 +14,10 @@ class MirrorToPeer
 public:
 	MirrorToPeer(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking);
 
-	bool run(WriteParams params, IDataStoreReader::ptr contents);
+	bool run(WriteParams& params, IDataStoreReader::ptr contents);
+
+protected:
+	bool chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer);
 
 protected:
 	const IHashRing& _ring;

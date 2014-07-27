@@ -7,7 +7,7 @@ class ILocateKeys;
 class LocalWriteAction : public WriteAction
 {
 public:
-	LocalWriteAction(IDataStore& transientStore, IDataStore& dataStore, const ILocateKeys& locator, std::function<void(WriteParams, IDataStoreReader::ptr)> onCommit=NULL);
+	LocalWriteAction(IDataStore& transientStore, IDataStore& dataStore, const ILocateKeys& locator, std::function<void(WriteParams&, IDataStoreReader::ptr)> onCommit=NULL);
 
 	IDataStoreWriter::ptr open(const WriteParams& params);
 

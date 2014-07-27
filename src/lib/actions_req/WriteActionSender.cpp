@@ -18,14 +18,26 @@ WriteActionSender::WriteActionSender(IPeerTracker& peers, bool blocking)
 {
 }
 
-// split up WriteActionSender to be usable w/ multiple DataStoreReader iterations
 bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents)
+{
+	std::shared_ptr<ConnectionWriteStream> conn = open(peer, write);
+	if (!conn)
+		return false;
+	return store(*conn, write, contents);
+}
+
+std::shared_ptr<ConnectionWriteStream> WriteActionSender::open(const Peer& peer, const WriteParams& write)
 {
 	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
 	if (!writer)
-		return false;
+		return NULL;
 
-	ConnectionWriteStream stream(writer, peer.nextActionId(), _blocking);
+	// should really dereference the shared_ptr, unless we need to carry CWS elsewhere...
+	// also, store peer.actionId in WriteParams? "WriteInstructions"?
+	// also also, could store a IConnectionWriteStream there instead...
+	// ...but that would result in keeping IBufferedConnectionWriters around.
+	// OTOH, it's less crap to put in the WriteParams (one ptr)
+	shared_ptr<ConnectionWriteStream> conn(new ConnectionWriteStream(writer, peer.nextActionId(), _blocking));
 
 	std::stringstream ss;
 	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies << " v=" << write.version << " offset=" << write.offset;
@@ -33,8 +45,13 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 		ss << " source=" << write.source;
 	ss << "|";
 	std::string buff(ss.str());
-	stream.write(buff.data(), buff.size());
+	conn->write(buff.data(), buff.size());
 
+	return conn;
+}
+
+bool WriteActionSender::store(ConnectionWriteStream& conn, const WriteParams& write, IDataStoreReader::ptr contents)
+{
 	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
 	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto IDataStoreReader::ptrs
 	//  and our transfer progress (bytesWrit)
@@ -68,7 +85,7 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 
 	int bytesWrit = 0;
 	int wrote = 0;
-	while ((wrote = contents->read(stream)) > 0)
+	while ((wrote = contents->read(conn)) > 0)
 		bytesWrit += wrote;
 
 	if (wrote == -1)
@@ -77,11 +94,14 @@ bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataS
 		//   when trigger goes, we look in PartialTransfers for work to do involving said peer.
 
 		// here, we load PartialTransfers with the WriteParams and maybe reader. (we might make him go get it out of the DataStore...)
-		std::cout << "write of " << write.filename << " to peer " << peer.uid << " blew up after " << bytesWrit << " bytes" << std::endl;
+		std::cout << "write of " << write.filename << " blew up after " << bytesWrit << " bytes" << std::endl;
 		return false;
 	}
 
-	stream.write(NULL, 0);
-	stream.flush();
+	if (write.isComplete)
+	{
+		conn.write(NULL, 0);
+		conn.flush();
+	}
 	return true;
 }

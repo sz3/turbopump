@@ -35,10 +35,72 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testDefault", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	assertTrue( command.run({"file", 123, 456, "v1", 0}, reader) );
+	WriteParams params("file", 123, 456, "v1", 0);
+	assertTrue( command.run(params, reader) );
 
+	assertFalse( !params.outstream );
 	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=123 n=456 v=v1 offset=0|,true)|write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
+	assertEquals( "write(0,write|name=file i=123 n=456 v=v1 offset=0|,true)|write(0,contents,true)", writer->_history.calls() );
+}
+
+TEST_CASE( "RandomizedMirrorToPeerTest/testReuse", "[unit]" )
+{
+	MockMembership membership;
+	membership.addIp("1.2.3.4", "dude");
+	MockPeerTracker peers;
+	RandomizedMirrorToPeer command(membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
+
+	// output
+	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	peers._writer.reset(writer);
+
+	WriteParams params("file", 123, 456, "v1", 0);
+	assertTrue( command.run(params, reader) );
+
+	assertFalse( !params.outstream );
+	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
+	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "write(0,write|name=file i=123 n=456 v=v1 offset=0|,true)|write(0,contents,true)", writer->_history.calls() );
+
+	writer->_history.clear();
+	reader = store.read("dummy", "version");
+	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
+	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "", writer->_history.calls() );
+
+	writer->_history.clear();
+	params.isComplete = true;
+	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
+	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "", writer->_history.calls() );
+}
+
+TEST_CASE( "RandomizedMirrorToPeerTest/testNoWriter", "[unit]" )
+{
+	MockMembership membership;
+	membership.addIp("1.2.3.4", "dude");
+	MockPeerTracker peers;
+	RandomizedMirrorToPeer command(membership, peers);
+
+	// input
+	MockDataStore store;
+	store._store["dummy"] = "contents";
+	IDataStoreReader::ptr reader = store.read("dummy", "version");
+
+	// output
+	// nope!
+
+	WriteParams params("file", 123, 456, "v1", 0);
+	assertFalse( command.run(params, reader) );
+
+	assertTrue( !params.outstream );
+	assertEquals( "addIp(1.2.3.4,dude)|randomPeer()", membership._history.calls() );
+	assertEquals( "getWriter(dude)", peers._history.calls() );
 }
 

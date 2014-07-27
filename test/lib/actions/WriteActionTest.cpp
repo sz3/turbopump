@@ -21,7 +21,7 @@ namespace {
 	class TestableWriteAction : public WriteAction
 	{
 	public:
-		TestableWriteAction(IDataStore& dataStore, std::function<void(WriteParams, IDataStoreReader::ptr)> onCommit=NULL)
+		TestableWriteAction(IDataStore& dataStore, std::function<void(WriteParams&, IDataStoreReader::ptr)> onCommit=NULL)
 			: WriteAction(dataStore, onCommit)
 		{}
 
@@ -38,7 +38,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]"); });
+		WriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]", params.isComplete); });
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
@@ -55,7 +55,7 @@ TEST_CASE( "WriteActionTest/testDefault", "default" )
 	}
 	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
 	assertEquals( "Writer::setOffset(0)|Writer::write(foobar.txt,0123456789)|Writer::write(foobar.txt,abcde)|Writer::commit(foobar.txt,3)", dataStore._history.calls() );
-	assertEquals( "onCommit(foobar.txt,0,3,[1,mockReaderVersion:1])", _history.calls() );
+	assertEquals( "onCommit(foobar.txt,0,3,[1,mockReaderVersion:1],1)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testExtraParams", "default" )
@@ -63,7 +63,7 @@ TEST_CASE( "WriteActionTest/testExtraParams", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		auto callback = [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]", params.source); };
+		auto callback = [&](WriteParams& params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]", params.source, params.isComplete); };
 		WriteAction action(dataStore, callback);
 		assertFalse( action.good() );
 
@@ -84,7 +84,7 @@ TEST_CASE( "WriteActionTest/testExtraParams", "default" )
 	}
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
 	assertEquals( "Writer::setOffset(20)|Writer::write(foobar.txt,0123456789)|Writer::commit(foobar.txt,5)", dataStore._history.calls() );
-	assertEquals( "onCommit(foobar.txt,3,5,[v1],someguy)", _history.calls() );
+	assertEquals( "onCommit(foobar.txt,3,5,[v1],someguy,1)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
@@ -92,7 +92,7 @@ TEST_CASE( "WriteActionTest/testDestructorCleanup", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename); });
+		WriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename); });
 
 		std::map<string,string> params;
 		params["name"] = "foobar.txt";
@@ -112,7 +112,7 @@ TEST_CASE( "WriteActionTest/testFlush", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 
-	TestableWriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.offset, "["+params.version+"]"); });
+	TestableWriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.offset, "["+params.version+"]"); });
 
 	std::map<string,string> params;
 	params["name"] = "foobar.txt";
@@ -142,7 +142,7 @@ TEST_CASE( "WriteActionTest/testFlush.VersionSpecified", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 
-	TestableWriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.offset, "["+params.version+"]"); });
+	TestableWriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.offset, "["+params.version+"]"); });
 
 	std::map<string,string> params;
 	params["name"] = "foobar.txt";
@@ -185,7 +185,7 @@ TEST_CASE( "WriteActionTest/testBadName", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]"); });
+		WriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename, params.mirror, params.totalCopies, "["+params.version+"]"); });
 		assertFalse( action.good() );
 	}
 	assertEquals( "", _history.calls() );
@@ -196,7 +196,7 @@ TEST_CASE( "WriteActionTest/testZeroByteWrite", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename); });
+		WriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr){ _history.call("onCommit", params.filename); });
 
 		std::map<string,string> params;
 		params["name"] = "foobar.txt";
@@ -220,7 +220,7 @@ TEST_CASE( "WriteActionTest/testBigWrite", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr reader){ _history.call("onCommit", params.filename, params.offset, reader->size()); });
+		WriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr reader){ _history.call("onCommit", params.filename, params.offset, reader->size(), params.isComplete); });
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
@@ -237,7 +237,7 @@ TEST_CASE( "WriteActionTest/testBigWrite", "default" )
 		assertTrue( action.finished() );
 	}
 	assertEquals( (65*1024), dataStore._store["bigfile.txt"].size() );
-	assertEquals( "onCommit(bigfile.txt,0,65536)|onCommit(bigfile.txt,65536,66560)", _history.calls() );
+	assertEquals( "onCommit(bigfile.txt,0,65536,0)|onCommit(bigfile.txt,65536,66560,1)", _history.calls() );
 }
 
 TEST_CASE( "WriteActionTest/testBigWrite.Exact", "default" )
@@ -245,7 +245,7 @@ TEST_CASE( "WriteActionTest/testBigWrite.Exact", "default" )
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr reader){ _history.call("onCommit", params.filename, reader->size()); });
+		WriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr reader){ _history.call("onCommit", params.filename, reader->size(), params.isComplete); });
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
@@ -262,16 +262,15 @@ TEST_CASE( "WriteActionTest/testBigWrite.Exact", "default" )
 		assertTrue( action.finished() );
 	}
 	assertEquals( 65536, dataStore._store["bigfile.txt"].size() );
-	assertEquals( "onCommit(bigfile.txt,65536)", _history.calls() );
+	assertEquals( "onCommit(bigfile.txt,65536,1)", _history.calls() );
 }
-
 
 TEST_CASE( "WriteActionTest/testBigWrite.Split", "default" )
 {
 	_history.clear();
 	MockDataStore dataStore;
 	{
-		WriteAction action(dataStore, [&](WriteParams params, IDataStoreReader::ptr reader){ _history.call("onCommit", params.filename, params.offset, reader->size()); });
+		WriteAction action(dataStore, [&](WriteParams& params, IDataStoreReader::ptr reader){ _history.call("onCommit", params.filename, params.offset, reader->size(), params.isComplete); });
 		assertFalse( action.good() );
 
 		std::map<string,string> params;
@@ -288,5 +287,5 @@ TEST_CASE( "WriteActionTest/testBigWrite.Split", "default" )
 		assertTrue( action.finished() );
 	}
 	assertEquals( 66000, dataStore._store["bigfile.txt"].size() );
-	assertEquals( "onCommit(bigfile.txt,0,65536)|onCommit(bigfile.txt,65536,66000)", _history.calls() );
+	assertEquals( "onCommit(bigfile.txt,0,65536,0)|onCommit(bigfile.txt,65536,66000,1)", _history.calls() );
 }

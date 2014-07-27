@@ -13,7 +13,7 @@ class AddPeer
 public:
 	AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator);
 
-	bool run(WriteParams params, IDataStoreReader::ptr contents);
+	bool run(WriteParams& params, IDataStoreReader::ptr contents);
 
 protected:
 	IHashRing& _ring;

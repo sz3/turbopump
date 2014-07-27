@@ -70,6 +70,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 			WriteParams write(*it, totalCopies, totalCopies, (*read)->metadata().version.toString(), 0);
 			if (!offloadFrom.empty())
 				write.source = offloadFrom;
+			write.isComplete = true;
 			if (!_sender.store(peer, write, *read))
 			{
 				std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
@@ -88,6 +89,7 @@ bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std
 	unsigned totalCopies = reader->metadata().totalCopies;
 	WriteParams write(name, totalCopies, totalCopies, version, 0);
 	write.source = source;
+	write.isComplete = true;
 
 	if (!_sender.store(peer, write, reader))
 	{

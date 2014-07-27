@@ -78,8 +78,8 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 	assertEquals( "find(oak,2)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
 	assertEquals( "", messenger._history.calls() );
-	assertEquals( "store(fooid,file1,1,1,[1,mockReaderVersion:1],)"
-				  "|store(fooid,file3,1,1,[1,mockReaderVersion:1],)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,1,1,[1,mockReaderVersion:1],,1)"
+				  "|store(fooid,file3,1,1,[1,mockReaderVersion:1],,1)", writer._history.calls() );
 	assertEquals( "read(file1)|read(badfile)|read(file3)", store._history.calls() );
 	assertEquals( "logDebug(pushing 3 keys to peer fooid: file1 badfile file3)", logger._history.calls() );
 }
@@ -104,8 +104,8 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Offload", "[unit]" )
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
 	assertEquals( "", messenger._history.calls() );
-	assertEquals( "store(fooid,file1,1,1,[1,mockReaderVersion:1],offloadFrom)"
-				  "|store(fooid,file3,1,1,[1,mockReaderVersion:1],offloadFrom)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,1,1,[1,mockReaderVersion:1],offloadFrom,1)"
+				  "|store(fooid,file3,1,1,[1,mockReaderVersion:1],offloadFrom,1)", writer._history.calls() );
 	assertEquals( "read(file1)|read(badfile)|read(file3)", store._history.calls() );
 	assertEquals( "logDebug(pushing 3 keys to peer fooid: file1 badfile file3)", logger._history.calls() );
 }
@@ -151,7 +151,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
 	assertEquals( "", messenger._history.calls() );
-	assertEquals( "store(fooid,file1,1,1,[1,mockReaderVersion:1],)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,1,1,[1,mockReaderVersion:1],,1)", writer._history.calls() );
 	assertEquals( "read(file1)", store._history.calls() );
 	assertEquals( "logDebug(pushing 3 keys to peer fooid: file1 badfile file3)", logger._history.calls() );
 }
@@ -171,7 +171,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey", "[unit]" )
 
 	assertEquals( "read(file1,v1)", store._history.calls() );
 	assertEquals( "", messenger._history.calls() );
-	assertEquals( "store(fooid,file1,1,1,[v1],sauce)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,1,1,[v1],sauce,1)", writer._history.calls() );
 	assertEquals( "", logger._history.calls() );
 	assertEquals( "", index._history.calls() );
 }
@@ -210,7 +210,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey.ConnectionExplodes", "[unit]" )
 
 	assertEquals( "read(file1,v1)", store._history.calls() );
 	assertEquals( "", messenger._history.calls() );
-	assertEquals( "store(fooid,file1,1,1,[v1],sauce)", writer._history.calls() );
+	assertEquals( "store(fooid,file1,1,1,[v1],sauce,1)", writer._history.calls() );
 	assertEquals( "logError(sendKey failed to store file [file1,v1] to peer fooid)", logger._history.calls() );
 	assertEquals( "", index._history.calls() );
 }

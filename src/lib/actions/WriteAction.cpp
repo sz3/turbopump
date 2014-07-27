@@ -13,7 +13,7 @@ using std::string;
 // and *pushes* data into the datastore. WriteActions would thus live across multiple buffers, updating the offset
 // accordingly.
 // and probably not taking the params on their run() function...
-WriteAction::WriteAction(IDataStore& dataStore, std::function<void(WriteParams, IDataStoreReader::ptr)> onCommit)
+WriteAction::WriteAction(IDataStore& dataStore, std::function<void(WriteParams&, IDataStoreReader::ptr)> onCommit)
 	: _dataStore(dataStore)
 	, _onCommit(std::move(onCommit))
 	, _started(false)
@@ -52,10 +52,12 @@ bool WriteAction::flush()
 bool WriteAction::commit()
 {
 	_finished = true;
+	_params.isComplete = true;
 	if ( !flush() )
 		return false;
 
 	_writer.reset();
+	_params.outstream.reset();
 	return true;
 }
 

@@ -2,7 +2,9 @@
 #pragma once
 
 #include "common/turbopump_defaults.h"
+#include <memory>
 #include <string>
+class ConnectionWriteStream;
 
 struct WriteParams //: public KeyMetadata
 {
@@ -10,6 +12,7 @@ struct WriteParams //: public KeyMetadata
 		: mirror(0)
 		, totalCopies(DEFAULT_MIRRORS)
 		, offset(0)
+		, isComplete(false)
 	{}
 
 	WriteParams(std::string filename, short mirror, short totalCopies, std::string version, unsigned long long offset)
@@ -17,8 +20,8 @@ struct WriteParams //: public KeyMetadata
 		, mirror(mirror)
 		, totalCopies(totalCopies)
 		, version(version)
-		, source("")
 		, offset(0)
+		, isComplete(false)
 	{}
 
 	std::string filename;
@@ -27,4 +30,7 @@ struct WriteParams //: public KeyMetadata
 	std::string version;
 	std::string source;
 	unsigned long long offset;
+
+	std::shared_ptr<ConnectionWriteStream> outstream;
+	bool isComplete;
 };

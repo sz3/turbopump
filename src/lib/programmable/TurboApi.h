@@ -7,9 +7,9 @@ class WriteParams;
 
 struct TurboApi
 {
-	std::function<void(WriteParams, IDataStoreReader::ptr contents)> when_local_write_finishes;
-	std::function<void(WriteParams, IDataStoreReader::ptr contents)> when_mirror_write_finishes;
-	std::function<void(DropParams)>                                  when_drop_finishes;
+	std::function<void(WriteParams&, IDataStoreReader::ptr contents)> when_local_write_finishes;
+	std::function<void(WriteParams&, IDataStoreReader::ptr contents)> when_mirror_write_finishes;
+	std::function<void(DropParams)>                                   when_drop_finishes;
 
 	struct Options
 	{
