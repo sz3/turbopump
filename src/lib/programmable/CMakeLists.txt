@@ -5,6 +5,7 @@ set(SOURCES
 	AddPeer.h
 	Callbacks.cpp
 	Callbacks.h
+	ChainWrite.h
 	MirrorToPeer.cpp
 	MirrorToPeer.h
 	NotifyWriteComplete.cpp

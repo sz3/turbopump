@@ -25,6 +25,8 @@ set(SOURCES
 	MockMembership.h
 	MockMessageSender.cpp
 	MockMessageSender.h
+	MockMirrorToPeer.cpp
+	MockMirrorToPeer.h
 	MockPacketServer.cpp
 	MockPacketServer.h
 	MockPeerTracker.cpp

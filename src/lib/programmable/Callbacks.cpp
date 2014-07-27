@@ -2,6 +2,7 @@
 #include "Callbacks.h"
 
 #include "AddPeer.h"
+#include "ChainWrite.h"
 #include "MirrorToPeer.h"
 #include "NotifyWriteComplete.h"
 #include "RandomizedMirrorToPeer.h"
@@ -52,16 +53,16 @@ namespace
 		return bind(&NotifyWriteComplete::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IMembership& membership, IPeerTracker& peers)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
 	{
-		std::shared_ptr<RandomizedMirrorToPeer> cmd(new RandomizedMirrorToPeer(membership, peers));
-		return bind(&RandomizedMirrorToPeer::run, cmd, _1, _2);
+		std::shared_ptr< ChainWrite<RandomizedMirrorToPeer> > cmd(new ChainWrite<RandomizedMirrorToPeer>(ring, membership, peers, blocking));
+		return bind(&ChainWrite<RandomizedMirrorToPeer>::run, cmd, _1, _2);
 	}
 
 	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
 	{
-		std::shared_ptr<MirrorToPeer> cmd(new MirrorToPeer(ring, membership, peers, blocking));
-		return bind(&MirrorToPeer::run, cmd, _1, _2);
+		std::shared_ptr< ChainWrite<MirrorToPeer> > cmd(new ChainWrite<MirrorToPeer>(ring, membership, peers, blocking));
+		return bind(&ChainWrite<MirrorToPeer>::run, cmd, _1, _2);
 	}
 }
 
@@ -90,7 +91,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 			if (TurboApi::options.partition_keys)
 				chain.add( writeChainFunct_partitionMode(ring, membership, peers, true) );
 			else
-				chain.add( writeChainFunct_cloneMode(membership, peers) );
+				chain.add( writeChainFunct_cloneMode(ring, membership, peers, true) );
 		}
 		chain.add( membershipAddFunct(ring, membership, keyTabulator) );
 

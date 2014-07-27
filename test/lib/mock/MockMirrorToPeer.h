@@ -2,17 +2,21 @@
 #pragma once
 
 #include <memory>
+class CallHistory;
 class IHashRing;
 class IMembership;
 class Peer;
 class WriteParams;
 
-class MirrorToPeer
+class MockMirrorToPeer
 {
 public:
-	MirrorToPeer(const IHashRing& ring, const IMembership& membership);
+	MockMirrorToPeer(const IHashRing& ring, const IMembership& membership);
 
 	bool chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer);
+
+	static void failOnce();
+	static std::string calls();
 
 protected:
 	const IHashRing& _ring;

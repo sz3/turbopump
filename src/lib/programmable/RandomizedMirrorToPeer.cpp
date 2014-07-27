@@ -2,33 +2,18 @@
 #include "RandomizedMirrorToPeer.h"
 
 #include "actions/WriteParams.h"
-#include "actions_req/WriteActionSender.h"
 #include "membership/IMembership.h"
-#include "membership/Peer.h"
-#include <memory>
-using std::shared_ptr;
 
-RandomizedMirrorToPeer::RandomizedMirrorToPeer(const IMembership& membership, IPeerTracker& peers)
+RandomizedMirrorToPeer::RandomizedMirrorToPeer(const IHashRing& ring, const IMembership& membership)
 	: _membership(membership)
-	, _peers(peers)
 {
 }
 
-bool RandomizedMirrorToPeer::run(WriteParams& params, IDataStoreReader::ptr contents)
+bool RandomizedMirrorToPeer::chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer)
 {
-	WriteActionSender client(_peers, true);
-	if (!params.outstream)
-	{
-		shared_ptr<Peer> peer = _membership.randomPeer();
-		if (!peer)
-			return false;
+	if (params.mirror >= params.totalCopies)
+		return false;
 
-		if (params.mirror >= params.totalCopies)
-			return false;
-
-		params.outstream = client.open(*peer, params);
-		if (!params.outstream)
-			return false;
-	}
-	return client.store(*params.outstream, params, contents);
+	peer = _membership.randomPeer();
+	return !!peer;
 }
