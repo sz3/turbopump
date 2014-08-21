@@ -2,7 +2,7 @@
 #include "unittest.h"
 
 #include "BufferedConnectionWriter.h"
-#include "mock/MockIpSocket.h"
+#include "mock/MockSocketWriter.h"
 #include <memory>
 #include <string>
 using std::string;
@@ -11,7 +11,7 @@ namespace {
 	class TestableBufferedConnectionWriter : public BufferedConnectionWriter
 	{
 	public:
-		TestableBufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize)
+		TestableBufferedConnectionWriter(const std::shared_ptr<ISocketWriter>& sock, unsigned packetsize)
 			: BufferedConnectionWriter(sock, packetsize)
 		{}
 
@@ -22,8 +22,8 @@ namespace {
 
 TEST_CASE( "BufferedConnectionWriterTest/testSmallBuffer.Reliable", "[unit]" )
 {
-	MockIpSocket* sock = new MockIpSocket;
-	BufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 8);
+	MockSocketWriter* sock = new MockSocketWriter;
+	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 8);
 
 	// a packet size of 8 will give us at most 5 data bytes. -3 bytes of overhead per write (length + virtid)
 
@@ -44,8 +44,8 @@ TEST_CASE( "BufferedConnectionWriterTest/testSmallBuffer.Reliable", "[unit]" )
 
 TEST_CASE( "BufferedConnectionWriterTest/testBigBuffer.Reliable", "[unit]" )
 {
-	MockIpSocket* sock = new MockIpSocket;
-	BufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 1000);
+	MockSocketWriter* sock = new MockSocketWriter;
+	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 1000);
 
 	string buff = "0123456789abc";
 	assertEquals( buff.size(), writer.write(37, buff.data(), buff.size(), true) );
@@ -63,8 +63,8 @@ TEST_CASE( "BufferedConnectionWriterTest/testBigBuffer.Reliable", "[unit]" )
 
 TEST_CASE( "BufferedConnectionWriterTest/testSmallBuffer.BestEffort", "[unit]" )
 {
-	MockIpSocket* sock = new MockIpSocket;
-	BufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 8);
+	MockSocketWriter* sock = new MockSocketWriter;
+	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 8);
 
 	// a packet size of 8 will give us at most 5 data bytes. -3 bytes of overhead per write (length + virtid)
 
@@ -85,8 +85,8 @@ TEST_CASE( "BufferedConnectionWriterTest/testSmallBuffer.BestEffort", "[unit]" )
 
 TEST_CASE( "BufferedConnectionWriterTest/testBigBuffer.BestEffort", "[unit]" )
 {
-	MockIpSocket* sock = new MockIpSocket;
-	BufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 1000);
+	MockSocketWriter* sock = new MockSocketWriter;
+	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 1000);
 
 	string buff = "0123456789abc";
 	assertEquals( buff.size(), writer.write(37, buff.data(), buff.size(), false) );
@@ -104,9 +104,9 @@ TEST_CASE( "BufferedConnectionWriterTest/testBigBuffer.BestEffort", "[unit]" )
 
 TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort", "[unit]" )
 {
-	MockIpSocket* sock = new MockIpSocket;
+	MockSocketWriter* sock = new MockSocketWriter;
 	sock->_trySendError = true;
-	TestableBufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 8);
+	TestableBufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 8);
 
 	// write succeeds w/ just 5 bytes written.
 	string buff = "0123456789abc";
@@ -138,10 +138,10 @@ TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort", "[unit]" )
 
 TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort.PartialPacket", "[unit]" )
 {
-	MockIpSocket* sock = new MockIpSocket;
+	MockSocketWriter* sock = new MockSocketWriter;
 	sock->_trySendError = true;
 	sock->_trySendErrorBytes = 20; // claim to have sent 20 bytes on failure
-	TestableBufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 50);
+	TestableBufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 50);
 
 	// write succeeds, but only flushes twice
 	string buff = "0123456789";
@@ -163,9 +163,9 @@ TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort.PartialPacket
 
 TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.Reliable", "[unit]" )
 {
-	MockIpSocket* sock = new MockIpSocket;
+	MockSocketWriter* sock = new MockSocketWriter;
 	sock->_trySendError = true;
-	TestableBufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 10);
+	TestableBufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 10);
 
 	// write succeeds, doesn't flush
 	string buff = "01234";

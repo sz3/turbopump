@@ -5,15 +5,15 @@
 
 #include "IBufferedConnectionWriter.h"
 #include "membership/Peer.h"
-#include "mock/MockPacketServer.h"
-#include "mock/MockIpSocket.h"
+#include "socket/MockSocketServer.h"
+#include "socket/MockSocketWriter.h"
 using std::shared_ptr;
 using std::string;
 
 TEST_CASE( "PeerTrackerTest/testGetWriter", "[unit]" )
 {
-	MockPacketServer server;
-	server._sock.reset(new MockIpSocket);
+	MockSocketServer server;
+	server._sock.reset(new MockSocketWriter);
 	PeerTracker tracker(server);
 
 	Peer peer("fooid");
@@ -22,13 +22,13 @@ TEST_CASE( "PeerTrackerTest/testGetWriter", "[unit]" )
 	shared_ptr<IBufferedConnectionWriter> writer = tracker.getWriter(peer);
 	assertTrue( writer );
 
-	assertEquals( "sock(1.2.3.4:1234)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:1234)", server._history.calls() );
 }
 
 TEST_CASE( "PeerTrackerTest/testGetWriter.BadPeerAddress", "[unit]" )
 {
-	MockPacketServer server;
-	server._sock.reset(new MockIpSocket);
+	MockSocketServer server;
+	server._sock.reset(new MockSocketWriter);
 	PeerTracker tracker(server);
 
 	Peer peer("fooid");
@@ -41,7 +41,7 @@ TEST_CASE( "PeerTrackerTest/testGetWriter.BadPeerAddress", "[unit]" )
 
 TEST_CASE( "PeerTrackerTest/testGetWriter.BadConnection", "[unit]" )
 {
-	MockPacketServer server;
+	MockSocketServer server;
 	PeerTracker tracker(server);
 
 	Peer peer("fooid");
@@ -50,6 +50,6 @@ TEST_CASE( "PeerTrackerTest/testGetWriter.BadConnection", "[unit]" )
 	shared_ptr<IBufferedConnectionWriter> writer = tracker.getWriter(peer);
 	assertFalse( writer );
 
-	assertEquals( "sock(1.2.3.4:1234)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:1234)", server._history.calls() );
 }
 

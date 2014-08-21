@@ -13,8 +13,6 @@ set(SOURCES
 	MockDigestTree.h
 	MockHashRing.cpp
 	MockHashRing.h
-	MockIpSocket.cpp
-	MockIpSocket.h
 	MockKeyTabulator.cpp
 	MockKeyTabulator.h
 	MockLocateKeys.cpp
@@ -27,8 +25,6 @@ set(SOURCES
 	MockMessageSender.h
 	MockMirrorToPeer.cpp
 	MockMirrorToPeer.h
-	MockPacketServer.cpp
-	MockPacketServer.h
 	MockPeerTracker.cpp
 	MockPeerTracker.h
 	MockProcessState.cpp

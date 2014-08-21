@@ -10,12 +10,12 @@ class ICorrectSkew;
 class IDataStore;
 class IExecutor;
 class IHashRing;
-class IIpSocket;
 class ILocateKeys;
 class ILog;
 class IMembership;
 class IMessageSender;
 class IPeerTracker;
+class ISocketWriter;
 class ISynchronize;
 class Peer;
 class PeerConnection;
@@ -30,7 +30,7 @@ public:
 	WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector, IDataStore& dataStore, const IHashRing& ring, const ILocateKeys& locator,
 					 const IMembership& membership, IMessageSender& messenger, IPeerTracker& peers, ISynchronize& sync, ILog& logger, const TurboApi& callbacks);
 
-	bool onPacket(const IIpSocket& socket, const std::string& buffer);
+	bool onPacket(ISocketWriter& writer, const char* buff, unsigned size);
 	void doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerConnection> weakConn);
 	void processPendingBuffers(const Peer& peer, PeerConnection& conn);
 

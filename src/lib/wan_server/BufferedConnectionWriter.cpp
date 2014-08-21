@@ -1,9 +1,9 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "BufferedConnectionWriter.h"
 
+#include "socket/ISocketWriter.h"
 #include "mutex/conditional_lock_guard.h"
 #include "mutex/unlock_guard.h"
-#include "socket/IIpSocket.h"
 #include <arpa/inet.h>
 #include <iostream>
 using std::mutex;
@@ -12,7 +12,7 @@ using std::string;
 
 // TODO: do virtual connections here?
 // maybe only for buffered writes?
-BufferedConnectionWriter::BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize)
+BufferedConnectionWriter::BufferedConnectionWriter(const std::shared_ptr<ISocketWriter>& sock, unsigned packetsize)
 	: _sock(sock)
 	, _capacity(packetsize-3) // will be -6 when encrypted?
 {

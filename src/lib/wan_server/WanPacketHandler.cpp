@@ -24,8 +24,8 @@
 #include "membership/Peer.h"
 #include "programmable/TurboApi.h"
 #include "serialize/StringUtil.h"
+#include "socket/ISocketWriter.h"
 #include "socket/IpAddress.h"
-#include "socket/UdpSocket.h"
 
 #include <iostream>
 #include <memory>
@@ -55,13 +55,13 @@ WanPacketHandler::WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector,
 // if it's a i.e. this guy is always running on a dedicated thread, with a dedicated buffer,
 // and he doesn't need to worry about anything of the sort.
 // likewise, PeerConnection should encapsulate all queuing/scheduling/etc bullcrap on the response sending side.
-bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
+bool WanPacketHandler::onPacket(ISocketWriter& writer, const char* buff, unsigned size)
 {
 	// is the message from a valid peer?
-	std::shared_ptr<Peer> peer = _membership.lookupIp(socket.destination());
+	std::shared_ptr<Peer> peer = _membership.lookupIp(writer.target());
 	if (!peer)
 	{
-		_logger.logWarn("rejecting packet from unknown host " + socket.getTarget().toString());
+		_logger.logWarn("rejecting packet from unknown host " + writer.endpoint().toString());
 		return false;
 	}
 
@@ -71,12 +71,12 @@ bool WanPacketHandler::onPacket(const IIpSocket& socket, const string& buffer)
 	//  1) the peer's encryption key (public), which we have in hand
 	//  2) our own private encryption key, which the encryption interface ought to have access to (secure RAM?)
 	//  3) the nonce, which should be randomly generated as the first 24 bits (3 bytes) of the incoming buffer.
-	if (buffer.empty())
+	if (size == 0)
 		return false;
 	// if decryption fails,
 	// return false
 
-	string decryptedBuffer = buffer;
+	string decryptedBuffer = std::string(buff, size);
 
 	//OrderedPacket packet;
 	//packet.seqnum = buffer[0]; // some part of the nonce that only increments on data channel sends?

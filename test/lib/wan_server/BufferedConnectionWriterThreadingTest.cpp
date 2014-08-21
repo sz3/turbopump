@@ -2,7 +2,8 @@
 #include "unittest.h"
 
 #include "BufferedConnectionWriter.h"
-#include "mock/MockIpSocket.h"
+#include "socket/ISocketWriter.h"
+#include "socket/IpAddress.h"
 #include "time/WaitFor.h"
 #include <string>
 #include <thread>
@@ -10,10 +11,10 @@
 using std::string;
 
 namespace {
-	class SpecialMockSocket : public IIpSocket
+	class SpecialSocketWriter : public ISocketWriter
 	{
 	public:
-		SpecialMockSocket()
+		SpecialSocketWriter()
 			: _blockingWriters(0)
 			, _blockingCollisions(0)
 			, _asyncWriters(0)
@@ -21,10 +22,9 @@ namespace {
 			, _writeBytes(0)
 		{}
 
-		IpAddress getTarget() const { return IpAddress(); }
-		std::string destination() const { return ""; }
+		IpAddress endpoint() const { return IpAddress(); }
 
-		int try_send(const char* buffer, unsigned size) const
+		int try_send(const char* buffer, unsigned size)
 		{
 			if (++_asyncWriters > 1)
 				++_asyncCollisions;
@@ -33,7 +33,7 @@ namespace {
 			return size;
 		}
 
-		int send(const char* buffer, unsigned size) const
+		int send(const char* buffer, unsigned size)
 		{
 			if (++_blockingWriters > 1)
 				++_blockingCollisions;
@@ -41,8 +41,6 @@ namespace {
 			--_blockingWriters;
 			return size;
 		}
-
-		int recv(std::string& buffer) { return 0; }
 
 	public:
 		mutable int _blockingWriters;
@@ -56,8 +54,8 @@ namespace {
 
 TEST_CASE( "BufferedConnectionWriterThreadingTest/testMultiThreading", "[unit]" )
 {
-	SpecialMockSocket* sock = new SpecialMockSocket;
-	BufferedConnectionWriter writer(std::shared_ptr<IIpSocket>(sock), 15);
+	SpecialSocketWriter* sock = new SpecialSocketWriter;
+	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 15);
 
 	string buff = "0123456789";
 	auto blocking = [&] () { writer.write(33, buff.data(), buff.size(), true); };

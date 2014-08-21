@@ -6,13 +6,13 @@
 #include "membership/Peer.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockHashRing.h"
-#include "mock/MockIpSocket.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMessageSender.h"
 #include "mock/MockPeerTracker.h"
 #include "mock/MockSkewCorrector.h"
+#include "mock/MockSocketWriter.h"
 #include "mock/MockSynchronize.h"
 #include "programmable/TurboApi.h"
 #include "wan_server/PeerConnection.h"
@@ -127,21 +127,23 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	TurboApi callbacks;
 	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
-	MockIpSocket sock;
-	sock._target = IpAddress("1.2.3.4", 10);
+	MockSocketWriter sock;
+	sock._endpoint = IpAddress("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 
-	assertFalse( handler.onPacket(sock, formatPacket(32, "foo")) );
+	string packet = formatPacket(32, "foo");
+	assertFalse( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "", peers._history.calls() );
 
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));
-	assertTrue( handler.onPacket(sock, formatPacket(32, "foo")) );
+	assertTrue( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "track(someguid)", peers._history.calls() );
 
 	peers._history.clear();
 
 	// finally, send a properly formatted packet
-	assertTrue( handler.onPacket(sock, formatPacket(33, "key-req|first=1 last=10|")) );
+	packet = formatPacket(33, "key-req|first=1 last=10|");
+	assertTrue( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "track(someguid)", peers._history.calls() );
 	assertEquals( "pushKeyRange(someguid,,3,1,10)", sync._history.calls() );
 }
@@ -161,13 +163,13 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	TurboApi callbacks;
 	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
-	MockIpSocket sock;
-	sock._target = IpAddress("1.2.3.4", 10);
+	MockSocketWriter sock;
+	sock._endpoint = IpAddress("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));
 
 	string packet = formatPacket(35, "write|name=foo|i am a file") + formatPacket(37, "write|name=bar|another file") + formatPacket(37, "") + formatPacket(35, "");
-	assertTrue( handler.onPacket(sock, packet) );
+	assertTrue( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "track(someguid)", peers._history.calls() );
 
 	// work through both writes
@@ -192,7 +194,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	TurboApi callbacks;
 	WanPacketHandler handler(executor, corrector, dataStore, ring, membership, messenger, peers, sync, logger, callbacks);
 
-	MockIpSocket sock;
+	MockSocketWriter sock;
 	sock._target = IpAddress("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));

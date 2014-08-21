@@ -4,7 +4,7 @@
 #include "IBufferedConnectionWriter.h"
 #include <memory>
 #include <mutex>
-class IIpSocket;
+class ISocketWriter;
 
 // TODO: can this class be parameterized and/or swapped out (via interface)
 // for the thing that handles outgoing encryption...?
@@ -13,7 +13,7 @@ class IIpSocket;
 class BufferedConnectionWriter : public IBufferedConnectionWriter
 {
 public:
-	BufferedConnectionWriter(const std::shared_ptr<IIpSocket>& sock, unsigned packetsize=1450);
+	BufferedConnectionWriter(const std::shared_ptr<ISocketWriter>& sock, unsigned packetsize=1450);
 
 	unsigned capacity() const;
 	int write(unsigned char virtid, const char* buffer, unsigned length, bool blocking);
@@ -30,5 +30,5 @@ protected:
 	std::mutex _syncFlushMutex;
 	std::string _buffer;
 	unsigned _capacity;
-	std::shared_ptr<IIpSocket> _sock;
+	std::shared_ptr<ISocketWriter> _sock;
 };

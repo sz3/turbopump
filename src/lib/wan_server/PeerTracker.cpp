@@ -4,8 +4,7 @@
 #include "BufferedConnectionWriter.h"
 #include "PeerConnection.h"
 #include "membership/Peer.h"
-#include "socket/IIpSocket.h"
-#include "socket/IPacketServer.h"
+#include "socket/ISocketServer.h"
 #include "socket/IpAddress.h"
 #include <iostream>
 #include <sstream>
@@ -34,7 +33,7 @@ using std::unordered_map;
 using writerit = tbb::concurrent_unordered_map<string,std::shared_ptr<IBufferedConnectionWriter>>::iterator;
 using peerit = unordered_map<string,std::shared_ptr<PeerConnection>>::iterator;
 
-PeerTracker::PeerTracker(IPacketServer& server)
+PeerTracker::PeerTracker(ISocketServer& server)
 	: _server(server)
 {
 }
@@ -48,7 +47,7 @@ std::shared_ptr<IBufferedConnectionWriter> PeerTracker::getWriter(const Peer& pe
 		return NULL;
 	}
 
-	shared_ptr<IIpSocket> sock(_server.sock(address));
+	shared_ptr<ISocketWriter> sock(_server.getWriter(address));
 	if (!sock)
 	{
 		std::cerr << "BADNESS! Membership can't get a valid socket to peer " << peer.uid << "!!!" << std::endl;

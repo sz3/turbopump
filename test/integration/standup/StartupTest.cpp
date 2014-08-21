@@ -232,6 +232,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 {
+	::signal(SIGPIPE, SIG_IGN);
 	createMemberFile();
 
 	TurboApi api;

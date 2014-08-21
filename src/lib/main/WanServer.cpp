@@ -4,7 +4,7 @@
 #include "socket/UdpServer.h"
 #include "udt_socket/UdtServer.h"
 
-WanServer::WanServer(const TurboApi::Options& opts, short port, std::function<void(const IIpSocket&, const std::string&)> onPacket)
+WanServer::WanServer(const TurboApi::Options& opts, short port, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket)
 {
 	if (opts.udt)
 		_server.reset( new UdtServer(port, onPacket) );
@@ -17,17 +17,17 @@ bool WanServer::start()
 	return _server->start();
 }
 
-void WanServer::stop()
+bool WanServer::stop()
 {
 	return _server->stop();
+}
+
+std::shared_ptr<ISocketWriter> WanServer::getWriter(const IpAddress& endpoint)
+{
+	return _server->getWriter(endpoint);
 }
 
 std::string WanServer::lastError() const
 {
 	return _server->lastError();
-}
-
-std::shared_ptr<IIpSocket> WanServer::sock(const IpAddress& addr)
-{
-	return _server->sock(addr);
 }

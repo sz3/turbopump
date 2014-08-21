@@ -2,20 +2,21 @@
 #pragma once
 
 #include "programmable/TurboApi.h"
-#include "socket/IPacketServer.h"
+#include "socket/ISocketServer.h"
 #include <memory>
 
-class WanServer : public IPacketServer
+class WanServer : public ISocketServer
 {
 public:
-	WanServer(const TurboApi::Options& opts, short port, std::function<void(const IIpSocket&, const std::string&)> onPacket);
+	WanServer(const TurboApi::Options& opts, short port, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket);
 
 	bool start();
-	void stop();
+	bool stop();
+
+	std::shared_ptr<ISocketWriter> getWriter(const IpAddress& endpoint);
+
 	std::string lastError() const;
 
-	std::shared_ptr<IIpSocket> sock(const IpAddress& addr);
-
 protected:
-	std::unique_ptr<IPacketServer> _server;
+	std::unique_ptr<ISocketServer> _server;
 };
