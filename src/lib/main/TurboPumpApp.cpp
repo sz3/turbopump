@@ -6,13 +6,13 @@
 
 #include "http/HttpByteStream.h"
 #include "socket/FileByteStream.h"
-#include "socket/IpAddress.h"
+#include "socket/socket_address.h"
 #include <functional>
 #include <iostream>
 using namespace std::placeholders;
 
 TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
-	: _logger(IpAddress("127.0.0.1", port).toString())
+	: _logger(socket_address("127.0.0.1", port).toString())
 	, _callbacks(instruct)
 	, _keyTabulator(_ring, _membership)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
@@ -20,12 +20,12 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
 	, _messenger(_peers)
 	, _writeActionSender(_peers, true)
-	, _membership("turbo_members.txt", IpAddress("127.0.0.1", port).toString())
+	, _membership("turbo_members.txt", socket_address("127.0.0.1", port).toString())
 	, _keyLocator(_ring, _membership)
 	, _peers(_wanServer)
-	, _localServer(streamSocket, std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
+	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
 	, _wanPacketHandler(_wanExecutor, _corrector, _localDataStore, _ring, _keyLocator, _membership, _messenger, _peers, _synchronizer, _logger, _callbacks)
-	, _wanServer(instruct.options, port, std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
+	, _wanServer(instruct.options, socket_address("127.0.0.1", port), std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
 {
 	_callbacks.initialize(_ring, _membership, _threadLockedKeyTabulator, _messenger, _peers);
 }

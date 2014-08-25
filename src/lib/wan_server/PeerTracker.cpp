@@ -5,7 +5,7 @@
 #include "PeerConnection.h"
 #include "membership/Peer.h"
 #include "socket/ISocketServer.h"
-#include "socket/IpAddress.h"
+#include "socket/socket_address.h"
 #include <iostream>
 #include <sstream>
 #include <utility>
@@ -40,7 +40,7 @@ PeerTracker::PeerTracker(ISocketServer& server)
 
 std::shared_ptr<IBufferedConnectionWriter> PeerTracker::getWriter(const Peer& peer)
 {
-	IpAddress address;
+	socket_address address;
 	if (!address.fromString(peer.address()))
 	{
 		std::cerr << "BADNESS! Membership has invalid ip address information on peer " << peer.uid << "!!!" << std::endl;

@@ -3,7 +3,7 @@
 
 #include "BufferedConnectionWriter.h"
 #include "socket/ISocketWriter.h"
-#include "socket/IpAddress.h"
+#include "socket/socket_address.h"
 #include "time/WaitFor.h"
 #include <string>
 #include <thread>
@@ -22,8 +22,6 @@ namespace {
 			, _writeBytes(0)
 		{}
 
-		IpAddress endpoint() const { return IpAddress(); }
-
 		int try_send(const char* buffer, unsigned size)
 		{
 			if (++_asyncWriters > 1)
@@ -41,6 +39,9 @@ namespace {
 			--_blockingWriters;
 			return size;
 		}
+
+		socket_address endpoint() const { return socket_address(); }
+		string target() const { return "special"; }
 
 	public:
 		mutable int _blockingWriters;

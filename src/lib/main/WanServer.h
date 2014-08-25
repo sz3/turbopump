@@ -8,12 +8,12 @@
 class WanServer : public ISocketServer
 {
 public:
-	WanServer(const TurboApi::Options& opts, short port, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket);
+	WanServer(const TurboApi::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket);
 
 	bool start();
 	bool stop();
 
-	std::shared_ptr<ISocketWriter> getWriter(const IpAddress& endpoint);
+	std::shared_ptr<ISocketWriter> getWriter(const socket_address& endpoint);
 
 	std::string lastError() const;
 

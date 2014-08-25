@@ -14,7 +14,6 @@
 #include "wan_server/PeerConnection.h"
 
 #include "serialize/StringUtil.h"
-#include "socket/IpAddress.h"
 
 namespace {
 	MerklePoint whatsThePoint(unsigned key, unsigned short keybits=0)

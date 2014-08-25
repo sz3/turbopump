@@ -12,13 +12,13 @@
 #include "mock/MockMessageSender.h"
 #include "mock/MockPeerTracker.h"
 #include "mock/MockSkewCorrector.h"
-#include "mock/MockSocketWriter.h"
 #include "mock/MockSynchronize.h"
 #include "programmable/TurboApi.h"
 #include "wan_server/PeerConnection.h"
 
 #include "event/SimpleExecutor.h"
-#include "socket/IpAddress.h"
+#include "socket/MockSocketWriter.h"
+#include "socket/socket_address.h"
 using std::string;
 
 namespace {
@@ -128,7 +128,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
 	MockSocketWriter sock;
-	sock._endpoint = IpAddress("1.2.3.4", 10);
+	sock._endpoint = socket_address("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 
 	string packet = formatPacket(32, "foo");
@@ -164,7 +164,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	WanPacketHandler handler(executor, corrector, dataStore, ring, locator, membership, messenger, peers, sync, logger, callbacks);
 
 	MockSocketWriter sock;
-	sock._endpoint = IpAddress("1.2.3.4", 10);
+	sock._endpoint = socket_address("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));
 

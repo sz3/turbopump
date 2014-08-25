@@ -4,12 +4,12 @@
 #include "socket/UdpServer.h"
 #include "udt_socket/UdtServer.h"
 
-WanServer::WanServer(const TurboApi::Options& opts, short port, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket)
+WanServer::WanServer(const TurboApi::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket)
 {
 	if (opts.udt)
-		_server.reset( new UdtServer(port, onPacket) );
+		_server.reset( new UdtServer(addr, onPacket) );
 	else
-		_server.reset( new UdpServer(port, onPacket) );
+		_server.reset( new UdpServer(addr, onPacket) );
 }
 
 bool WanServer::start()
@@ -22,7 +22,7 @@ bool WanServer::stop()
 	return _server->stop();
 }
 
-std::shared_ptr<ISocketWriter> WanServer::getWriter(const IpAddress& endpoint)
+std::shared_ptr<ISocketWriter> WanServer::getWriter(const socket_address& endpoint)
 {
 	return _server->getWriter(endpoint);
 }

@@ -9,8 +9,6 @@
 #include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockPeerTracker.h"
 
-#include "socket/IpAddress.h"
-
 TEST_CASE( "MessageSenderTest/testDigestPing", "[unit]" )
 {
 	MockPeerTracker peers;

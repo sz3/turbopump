@@ -2,7 +2,7 @@
 #include "unittest.h"
 
 #include "BufferedConnectionWriter.h"
-#include "mock/MockSocketWriter.h"
+#include "socket/MockSocketWriter.h"
 #include <memory>
 #include <string>
 using std::string;
