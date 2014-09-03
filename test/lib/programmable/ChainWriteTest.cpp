@@ -10,7 +10,7 @@
 #include "mock/MockHashRing.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMirrorToPeer.h"
-#include "mock/MockPeerTracker.h"
+#include "mock/MockWriteSupervisor.h"
 
 #include <string>
 using std::string;
@@ -19,8 +19,8 @@ TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockPeerTracker peers;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, peers, false);
+	MockWriteSupervisor supervisor;
+	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, true);
 
 	// input
 	MockDataStore store;
@@ -28,16 +28,14 @@ TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	supervisor._writer.reset(new MockBufferedConnectionWriter());
 
 	WriteParams params("file",0,3,"v1",0);
 	assertTrue( command.run(params, reader) );
 
 	assertFalse( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
-	assertEquals( "getWriter(peerid)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=0 n=3 v=v1 offset=0|,false)|write(0,contents,false)", writer->_history.calls() );
+	assertEquals( "open(peerid,file,1)|store(file|v1|0,8)", supervisor._history.calls() );
 }
 
 TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
@@ -46,8 +44,8 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 
 	MockHashRing ring;
 	MockMembership membership;
-	MockPeerTracker peers;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, peers, false);
+	MockWriteSupervisor supervisor;
+	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, false);
 
 	// input
 	MockDataStore store;
@@ -55,24 +53,22 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	supervisor._writer.reset(new MockBufferedConnectionWriter());
 
 	WriteParams params("file",0,3,"v1",0);
 	assertFalse( command.run(params, reader) );
 
 	assertTrue( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
-	assertEquals( "", peers._history.calls() );
-	assertEquals( "", writer->_history.calls() );
+	assertEquals( "", supervisor._history.calls() );
 }
 
 TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockPeerTracker peers;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, peers, false);
+	MockWriteSupervisor supervisor;
+	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, false);
 
 	// input
 	MockDataStore store;
@@ -87,15 +83,15 @@ TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 
 	assertTrue( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
-	assertEquals( "getWriter(peerid)", peers._history.calls() );
+	assertEquals( "open(peerid,file,0)", supervisor._history.calls() );
 }
 
 TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 {
 	MockHashRing ring;
 	MockMembership membership;
-	MockPeerTracker peers;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, peers, false);
+	MockWriteSupervisor supervisor;
+	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, false);
 
 	// input
 	MockDataStore store;
@@ -103,32 +99,27 @@ TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	supervisor._writer.reset(new MockBufferedConnectionWriter());
 
 	WriteParams params("file",0,3,"v1",0);
 	assertTrue( command.run(params, reader) );
 
 	assertFalse( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
-	assertEquals( "getWriter(peerid)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=0 n=3 v=v1 offset=0|,false)|write(0,contents,false)", writer->_history.calls() );
+	assertEquals( "open(peerid,file,0)|store(file|v1|0,8)", supervisor._history.calls() );
 
-	peers._history.clear();
-	writer->_history.clear();
+	supervisor._history.clear();
 
 	reader = store.read("dummy", "version");
 	assertTrue( command.run(params, reader) );
 	assertEquals( "", MockMirrorToPeer::calls() );
-	assertEquals( "", peers._history.calls() );
-	assertEquals( "write(0,contents,false)", writer->_history.calls() );
+	assertEquals( "store(file|v1|0,8)", supervisor._history.calls() );
 
-	writer->_history.clear();
+	supervisor._history.clear();
 
 	reader = store.read("dummy", "version");
 	params.isComplete = true;
 	assertTrue( command.run(params, reader) );
 	assertEquals( "", MockMirrorToPeer::calls() );
-	assertEquals( "", peers._history.calls() );
-	assertEquals( "write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "store(file|v1|1,8)", supervisor._history.calls() );
 }

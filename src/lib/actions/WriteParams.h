@@ -6,6 +6,9 @@
 #include <string>
 class ConnectionWriteStream;
 
+// TODO: move ConnectionWriteStream and isComplete (write state information, that is) into higher-level class holding a WriteParams.
+// WriteParams should be "pure"
+
 struct WriteParams //: public KeyMetadata
 {
 	WriteParams()

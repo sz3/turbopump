@@ -5,7 +5,7 @@
 #include "IDigestKeys.h"
 #include "actions/WriteParams.h"
 #include "actions_req/IMessageSender.h"
-#include "actions_req/IWriteActionSender.h"
+#include "actions_req/ISuperviseWrites.h"
 #include "cohesion/TreeId.h"
 #include "common/KeyMetadata.h"
 #include "data_store/IDataStore.h"
@@ -18,7 +18,7 @@
 #include <iostream>
 using std::string;
 
-SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IMessageSender& messenger, IWriteActionSender& sender, ILog& logger)
+SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IMessageSender& messenger, ISuperviseWrites& sender, ILog& logger)
 	: _index(index)
 	, _store(store)
 	, _messenger(messenger)

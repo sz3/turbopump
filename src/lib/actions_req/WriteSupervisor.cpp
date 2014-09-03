@@ -1,5 +1,5 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "WriteActionSender.h"
+#include "WriteSupervisor.h"
 
 #include "actions/WriteParams.h"
 #include "membership/Peer.h"
@@ -12,21 +12,20 @@
 using std::string;
 using std::shared_ptr;
 
-WriteActionSender::WriteActionSender(IPeerTracker& peers, bool blocking)
+WriteSupervisor::WriteSupervisor(IPeerTracker& peers)
 	: _peers(peers)
-	, _blocking(blocking)
 {
 }
 
-bool WriteActionSender::store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents)
+bool WriteSupervisor::store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents)
 {
-	std::shared_ptr<ConnectionWriteStream> conn = open(peer, write);
+	std::shared_ptr<ConnectionWriteStream> conn = open(peer, write, true);
 	if (!conn)
 		return false;
 	return store(*conn, write, contents);
 }
 
-std::shared_ptr<ConnectionWriteStream> WriteActionSender::open(const Peer& peer, const WriteParams& write)
+std::shared_ptr<ConnectionWriteStream> WriteSupervisor::open(const Peer& peer, const WriteParams& write, bool blocking)
 {
 	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
 	if (!writer)
@@ -37,7 +36,7 @@ std::shared_ptr<ConnectionWriteStream> WriteActionSender::open(const Peer& peer,
 	// also also, could store a IConnectionWriteStream there instead...
 	// ...but that would result in keeping IBufferedConnectionWriters around.
 	// OTOH, it's less crap to put in the WriteParams (one ptr)
-	shared_ptr<ConnectionWriteStream> conn(new ConnectionWriteStream(writer, peer.nextActionId(), _blocking));
+	shared_ptr<ConnectionWriteStream> conn(new ConnectionWriteStream(writer, peer.nextActionId(), blocking));
 
 	std::stringstream ss;
 	ss << "write|name=" << write.filename << " i=" << write.mirror << " n=" << write.totalCopies << " v=" << write.version << " offset=" << write.offset;
@@ -50,7 +49,7 @@ std::shared_ptr<ConnectionWriteStream> WriteActionSender::open(const Peer& peer,
 	return conn;
 }
 
-bool WriteActionSender::store(ConnectionWriteStream& conn, const WriteParams& write, IDataStoreReader::ptr contents)
+bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteParams& write, IDataStoreReader::ptr contents)
 {
 	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
 	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto IDataStoreReader::ptrs

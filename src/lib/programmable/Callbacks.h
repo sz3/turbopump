@@ -7,7 +7,7 @@ class IHashRing;
 class IMembership;
 class IKeyTabulator;
 class IMessageSender;
-class IPeerTracker;
+class ISuperviseWrites;
 
 // not really sure about the name of this guy, yet
 class Callbacks : public TurboApi
@@ -16,7 +16,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, IPeerTracker& peers);
+	void initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer);
 
 protected:
 };

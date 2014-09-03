@@ -5,7 +5,7 @@ project(actions_req_test)
 set (SOURCES
 	test.cpp
 	MessageSenderTest.cpp
-	WriteActionSenderTest.cpp
+	WriteSupervisorTest.cpp
 )
 
 include_directories(

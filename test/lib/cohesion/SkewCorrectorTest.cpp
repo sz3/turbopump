@@ -9,7 +9,7 @@
 #include "mock/MockKeyTabulator.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMessageSender.h"
-#include "mock/MockWriteActionSender.h"
+#include "mock/MockWriteSupervisor.h"
 
 using std::string;
 
@@ -18,7 +18,7 @@ TEST_CASE( "SkewCorrectorTest/testHealKey", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -44,7 +44,7 @@ TEST_CASE( "SkewCorrectorTest/testHealKey.Nothing", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -63,7 +63,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -89,7 +89,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Offload", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -115,7 +115,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Empty", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -134,7 +134,7 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.ConnectionExplodes", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -161,7 +161,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -181,7 +181,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey.Empty", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 
@@ -199,7 +199,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey.ConnectionExplodes", "[unit]" )
 	MockKeyTabulator index;
 	MockDataStore store;
 	MockMessageSender messenger;
-	MockWriteActionSender writer;
+	MockWriteSupervisor writer;
 	MockLogger logger;
 	SkewCorrector corrector(index, store, messenger, writer, logger);
 

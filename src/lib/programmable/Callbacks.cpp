@@ -53,15 +53,15 @@ namespace
 		return bind(&NotifyWriteComplete::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const IHashRing& ring, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
 	{
-		std::shared_ptr< ChainWrite<RandomizedMirrorToPeer> > cmd(new ChainWrite<RandomizedMirrorToPeer>(ring, membership, peers, blocking));
+		std::shared_ptr< ChainWrite<RandomizedMirrorToPeer> > cmd(new ChainWrite<RandomizedMirrorToPeer>(ring, membership, writer, blocking));
 		return bind(&ChainWrite<RandomizedMirrorToPeer>::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, IPeerTracker& peers, bool blocking)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const IHashRing& ring, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
 	{
-		std::shared_ptr< ChainWrite<MirrorToPeer> > cmd(new ChainWrite<MirrorToPeer>(ring, membership, peers, blocking));
+		std::shared_ptr< ChainWrite<MirrorToPeer> > cmd(new ChainWrite<MirrorToPeer>(ring, membership, writer, blocking));
 		return bind(&ChainWrite<MirrorToPeer>::run, cmd, _1, _2);
 	}
 }
@@ -75,7 +75,7 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, IPeerTracker& peers)
+void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"
@@ -89,9 +89,9 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 		if (TurboApi::options.write_chaining)
 		{
 			if (TurboApi::options.partition_keys)
-				chain.add( writeChainFunct_partitionMode(ring, membership, peers, true) );
+				chain.add( writeChainFunct_partitionMode(ring, membership, writer, true) );
 			else
-				chain.add( writeChainFunct_cloneMode(ring, membership, peers, true) );
+				chain.add( writeChainFunct_cloneMode(ring, membership, writer, true) );
 		}
 		chain.add( membershipAddFunct(ring, membership, keyTabulator) );
 
@@ -105,7 +105,7 @@ void Callbacks::initialize(IHashRing& ring, IMembership& membership, IKeyTabulat
 			chain.add( digestAddFunct(keyTabulator) );
 
 		if (TurboApi::options.write_chaining && TurboApi::options.partition_keys)
-			chain.add( writeChainFunct_partitionMode(ring, membership, peers, false) );
+			chain.add( writeChainFunct_partitionMode(ring, membership, writer, false) );
 
 		chain.add( notifyWriteComplete(membership, messenger) );
 		chain.add( membershipAddFunct(ring, membership, keyTabulator) );

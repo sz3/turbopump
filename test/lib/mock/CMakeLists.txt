@@ -37,8 +37,8 @@ set(SOURCES
 	MockSynchronize.h
 	MockUserPacketHandler.cpp
 	MockUserPacketHandler.h
-	MockWriteActionSender.cpp
-	MockWriteActionSender.h
+	MockWriteSupervisor.cpp
+	MockWriteSupervisor.h
 )
 
 include_directories(

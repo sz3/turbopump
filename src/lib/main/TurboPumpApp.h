@@ -4,7 +4,7 @@
 #include "ProcessState.h"
 #include "WanServer.h"
 #include "actions_req/MessageSender.h"
-#include "actions_req/WriteActionSender.h"
+#include "actions_req/WriteSupervisor.h"
 #include "cohesion/KeyTabulator.h"
 #include "cohesion/ThreadLockedKeyTabulator.h"
 #include "cohesion/SkewCorrector.h"
@@ -49,7 +49,7 @@ protected:
 
 	// thread scheduling and helpers
 	MessageSender _messenger;
-	WriteActionSender _writeActionSender;
+	WriteSupervisor _writeSupervisor;
 	SchedulerThread _scheduler;
 
 	// core. hashring, membership, connection tracking, data store...

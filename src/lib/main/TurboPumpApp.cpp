@@ -16,10 +16,10 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _callbacks(instruct)
 	, _keyTabulator(_ring, _membership)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
-	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeActionSender, _logger)
+	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeSupervisor, _logger)
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
 	, _messenger(_peers)
-	, _writeActionSender(_peers, true)
+	, _writeSupervisor(_peers)
 	, _membership("turbo_members.txt", socket_address("127.0.0.1", port).toString())
 	, _keyLocator(_ring, _membership)
 	, _peers(_wanServer)
@@ -27,7 +27,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _wanPacketHandler(_wanExecutor, _corrector, _localDataStore, _ring, _keyLocator, _membership, _messenger, _peers, _synchronizer, _logger, _callbacks)
 	, _wanServer(instruct.options, socket_address("127.0.0.1", port), std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
 {
-	_callbacks.initialize(_ring, _membership, _threadLockedKeyTabulator, _messenger, _peers);
+	_callbacks.initialize(_ring, _membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
 }
 
 void TurboPumpApp::run()

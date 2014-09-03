@@ -4,9 +4,9 @@ set(SOURCES
 	IMessageSender.h
 	MessageSender.cpp
 	MessageSender.h
-	IWriteActionSender.h
-	WriteActionSender.cpp
-	WriteActionSender.h
+	ISuperviseWrites.h
+	WriteSupervisor.cpp
+	WriteSupervisor.h
 )
 
 include_directories(
