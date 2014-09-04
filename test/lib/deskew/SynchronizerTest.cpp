@@ -94,7 +94,7 @@ TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
 	assertEquals( "empty()", index._tree._history.calls() );
 	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
 	assertEquals( "randomPeerFromList()|self()", membership._history.calls() );
-	assertEquals( ("pushKeyRange(dude,oak,0," + StringUtil::str(~0ULL) + ",me)"), corrector._history.calls() );
+	assertEquals( ("pushKeyRange(dude,oak,2,0," + StringUtil::str(~0ULL) + ",me)"), corrector._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
@@ -112,7 +112,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 
 	assertEquals( "find(oak,4)", index._history.calls() );
 	assertEquals( "empty()", index._tree._history.calls() );
-	assertEquals( ("pushKeyRange(fooid,oak,0," + StringUtil::str(~0ULL) + ",)"), corrector._history.calls() );
+	assertEquals( ("pushKeyRange(fooid,oak,4,0," + StringUtil::str(~0ULL) + ",)"), corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }

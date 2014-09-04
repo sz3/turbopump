@@ -2,14 +2,14 @@
 #pragma once
 
 #include "IAction.h"
-#include "cohesion/TreeId.h"
+#include "deskew/TreeId.h"
 #include "membership/Peer.h"
-class ISynchronize;
+class ICorrectSkew;
 
 class KeyReqAction : public IAction
 {
 public:
-	KeyReqAction(const Peer& peer, ISynchronize& sync);
+	KeyReqAction(const Peer& peer, ICorrectSkew& corrector);
 
 	std::string name() const;
 	bool run(const DataBuffer& data);
@@ -17,7 +17,7 @@ public:
 
 protected:
 	Peer _peer;
-	ISynchronize& _sync;
+	ICorrectSkew& _corrector;
 
 	TreeId _tree;
 	unsigned long long _first;

@@ -5,9 +5,9 @@
 #include "IKeyTabulator.h"
 #include "IDigestKeys.h"
 #include "KeyRange.h"
+#include "TreeId.h"
 
 #include "actions_req/IMessageSender.h"
-#include "cohesion/TreeId.h"
 #include "common/MerklePoint.h"
 #include "consistent_hashing/IHashRing.h"
 #include "logging/ILog.h"
@@ -64,13 +64,13 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 {
 	_logger.logTrace("Synchronizer compare from " + peer.uid);
 
-	// TODO: do we need to sanity check treeid against the _ring or _index to make sure we care?
+	// TODO: do we need to sanity check treeid against t4he _ring or _index to make sure we care?
 	const IDigestKeys& tree = _index.find(treeid.id, treeid.mirrors);
 	if (point == MerklePoint::null())
 	{
 		if (tree.empty())
 			return;
-		pushKeyRange(peer, treeid, 0, ~0ULL);
+		_corrector.pushKeyRange(peer, treeid, 0, ~0ULL);
 		return;
 	}
 
@@ -135,9 +135,4 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 		// respond!
 		_messenger.digestPing(peer, treeid, diffs);
 	}
-}
-
-void Synchronizer::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last)
-{
-	_corrector.pushKeyRange(peer, treeid, first, last);
 }

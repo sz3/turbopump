@@ -36,8 +36,8 @@ add_test(actions_test actions_test)
 target_link_libraries(actions_test
 
 	actions
-	cohesion
 	common
+	deskew
 	membership
 	mock
 

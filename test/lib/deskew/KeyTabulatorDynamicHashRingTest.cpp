@@ -4,8 +4,8 @@
 // explore interaction between changes in HashRing and KeyTabulator, validating everything stays sane
 
 #include "KeyTabulator.h"
-#include "cohesion/IDigestKeys.h"
 #include "consistent_hashing/HashRing.h"
+#include "deskew/IDigestKeys.h"
 
 #include "membership/Peer.h"
 #include "mock/MockMembership.h"

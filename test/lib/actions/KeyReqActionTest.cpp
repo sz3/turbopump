@@ -4,15 +4,15 @@
 #include "KeyReqAction.h"
 #include "common/DataBuffer.h"
 #include "membership/Peer.h"
-#include "mock/MockSynchronize.h"
+#include "mock/MockSkewCorrector.h"
 using std::map;
 using std::string;
 
 TEST_CASE( "KeyReqActionTest/testDefault", "[unit]" )
 {
 	Peer peer("fooid");
-	MockSynchronize sync;
-	KeyReqAction action(peer, sync);
+	MockSkewCorrector corrector;
+	KeyReqAction action(peer, corrector);
 
 	map<string,string> params;
 	params["tree"] = "oak";
@@ -22,5 +22,5 @@ TEST_CASE( "KeyReqActionTest/testDefault", "[unit]" )
 	action.setParams(params);
 
 	assertTrue( action.run(DataBuffer::Null()) );
-	assertEquals( "pushKeyRange(fooid,oak,4,52,1337)", sync._history.calls() );
+	assertEquals( "pushKeyRange(fooid,oak,4,52,1337,)", corrector._history.calls() );
 }

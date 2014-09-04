@@ -2,8 +2,8 @@
 #include "AddPeer.h"
 
 #include "actions/WriteParams.h"
-#include "cohesion/IKeyTabulator.h"
 #include "common/turbopump_defaults.h"
+#include "conformity/IKeyTabulator.h"
 #include "consistent_hashing/IHashRing.h"
 #include "data_store/DataEntry.h"
 #include "membership/IMembership.h"

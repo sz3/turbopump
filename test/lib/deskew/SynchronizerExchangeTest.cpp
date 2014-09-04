@@ -17,6 +17,37 @@ using std::string;
 
 namespace
 {
+	class TestSkewCorrector : public ICorrectSkew
+	{
+	public:
+		TestSkewCorrector(const KeyTabulator& index)
+			: _index(index)
+		{}
+
+		void healKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+		{
+			_history.call("healKey", treeid.id, key);
+		}
+
+		void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const string& offloadFrom="")
+		{
+			_history.call("pushKeyRange", treeid.id, first, last, offloadFrom);
+			deque<string> toPush = _index.find(treeid.id, treeid.mirrors).enumerate(first, last);
+			_corrected.insert(_corrected.end(), toPush.begin(), toPush.end());
+		}
+
+		bool sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
+		{
+			_history.call("sendKey", name, version, source);
+			return true;
+		}
+
+	public:
+		const KeyTabulator& _index;
+		deque<string> _corrected;
+		CallHistory _history;
+	};
+
 	class TestMessageSender : public IMessageSender
 	{
 	public:
@@ -33,7 +64,7 @@ namespace
 
 		void requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last)
 		{
-			_other->pushKeyRange(peer, treeid, first, last);
+			_corrector->pushKeyRange(peer, treeid, first, last);
 		}
 
 		void requestHealKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
@@ -54,37 +85,7 @@ namespace
 
 	public:
 		Synchronizer* _other;
-	};
-
-	class TestSkewCorrector : public ICorrectSkew
-	{
-	public:
-		TestSkewCorrector(const KeyTabulator& index)
-			: _index(index)
-		{}
-
-		void healKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
-		{
-			_history.call("healKey", treeid.id, key);
-		}
-
-		void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const string& offloadFrom)
-		{
-			_history.call("pushKeyRange", treeid.id, first, last, offloadFrom);
-			deque<string> toPush = _index.find(treeid.id, treeid.mirrors).enumerate(first, last);
-			_corrected.insert(_corrected.end(), toPush.begin(), toPush.end());
-		}
-
-		bool sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
-		{
-			_history.call("sendKey", name, version, source);
-			return true;
-		}
-
-	public:
-		const KeyTabulator& _index;
-		deque<string> _corrected;
-		CallHistory _history;
+		TestSkewCorrector* _corrector;
 	};
 }
 
@@ -132,7 +133,9 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo, logger);
 
 	senderOne._other = &two;
+	senderOne._corrector = &correctorTwo;
 	senderTwo._other = &one;
+	senderTwo._corrector = &correctorOne;
 
 	one.compare(Peer("dummy"), TreeId("fooid"), indexTwo.find("fooid").top());
 
@@ -170,7 +173,9 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	Synchronizer two(ring, membership, indexTwo, senderTwo, correctorTwo, logger);
 
 	senderOne._other = &two;
+	senderOne._corrector = &correctorTwo;
 	senderTwo._other = &one;
+	senderTwo._corrector = &correctorOne;
 
 	one.compare(Peer("dummy"), TreeId("fooid"), indexTwo.find("fooid").top());
 

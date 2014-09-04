@@ -1,9 +1,9 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "SyncAction.h"
 
-#include "cohesion/ISynchronize.h"
 #include "common/DataBuffer.h"
 #include "common/MerklePoint.h"
+#include "deskew/ISynchronize.h"
 #include "serialize/StringUtil.h"
 using std::map;
 using std::string;

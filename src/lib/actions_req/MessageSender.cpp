@@ -1,8 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MessageSender.h"
 
-#include "cohesion/TreeId.h"
 #include "common/MerklePoint.h"
+#include "conformity/TreeId.h"
 #include "membership/Peer.h"
 #include "wan_server/IBufferedConnectionWriter.h"
 #include "wan_server/IPeerTracker.h"

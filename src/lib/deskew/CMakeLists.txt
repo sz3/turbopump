@@ -29,5 +29,5 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(cohesion STATIC ${SOURCES})
+add_library(deskew STATIC ${SOURCES})
 

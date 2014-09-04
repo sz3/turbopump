@@ -1,8 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "HealKeyAction.h"
 
-#include "cohesion/ICorrectSkew.h"
 #include "common/DataBuffer.h"
+#include "deskew/ICorrectSkew.h"
 using std::map;
 using std::string;
 

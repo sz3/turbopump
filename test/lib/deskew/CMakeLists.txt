@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(cohesion_test)
+project(deskew_test)
 
 set (SOURCES
 	test.cpp
@@ -19,19 +19,19 @@ set (SOURCES
 include_directories(
 	${corelib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
-	${turboproj_SOURCE_DIR}/src/lib/cohesion
+	${turboproj_SOURCE_DIR}/src/lib/deskew
 )
 
 add_executable (
-	cohesion_test
+	deskew_test
 	${SOURCES}
 )
 
-add_test(cohesion_test cohesion_test)
+add_test(deskew_test deskew_test)
 
-target_link_libraries(cohesion_test
+target_link_libraries(deskew_test
 
-	cohesion
+	deskew
 
 	common
 	consistent_hashing

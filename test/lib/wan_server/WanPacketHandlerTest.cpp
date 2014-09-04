@@ -52,7 +52,7 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
 
 	handler.processPendingBuffers(Peer("someguid"), conn);
 	assertTrue( conn.empty() );
-	assertEquals( "pushKeyRange(someguid,,3,1,10)|pushKeyRange(someguid,,3,2,20)|pushKeyRange(someguid,,3,3,30)", sync._history.calls() );
+	assertEquals( "pushKeyRange(someguid,,3,1,10,)|pushKeyRange(someguid,,3,2,20,)|pushKeyRange(someguid,,3,3,30,)", corrector._history.calls() );
 	assertTrue( !conn.action(33) );
 }
 
@@ -145,7 +145,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	packet = formatPacket(33, "key-req|first=1 last=10|");
 	assertTrue( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "track(someguid)", peers._history.calls() );
-	assertEquals( "pushKeyRange(someguid,,3,1,10)", sync._history.calls() );
+	assertEquals( "pushKeyRange(someguid,,3,1,10,)", corrector._history.calls() );
 }
 
 TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )

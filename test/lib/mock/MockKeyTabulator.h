@@ -2,7 +2,7 @@
 #pragma once
 
 #include "MockDigestTree.h"
-#include "cohesion/IKeyTabulator.h"
+#include "deskew/IKeyTabulator.h"
 #include "util/CallHistory.h"
 
 class MockKeyTabulator : public IKeyTabulator

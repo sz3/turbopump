@@ -184,7 +184,7 @@ std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const str
 	else if (cmdname == "sync")
 		action.reset(new SyncAction(peer, _sync));
 	else if (cmdname == "key-req")
-		action.reset(new KeyReqAction(peer, _sync));
+		action.reset(new KeyReqAction(peer, _corrector));
 	else if (cmdname == "heal-key")
 		action.reset(new HealKeyAction(peer, _corrector));
 	else if (cmdname == "offer-write")

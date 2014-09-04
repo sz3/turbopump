@@ -2,7 +2,7 @@
 #pragma once
 
 #include "MockDigestTree.h"
-#include "cohesion/IDigestIndexer.h"
+#include "deskew/IDigestIndexer.h"
 #include "util/CallHistory.h"
 
 class MockDigestIndexer : public IDigestIndexer

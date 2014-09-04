@@ -23,10 +23,10 @@ target_link_libraries(standup_test
 -Wl,--start-group
 	actions
 	actions_req
-	cohesion
 	common
 	consistent_hashing
 	data_store
+	deskew
 	integration
 	logging
 	main

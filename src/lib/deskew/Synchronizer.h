@@ -18,7 +18,6 @@ public:
 	void pingRandomPeer();
 	void offloadUnwantedKeys();
 	void compare(const Peer& peer, const TreeId& treeid, const MerklePoint& point, bool isSyncResponse=false);
-	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last);
 
 protected:
 	const IHashRing& _ring;

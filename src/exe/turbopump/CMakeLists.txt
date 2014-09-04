@@ -15,10 +15,10 @@ target_link_libraries(turbopump
 -Wl,--start-group
 	actions
 	actions_req
-	cohesion
 	common
 	consistent_hashing
 	data_store
+	deskew
 	logging
 	main
 	membership

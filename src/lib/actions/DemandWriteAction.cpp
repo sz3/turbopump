@@ -2,8 +2,8 @@
 #include "DemandWriteAction.h"
 
 #include "WriteParams.h"
-#include "cohesion/ICorrectSkew.h"
 #include "common/DataBuffer.h"
+#include "conformity/ICorrectSkew.h"
 
 using std::map;
 using std::string;

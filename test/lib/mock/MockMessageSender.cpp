@@ -1,8 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MockMessageSender.h"
 
-#include "cohesion/TreeId.h"
 #include "common/MerklePoint.h"
+#include "conformity/TreeId.h"
 #include "membership/Peer.h"
 
 void MockMessageSender::digestPing(const Peer& peer, const TreeId& treeid, const MerklePoint& point)
