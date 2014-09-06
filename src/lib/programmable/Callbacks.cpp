@@ -9,7 +9,7 @@
 
 #include "actions/DropParams.h"
 #include "actions/WriteParams.h"
-#include "conformity/IKeyTabulator.h"
+#include "deskew/IKeyTabulator.h"
 #include "util/FunctionChainer.h"
 
 #include <deque>

@@ -2,7 +2,7 @@
 #include "MockMessageSender.h"
 
 #include "common/MerklePoint.h"
-#include "conformity/TreeId.h"
+#include "deskew/TreeId.h"
 #include "membership/Peer.h"
 
 void MockMessageSender::digestPing(const Peer& peer, const TreeId& treeid, const MerklePoint& point)

@@ -3,7 +3,7 @@
 
 #include "WriteParams.h"
 #include "common/DataBuffer.h"
-#include "conformity/ICorrectSkew.h"
+#include "deskew/ICorrectSkew.h"
 
 using std::map;
 using std::string;
