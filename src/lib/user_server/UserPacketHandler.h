@@ -6,7 +6,6 @@
 #include <memory>
 #include <string>
 
-class DataBuffer;
 class IDataStore;
 class IHashRing;
 class IHttpByteStream;

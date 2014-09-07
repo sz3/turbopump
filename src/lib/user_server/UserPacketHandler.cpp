@@ -12,8 +12,6 @@
 #include "actions/WriteAction.h"
 
 #include "UserActionContext.h"
-#include "common/ActionParser.h"
-#include "common/DataBuffer.h"
 #include "consistent_hashing/IHashRing.h"
 #include "http/IHttpByteStream.h"
 #include "membership/IMembership.h"
