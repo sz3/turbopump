@@ -26,6 +26,7 @@ target_link_libraries(data_store_test
 	common
 	consistent_hashing
 
+	serialize
 	socket
 
 	tbb

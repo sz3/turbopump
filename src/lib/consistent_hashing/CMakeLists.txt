@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	base64.cpp
-	base64.h
 	circular_map.h
 	Hash.cpp
 	Hash.h	
@@ -22,5 +20,5 @@ add_library(consistent_hashing STATIC ${SOURCES})
 
 target_link_libraries(consistent_hashing
 
-	cryptopp
+	crypto_base
 )

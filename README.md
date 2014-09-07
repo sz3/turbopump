@@ -13,7 +13,6 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 * turbolib (see adjacent library)
 * UDT (libudt)
 * intel's TBB library (libtbb)
-* Crypto++ (libcrypto++/libcryptopp) -- will likely be replaced with libsodium
 * boost::filesystem -- used in integration tests
 
 ### What works
@@ -58,7 +57,7 @@ Q. I am a possible wizard who somehow got this built and running. How do I store
 
 A. The API is still in flux, but you can use HTTP over unix domain sockets. For example:
 
-* echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+* echo -e -n 'GET /state HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
 * echo -e -n 'GET /local_list HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
 * echo -e -n 'POST /write?name=foo HTTP/1.1\r\ncontent-length:5\r\n\r\n012345' | nc -U /tmp/turbopump
 * echo -e -n 'GET /read?name=foo HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump

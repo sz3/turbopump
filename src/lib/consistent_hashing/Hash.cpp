@@ -1,9 +1,21 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "Hash.h"
 
-#include <cryptopp/tiger.h>
-#include "base64.h"
+#include "serialize/base64.h"
+#include "crypto/tiger_hash.h"
 using std::string;
+
+namespace {
+	std::function<std::string(const std::string&)> _hasher = [] (const string& in) {
+		tiger_hash hasher;
+		return hasher(in);
+	};
+}
+
+void Hash::init(std::function<std::string(const std::string&)> hasher)
+{
+	_hasher = hasher;
+}
 
 Hash::Hash(string hash)
 	: _hash(std::move(hash))
@@ -12,15 +24,12 @@ Hash::Hash(string hash)
 
 Hash Hash::fromBase64(const string& encoded)
 {
-	return Hash(base64_decode(encoded));
+	return Hash(base64::decode(encoded));
 }
 
 Hash Hash::compute(const string& input)
 {
-	string hash;
-	hash.resize(CryptoPP::Tiger::DIGESTSIZE);
-	CryptoPP::Tiger().CalculateDigest((unsigned char*)(&hash[0]), (const unsigned char*)input.data(), input.size());
-	return Hash(hash);
+	return Hash(_hasher(input));
 }
 
 std::string&& Hash::bytes()
@@ -30,7 +39,7 @@ std::string&& Hash::bytes()
 
 std::string Hash::base64() const
 {
-	return base64_encode((const unsigned char*)_hash.data(), _hash.size());
+	return base64::encode((const unsigned char*)_hash.data(), _hash.size());
 }
 
 unsigned long long Hash::integer() const

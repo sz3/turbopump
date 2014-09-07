@@ -6,6 +6,7 @@ enable_testing()
 set(CMAKE_CXX_FLAGS "-DTURBOPUMP_PROJECT_ROOT=\\\"${turboproj_SOURCE_DIR}\\\"")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+	set(CMAKE_C_FLAGS "${CFLAGS} -Wall -std=c99")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC")
 	# -ftime-report
 endif()
@@ -19,6 +20,7 @@ set (TURBOLIB ${turboproj_SOURCE_DIR}/../turbolib)
 include_directories(
 	${turboproj_SOURCE_DIR}/src/lib
 	${TURBOLIB}/src/lib
+	${TURBOLIB}/src/third_party_lib
 )
 
 add_subdirectory(${TURBOLIB} ${TURBOLIB})
