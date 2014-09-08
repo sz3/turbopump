@@ -27,7 +27,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _wanPacketHandler(_wanExecutor, _corrector, _localDataStore, _ring, _keyLocator, _membership, _messenger, _peers, _synchronizer, _logger, _callbacks)
 	, _wanServer(instruct.options, socket_address("127.0.0.1", port), std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
 {
-	_callbacks.initialize(_ring, _membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
+	_callbacks.initialize(_ring, _keyLocator, _membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
 }
 
 void TurboPumpApp::run()

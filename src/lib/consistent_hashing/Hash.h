@@ -10,11 +10,10 @@ public:
 	static void init(std::function<std::string(const std::string&)> hasher);
 
 public:
-	Hash(std::string hash);
-	static Hash fromBase64(const std::string& encoded);
-	static Hash compute(const std::string& input);
+	Hash();
+	Hash(const std::string& input);
+	Hash& fromBase64(const std::string& encoded);
 
-	std::string&& bytes();
 	std::string base64() const;
 	unsigned long long integer() const;
 	size_t sizet() const;

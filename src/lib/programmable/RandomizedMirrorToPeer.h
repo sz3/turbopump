@@ -2,7 +2,7 @@
 #pragma once
 
 #include <memory>
-class IHashRing;
+class ILocateKeys;
 class IMembership;
 class Peer;
 class WriteParams;
@@ -10,7 +10,7 @@ class WriteParams;
 class RandomizedMirrorToPeer
 {
 public:
-	RandomizedMirrorToPeer(const IHashRing& ring, const IMembership& membership);
+	RandomizedMirrorToPeer(const ILocateKeys& locator, const IMembership& membership);
 
 	bool chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer);
 

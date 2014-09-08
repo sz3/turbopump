@@ -4,7 +4,7 @@
 #include "RandomizedMirrorToPeer.h"
 #include "actions/WriteParams.h"
 #include "membership/Peer.h"
-#include "mock/MockHashRing.h"
+#include "mock/MockLocateKeys.h"
 #include "mock/MockMembership.h"
 
 #include <memory>
@@ -14,11 +14,11 @@ using std::string;
 
 TEST_CASE( "RandomizedMirrorToPeerTest/testSuccess", "[unit]" )
 {
-	MockHashRing ring;
+	MockLocateKeys locator;
 	MockMembership membership;
 	membership.addIp("1.2.3.4", "dude");
 	membership._history.clear();
-	RandomizedMirrorToPeer command(ring, membership);
+	RandomizedMirrorToPeer command(locator, membership);
 
 	WriteParams params("file", 123, 456, "v1", 0);
 	shared_ptr<Peer> peer;
@@ -26,16 +26,16 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testSuccess", "[unit]" )
 
 	assertEquals( "randomPeer()", membership._history.calls() );
 	assertEquals( "dude", peer->uid );
-	assertEquals( "", ring._history.calls() );
+	assertEquals( "", locator._history.calls() );
 }
 
 TEST_CASE( "RandomizedMirrorToPeerTest/testDone", "[unit]" )
 {
-	MockHashRing ring;
+	MockLocateKeys locator;
 	MockMembership membership;
 	membership.addIp("1.2.3.4", "dude");
 	membership._history.clear();
-	RandomizedMirrorToPeer command(ring, membership);
+	RandomizedMirrorToPeer command(locator, membership);
 
 	WriteParams params("file", 123, 456, "v1", 0);
 	params.mirror = 3;
@@ -49,10 +49,10 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testDone", "[unit]" )
 
 TEST_CASE( "RandomizedMirrorToPeerTest/testBadPeer", "[unit]" )
 {
-	MockHashRing ring;
+	MockLocateKeys locator;
 	MockMembership membership;
 	membership._history.clear();
-	RandomizedMirrorToPeer command(ring, membership);
+	RandomizedMirrorToPeer command(locator, membership);
 
 	WriteParams params("file", 123, 456, "v1", 0);
 	shared_ptr<Peer> peer;

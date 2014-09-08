@@ -47,17 +47,17 @@ TEST_CASE( "DigestTreeTest/testTop", "[unit]" )
 	DigestTree tree;
 
 	tree.update("one", 0);
-	unsigned long long hash1 = Hash::compute("one").integer();
+	unsigned long long hash1 = Hash("one").integer();
 	MerklePoint top = tree.top();
 	assertEquals( hash1, top.hash );
 
 	tree.update("two", 0);
-	unsigned long long hash2 = Hash::compute("two").integer();
+	unsigned long long hash2 = Hash("two").integer();
 	top = tree.top();
 	assertEquals( (hash1 xor hash2), top.hash );
 
 	tree.update("three", 0);
-	unsigned long long hash3 = Hash::compute("three").integer();
+	unsigned long long hash3 = Hash("three").integer();
 	top = tree.top();
 	assertEquals( (hash1 xor hash2 xor hash3), top.hash );
 }
@@ -66,7 +66,7 @@ TEST_CASE( "DigestTreeTest/testUpdateExistingKey", "[unit]" )
 {
 	DigestTree tree;
 
-	unsigned long long hash1 = Hash::compute("one").integer();
+	unsigned long long hash1 = Hash("one").integer();
 	tree.update("one", 0x1234);
 	MerklePoint top = tree.top();
 	assertEquals( (hash1 xor 0x1234), top.hash );
@@ -77,7 +77,7 @@ TEST_CASE( "DigestTreeTest/testUpdateExistingKey", "[unit]" )
 	top = tree.top();
 	assertEquals( hash1, top.hash );
 
-	unsigned long long hash2 = Hash::compute("two").integer();
+	unsigned long long hash2 = Hash("two").integer();
 	tree.update("two", 0x4321);
 	top = tree.top();
 	assertEquals( (hash1 xor hash2 xor 0x4321), top.hash );

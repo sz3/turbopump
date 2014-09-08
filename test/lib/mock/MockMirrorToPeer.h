@@ -2,8 +2,7 @@
 #pragma once
 
 #include <memory>
-class CallHistory;
-class IHashRing;
+class ILocateKeys;
 class IMembership;
 class Peer;
 class WriteParams;
@@ -11,7 +10,7 @@ class WriteParams;
 class MockMirrorToPeer
 {
 public:
-	MockMirrorToPeer(const IHashRing& ring, const IMembership& membership);
+	MockMirrorToPeer(const ILocateKeys& locator, const IMembership& membership);
 
 	bool chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer);
 
@@ -19,6 +18,4 @@ public:
 	static std::string calls();
 
 protected:
-	const IHashRing& _ring;
-	const IMembership& _membership;
 };

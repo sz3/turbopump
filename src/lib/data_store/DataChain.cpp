@@ -141,7 +141,7 @@ unsigned long long DataChain::summary() const
 	for (auto it = _entries.begin(); it != _entries.end(); ++it)
 	{
 		std::string str = StringUtil::str((*it)->data.size()) + (*it)->md.version.toString();
-		sum = sum xor Hash::compute(str).integer();
+		sum = sum xor Hash(str).integer();
 	}
 	return sum;
 }

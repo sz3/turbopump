@@ -2,20 +2,24 @@
 #include "MirrorToPeer.h"
 
 #include "actions/WriteParams.h"
-#include "consistent_hashing/IHashRing.h"
+#include "consistent_hashing/ILocateKeys.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 using std::shared_ptr;
 
-MirrorToPeer::MirrorToPeer(const IHashRing& ring, const IMembership& membership)
-	: _ring(ring)
+MirrorToPeer::MirrorToPeer(const ILocateKeys& locator, const IMembership& membership)
+	: _locator(locator)
 	, _membership(membership)
 {
 }
 
 bool MirrorToPeer::chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer)
 {
-	std::vector<std::string> locations = _ring.locations(params.filename, params.totalCopies);
+	unsigned next = params.mirror;
+	if (next >= params.totalCopies)
+		return false;
+
+	std::vector<std::string> locations = _locator.locations(params.filename, params.totalCopies);
 	shared_ptr<Peer> self = _membership.self();
 	if (!self)
 		return false;
@@ -24,10 +28,6 @@ bool MirrorToPeer::chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer
 	// also, it might be that the first guy (source) needs to drop the file once all copies are written.
 	if (params.mirror == 0)
 		params.source = self->uid;
-
-	unsigned next = params.mirror;
-	if (next >= params.totalCopies)
-		return false;
 
 	for (; next < locations.size(); ++next)
 	{

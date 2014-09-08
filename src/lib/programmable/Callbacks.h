@@ -4,6 +4,7 @@
 #include "TurboApi.h"
 
 class IHashRing;
+class ILocateKeys;
 class IMembership;
 class IKeyTabulator;
 class IMessageSender;
@@ -16,7 +17,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer);
+	void initialize(IHashRing& ring, ILocateKeys& locator, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer);
 
 protected:
 };

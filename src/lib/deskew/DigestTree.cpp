@@ -24,7 +24,7 @@ const TreeId& DigestTree::id() const
 void DigestTree::update(const std::string& key, unsigned long long value)
 {
 	// TODO: update merkle_tree::insert (or create alternate method) to allow updates to existing values!
-	unsigned long long keyhash = Hash::compute(key).integer();
+	unsigned long long keyhash = Hash(key).integer();
 	_tree.remove(keyhash);
 	_tree.insert(keyhash, (value xor keyhash), key);
 }
@@ -33,13 +33,13 @@ void DigestTree::add(const std::string& key, unsigned long long hash)
 {
 	// not part of the public interface. For places we need to load a hash we already have.
 	// (split section)
-	unsigned long long keyhash = Hash::compute(key).integer();
+	unsigned long long keyhash = Hash(key).integer();
 	_tree.insert(keyhash, hash, key);
 }
 
 void DigestTree::remove(const std::string& key)
 {
-	unsigned long long keyhash = Hash::compute(key).integer();
+	unsigned long long keyhash = Hash(key).integer();
 	_tree.remove(keyhash);
 }
 

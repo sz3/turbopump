@@ -622,7 +622,7 @@ TEST_CASE( "DataChainTest/testSummary", "[unit]" )
 	{
 		VectorClock version;
 		version.increment("foo");
-		assertEquals( Hash::compute("4" + version.toString()).integer(), chain.summary() );
+		assertEquals( Hash("4" + version.toString()).integer(), chain.summary() );
 	}
 
 	unsigned long long first = chain.summary();
@@ -631,7 +631,7 @@ TEST_CASE( "DataChainTest/testSummary", "[unit]" )
 	{
 		VectorClock version;
 		version.increment("bar");
-		assertEquals( (Hash::compute("0" + version.toString()).integer() xor first), chain.summary() );
+		assertEquals( (Hash("0" + version.toString()).integer() xor first), chain.summary() );
 	}
 }
 

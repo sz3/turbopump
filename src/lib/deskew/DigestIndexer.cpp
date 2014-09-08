@@ -104,7 +104,7 @@ void DigestIndexer::splitSection(const string& where)
 
 	// range we need to pull out of the sourceTree
 	unsigned long long first = 0;
-	unsigned long long last = Hash::compute(where).integer();
+	unsigned long long last = Hash(where).integer();
 
 	// if sourceTree is the first tree and its id is < section, that means it remains the first node -- and that newTree is the last node.
 	// So we need to grab its high-end keys instead of the usual low-end.
@@ -113,7 +113,7 @@ void DigestIndexer::splitSection(const string& where)
 		if (sourceTree.id().id < section)
 		{
 			// would be nice to encapsulate this endianness nonsense somewhere.
-			first = htobe64(Hash::fromBase64(sourceTree.id().id).integer());
+			first = htobe64(Hash().fromBase64(sourceTree.id().id).integer());
 			first = be64toh(++first);
 		}
 	}

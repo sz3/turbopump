@@ -245,12 +245,12 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeFirst", "[unit]" )
 	MockMembership membership;
 	TestableDigestIndexer index(ring, membership);
 
-	ring._workers.push_back(Hash::compute("four").base64());
+	ring._workers.push_back(Hash("four").base64());
 	index.update("one", 0);
 	index.update("two", 0);
 	index.update("three", 0);
 
-	ring._workers[0] = Hash::compute("one").base64();
+	ring._workers[0] = Hash("one").base64();
 	ring._history.clear();
 	index.splitSection("one");
 
@@ -270,14 +270,14 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeLast", "[unit]" )
 	MockHashRing ring;
 	MockMembership membership;
 	TestableDigestIndexer index(ring, membership);
-	ring._workers.push_back(Hash::compute("2").base64());
+	ring._workers.push_back(Hash("2").base64());
 	index.update("one", 0);
 	index.update("two", 0);
 	index.update("three", 0);
 
-	//((const MerkleTree&)index.find(Hash::compute("2").base64())).print(5);
+	//((const MerkleTree&)index.find(Hash("2").base64())).print(5);
 
-	ring._workers[0] = Hash::compute("four").base64();
+	ring._workers[0] = Hash("four").base64();
 	ring._history.clear();
 	index.splitSection("four");
 

@@ -5,7 +5,7 @@
 #include "actions_req/ISuperviseWrites.h"
 #include "data_store/IDataStoreReader.h"
 
-class IHashRing;
+class ILocateKeys;
 class IMembership;
 class Peer;
 
@@ -13,8 +13,8 @@ template <typename MirrorStrategy>
 class ChainWrite
 {
 public:
-	ChainWrite(const IHashRing& ring, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
-		: _ring(ring)
+	ChainWrite(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
+		: _locator(locator)
 		, _membership(membership)
 		, _writer(writer)
 		, _blocking(blocking)
@@ -24,7 +24,7 @@ public:
 	{
 		if (!params.outstream)
 		{
-			MirrorStrategy strategy(_ring, _membership);
+			MirrorStrategy strategy(_locator, _membership);
 			std::shared_ptr<Peer> peer;
 			if (!strategy.chooseMirror(params, peer))
 				return false;
@@ -36,7 +36,7 @@ public:
 	}
 
 protected:
-	const IHashRing& _ring;
+	const ILocateKeys& _locator;
 	const IMembership& _membership;
 	ISuperviseWrites& _writer;
 	bool _blocking;

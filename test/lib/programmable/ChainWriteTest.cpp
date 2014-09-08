@@ -7,7 +7,7 @@
 #include "data_store/IDataStoreReader.h"
 #include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockHashRing.h"
+#include "mock/MockLocateKeys.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMirrorToPeer.h"
 #include "mock/MockWriteSupervisor.h"
@@ -17,10 +17,10 @@ using std::string;
 
 TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 {
-	MockHashRing ring;
+	MockLocateKeys locator;
 	MockMembership membership;
 	MockWriteSupervisor supervisor;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, true);
+	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, true);
 
 	// input
 	MockDataStore store;
@@ -42,10 +42,10 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 {
 	MockMirrorToPeer::failOnce();
 
-	MockHashRing ring;
+	MockLocateKeys locator;
 	MockMembership membership;
 	MockWriteSupervisor supervisor;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, false);
+	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
 	// input
 	MockDataStore store;
@@ -65,10 +65,10 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 
 TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 {
-	MockHashRing ring;
+	MockLocateKeys locator;
 	MockMembership membership;
 	MockWriteSupervisor supervisor;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, false);
+	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
 	// input
 	MockDataStore store;
@@ -88,10 +88,10 @@ TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 
 TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 {
-	MockHashRing ring;
+	MockLocateKeys locator;
 	MockMembership membership;
 	MockWriteSupervisor supervisor;
-	ChainWrite<MockMirrorToPeer> command(ring, membership, supervisor, false);
+	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
 	// input
 	MockDataStore store;

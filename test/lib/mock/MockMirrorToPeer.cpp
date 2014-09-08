@@ -10,9 +10,7 @@ namespace {
 	CallHistory _history;
 }
 
-MockMirrorToPeer::MockMirrorToPeer(const IHashRing& ring, const IMembership& membership)
-	: _ring(ring)
-	, _membership(membership)
+MockMirrorToPeer::MockMirrorToPeer(const ILocateKeys& locator, const IMembership& membership)
 {
 }
 

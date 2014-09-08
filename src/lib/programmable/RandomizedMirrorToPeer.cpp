@@ -4,7 +4,7 @@
 #include "actions/WriteParams.h"
 #include "membership/IMembership.h"
 
-RandomizedMirrorToPeer::RandomizedMirrorToPeer(const IHashRing& ring, const IMembership& membership)
+RandomizedMirrorToPeer::RandomizedMirrorToPeer(const ILocateKeys& locator, const IMembership& membership)
 	: _membership(membership)
 {
 }

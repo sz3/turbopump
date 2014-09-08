@@ -17,24 +17,19 @@ void Hash::init(std::function<std::string(const std::string&)> hasher)
 	_hasher = hasher;
 }
 
-Hash::Hash(string hash)
-	: _hash(std::move(hash))
+Hash::Hash()
 {
 }
 
-Hash Hash::fromBase64(const string& encoded)
+Hash::Hash(const string& input)
+	: _hash(_hasher(input))
 {
-	return Hash(base64::decode(encoded));
 }
 
-Hash Hash::compute(const string& input)
+Hash& Hash::fromBase64(const string& encoded)
 {
-	return Hash(_hasher(input));
-}
-
-std::string&& Hash::bytes()
-{
-	return std::move(_hash);
+	_hash = base64::decode(encoded);
+	return *this;
 }
 
 std::string Hash::base64() const

@@ -2,7 +2,7 @@
 #pragma once
 
 #include <memory>
-class IHashRing;
+class ILocateKeys;
 class IMembership;
 class Peer;
 class WriteParams;
@@ -10,11 +10,11 @@ class WriteParams;
 class MirrorToPeer
 {
 public:
-	MirrorToPeer(const IHashRing& ring, const IMembership& membership);
+	MirrorToPeer(const ILocateKeys& locator, const IMembership& membership);
 
 	bool chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer);
 
 protected:
-	const IHashRing& _ring;
+	const ILocateKeys& _locator;
 	const IMembership& _membership;
 };

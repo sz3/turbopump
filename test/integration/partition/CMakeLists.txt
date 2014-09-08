@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(partition_test)
+project(integration_partition_test)
 
 set (SOURCES
 	test.cpp
@@ -14,13 +14,13 @@ include_directories(
 )
 
 add_executable (
-	partition_test
+	integration_partition_test
 	${SOURCES}
 )
 
-add_test(partition_test partition_test)
+add_test(integration_partition_test integration_partition_test)
 
-target_link_libraries(partition_test
+target_link_libraries(integration_partition_test
 -Wl,--start-group
 	common
 	consistent_hashing
