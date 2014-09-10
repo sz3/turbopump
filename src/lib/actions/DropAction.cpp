@@ -2,7 +2,7 @@
 #include "DropAction.h"
 
 #include "actions/DropParams.h"
-#include "consistent_hashing/IHashRing.h"
+#include "consistent_hashing/IConsistentHashRing.h"
 #include "consistent_hashing/ILocateKeys.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"

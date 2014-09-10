@@ -30,6 +30,7 @@ target_link_libraries(programmable_test
 
 	actions_req
 	common
+	consistent_hashing
 	data_store
 	mock
 	membership

@@ -8,7 +8,8 @@
 #include "TreeId.h"
 #include "actions_req/IMessageSender.h"
 #include "membership/Peer.h"
-#include "mock/MockHashRing.h"
+#include "mock/MockConsistentHashRing.h"
+#include "mock/MockLocateKeys.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
 #include "serialize/StringUtil.h"
@@ -91,11 +92,13 @@ namespace
 
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 {
-	MockHashRing ring;
-	ring._workers.push_back("fooid"); // will be used as the MerkleTree's id
+	MockConsistentHashRing ring;
 	MockMembership membership;
-	KeyTabulator indexOne(ring, membership);
-	KeyTabulator indexTwo(ring, membership);
+
+	MockLocateKeys locator;
+	locator._locations.push_back("fooid");
+	KeyTabulator indexOne(locator);
+	KeyTabulator indexTwo(locator);
 
 	indexOne.update("one0", 0);
 	indexOne.update("one1", 0);
@@ -149,11 +152,13 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]" )
 {
-	MockHashRing ring;
-	ring._workers.push_back("fooid");
+	MockConsistentHashRing ring;
 	MockMembership membership;
-	KeyTabulator indexOne(ring, membership);
-	KeyTabulator indexTwo(ring, membership);
+
+	MockLocateKeys locator;
+	locator._locations.push_back("fooid");
+	KeyTabulator indexOne(locator);
+	KeyTabulator indexTwo(locator);
 
 	for (int i = 0; i < 100; ++i)
 	{

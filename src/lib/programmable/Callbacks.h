@@ -3,7 +3,7 @@
 
 #include "TurboApi.h"
 
-class IHashRing;
+class IConsistentHashRing;
 class ILocateKeys;
 class IMembership;
 class IKeyTabulator;
@@ -17,7 +17,7 @@ public:
 	Callbacks();
 	Callbacks(const TurboApi& instruct);
 
-	void initialize(IHashRing& ring, ILocateKeys& locator, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer);
+	void initialize(IConsistentHashRing& ring, ILocateKeys& locator, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer);
 
 protected:
 };

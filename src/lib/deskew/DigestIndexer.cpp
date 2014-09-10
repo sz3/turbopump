@@ -2,19 +2,16 @@
 #include "DigestIndexer.h"
 
 #include "common/MerklePoint.h"
-#include "consistent_hashing/IHashRing.h"
 #include "consistent_hashing/Hash.h"
-#include "membership/IMembership.h"
-#include "membership/Peer.h"
+#include "consistent_hashing/ILocateKeys.h"
 
 #include "util/Random.h"
 #include <algorithm>
 #include <endian.h>
 using std::string;
 
-DigestIndexer::DigestIndexer(const IHashRing& ring, const IMembership& membership, unsigned mirrors)
-	: _ring(ring)
-	, _membership(membership)
+DigestIndexer::DigestIndexer(const ILocateKeys& locator, unsigned mirrors)
+	: _locator(locator)
 	, _mirrors(mirrors)
 {
 }
@@ -34,7 +31,7 @@ void DigestIndexer::update(const std::string& key, unsigned long long value)
 	 * merkle sections can be looked up by this hash token
 	 **/
 
-	string section = _ring.section(key);
+	string section = _locator.section(key);
 
 	DigestTree& tree = _forest[section];
 	initTree(tree, section);
@@ -43,7 +40,7 @@ void DigestIndexer::update(const std::string& key, unsigned long long value)
 
 void DigestIndexer::remove(const string& key)
 {
-	string section = _ring.section(key);
+	string section = _locator.section(key);
 
 	std::map<string, DigestTree>::iterator it = _forest.find(section);
 	if (it == _forest.end())
@@ -60,11 +57,10 @@ void DigestIndexer::initTree(DigestTree& tree, const string& section)
 	{
 		tree.setId(TreeId(section, _mirrors));
 
-		std::vector<string> locs = _ring.locationsFromHash(section, _mirrors);
-		if (!locs.empty() && std::find(locs.begin(), locs.end(), _membership.self()->uid) == locs.end())
-			_unwanted.insert(section);
-		else
+		if (_locator.sectionIsMine(section, _mirrors))
 			_wanted.insert(section);
+		else
+			_unwanted.insert(section);
 	}
 }
 
@@ -92,7 +88,7 @@ void DigestIndexer::splitSection(const string& where)
 	if (_forest.empty())
 		return;
 
-	string section = _ring.section(where);
+	string section = _locator.section(where);
 	std::pair<std::map<string, DigestTree>::iterator,bool> pear = _forest.emplace(std::make_pair(section, DigestTree()));
 	if (!pear.second)
 		return;
@@ -130,7 +126,7 @@ void DigestIndexer::splitSection(const string& where)
 
 void DigestIndexer::cannibalizeSection(const string& where)
 {
-	string section = _ring.section(where);
+	string section = _locator.section(where);
 	std::map<string, DigestTree>::iterator it = _forest.find(section);
 	if (it == _forest.end())
 		return;

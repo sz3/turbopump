@@ -4,8 +4,8 @@ project(consistent_hashing_test)
 
 set (SOURCES
 	test.cpp
+	ConsistentHashRingTest.cpp
 	HashTest.cpp
-	HashRingTest.cpp
 	LocateKeysTest.cpp
 )
 

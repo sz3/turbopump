@@ -5,14 +5,14 @@ set(SOURCES
 	MockAction.h
 	MockBufferedConnectionWriter.cpp
 	MockBufferedConnectionWriter.h
+	MockConsistentHashRing.cpp
+	MockConsistentHashRing.h
 	MockDataStore.cpp
 	MockDataStore.h
 	MockDigestIndexer.cpp
 	MockDigestIndexer.h
 	MockDigestTree.cpp
 	MockDigestTree.h
-	MockHashRing.cpp
-	MockHashRing.h
 	MockKeyTabulator.cpp
 	MockKeyTabulator.h
 	MockLocateKeys.cpp

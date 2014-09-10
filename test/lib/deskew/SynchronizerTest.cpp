@@ -5,7 +5,7 @@
 
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
-#include "mock/MockHashRing.h"
+#include "mock/MockConsistentHashRing.h"
 #include "mock/MockMembership.h"
 #include "mock/MockKeyTabulator.h"
 #include "mock/MockLogger.h"
@@ -28,7 +28,7 @@ namespace {
 
 TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	membership.addIp("1.2.3.4", "dude");
 	membership._history.clear();
@@ -42,7 +42,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.pingRandomPeer();
 
-	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
+	assertEquals( "locations(oak=,2)", ring._history.calls() );
 	assertEquals( "randomPeer()", membership._history.calls() );
 	assertEquals( "digestPing(dude,oak,5 5 50)", messenger._history.calls() );
 	assertEquals( "randomTree()", index._history.calls() );
@@ -51,8 +51,8 @@ TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 
 TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 {
-	MockHashRing ring;
-	ring._workers.push_back("dude");
+	MockConsistentHashRing ring;
+	ring._locations.push_back("dude");
 	MockMembership membership;
 	membership.addIp("dude", "dude");
 	membership._history.clear();
@@ -66,7 +66,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.pingRandomPeer();
 
-	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
+	assertEquals( "locations(oak=,2)", ring._history.calls() );
 	assertEquals( "randomPeerFromList()", membership._history.calls() );
 	assertEquals( "digestPing(dude,oak,5 5 50)", messenger._history.calls() );
 	assertEquals( "randomTree()", index._history.calls() );
@@ -75,8 +75,8 @@ TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 
 TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
 {
-	MockHashRing ring;
-	ring._workers.push_back("dude");
+	MockConsistentHashRing ring;
+	ring._locations.push_back("dude");
 	MockMembership membership;
 	membership.addIp("dude", "dude");
 	membership._history.clear();
@@ -92,14 +92,14 @@ TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
 
 	assertEquals( "unwantedTree()", index._history.calls() );
 	assertEquals( "empty()", index._tree._history.calls() );
-	assertEquals( "locationsFromHash(oak,2)", ring._history.calls() );
+	assertEquals( "locations(oak=,2)", ring._history.calls() );
 	assertEquals( "randomPeerFromList()|self()", membership._history.calls() );
 	assertEquals( ("pushKeyRange(dude,oak,2,0," + StringUtil::str(~0ULL) + ",me)"), corrector._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	index._tree._top = whatsThePoint(10);
@@ -119,7 +119,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	MockMessageSender messenger;
@@ -140,7 +140,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	index._tree._empty = true;
@@ -160,7 +160,7 @@ TEST_CASE( "SynchronizerTest/testCompare.BothSidesEmpty", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.Same", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	MockMessageSender messenger;
@@ -179,7 +179,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Same", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	MockMessageSender messenger;
@@ -200,7 +200,7 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	MockMessageSender messenger;
@@ -221,7 +221,7 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	MockMessageSender messenger;
@@ -242,7 +242,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.Climb", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	MockMessageSender messenger;
@@ -264,7 +264,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Climb", "default" )
 
 TEST_CASE( "SynchronizerTest/testCompare.Climb.isSyncResponse", "default" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator index;
 	MockMessageSender messenger;

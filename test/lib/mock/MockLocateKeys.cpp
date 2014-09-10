@@ -14,6 +14,12 @@ std::vector<std::string> MockLocateKeys::locations(const std::string& name, unsi
 	return _locations;
 }
 
+std::string MockLocateKeys::section(const std::string& name) const
+{
+	_history.call("section", name);
+	return _locations.empty()? "" : _locations.front();
+}
+
 bool MockLocateKeys::containsSelf(const std::vector<std::string>& locs) const
 {
 	_history.call("containsSelf", StringUtil::join(locs));
@@ -23,5 +29,11 @@ bool MockLocateKeys::containsSelf(const std::vector<std::string>& locs) const
 bool MockLocateKeys::keyIsMine(const std::string& name, unsigned mirrors) const
 {
 	_history.call("keyIsMine", name, mirrors);
+	return _mine;
+}
+
+bool MockLocateKeys::sectionIsMine(const std::string& id, unsigned mirrors) const
+{
+	_history.call("sectionIsMine", id, mirrors);
 	return _mine;
 }

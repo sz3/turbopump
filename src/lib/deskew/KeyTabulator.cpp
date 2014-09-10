@@ -4,8 +4,7 @@
 #include "DigestIndexer.h"
 #include "DigestTree.h"
 #include "UniversalDigestIndexer.h"
-#include "consistent_hashing/IHashRing.h"
-#include "membership/IMembership.h"
+#include "consistent_hashing/IConsistentHashRing.h"
 
 #include "serialize/StringUtil.h"
 #include "util/Random.h"
@@ -17,9 +16,8 @@ using std::unique_ptr;
 
 using map_type = std::map<unsigned char, unique_ptr<IDigestIndexer>>;
 
-KeyTabulator::KeyTabulator(const IHashRing& ring, const IMembership& membership)
-	: _ring(ring)
-	, _membership(membership)
+KeyTabulator::KeyTabulator(const ILocateKeys& locator)
+	: _locator(locator)
 {
 }
 
@@ -33,7 +31,7 @@ void KeyTabulator::update(const string& key, unsigned long long value, unsigned 
 		if (mirrors == 0)
 			forest.reset(new UniversalDigestIndexer());
 		else
-			forest.reset(new DigestIndexer(_ring, _membership, mirrors));
+			forest.reset(new DigestIndexer(_locator, mirrors));
 	}
 	forest->update(key, value);
 }

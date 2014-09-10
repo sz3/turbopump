@@ -27,9 +27,10 @@ target_link_libraries(user_server_test
 
 	actions
 	common
-	programmable
+	consistent_hashing
 	membership
 	mock
+	programmable
 
 	http
 	serialize

@@ -22,7 +22,7 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(WriteParams&, IDataStoreReader::ptr)> membershipAddFunct(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
+	std::function<void(WriteParams&, IDataStoreReader::ptr)> membershipAddFunct(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	{
 		return [&] (WriteParams params, IDataStoreReader::ptr contents)
 		{
@@ -75,7 +75,7 @@ Callbacks::Callbacks(const TurboApi& instruct)
 {
 }
 
-void Callbacks::initialize(IHashRing& ring, ILocateKeys& locator, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer)
+void Callbacks::initialize(IConsistentHashRing& ring, ILocateKeys& locator, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer)
 {
 	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
 	//  yes, I know this is basically: "TODO: figure out how to land on moon"

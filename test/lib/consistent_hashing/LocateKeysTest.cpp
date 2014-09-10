@@ -2,24 +2,26 @@
 #include "unittest.h"
 
 #include "LocateKeys.h"
-#include "mock/MockHashRing.h"
+
+#include "Hash.h"
+#include "mock/MockConsistentHashRing.h"
 #include "mock/MockMembership.h"
 #include "serialize/StringUtil.h"
 
 TEST_CASE( "LocateKeysTest/testLocations", "[unit]" )
 {
-	MockHashRing ring;
-	ring._workers = {"foo", "bar"};
+	MockConsistentHashRing ring;
+	ring._locations = {"foo", "bar"};
 	MockMembership membership;
 
 	LocateKeys locator(ring, membership);
 	assertEquals( "foo bar", StringUtil::join(locator.locations("myfile", 5)) );
-	assertEquals( "locations(myfile,5)", ring._history.calls() );
+	assertStringsEqual( "locations(" + Hash("myfile").base64() + ",5)", ring._history.calls() );
 }
 
 TEST_CASE( "LocateKeysTest/testContainsSelf", "[unit]" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 
 	LocateKeys locator(ring, membership);
@@ -30,39 +32,39 @@ TEST_CASE( "LocateKeysTest/testContainsSelf", "[unit]" )
 
 TEST_CASE( "LocateKeysTest/testKeyIsMine", "[unit]" )
 {
-	MockHashRing ring;
-	ring._workers = {"me", "bar"};
+	MockConsistentHashRing ring;
+	ring._locations = {"me", "bar"};
 	MockMembership membership;
 
 	LocateKeys locator(ring, membership);
 
 	assertTrue( locator.keyIsMine("myfile", 5) );
-	assertEquals( "locations(myfile,5)", ring._history.calls() );
+	assertStringsEqual( "locations(" + Hash("myfile").base64() + ",5)", ring._history.calls() );
 	assertEquals( "containsSelf(me|bar)", membership._history.calls() );
 }
 
 TEST_CASE( "LocateKeysTest/testKeyIsMine.Nope", "[unit]" )
 {
-	MockHashRing ring;
-	ring._workers = {"foo", "bar"};
+	MockConsistentHashRing ring;
+	ring._locations = {"foo", "bar"};
 	MockMembership membership;
 	membership._self.reset();
 
 	LocateKeys locator(ring, membership);
 
 	assertFalse( locator.keyIsMine("myfile", 5) );
-	assertEquals( "locations(myfile,5)", ring._history.calls() );
+	assertStringsEqual( "locations(" + Hash("myfile").base64() + ",5)", ring._history.calls() );
 	assertEquals( "containsSelf(foo|bar)", membership._history.calls() );
 }
 
 TEST_CASE( "LocateKeysTest/testKeyIsMine.NoLocs", "[unit]" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 
 	LocateKeys locator(ring, membership);
 
 	assertTrue( locator.keyIsMine("myfile", 5) );
-	assertEquals( "locations(myfile,5)", ring._history.calls() );
+	assertStringsEqual( "locations(" + Hash("myfile").base64() + ",5)", ring._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }

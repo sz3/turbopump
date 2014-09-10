@@ -5,7 +5,7 @@
 #include "WanServer.h"
 #include "actions_req/MessageSender.h"
 #include "actions_req/WriteSupervisor.h"
-#include "consistent_hashing/HashRing.h"
+#include "consistent_hashing/ConsistentHashRing.h"
 #include "consistent_hashing/LocateKeys.h"
 #include "data_store/RamDataStore.h"
 #include "deskew/KeyTabulator.h"
@@ -53,7 +53,7 @@ protected:
 	SchedulerThread _scheduler;
 
 	// core. hashring, membership, connection tracking, data store...
-	HashRing _ring;
+	ConsistentHashRing _ring;
 	Membership _membership;
 	LocateKeys _keyLocator;
 	RamDataStore _localDataStore;

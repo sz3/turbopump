@@ -7,7 +7,7 @@
 #include <string>
 
 class IDataStore;
-class IHashRing;
+class IConsistentHashRing;
 class IHttpByteStream;
 class IMembership;
 class IKeyTabulator;
@@ -18,7 +18,7 @@ class TurboApi;
 class UserPacketHandler : public IUserPacketHandler
 {
 public:
-	UserPacketHandler(IHttpByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks);
+	UserPacketHandler(IHttpByteStream& stream, IDataStore& dataStore, IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks);
 
 	void run();
 	void sendResponse(StatusCode status);
@@ -28,7 +28,7 @@ public:
 protected:
 	IHttpByteStream& _stream;
 	IDataStore& _dataStore;
-	IHashRing& _ring;
+	IConsistentHashRing& _ring;
 	IMembership& _membership;
 	IKeyTabulator& _keyTabulator;
 	const IProcessState& _state;

@@ -5,8 +5,7 @@
 #include "IDigestIndexer.h"
 #include <map>
 #include <memory>
-class IHashRing;
-class IMembership;
+class ILocateKeys;
 
 // a forest of merkle trees.
 // organized by section, and tracking ones we want to talk about with our peers "wanted"
@@ -15,7 +14,7 @@ class IMembership;
 class KeyTabulator : public IKeyTabulator
 {
 public:
-	KeyTabulator(const IHashRing& ring, const IMembership& membership);
+	KeyTabulator(const ILocateKeys& locator);
 
 	void update(const std::string& key, unsigned long long value, unsigned mirrors=3);
 	void remove(const std::string& key, unsigned mirrors=3);
@@ -30,7 +29,6 @@ public:
 	void print() const; // for testing
 
 protected:
-	const IHashRing& _ring;
-	const IMembership& _membership;
+	const ILocateKeys& _locator;
 	std::map<unsigned char, std::unique_ptr<IDigestIndexer>> _forest;
 };

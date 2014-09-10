@@ -5,6 +5,13 @@
 #include <string>
 using std::string;
 
+TEST_CASE( "HashTest/testDefault", "[unit]" )
+{
+	// TIGER192
+	assertEquals("9DpzPnBWW8TmR/iPy5EsWZE0NXb8qrjm", Hash("hello").base64());
+	assertEquals("rV6C0JQN3uRbtyX8tbCQ7KwKXG+kw8Os", Hash("world").base64());
+}
+
 TEST_CASE( "HashTest/testCompute", "[unit]" )
 {
 	string res1 = Hash("foo").base64();

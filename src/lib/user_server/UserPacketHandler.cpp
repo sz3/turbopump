@@ -7,12 +7,12 @@
 #include "actions/LocalListAction.h"
 #include "actions/LocalStateAction.h"
 #include "actions/ReadAction.h"
-#include "actions/ViewHashRingAction.h"
+#include "actions/ViewConsistentHashRingAction.h"
 #include "actions/ViewMembershipAction.h"
 #include "actions/WriteAction.h"
 
 #include "UserActionContext.h"
-#include "consistent_hashing/IHashRing.h"
+#include "consistent_hashing/IConsistentHashRing.h"
 #include "http/IHttpByteStream.h"
 #include "membership/IMembership.h"
 #include "programmable/TurboApi.h"
@@ -20,7 +20,7 @@
 #include <vector>
 using std::string;
 
-UserPacketHandler::UserPacketHandler(IHttpByteStream& stream, IDataStore& dataStore, IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks)
+UserPacketHandler::UserPacketHandler(IHttpByteStream& stream, IDataStore& dataStore, IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks)
 	: _stream(stream)
 	, _dataStore(dataStore)
 	, _ring(ring)
@@ -73,7 +73,7 @@ std::unique_ptr<IAction> UserPacketHandler::newAction(const string& actionName, 
 	else if (actionName == "membership")
 		action.reset(new ViewMembershipAction(_membership, _stream));
 	else if (actionName == "ring")
-		action.reset(new ViewHashRingAction(_ring, _stream));
+		action.reset(new ViewConsistentHashRingAction(_ring, _stream));
 	else if (actionName == "state")
 		action.reset(new LocalStateAction(_state, _stream));
 	else if (actionName == "add_peer")

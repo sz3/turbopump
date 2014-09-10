@@ -9,7 +9,8 @@
 
 #include "actions_req/IMessageSender.h"
 #include "common/MerklePoint.h"
-#include "consistent_hashing/IHashRing.h"
+#include "consistent_hashing/Hash.h"
+#include "consistent_hashing/IConsistentHashRing.h"
 #include "logging/ILog.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
@@ -18,7 +19,7 @@
 using std::shared_ptr;
 using std::string;
 
-Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector, ILog& logger)
+Synchronizer::Synchronizer(const IConsistentHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector, ILog& logger)
 	: _ring(ring)
 	, _membership(membership)
 	, _index(index)
@@ -31,7 +32,7 @@ Synchronizer::Synchronizer(const IHashRing& ring, const IMembership& membership,
 void Synchronizer::pingRandomPeer()
 {
 	const IDigestKeys& tree = _index.randomTree();
-	std::vector<string> locations = _ring.locationsFromHash(tree.id().id, tree.id().mirrors);
+	std::vector<string> locations = _ring.locations(Hash().fromBase64(tree.id().id), tree.id().mirrors);
 
 	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
 	if (!peer)
@@ -47,7 +48,7 @@ void Synchronizer::offloadUnwantedKeys()
 	if (tree.empty())
 		return;
 
-	std::vector<string> locations = _ring.locationsFromHash(tree.id().id, tree.id().mirrors);
+	std::vector<string> locations = _ring.locations(Hash().fromBase64(tree.id().id), tree.id().mirrors);
 	if (locations.empty())
 		return;
 

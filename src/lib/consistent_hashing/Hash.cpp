@@ -21,6 +21,11 @@ Hash::Hash()
 {
 }
 
+Hash::Hash(const char* input)
+	: Hash(string(input))
+{
+}
+
 Hash::Hash(const string& input)
 	: _hash(_hasher(input))
 {

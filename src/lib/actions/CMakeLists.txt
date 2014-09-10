@@ -33,8 +33,8 @@ set(SOURCES
 	RemovePeerAction.h
 	SyncAction.cpp
 	SyncAction.h
-	ViewHashRingAction.cpp
-	ViewHashRingAction.h
+	ViewConsistentHashRingAction.cpp
+	ViewConsistentHashRingAction.h
 	ViewMembershipAction.cpp
 	ViewMembershipAction.h
 	WriteAction.cpp

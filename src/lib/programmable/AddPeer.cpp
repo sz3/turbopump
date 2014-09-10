@@ -3,14 +3,14 @@
 
 #include "actions/WriteParams.h"
 #include "common/turbopump_defaults.h"
-#include "consistent_hashing/IHashRing.h"
+#include "consistent_hashing/IConsistentHashRing.h"
 #include "data_store/DataEntry.h"
 #include "deskew/IKeyTabulator.h"
 #include "membership/IMembership.h"
 #include "socket/StringByteStream.h"
 using std::string;
 
-AddPeer::AddPeer(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
+AddPeer::AddPeer(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	: _ring(ring)
 	, _membership(membership)
 	, _keyTabulator(keyTabulator)
@@ -34,7 +34,7 @@ bool AddPeer::run(WriteParams& params, IDataStoreReader::ptr contents)
 	if (!isNew)
 		return true;
 
-	_ring.addWorker(uid);
+	_ring.insert(uid, uid);
 	_keyTabulator.splitSection(uid);
 	return true;
 }

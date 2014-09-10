@@ -4,7 +4,7 @@
 #include "RemovePeerAction.h"
 
 #include "common/DataBuffer.h"
-#include "mock/MockHashRing.h"
+#include "mock/MockConsistentHashRing.h"
 #include "mock/MockMembership.h"
 #include "mock/MockKeyTabulator.h"
 using std::map;
@@ -12,7 +12,7 @@ using std::string;
 
 TEST_CASE( "RemovePeerActionTest/testRemove", "[unit]" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	membership.add("fooid");
 	membership._history.clear();
@@ -26,13 +26,13 @@ TEST_CASE( "RemovePeerActionTest/testRemove", "[unit]" )
 	assertTrue( action.run(DataBuffer::Null()) );
 
 	assertEquals( "remove(fooid)|save()", membership._history.calls() );
-	assertEquals( "removeWorker(fooid)", ring._history.calls() );
+	assertEquals( "erase(fooid)", ring._history.calls() );
 	assertEquals( "cannibalizeSection(fooid)", index._history.calls() );
 }
 
 TEST_CASE( "RemovePeerActionTest/testRemoveNonexistentWorker", "[unit]" )
 {
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	membership._history.clear();
 	MockKeyTabulator index;

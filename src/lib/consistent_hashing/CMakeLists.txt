@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	circular_map.h
+	ConsistentHashRing.cpp
+	ConsistentHashRing.h
 	Hash.cpp
-	Hash.h	
-	HashRing.cpp
-	HashRing.h
-	IHashRing.h
+	Hash.h
+	IConsistentHashRing.h
 	ILocateKeys.h
 	LocateKeys.cpp
 	LocateKeys.h

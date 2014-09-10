@@ -2,19 +2,22 @@
 #pragma once
 
 #include "ILocateKeys.h"
-class IHashRing;
+class IConsistentHashRing;
 class IMembership;
 
 class LocateKeys : public ILocateKeys
 {
 public:
-	LocateKeys(const IHashRing& ring, const IMembership& membership);
+	LocateKeys(const IConsistentHashRing& ring, const IMembership& membership);
 
-	std::vector<std::string> locations(const std::string& name, unsigned mirrors) const;
+	std::vector<std::string> locations(const std::string& name, unsigned limit) const;
+	std::string section(const std::string& name) const;
+
 	bool containsSelf(const std::vector<std::string>& locs) const;
-	bool keyIsMine(const std::string& name, unsigned mirrors) const;
+	bool keyIsMine(const std::string& name, unsigned limit) const;
+	bool sectionIsMine(const std::string& id, unsigned limit) const;
 
 protected:
-	const IHashRing& _ring;
+	const IConsistentHashRing& _ring;
 	const IMembership& _membership;
 };

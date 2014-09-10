@@ -34,7 +34,7 @@
 using std::string;
 using std::shared_ptr;
 
-WanPacketHandler::WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector, IDataStore& dataStore, const IHashRing& ring, const ILocateKeys& locator,
+WanPacketHandler::WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector, IDataStore& dataStore, const IConsistentHashRing& ring, const ILocateKeys& locator,
 								   const IMembership& membership, IMessageSender& messenger, IPeerTracker& peers, ISynchronize& sync,
 								   ILog& logger, const TurboApi& callbacks)
 	: _executor(executor)

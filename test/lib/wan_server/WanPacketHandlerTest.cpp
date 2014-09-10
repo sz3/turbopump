@@ -5,7 +5,7 @@
 
 #include "membership/Peer.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockHashRing.h"
+#include "mock/MockConsistentHashRing.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
@@ -33,7 +33,7 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
 {
 	SimpleExecutor executor;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
 	MockMessageSender messenger;
@@ -60,7 +60,7 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ConcurrentFileWrite",
 {
 	SimpleExecutor executor;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
 	MockMessageSender messenger;
@@ -89,7 +89,7 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ReuseOldVirtid", "def
 {
 	SimpleExecutor executor;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
 	MockMessageSender messenger;
@@ -116,7 +116,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 {
 	SimpleExecutor executor;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
 	MockMessageSender messenger;
@@ -152,7 +152,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 {
 	SimpleExecutor executor;
 	MockDataStore dataStore;
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
 	MockMessageSender messenger;
@@ -183,7 +183,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 {
 	SimpleExecutor executor;
 	MockDataStore dataStore; // ahead of PeerTracker to avoid double free when test fails. :)
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockLocateKeys locator;
 	MockMembership membership;
 	MockMessageSender messenger;

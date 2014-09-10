@@ -4,7 +4,7 @@
 #include "UserPacketHandler.h"
 #include "http/HttpByteStream.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockHashRing.h"
+#include "mock/MockConsistentHashRing.h"
 #include "mock/MockMembership.h"
 #include "mock/MockKeyTabulator.h"
 #include "mock/MockProcessState.h"
@@ -14,7 +14,7 @@
 TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 {
 	MockDataStore dataStore;
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator keyTabulator;
 	MockProcessState state;
@@ -40,7 +40,7 @@ TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 {
 	MockDataStore dataStore;
-	MockHashRing ring;
+	MockConsistentHashRing ring;
 	MockMembership membership;
 	MockKeyTabulator keyTabulator;
 	MockProcessState state;

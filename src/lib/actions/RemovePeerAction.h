@@ -3,21 +3,21 @@
 
 #include "IAction.h"
 
-class IHashRing;
+class IConsistentHashRing;
 class IMembership;
 class IKeyTabulator;
 
 class RemovePeerAction : public IAction
 {
 public:
-	RemovePeerAction(IHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator);
+	RemovePeerAction(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator);
 
 	std::string name() const;
 	bool run(const DataBuffer& data);
 	void setParams(const std::map<std::string,std::string>& params);
 
 protected:
-	IHashRing& _ring;
+	IConsistentHashRing& _ring;
 	IMembership& _membership;
 	IKeyTabulator& _keyTabulator;
 

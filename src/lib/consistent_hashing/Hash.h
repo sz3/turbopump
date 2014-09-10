@@ -11,6 +11,7 @@ public:
 
 public:
 	Hash();
+	Hash(const char* input);
 	Hash(const std::string& input);
 	Hash& fromBase64(const std::string& encoded);
 

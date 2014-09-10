@@ -1,11 +1,14 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-// explore interaction between changes in HashRing and KeyTabulator, validating everything stays sane
+// explore interaction between changes in ConsistentHashRing and KeyTabulator, validating everything stays sane
 
 #include "KeyTabulator.h"
-#include "consistent_hashing/HashRing.h"
+#include "consistent_hashing/ConsistentHashRing.h"
+#include "consistent_hashing/Hash.h"
+#include "consistent_hashing/LocateKeys.h"
 #include "deskew/IDigestKeys.h"
+#include "deskew/DigestTree.h"
 
 #include "membership/Peer.h"
 #include "mock/MockMembership.h"
@@ -20,16 +23,17 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 	membership._self->uid = "1";
 
 	// baseline: create 5 ranges
-	HashRing ring;
+	ConsistentHashRing ring;
 	for (unsigned i = 1; i <= 5; ++i)
 	{
 		string worker = StringUtil::str(i);
-		ring.addWorker(worker);
-		std::cout << worker << " = " << HashRing::hash(worker) << std::endl;
+		ring.insert(worker, worker);
+		std::cout << worker << " = " << Hash(worker).base64() << std::endl;
 	}
 
-	KeyTabulator baseLine(ring, membership);
-	KeyTabulator index(ring, membership);
+	LocateKeys locator(ring, membership);
+	KeyTabulator baseLine(locator);
+	KeyTabulator index(locator);
 	for (unsigned i = 50; i > 0; --i)
 	{
 		string file = StringUtil::str(i);
@@ -37,39 +41,40 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 		index.update(file, 0);
 	}
 
-	//index.print();
-	//std::cout << " *** 2 *** " << std::endl;
-	//((const MerkleTree&)index.find(HashRing::hash("2"))).print(2);
+	index.print();
+	std::cout << " *** 2 *** " << std::endl;
+	((const DigestTree&)index.find(Hash("2").base64())).print(2);
 
-	assertEquals( "26 46 6 40 9 21 41 32 10 29 8 1", StringUtil::join(index.find(HashRing::hash("1")).enumerate(0, ~0ULL)) );
-	assertEquals( "2 15 37 18 19 42 12 31 43 50 22", StringUtil::join(index.find(HashRing::hash("2")).enumerate(0, ~0ULL)) );
-	assertEquals( "17 14 20 48 34 36 44 11 24 16 23 38 30 39 45 35 3", StringUtil::join(index.find(HashRing::hash("3")).enumerate(0, ~0ULL)) );
-	assertEquals( "4", StringUtil::join(index.find(HashRing::hash("4")).enumerate(0, ~0ULL)) );
-	assertEquals( "28 33 49 7 13 25 47 27 5", StringUtil::join(index.find(HashRing::hash("5")).enumerate(0, ~0ULL)) );
+	assertEquals( "26 46 6 40 9 21 41 32 10 29 8 1", StringUtil::join(index.find(Hash("1").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "2 15 37 18 19 42 12 31 43 50 22", StringUtil::join(index.find(Hash("2").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "17 14 20 48 34 36 44 11 24 16 23 38 30 39 45 35 3", StringUtil::join(index.find(Hash("3").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "4", StringUtil::join(index.find(Hash("4").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "28 33 49 7 13 25 47 27 5", StringUtil::join(index.find(Hash("5").base64()).enumerate(0, ~0ULL)) );
 
 	// merge sections 4 and 5 (5 happens to hash to *rightbefore* 4, which is why 4 has only one key)
 	index.cannibalizeSection("5");
-	ring.removeWorker("5");
+	ring.erase("5");
 
-	assertEquals( "", StringUtil::join(index.find(HashRing::hash("5")).enumerate(0, ~0ULL)) );
-	assertEquals( "28 33 49 7 13 25 47 27 5 4", StringUtil::join(index.find(HashRing::hash("4")).enumerate(0, ~0ULL)) );
+	assertEquals( "", StringUtil::join(index.find(Hash("5").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "28 33 49 7 13 25 47 27 5 4", StringUtil::join(index.find(Hash("4").base64()).enumerate(0, ~0ULL)) );
 
 	index.cannibalizeSection("1");
-	ring.removeWorker("1");
+	ring.erase("1");
 	index.cannibalizeSection("3");
-	ring.removeWorker("3");
+	ring.erase("3");
 
-	ring.addWorker("1");
+	ring.insert("1", "1");
 	index.splitSection("1");
-	ring.addWorker("5");
+	ring.insert("5", "5");
 	index.splitSection("5");
-	ring.addWorker("3");
+	ring.insert("3", "3");
 	index.splitSection("3");
 
 	// verify that everything ends up as it started
 	for (unsigned i = 1; i <= 5; ++i)
 	{
 		string worker = StringUtil::str(i);
-		assertEquals( StringUtil::join(baseLine.find(HashRing::hash(worker)).enumerate(0, ~0ULL)), StringUtil::join(index.find(HashRing::hash(worker)).enumerate(0, ~0ULL)) );
+		assertEquals( StringUtil::join(baseLine.find(Hash(worker).base64()).enumerate(0, ~0ULL)),
+					  StringUtil::join(index.find(Hash(worker).base64()).enumerate(0, ~0ULL)) );
 	}
 }

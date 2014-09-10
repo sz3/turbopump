@@ -6,9 +6,7 @@
 #include "IDigestKeys.h"
 #include "KeyRange.h"
 #include "TreeId.h"
-#include "consistent_hashing/Hash.h"
-#include "mock/MockHashRing.h"
-#include "mock/MockMembership.h"
+#include "mock/MockLocateKeys.h"
 #include "serialize/StringUtil.h"
 #include <deque>
 #include <string>
@@ -17,9 +15,8 @@ using std::string;
 
 TEST_CASE( "KeyTabulatorTest/testNoRingMembers", "[unit]" )
 {
-	MockHashRing ring;
-	MockMembership membership;
-	KeyTabulator index(ring, membership);
+	MockLocateKeys locator;
+	KeyTabulator index(locator);
 
 	index.update("one", 0);
 	index.update("two", 0);
@@ -46,10 +43,9 @@ TEST_CASE( "KeyTabulatorTest/testNoRingMembers", "[unit]" )
 
 TEST_CASE( "KeyTabulatorTest/testSingleTree", "[unit]" )
 {
-	MockHashRing ring;
-	ring._workers.push_back("fooid");
-	MockMembership membership;
-	KeyTabulator index(ring, membership);
+	MockLocateKeys locator;
+	locator._locations.push_back("fooid");
+	KeyTabulator index(locator);
 
 	index.update("one", 0);
 	index.update("two", 0);
@@ -76,16 +72,17 @@ TEST_CASE( "KeyTabulatorTest/testSingleTree", "[unit]" )
 
 TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted", "[unit]" )
 {
-	MockHashRing ring;
-	MockMembership membership;
-	KeyTabulator index(ring, membership);
+	MockLocateKeys locator;
+	KeyTabulator index(locator);
 
-	ring._workers.push_back("fooid");
+	locator._locations.push_back("fooid");
+	locator._mine = false;
 	index.update("unwanted1", 0, 1);
 	index.update("unwanted2", 0, 2);
 	index.update("unwanted3", 0, 3);
 
-	ring._workers[0] = "me";
+	locator._locations[0] = "me";
+	locator._mine = true;
 	index.update("wanted1", 0, 1);
 	index.update("wanted2", 0, 2);
 	index.update("wanted3", 0, 3);
@@ -107,14 +104,15 @@ TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted", "[unit]" )
 
 TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted.Exclude", "[unit]" )
 {
-	MockHashRing ring;
-	MockMembership membership;
-	KeyTabulator index(ring, membership);
+	MockLocateKeys locator;
+	KeyTabulator index(locator);
 
-	ring._workers.push_back("fooid");
+	locator._locations.push_back("fooid");
+	locator._mine = false;
 	index.update("unwanted1", 0, 1);
 
-	ring._workers[0] = "me";
+	locator._locations[0] = "me";
+	locator._mine = true;
 	index.update("wanted1", 0, 1);
 
 	{
@@ -132,11 +130,10 @@ TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted.Exclude", "[unit]" )
 
 TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 {
-	MockHashRing ring;
-	MockMembership membership;
-	KeyTabulator index(ring, membership);
+	MockLocateKeys locator;
+	KeyTabulator index(locator);
 
-	ring._workers.push_back("2");
+	locator._locations.push_back("2");
 	for (int i = 1; i <= 9; ++i)
 	{
 		string name = StringUtil::str(i);
@@ -151,7 +148,7 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	((const MerkleTree&)index.find("1",3)).print();
 	//*/
 
-	ring._workers[0] = "555";
+	locator._locations[0] = "555";
 	index.splitSection("555");
 
 	deque<string> files = index.find("2", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
@@ -173,7 +170,7 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	assertEquals( "2 6 9 8 1 7 5 4", StringUtil::join(files) );
 
 
-	ring._workers[0] = "44";
+	locator._locations[0] = "44";
 	index.splitSection("44");
 
 	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
@@ -195,7 +192,7 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	assertEquals( "2 6 9", StringUtil::join(files) );
 
 
-	/*ring._workers[0] = "2";
+	/*locator._locations[0] = "2";
 	index.cannibalizeSection("2");
 
 	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);

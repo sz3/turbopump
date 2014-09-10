@@ -6,8 +6,7 @@
 #include <map>
 #include <set>
 #include <vector>
-class IHashRing;
-class IMembership;
+class ILocateKeys;
 
 // a ring of merkle trees.
 // organized by section, and tracking ones we want to talk about with our peers "wanted"
@@ -16,7 +15,7 @@ class IMembership;
 class DigestIndexer : public IDigestIndexer
 {
 public:
-	DigestIndexer(const IHashRing& ring, const IMembership& membership, unsigned mirrors=3);
+	DigestIndexer(const ILocateKeys& locator, unsigned mirrors=3);
 
 	void update(const std::string& key, unsigned long long value);
 	void remove(const std::string& key);
@@ -36,8 +35,7 @@ private:
 	std::map<std::string, DigestTree>::iterator nextTree(const std::map<std::string, DigestTree>::iterator& it);
 
 protected:
-	const IHashRing& _ring;
-	const IMembership& _membership;
+	const ILocateKeys& _locator;
 	unsigned _mirrors;
 
 	std::map<std::string, DigestTree> _forest;

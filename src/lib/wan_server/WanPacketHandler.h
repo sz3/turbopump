@@ -9,7 +9,7 @@ class IAction;
 class ICorrectSkew;
 class IDataStore;
 class IExecutor;
-class IHashRing;
+class IConsistentHashRing;
 class ILocateKeys;
 class ILog;
 class IMembership;
@@ -27,7 +27,7 @@ class TurboApi;
 class WanPacketHandler
 {
 public:
-	WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector, IDataStore& dataStore, const IHashRing& ring, const ILocateKeys& locator,
+	WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector, IDataStore& dataStore, const IConsistentHashRing& ring, const ILocateKeys& locator,
 					 const IMembership& membership, IMessageSender& messenger, IPeerTracker& peers, ISynchronize& sync, ILog& logger, const TurboApi& callbacks);
 
 	bool onPacket(ISocketWriter& writer, const char* buff, unsigned size);
@@ -41,7 +41,7 @@ protected:
 	IExecutor& _executor;
 	ICorrectSkew& _corrector;
 	IDataStore& _dataStore;
-	const IHashRing& _ring;
+	const IConsistentHashRing& _ring;
 	const ILocateKeys& _locator;
 	const IMembership& _membership;
 	IMessageSender& _messenger;

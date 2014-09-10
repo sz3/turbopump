@@ -14,7 +14,7 @@ using namespace std::placeholders;
 TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
 	: _logger(socket_address("127.0.0.1", port).toString())
 	, _callbacks(instruct)
-	, _keyTabulator(_ring, _membership)
+	, _keyTabulator(_keyLocator)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
 	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeSupervisor, _logger)
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
@@ -45,8 +45,8 @@ void TurboPumpApp::run()
 
 	if (_callbacks.options.partition_keys)
 	{
-		HashRing& ring(_ring);
-		auto fun = [&ring] (const Peer& peer) { ring.addWorker(peer.uid); };
+		ConsistentHashRing& ring(_ring);
+		auto fun = [&ring] (const Peer& peer) { ring.insert(peer.uid, peer.uid); };
 		_membership.forEachPeer(fun);
 	}
 

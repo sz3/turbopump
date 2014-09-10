@@ -2,19 +2,21 @@
 #include "unittest.h"
 
 #include "command_line/CommandLine.h"
-#include "consistent_hashing/HashRing.h"
+#include "consistent_hashing/Hash.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 #include "serialize/StringUtil.h"
 #include "time/WaitFor.h"
 
 #include <exception>
+#include <vector>
 using std::string;
+using std::vector;
 
 namespace {
-	string hashRingStr(string id)
+	string hashStr(string id)
 	{
-		return HashRing::hash(id) + ":" + id + " ";
+		return Hash(id).base64() + "=" + id;
 	}
 }
 
@@ -34,9 +36,9 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
-	string expected = hashRingStr("2") + hashRingStr("6") + hashRingStr("1") + hashRingStr("5") + hashRingStr("4") + hashRingStr("3");
+	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(expected, response);
+	assertEquals(StringUtil::join(expected), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
 	// setting n=3 here, in case we decide to change the defaults at any point...
@@ -114,9 +116,9 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
-	string expected = hashRingStr("2") + hashRingStr("6") + hashRingStr("1") + hashRingStr("5") + hashRingStr("4") + hashRingStr("3");
+	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(expected, response);
+	assertEquals(StringUtil::join(expected), response);
 
 	// write ONLY to worker 1.
 	// setting n=3 here, in case we decide to change the defaults at any point...
@@ -196,9 +198,9 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
-	string expected = hashRingStr("2") + hashRingStr("6") + hashRingStr("1") + hashRingStr("5") + hashRingStr("4") + hashRingStr("3");
+	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(expected, response);
+	assertEquals(StringUtil::join(expected), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
 	// setting n=i here, so we get a different merkle tree per write...
