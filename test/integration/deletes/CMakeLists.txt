@@ -30,7 +30,6 @@ target_link_libraries(integration_deletes_test
 	file
 	http
 	serialize
-	time
 -Wl,--end-group
 
 	boost_filesystem

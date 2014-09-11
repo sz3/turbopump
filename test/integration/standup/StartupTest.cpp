@@ -7,7 +7,7 @@
 
 #include "command_line/CommandLine.h"
 #include "serialize/StringUtil.h"
-#include "time/Timer.h"
+#include "time/stopwatch.h"
 #include "time/WaitFor.h"
 #include <array>
 #include <functional>
@@ -144,7 +144,7 @@ namespace
 			_results.push_back(_timer.micros());
 		}
 
-		const Timer& timer() const
+		const stopwatch& timer() const
 		{
 			return _timer;
 		}
@@ -155,7 +155,7 @@ namespace
 		}
 
 	protected:
-		Timer _timer;
+		stopwatch _timer;
 		std::vector<long long> _results;
 	};
 }

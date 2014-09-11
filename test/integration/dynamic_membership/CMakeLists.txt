@@ -28,7 +28,6 @@ target_link_libraries(dynamic_membership_test
 	file
 	http
 	serialize
-	time
 
 	boost_filesystem
 	boost_system

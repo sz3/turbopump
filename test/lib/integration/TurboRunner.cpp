@@ -5,7 +5,7 @@
 #include "command_line/CommandLine.h"
 #include "http/HttpResponse.h"
 #include "serialize/StringUtil.h"
-#include "time/Timer.h"
+#include "time/stopwatch.h"
 
 #include "boost/filesystem.hpp"
 #include <iostream>
@@ -80,7 +80,7 @@ std::string TurboRunner::local_list(std::string params) const
 
 bool TurboRunner::waitForRunning(unsigned seconds) const
 {
-	Timer t;
+	stopwatch t;
 	while (t.millis() < seconds*1000)
 	{
 		string response = query("state");

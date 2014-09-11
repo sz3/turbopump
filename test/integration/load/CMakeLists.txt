@@ -29,7 +29,6 @@ target_link_libraries(load_test
 	file
 	http
 	serialize
-	time
 -Wl,--end-group
 
 	boost_filesystem

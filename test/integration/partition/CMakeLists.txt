@@ -31,7 +31,6 @@ target_link_libraries(integration_partition_test
 	file
 	http
 	serialize
-	time
 -Wl,--end-group
 
 	boost_filesystem

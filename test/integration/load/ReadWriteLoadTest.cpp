@@ -7,7 +7,7 @@
 
 #include "http/HttpResponse.h"
 #include "serialize/StringUtil.h"
-#include "time/Timer.h"
+#include "time/stopwatch.h"
 #include "time/WaitFor.h"
 #include <algorithm>
 #include <iostream>
@@ -41,7 +41,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
 	std::vector<string> fileList;
-	Timer elapsed;
+	stopwatch elapsed;
 	char readBuff[100];
 	for (int i = 0; i < 100; ++i)
 	{
@@ -67,7 +67,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	std::sort(fileList.begin(), fileList.end());
 	string expected = StringUtil::join(fileList, '\n');
 	string response;
-	Timer t;
+	stopwatch t;
 	waitFor(30, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();
@@ -91,7 +91,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Solo", "[integration]" )
 	char buffer[bufsize];
 	char readBuff[100];
 
-	Timer elapsed;
+	stopwatch elapsed;
 	{
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		timingData.push_back("opened write socket at " + StringUtil::str(elapsed.micros()) + "us");
@@ -134,7 +134,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
 	char buffer[bufsize];
 	char readBuff[100];
 
-	Timer elapsed;
+	stopwatch elapsed;
 	{
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		timingData.push_back("opened write socket at " + StringUtil::str(elapsed.micros()) + "us");
@@ -186,7 +186,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
 	assertEquals( expectedContents, actualContents );
 	timingData.push_back("finished read 2 at " + StringUtil::str(elapsed.micros()) + "us");
 
-	Timer t;
+	stopwatch t;
 	while (t.millis() < 10000)
 	{
 		actualContents = cluster[2].query("read", "name=bigfile");
@@ -228,7 +228,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 	}
 
 	std::vector<string> results;
-	Timer t;
+	stopwatch t;
 	waitFor(30, results.size() + " != 90", [&]()
 	{
 		string response = cluster[2].local_list();
