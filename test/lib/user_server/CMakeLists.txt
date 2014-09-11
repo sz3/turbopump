@@ -27,7 +27,7 @@ target_link_libraries(user_server_test
 
 	actions
 	common
-	consistent_hashing
+	hashing
 	membership
 	mock
 	programmable

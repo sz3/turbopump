@@ -12,7 +12,6 @@
 #include "actions/WriteAction.h"
 
 #include "UserActionContext.h"
-#include "consistent_hashing/IConsistentHashRing.h"
 #include "http/IHttpByteStream.h"
 #include "membership/IMembership.h"
 #include "programmable/TurboApi.h"

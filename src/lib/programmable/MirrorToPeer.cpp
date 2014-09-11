@@ -2,7 +2,7 @@
 #include "MirrorToPeer.h"
 
 #include "actions/WriteParams.h"
-#include "consistent_hashing/ILocateKeys.h"
+#include "hashing/ILocateKeys.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
 using std::shared_ptr;

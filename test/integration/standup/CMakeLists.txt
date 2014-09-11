@@ -24,9 +24,9 @@ target_link_libraries(standup_test
 	actions
 	actions_req
 	common
-	consistent_hashing
 	data_store
 	deskew
+	hashing
 	integration
 	logging
 	main

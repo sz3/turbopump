@@ -9,8 +9,8 @@
 
 #include "actions_req/IMessageSender.h"
 #include "common/MerklePoint.h"
-#include "consistent_hashing/Hash.h"
-#include "consistent_hashing/IConsistentHashRing.h"
+#include "hashing/Hash.h"
+#include "hashing/IConsistentHashRing.h"
 #include "logging/ILog.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"

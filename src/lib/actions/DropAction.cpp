@@ -2,11 +2,11 @@
 #include "DropAction.h"
 
 #include "actions/DropParams.h"
-#include "consistent_hashing/IConsistentHashRing.h"
-#include "consistent_hashing/ILocateKeys.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
 #include "data_store/IDataStoreReader.h"
+#include "hashing/IConsistentHashRing.h"
+#include "hashing/ILocateKeys.h"
 
 #include "socket/IByteStream.h"
 #include <algorithm>

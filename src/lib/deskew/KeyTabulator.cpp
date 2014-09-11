@@ -4,7 +4,7 @@
 #include "DigestIndexer.h"
 #include "DigestTree.h"
 #include "UniversalDigestIndexer.h"
-#include "consistent_hashing/IConsistentHashRing.h"
+#include "hashing/IConsistentHashRing.h"
 
 #include "serialize/StringUtil.h"
 #include "util/Random.h"

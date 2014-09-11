@@ -29,7 +29,7 @@ target_link_libraries(wan_server_test
 
 	actions
 	common
-	consistent_hashing
+	hashing
 	membership
 	mock
 	programmable

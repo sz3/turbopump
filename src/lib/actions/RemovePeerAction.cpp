@@ -1,8 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "RemovePeerAction.h"
 
-#include "consistent_hashing/IConsistentHashRing.h"
 #include "deskew/IKeyTabulator.h"
+#include "hashing/IConsistentHashRing.h"
 #include "membership/IMembership.h"
 using std::map;
 using std::string;

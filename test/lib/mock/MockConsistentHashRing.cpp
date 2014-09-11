@@ -1,6 +1,6 @@
 #include "MockConsistentHashRing.h"
 
-#include "consistent_hashing/Hash.h"
+#include "hashing/Hash.h"
 
 bool MockConsistentHashRing::insert(const std::string& node, const std::string& peer)
 {

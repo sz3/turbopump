@@ -3,7 +3,7 @@
 
 #include "common/MyMemberId.h"
 #include "common/VectorClock.h"
-#include "consistent_hashing/Hash.h"
+#include "hashing/Hash.h"
 #include "serialize/StringUtil.h"
 using std::shared_ptr;
 using std::vector;

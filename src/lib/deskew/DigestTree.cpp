@@ -2,7 +2,7 @@
 #include "DigestTree.h"
 
 #include "common/MerklePoint.h"
-#include "consistent_hashing/Hash.h"
+#include "hashing/Hash.h"
 #include <tuple>
 
 const DigestTree& DigestTree::null()

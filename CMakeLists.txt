@@ -35,12 +35,12 @@ set (PROJECTS
    test/lib/actions_req
    src/lib/common
    test/lib/common
-   src/lib/consistent_hashing
-   test/lib/consistent_hashing
    src/lib/data_store
    test/lib/data_store
    src/lib/deskew
    test/lib/deskew
+   src/lib/hashing
+   test/lib/hashing
    src/lib/logging
    src/lib/membership
    test/lib/membership

@@ -3,9 +3,9 @@
 
 #include "actions/DropParams.h"
 #include "common/KeyMetadata.h"
-#include "consistent_hashing/ILocateKeys.h"
 #include "data_store/IDataStore.h"
 #include "data_store/IDataStoreReader.h"
+#include "hashing/ILocateKeys.h"
 using std::map;
 using std::string;
 

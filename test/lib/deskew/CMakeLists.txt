@@ -34,7 +34,7 @@ target_link_libraries(deskew_test
 	deskew
 
 	common
-	consistent_hashing
+	hashing
 	membership
 	mock
 	wan_server

@@ -4,7 +4,7 @@
 #include "DigestIndexer.h"
 
 #include "KeyRange.h"
-#include "consistent_hashing/Hash.h"
+#include "hashing/Hash.h"
 #include "mock/MockLocateKeys.h"
 #include "serialize/StringUtil.h"
 #include <deque>

@@ -22,7 +22,7 @@ add_test(integration_deletes_test integration_deletes_test)
 target_link_libraries(integration_deletes_test
 -Wl,--start-group
 	common
-	consistent_hashing
+	hashing
 	membership
 	integration
 

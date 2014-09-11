@@ -2,7 +2,7 @@
 #include "unittest.h"
 
 #include "command_line/CommandLine.h"
-#include "consistent_hashing/Hash.h"
+#include "hashing/Hash.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 #include "serialize/StringUtil.h"

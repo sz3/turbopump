@@ -2,8 +2,8 @@
 #include "DigestIndexer.h"
 
 #include "common/MerklePoint.h"
-#include "consistent_hashing/Hash.h"
-#include "consistent_hashing/ILocateKeys.h"
+#include "hashing/Hash.h"
+#include "hashing/ILocateKeys.h"
 
 #include "util/Random.h"
 #include <algorithm>

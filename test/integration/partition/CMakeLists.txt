@@ -23,7 +23,7 @@ add_test(integration_partition_test integration_partition_test)
 target_link_libraries(integration_partition_test
 -Wl,--start-group
 	common
-	consistent_hashing
+	hashing
 	membership
 	integration
 

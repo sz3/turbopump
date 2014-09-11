@@ -4,7 +4,7 @@
 #include "DigestTree.h"
 
 #include "KeyRange.h"
-#include "consistent_hashing/Hash.h"
+#include "hashing/Hash.h"
 #include "serialize/StringUtil.h"
 #include <deque>
 #include <string>

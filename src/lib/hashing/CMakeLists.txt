@@ -15,9 +15,9 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(consistent_hashing STATIC ${SOURCES})
+add_library(hashing STATIC ${SOURCES})
 
-target_link_libraries(consistent_hashing
+target_link_libraries(hashing
 
 	crypto_base
 )

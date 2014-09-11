@@ -3,7 +3,7 @@
 
 #include "DataChain.h"
 #include "common/MyMemberId.h"
-#include "consistent_hashing/Hash.h"
+#include "hashing/Hash.h"
 #include "serialize/StringUtil.h"
 #include <sstream>
 #include <string>

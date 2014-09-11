@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(consistent_hashing_test)
+project(hashing_test)
 
 set (SOURCES
 	test.cpp
@@ -12,18 +12,18 @@ set (SOURCES
 include_directories(
 	${corelib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
-	${turboproj_SOURCE_DIR}/src/lib/consistent_hashing
+	${turboproj_SOURCE_DIR}/src/lib/hashing
 )
 
 add_executable (
-	consistent_hashing_test
+	hashing_test
 	${SOURCES}
 )
 
-add_test(consistent_hashing_test consistent_hashing_test)
+add_test(hashing_test hashing_test)
 
-target_link_libraries(consistent_hashing_test
-	consistent_hashing
+target_link_libraries(hashing_test
+	hashing
 
 	membership
 	mock

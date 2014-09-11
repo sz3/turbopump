@@ -16,9 +16,9 @@ target_link_libraries(turbopump
 	actions
 	actions_req
 	common
-	consistent_hashing
 	data_store
 	deskew
+	hashing
 	logging
 	main
 	membership

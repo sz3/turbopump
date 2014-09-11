@@ -4,11 +4,11 @@
 // explore interaction between changes in ConsistentHashRing and KeyTabulator, validating everything stays sane
 
 #include "KeyTabulator.h"
-#include "consistent_hashing/ConsistentHashRing.h"
-#include "consistent_hashing/Hash.h"
-#include "consistent_hashing/LocateKeys.h"
 #include "deskew/IDigestKeys.h"
 #include "deskew/DigestTree.h"
+#include "hashing/ConsistentHashRing.h"
+#include "hashing/Hash.h"
+#include "hashing/LocateKeys.h"
 
 #include "membership/Peer.h"
 #include "mock/MockMembership.h"

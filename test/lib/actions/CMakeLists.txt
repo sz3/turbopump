@@ -37,8 +37,8 @@ target_link_libraries(actions_test
 
 	actions
 	common
-	consistent_hashing
 	deskew
+	hashing
 	membership
 	mock
 

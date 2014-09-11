@@ -3,9 +3,9 @@
 
 #include "actions/WriteParams.h"
 #include "common/turbopump_defaults.h"
-#include "consistent_hashing/IConsistentHashRing.h"
 #include "data_store/DataEntry.h"
 #include "deskew/IKeyTabulator.h"
+#include "hashing/IConsistentHashRing.h"
 #include "membership/IMembership.h"
 #include "socket/StringByteStream.h"
 using std::string;
