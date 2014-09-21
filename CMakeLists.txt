@@ -33,6 +33,8 @@ set (PROJECTS
    test/lib/actions
    src/lib/actions_req
    test/lib/actions_req
+   src/lib/api
+   test/lib/api
    src/lib/common
    test/lib/common
    src/lib/data_store
