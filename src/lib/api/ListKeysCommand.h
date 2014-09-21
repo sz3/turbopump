@@ -2,18 +2,18 @@
 
 #include "ListKeys.h"
 
-#include "Op.h"
+#include "Command.h"
 #include <string>
 
 class IByteStream;
 class IDataStore;
 
-class ListKeysOp : public Op
+class ListKeysCommand : public Command
 {
 public:
-	ListKeysOp(const IDataStore& dataStore, IByteStream& writer);
+	ListKeysCommand(const IDataStore& dataStore, IByteStream& writer);
 
-	bool run();
+	bool run(const DataBuffer& data);
 	Turbopump::Request* request();
 
 protected:

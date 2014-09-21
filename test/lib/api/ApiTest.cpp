@@ -15,15 +15,11 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	StringByteStream stream;
 	Api api(store, stream);
 
-	std::unique_ptr<Op> op = api.op("list-keys");
-	assertFalse( !op );
+	std::unique_ptr<Command> command = api.command("list-keys");
+	assertFalse( !command );
 
-	assertTrue( op->run() );
+	assertTrue( command->run(DataBuffer::Null()) );
 	assertEquals( "report(0,.membership/)", store._history.calls() );
-
-	/*Turbopump::Op op = api.write("filename", "version")
-	op.run(bytes)
-	op.run();*/
 }
 
 TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
@@ -32,14 +28,16 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	StringByteStream stream;
 	Api api(store, stream);
 
-	Turbopump::ListKeys params{true, true};
+	Turbopump::ListKeys params;
+	params.all = true;
+	params.deleted = true;
 	msgpack::sbuffer sbuf;
 	msgpack::pack(&sbuf, params);
 
-	std::unique_ptr<Op> op = api.op("list-keys", DataBuffer(sbuf.data(), sbuf.size()));
-	assertFalse( !op );
+	std::unique_ptr<Command> command = api.command("list-keys", DataBuffer(sbuf.data(), sbuf.size()));
+	assertFalse( !command );
 
-	assertTrue( op->run() );
+	assertTrue( command->run(DataBuffer::Null()) );
 	assertEquals( "report(1,)", store._history.calls() );
 }
 
@@ -53,10 +51,10 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 	params["all"] = "1";
 	params["deleted"] = "1";
 
-	std::unique_ptr<Op> op = api.op("list-keys", params);
-	assertFalse( !op );
+	std::unique_ptr<Command> command = api.command("list-keys", params);
+	assertFalse( !command );
 
-	assertTrue( op->run() );
+	assertTrue( command->run(DataBuffer::Null()) );
 	assertEquals( "report(1,)", store._history.calls() );
 }
 

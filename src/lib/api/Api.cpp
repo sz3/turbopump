@@ -1,27 +1,27 @@
 #include "Api.h"
 
-#include "ListKeysOp.h"
+#include "ListKeysCommand.h"
 #include "common/DataBuffer.h"
 
-// should have a map of commands to do string -> op lookup.
+// should have a map of commands to do string -> command lookup.
 // return copy of the op (refs, base type + params)
 
 Api::Api(const IDataStore& dataStore, IByteStream& writer)
 {
-	_ops[Turbopump::ListKeys::name] = [&](){ return new ListKeysOp(dataStore, writer); };
+	_commands[Turbopump::ListKeys::NAME] = [&](){ return new ListKeysCommand(dataStore, writer); };
 }
 
-std::unique_ptr<Op> Api::op(const std::string& command) const
+std::unique_ptr<Command> Api::command(const std::string& name) const
 {
-	auto it = _ops.find(command);
-	if (it == _ops.end())
+	auto it = _commands.find(name);
+	if (it == _commands.end())
 		return NULL;
-	return std::unique_ptr<Op>(it->second());
+	return std::unique_ptr<Command>(it->second());
 }
 
-std::unique_ptr<Op> Api::op(const std::string& command, const DataBuffer& buffer) const
+std::unique_ptr<Command> Api::command(const std::string& name, const DataBuffer& buffer) const
 {
-	std::unique_ptr<Op> operation = op(command);
+	std::unique_ptr<Command> operation = command(name);
 	if (!!operation)
 	{
 		msgpack::unpacked msg;
@@ -31,9 +31,9 @@ std::unique_ptr<Op> Api::op(const std::string& command, const DataBuffer& buffer
 	return operation;
 }
 
-std::unique_ptr<Op> Api::op(const std::string& command, const std::unordered_map<std::string,std::string>& params) const
+std::unique_ptr<Command> Api::command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const
 {
-	std::unique_ptr<Op> operation = op(command);
+	std::unique_ptr<Command> operation = command(name);
 	if (!!operation)
 		operation->request()->load(params);
 	return operation;

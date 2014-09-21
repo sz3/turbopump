@@ -1,23 +1,23 @@
-#include "ListKeysOp.h"
+#include "ListKeysCommand.h"
 
 #include "common/turbopump_defaults.h"
 #include "data_store/IDataStore.h"
 using std::string;
 
-ListKeysOp::ListKeysOp(const IDataStore& dataStore, IByteStream& writer)
+ListKeysCommand::ListKeysCommand(const IDataStore& dataStore, IByteStream& writer)
 	: _dataStore(dataStore)
 	, _writer(writer)
 {
 }
 
-bool ListKeysOp::run()
+bool ListKeysCommand::run(const DataBuffer& data)
 {
 	string excludes = params.all? "" : MEMBERSHIP_FILE_PREFIX;
 	_dataStore.report(_writer, params.deleted, excludes);
 	return true;
 }
 
-Turbopump::Request* ListKeysOp::request()
+Turbopump::Request* ListKeysCommand::request()
 {
 	return &params;
 }

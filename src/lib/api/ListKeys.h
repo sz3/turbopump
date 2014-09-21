@@ -7,15 +7,7 @@ namespace Turbopump {
 class ListKeys : public Request
 {
 public:
-	static constexpr const char* name = "list-keys";
-
-public:
-	ListKeys() {}
-
-	ListKeys(bool all, bool deleted)
-		: all(all)
-		, deleted(deleted)
-	{}
+	static constexpr const char* NAME = "list-keys";
 
 public:
 	bool all = false;

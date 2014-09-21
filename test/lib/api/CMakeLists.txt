@@ -5,6 +5,10 @@ project(api_test)
 set (SOURCES
 	test.cpp
 	ApiTest.cpp
+	ListKeysTest.cpp
+	ListKeysCommandTest.cpp
+	WriteTest.cpp
+	WriteCommandTest.cpp
 )
 
 include_directories(

@@ -4,10 +4,14 @@ set(SOURCES
 	Api.cpp
 	Api.h
 	ListKeys.h
-	ListKeysOp.cpp
-	ListKeysOp.h
-	Op.h
+	ListKeysCommand.cpp
+	ListKeysCommand.h
+	Command.h
 	Request.h
+	Write.h
+	WriteCommand.cpp
+	WriteCommand.h
+	WriteInstructions.h
 )
 
 include_directories(
