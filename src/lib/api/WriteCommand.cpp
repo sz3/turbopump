@@ -78,6 +78,11 @@ bool WriteCommand::run(const DataBuffer& data)
 
 	if (!_started)
 	{
+		if (_instructions.name.empty())
+		{
+			_finished = true;
+			return setError(400);
+		}
 		_writer = _dataStore.write(_instructions.name);
 		_writer->setOffset(_instructions.offset);
 		_writer->metadata().totalCopies = _instructions.copies;

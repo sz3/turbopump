@@ -2,6 +2,7 @@
 #include "unittest.h"
 
 #include "Api.h"
+#include "Options.h"
 #include "ListKeys.h"
 
 #include "common/DataBuffer.h"
@@ -13,9 +14,10 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 {
 	MockDataStore store;
 	StringByteStream stream;
-	Api api(store, stream);
+	Turbopump::Options options;
+	Turbopump::Api api(store, stream, options);
 
-	std::unique_ptr<Command> command = api.command("list-keys");
+	std::unique_ptr<Turbopump::Command> command = api.command("list-keys");
 	assertFalse( !command );
 
 	assertTrue( command->run(DataBuffer::Null()) );
@@ -26,7 +28,8 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 {
 	MockDataStore store;
 	StringByteStream stream;
-	Api api(store, stream);
+	Turbopump::Options options;
+	Turbopump::Api api(store, stream, options);
 
 	Turbopump::ListKeys params;
 	params.all = true;
@@ -34,7 +37,7 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	msgpack::sbuffer sbuf;
 	msgpack::pack(&sbuf, params);
 
-	std::unique_ptr<Command> command = api.command("list-keys", DataBuffer(sbuf.data(), sbuf.size()));
+	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::ListKeys::ID, DataBuffer(sbuf.data(), sbuf.size()));
 	assertFalse( !command );
 
 	assertTrue( command->run(DataBuffer::Null()) );
@@ -45,13 +48,14 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 {
 	MockDataStore store;
 	StringByteStream stream;
-	Api api(store, stream);
+	Turbopump::Options options;
+	Turbopump::Api api(store, stream, options);
 
 	std::unordered_map<std::string,std::string> params;
 	params["all"] = "1";
 	params["deleted"] = "1";
 
-	std::unique_ptr<Command> command = api.command("list-keys", params);
+	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", params);
 	assertFalse( !command );
 
 	assertTrue( command->run(DataBuffer::Null()) );

@@ -159,7 +159,10 @@ TEST_CASE( "WriteCommandTest/testBadName", "default" )
 	MockDataStore dataStore;
 	{
 		WriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name); });
-		assertEquals( "bad", command.status().str() );
+
+		assertFalse( command.run(DataBuffer::Null()) );
+		assertTrue( command.finished() );
+		assertEquals( 400, command.status().integer() );
 	}
 	assertEquals( "", _history.calls() );
 }

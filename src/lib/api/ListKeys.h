@@ -1,3 +1,4 @@
+/* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
 #include "Request.h"
@@ -8,6 +9,7 @@ class ListKeys : public Request
 {
 public:
 	static constexpr const char* NAME = "list-keys";
+	static constexpr int ID = 3;
 
 public:
 	bool all = false;

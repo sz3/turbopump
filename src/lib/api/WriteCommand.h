@@ -10,7 +10,7 @@
 
 class IDataStore;
 
-class WriteCommand : public Command
+class WriteCommand : public Turbopump::Command
 {
 public:
 	// instead of passing in a function, dedicate an interface to predefined functions, and have the params select from it?

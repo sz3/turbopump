@@ -1,3 +1,4 @@
+/* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
 #include "Request.h"
@@ -9,6 +10,8 @@ class Write : public Request
 {
 public:
 	static constexpr const char* NAME = "write";
+	static constexpr int LOCAL_ID = 0;
+	static constexpr int ID = 1;
 
 public:
 	std::string name;
