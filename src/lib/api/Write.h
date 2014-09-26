@@ -11,7 +11,7 @@ class Write : public Request
 public:
 	static constexpr const char* NAME = "write";
 	static constexpr int LOCAL_ID = 0;
-	static constexpr int ID = 1;
+	static constexpr int ID = 100;
 
 public:
 	std::string name;

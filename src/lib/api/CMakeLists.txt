@@ -3,11 +3,16 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	Api.cpp
 	Api.h
+	Command.h
+	Options.h
+	Request.h
+
 	ListKeys.h
 	ListKeysCommand.cpp
 	ListKeysCommand.h
-	Command.h
-	Request.h
+	Read.h
+	ReadCommand.cpp
+	ReadCommand.h
 	Write.h
 	WriteCommand.cpp
 	WriteCommand.h

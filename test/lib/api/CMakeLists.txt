@@ -7,6 +7,7 @@ set (SOURCES
 	ApiTest.cpp
 	ListKeysTest.cpp
 	ListKeysCommandTest.cpp
+	ReadCommandTest.cpp
 	WriteTest.cpp
 	WriteCommandTest.cpp
 )
