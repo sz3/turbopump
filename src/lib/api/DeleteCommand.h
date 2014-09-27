@@ -8,13 +8,13 @@ namespace Turbopump { class Api; }
 class DeleteCommand : public Turbopump::Command
 {
 public:
-	DeleteCommand(Turbopump::Api& api);
+	DeleteCommand(const Turbopump::Api& api);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
-	Turbopump::Api& _api;
+	const Turbopump::Api& _api;
 
 public:
 	Turbopump::Delete params;

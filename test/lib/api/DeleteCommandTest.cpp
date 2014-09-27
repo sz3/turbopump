@@ -18,6 +18,7 @@ TEST_CASE( "DeleteCommandTest/testDelete", "[unit]" )
 	command.params.name = "deleted!";
 
 	assertTrue( command.run() );
-	assertEquals( "timestamp", api.dataStore._store["deleted!"] );
-	// TODO: need to get version out of mock.
+	assertEquals( "Writer::setOffset(0)|"
+				  "Writer::write(timestamp)|"
+				  "commit(deleted!,{2,delete:1,foo:1},3)", api.dataStore._history.calls() );
 }

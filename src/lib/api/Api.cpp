@@ -2,6 +2,7 @@
 #include "Api.h"
 
 #include "Options.h"
+#include "DeleteCommand.h"
 #include "DropCommand.h"
 #include "ListKeysCommand.h"
 #include "ReadCommand.h"
@@ -19,6 +20,7 @@ Api::Api(IDataStore& dataStore, const ILocateKeys& locator, IByteStream& writer,
 	, _options(options)
 {
 	// local commands: in this list.
+	_commands[Delete::_NAME] = Delete::_ID;
 	_commands[Drop::_NAME] = Drop::_ID;
 	_commands[Read::_NAME] = Read::_ID;
 	_commands[ListKeys::_NAME] = ListKeys::_ID;
@@ -29,6 +31,7 @@ Command* Api::command_impl(int id) const
 {
 	switch (id)
 	{
+		case Delete::_ID: return new DeleteCommand(*this);
 		case Drop::_ID: return new DropCommand(_dataStore, _locator, _options.when_drop_finishes);
 		case ListKeys::_ID: return new ListKeysCommand(_dataStore, _writer);
 		case Read::_ID: return new ReadCommand(_dataStore, _writer);

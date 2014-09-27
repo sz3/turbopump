@@ -24,14 +24,13 @@ MockDataStore::Writer::Writer(std::string filename, MockDataStore& store)
 
 bool MockDataStore::Writer::write(const char* buffer, unsigned size)
 {
-	_store._history.call("Writer::write", _filename, string(buffer, size));
+	_store._history.call("Writer::write", string(buffer, size));
 	_data.data.append(buffer, size);
 	return true;
 }
 
 IDataStoreReader::ptr MockDataStore::Writer::commit()
 {
-	_store._history.call("Writer::commit", _filename, _data.md.totalCopies);
 	return _store.commit(*this);
 }
 
@@ -51,6 +50,7 @@ void MockDataStore::Writer::setOffset(unsigned long long offset)
 
 IDataStoreReader::ptr MockDataStore::commit(Writer& writer)
 {
+	_history.call("commit", writer._filename, "{"+writer._data.md.version.toString()+"}", writer._data.md.totalCopies);
 	_store[writer._filename] = writer._data.data;
 	return IDataStoreReader::ptr(new Reader(writer._data.data));
 }

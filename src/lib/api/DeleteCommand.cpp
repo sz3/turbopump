@@ -5,7 +5,7 @@
 #include "Write.h"
 #include "common/VectorClock.h"
 
-DeleteCommand::DeleteCommand(Turbopump::Api& api)
+DeleteCommand::DeleteCommand(const Turbopump::Api& api)
 	: _api(api)
 {
 }
