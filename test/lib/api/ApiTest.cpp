@@ -22,7 +22,7 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys");
 	assertFalse( !command );
 
-	assertTrue( command->run(DataBuffer::Null()) );
+	assertTrue( command->run() );
 	assertEquals( "report(0,.membership/)", store._history.calls() );
 }
 
@@ -43,7 +43,7 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::ListKeys::ID, DataBuffer(sbuf.data(), sbuf.size()));
 	assertFalse( !command );
 
-	assertTrue( command->run(DataBuffer::Null()) );
+	assertTrue( command->run() );
 	assertEquals( "report(1,)", store._history.calls() );
 }
 
@@ -62,7 +62,7 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", params);
 	assertFalse( !command );
 
-	assertTrue( command->run(DataBuffer::Null()) );
+	assertTrue( command->run() );
 	assertEquals( "report(1,)", store._history.calls() );
 }
 

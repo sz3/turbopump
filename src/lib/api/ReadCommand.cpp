@@ -12,7 +12,7 @@ ReadCommand::ReadCommand(const IDataStore& dataStore, IByteStream& writer)
 {
 }
 
-bool ReadCommand::run(const DataBuffer& data)
+bool ReadCommand::run(const char*, unsigned)
 {
 	IDataStoreReader::ptr reader;
 	if (params.version.empty())

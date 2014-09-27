@@ -12,7 +12,7 @@ class DropCommand : public Turbopump::Command
 public:
 	DropCommand(IDataStore& dataStore, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop);
 
-	bool run(const DataBuffer& data);
+	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:

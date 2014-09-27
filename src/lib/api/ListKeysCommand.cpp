@@ -11,7 +11,7 @@ ListKeysCommand::ListKeysCommand(const IDataStore& dataStore, IByteStream& write
 {
 }
 
-bool ListKeysCommand::run(const DataBuffer& data)
+bool ListKeysCommand::run(const char*, unsigned)
 {
 	string excludes = params.all? "" : MEMBERSHIP_FILE_PREFIX;
 	_dataStore.report(_writer, params.deleted, excludes);

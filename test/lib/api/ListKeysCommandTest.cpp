@@ -2,7 +2,6 @@
 #include "unittest.h"
 
 #include "ListKeysCommand.h"
-#include "common/DataBuffer.h"
 #include "mock/MockDataStore.h"
 #include "socket/StringByteStream.h"
 
@@ -12,7 +11,7 @@ TEST_CASE( "ListKeysCommandTest/testDefault", "[unit]" )
 	StringByteStream stream;
 	ListKeysCommand command(store, stream);
 
-	assertTrue( command.run(DataBuffer::Null()) );
+	assertTrue( command.run() );
 	assertEquals( "report(0,.membership/)", store._history.calls() );
 }
 
@@ -23,7 +22,7 @@ TEST_CASE( "ListKeysCommandTest/testDeleted", "[unit]" )
 	ListKeysCommand command(store, stream);
 	command.params.deleted = true;
 
-	assertTrue( command.run(DataBuffer::Null()) );
+	assertTrue( command.run() );
 	assertEquals( "report(1,.membership/)", store._history.calls() );
 }
 
@@ -34,6 +33,6 @@ TEST_CASE( "ListKeysCommandTest/testAll", "[unit]" )
 	ListKeysCommand command(store, stream);
 	command.params.all = true;
 
-	assertTrue( command.run(DataBuffer::Null()) );
+	assertTrue( command.run() );
 	assertEquals( "report(0,)", store._history.calls() );
 }

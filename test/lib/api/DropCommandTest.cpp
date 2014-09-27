@@ -2,7 +2,6 @@
 #include "unittest.h"
 
 #include "DropCommand.h"
-#include "common/DataBuffer.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockLocateKeys.h"
 
@@ -15,7 +14,7 @@ TEST_CASE( "DropCommandTest/testKeyIsMine", "[unit]" )
 
 	DropCommand command(store, locator, NULL);
 	command.params.name = "mine";
-	assertFalse( command.run(DataBuffer::Null()) );
+	assertFalse( command.run() );
 
 	assertEquals( "read(mine)", store._history.calls() );
 	assertEquals( "foo", store._store["mine"] );
@@ -32,7 +31,7 @@ TEST_CASE( "DropCommandTest/testKeyIsntMine", "[unit]" )
 	DropCommand command(store, locator, NULL);
 	command.params.name = "notmine";
 
-	assertTrue( command.run(DataBuffer::Null()) );
+	assertTrue( command.run() );
 
 	assertEquals( "read(notmine)|drop(notmine)", store._history.calls() );
 	assertEquals( "", store._store["notmine"] );
@@ -50,7 +49,7 @@ TEST_CASE( "DropCommandTest/testCallback", "[unit]" )
 
 	DropCommand command(store, locator, [&](Turbopump::Drop md){ history.call("onDrop", md.name, md.copies); });
 	command.params.name = "key";
-	assertTrue( command.run(DataBuffer::Null()) );
+	assertTrue( command.run() );
 
 	assertEquals( "read(key)|drop(key)", store._history.calls() );
 	assertEquals( "", store._store["key"] );

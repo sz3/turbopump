@@ -2,8 +2,6 @@
 #include "unittest.h"
 
 #include "ReadCommand.h"
-
-#include "common/DataBuffer.h"
 #include "mock/MockDataStore.h"
 #include "socket/StringByteStream.h"
 
@@ -15,7 +13,7 @@ TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 
 	ReadCommand command(store, stream);
 	command.params.name = "myfile";
-	assertTrue( command.run(DataBuffer::Null()) );
+	assertTrue( command.run() );
 
 	assertEquals( "read(myfile)", store._history.calls() );
 	assertEquals( "foo", stream.writeBuffer() );
@@ -30,7 +28,7 @@ TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
 	ReadCommand command(store, stream);
 	command.params.name = "myfile";
 	command.params.version = "v2";
-	assertTrue( command.run(DataBuffer::Null()) );
+	assertTrue( command.run() );
 
 	assertEquals( "read(myfile,v2)", store._history.calls() );
 	assertEquals( "foo", stream.writeBuffer() );
@@ -43,7 +41,7 @@ TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
 
 	ReadCommand command(store, stream);
 	command.params.name = "myfile";
-	assertFalse( command.run(DataBuffer::Null()) );
+	assertFalse( command.run() );
 
 	assertEquals( "read(myfile)", store._history.calls() );
 	assertEquals( "", stream.writeBuffer() );

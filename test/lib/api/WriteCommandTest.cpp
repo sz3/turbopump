@@ -4,7 +4,6 @@
 #include "WriteCommand.h"
 
 #include "WriteInstructions.h"
-#include "common/DataBuffer.h"
 #include "data_store/IDataStoreReader.h"
 #include "mock/MockDataStore.h"
 #include "util/CallHistory.h"
@@ -38,13 +37,13 @@ TEST_CASE( "WriteCommandTest/testDefault", "default" )
 		TestableWriteCommand command(dataStore, callback);
 		command._instructions.name = "foobar.txt";
 
-		assertTrue( command.run(DataBuffer("0123456789", 10)) );
+		assertTrue( command.run("0123456789", 10) );
 		assertEquals( "", _history.calls() );
 
-		assertTrue( command.run(DataBuffer("abcde", 5)) );
-		assertTrue( command.run(DataBuffer::Null()) );
+		assertTrue( command.run("abcde", 5) );
+		assertTrue( command.run() );
 		assertTrue( command.finished() );
-		assertFalse( command.run(DataBuffer("closed", 6)) );
+		assertFalse( command.run("closed", 6) );
 	}
 	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
 	assertEquals( "Writer::setOffset(0)|Writer::write(foobar.txt,0123456789)|Writer::write(foobar.txt,abcde)|Writer::commit(foobar.txt,3)", dataStore._history.calls() );
@@ -65,10 +64,10 @@ TEST_CASE( "WriteCommandTest/testExtraParams", "default" )
 		command._instructions.source = "someguy";
 		command._instructions.offset = 20;
 
-		assertTrue( command.run(DataBuffer("0123456789", 10)) );
+		assertTrue( command.run("0123456789", 10) );
 		assertEquals( "", _history.calls() );
 
-		assertTrue( command.run(DataBuffer::Null()) );
+		assertTrue( command.run() );
 		assertTrue( command.finished() );
 	}
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
@@ -83,7 +82,7 @@ TEST_CASE( "WriteCommandTest/testDestructorCleanup", "default" )
 	{
 		TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name); });
 		command._instructions.name = "foobar.txt";
-		assertTrue( command.run(DataBuffer("0123456789", 10)) );
+		assertTrue( command.run("0123456789", 10) );
 	}
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
@@ -97,7 +96,7 @@ TEST_CASE( "WriteCommandTest/testFlush", "default" )
 	TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name, ins.offset, "["+ins.version+"]"); });
 	command._instructions.name = "foobar.txt";
 
-	assertTrue( command.run(DataBuffer("0123456789", 10)) );
+	assertTrue( command.run("0123456789", 10) );
 	assertEquals( 10, command._bytesSinceLastFlush );
 	assertEquals( "", command._instructions.version );
 	assertTrue( command.flush() );
@@ -105,7 +104,7 @@ TEST_CASE( "WriteCommandTest/testFlush", "default" )
 	assertEquals( "1,mockReaderVersion:1", command._instructions.version );
 	assertEquals( 10, command._instructions.offset );
 
-	assertTrue( command.run(DataBuffer("abcdef", 6)) );
+	assertTrue( command.run("abcdef", 6) );
 	assertTrue( command.flush() );
 	assertEquals( 16, command._instructions.offset );
 
@@ -125,9 +124,9 @@ TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "default" )
 	command._instructions.name = "foobar.txt";
 	command._instructions.version = "version1";
 
-	assertTrue( command.run(DataBuffer("0123456789", 10)) );
+	assertTrue( command.run("0123456789", 10) );
 	assertTrue( command.flush() );
-	assertTrue( command.run(DataBuffer("abcdef", 6)) );
+	assertTrue( command.run("abcdef", 6) );
 	assertTrue( command.flush() );
 
 	assertEquals( "0123456789abcdef", dataStore._store["foobar.txt"] );
@@ -144,9 +143,9 @@ TEST_CASE( "WriteCommandTest/testFlush.NoCallback", "default" )
 	command._instructions.name = "foobar.txt";
 	command._instructions.version = "version1";
 
-	assertTrue( command.run(DataBuffer("0123456789", 10)) );
+	assertTrue( command.run("0123456789", 10) );
 	assertTrue( command.flush() );
-	assertTrue( command.run(DataBuffer("abcdef", 6)) );
+	assertTrue( command.run("abcdef", 6) );
 	assertTrue( command.flush() );
 
 	assertEquals( "0123456789abcdef", dataStore._store["foobar.txt"] );
@@ -160,7 +159,7 @@ TEST_CASE( "WriteCommandTest/testBadName", "default" )
 	{
 		WriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name); });
 
-		assertFalse( command.run(DataBuffer::Null()) );
+		assertFalse( command.run() );
 		assertTrue( command.finished() );
 		assertEquals( 400, command.status().integer() );
 	}
@@ -175,11 +174,11 @@ TEST_CASE( "WriteCommandTest/testZeroByteWrite", "default" )
 		TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name); });
 		command._instructions.name = "foobar.txt";
 
-		assertTrue( command.run(DataBuffer::Null()) );
+		assertTrue( command.run(NULL, 0) );
 		assertFalse( command.finished() );
-		assertTrue( command.run(DataBuffer::Null()) );
+		assertTrue( command.run(NULL, 0) );
 		assertTrue( command.finished() );
-		assertFalse( command.run(DataBuffer::Null()) );
+		assertFalse( command.run(NULL, 0) );
 	}
 	assertEquals( "", dataStore._store["foobar.txt"] );
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
@@ -196,8 +195,8 @@ TEST_CASE( "WriteCommandTest/testBigWrite", "default" )
 		std::string buff;
 		buff.resize(1024, 'a');
 		for (unsigned i = 0; i < 65; ++i)
-			assertTrue( command.run(DataBuffer(buff.data(), buff.size())) );
-		assertTrue( command.run(DataBuffer::Null()) );
+			assertTrue( command.run(buff.data(), buff.size()) );
+		assertTrue( command.run() );
 		assertTrue( command.finished() );
 	}
 	assertEquals( (65*1024), dataStore._store["bigfile.txt"].size() );
@@ -215,8 +214,8 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "default" )
 		std::string buff;
 		buff.resize(1024, 'a');
 		for (unsigned i = 0; i < 64; ++i)
-			assertTrue( command.run(DataBuffer(buff.data(), buff.size())) );
-		assertTrue( command.run(DataBuffer::Null()) );
+			assertTrue( command.run(buff.data(), buff.size()) );
+		assertTrue( command.run() );
 		assertTrue( command.finished() );
 	}
 	assertEquals( 65536, dataStore._store["bigfile.txt"].size() );
@@ -234,8 +233,8 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Split", "default" )
 		std::string buff;
 		buff.resize(1000, 'a');
 		for (unsigned i = 0; i < 66; ++i)
-			assertTrue( command.run(DataBuffer(buff.data(), buff.size())) );
-		assertTrue( command.run(DataBuffer::Null()) );
+			assertTrue( command.run(buff.data(), buff.size()) );
+		assertTrue( command.run() );
 		assertTrue( command.finished() );
 	}
 	assertEquals( 66000, dataStore._store["bigfile.txt"].size() );

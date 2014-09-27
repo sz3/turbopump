@@ -13,7 +13,7 @@ DropCommand::DropCommand(IDataStore& dataStore, const ILocateKeys& locator, std:
 {
 }
 
-bool DropCommand::run(const DataBuffer&)
+bool DropCommand::run(const char*, unsigned)
 {
 	{
 		std::vector<IDataStoreReader::ptr> reads = _dataStore.read(params.name);

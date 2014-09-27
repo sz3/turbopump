@@ -11,7 +11,7 @@ class ListKeysCommand : public Turbopump::Command
 public:
 	ListKeysCommand(const IDataStore& dataStore, IByteStream& writer);
 
-	bool run(const DataBuffer& data);
+	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:

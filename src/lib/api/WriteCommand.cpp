@@ -1,7 +1,6 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "WriteCommand.h"
 
-#include "common/DataBuffer.h"
 #include "data_store/DataEntry.h"
 #include "data_store/IDataStore.h"
 #include <map>
@@ -71,7 +70,7 @@ bool WriteCommand::commit()
 // ... multiply w/ packet size to get the offset
 // ... to go along with a size on write init to determine close
 // ... may have to split this into local write and remote write parts. :(
-bool WriteCommand::run(const DataBuffer& data)
+bool WriteCommand::run(const char* buff, unsigned size)
 {
 	if (_finished)
 		return false;
@@ -89,7 +88,7 @@ bool WriteCommand::run(const DataBuffer& data)
 		_writer->metadata().version.fromString(_instructions.version);
 	}
 
-	if (data.size() == 0)
+	if (buff == NULL || size == 0)
 	{
 		// special case: don't commit() for a 0-byte first packet
 		if (!_started)
@@ -105,21 +104,21 @@ bool WriteCommand::run(const DataBuffer& data)
 	// wan: write to mirror (nonblocking, could fail -> get pushed into PendingWrites), then write (on same thread) to disk
 	// local: pass buffer for write to disk (on other thread), write to mirror (blocking), then wait for disk write to finish
 
-	unsigned nextSize = _bytesSinceLastFlush + data.size();
+	unsigned nextSize = _bytesSinceLastFlush + size;
 	if (nextSize > 0x10000) // need to flush()
 	{
 		unsigned overfill = nextSize - 0x10000;
-		unsigned topoff = data.size() - overfill;
+		unsigned topoff = size - overfill;
 		if (topoff > 0)
-			_writer->write(data.buffer(), topoff);
+			_writer->write(buff, topoff);
 		if ( !flush() )
 			return false;
-		_writer->write(data.buffer()+topoff, overfill);
+		_writer->write(buff+topoff, overfill);
 		_bytesSinceLastFlush += overfill;
 	}
 	else
 	{
-		_writer->write(data.buffer(), data.size());
+		_writer->write(buff, size);
 		_bytesSinceLastFlush = nextSize;
 	}
 

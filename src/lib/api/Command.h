@@ -3,7 +3,6 @@
 
 #include "http/StatusCode.h"
 #include <string>
-class DataBuffer;
 
 namespace Turbopump {
 class Request;
@@ -14,7 +13,7 @@ public:
 	virtual ~Command() {}
 
 	virtual Request* request() = 0;
-	virtual bool run(const DataBuffer& data) = 0;
+	virtual bool run(const char* buff=NULL, unsigned size=0) = 0;
 
 	// should I hold onto this command, or can I throw it away?
 	virtual bool finished() const

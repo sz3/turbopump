@@ -18,7 +18,7 @@ public:
 	~WriteCommand();
 
 	Turbopump::Request* request();
-	bool run(const DataBuffer& data);
+	bool run(const char* buff=NULL, unsigned size=0);
 	bool finished() const;
 
 protected:

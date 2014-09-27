@@ -11,7 +11,7 @@ class ReadCommand : public Turbopump::Command
 public:
 	ReadCommand(const IDataStore& dataStore, IByteStream& writer);
 
-	bool run(const DataBuffer& data);
+	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
