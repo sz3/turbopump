@@ -7,15 +7,17 @@
 
 #include "common/DataBuffer.h"
 #include "mock/MockDataStore.h"
+#include "mock/MockLocateKeys.h"
 #include "socket/StringByteStream.h"
 #include <memory>
 
 TEST_CASE( "ApiTest/testDefault", "[unit]" )
 {
 	MockDataStore store;
+	MockLocateKeys locator;
 	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(store, stream, options);
+	Turbopump::Api api(store, locator, stream, options);
 
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys");
 	assertFalse( !command );
@@ -27,9 +29,10 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 {
 	MockDataStore store;
+	MockLocateKeys locator;
 	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(store, stream, options);
+	Turbopump::Api api(store, locator, stream, options);
 
 	Turbopump::ListKeys params;
 	params.all = true;
@@ -47,9 +50,10 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 {
 	MockDataStore store;
+	MockLocateKeys locator;
 	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(store, stream, options);
+	Turbopump::Api api(store, locator, stream, options);
 
 	std::unordered_map<std::string,std::string> params;
 	params["all"] = "1";

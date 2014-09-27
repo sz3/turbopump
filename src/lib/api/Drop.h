@@ -3,18 +3,19 @@
 
 #include "Request.h"
 #include "common/serialize.h"
+#include "common/turbopump_defaults.h"
 
 namespace Turbopump {
-class ListKeys : public Request
+class Drop : public Request
 {
 public:
-	static constexpr const char* NAME = "list-keys";
-	static constexpr int ID = 3;
+	static constexpr const char* NAME = "drop";
+	static constexpr int ID = 4;
 
 public:
-	bool all = false;
-	bool deleted = false;
+	std::string name;
+	short copies = DEFAULT_MIRRORS;
 
-	SERIALIZE(all, deleted);
+	SERIALIZE(name, copies);
 };
 }//namespace

@@ -7,6 +7,9 @@ set(SOURCES
 	Options.h
 	Request.h
 
+	Drop.h
+	DropCommand.cpp
+	DropCommand.h
 	ListKeys.h
 	ListKeysCommand.cpp
 	ListKeysCommand.h

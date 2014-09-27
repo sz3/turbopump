@@ -14,6 +14,7 @@ class IByteStream;
 class IConsistentHashRing;
 class IDataStore;
 class IHttpByteStream;
+class ILocateKeys;
 class IKeyTabulator;
 class IMembership;
 class IProcessState;
@@ -26,7 +27,7 @@ class Options;
 class Api
 {
 public:
-	Api(IDataStore& dataStore, IByteStream& writer, const Options& options);
+	Api(IDataStore& dataStore, const ILocateKeys& locator, IByteStream& writer, const Options& options);
 
 	std::unique_ptr<Command> command(int id, const DataBuffer& buffer) const;
 	std::unique_ptr<Command> command(const std::string& name) const;
@@ -39,6 +40,7 @@ protected:
 	std::unordered_map<std::string, int> _commands;
 
 	IDataStore& _dataStore;
+	const ILocateKeys& _locator;
 	IByteStream& _writer;
 	const Options& _options;
 };

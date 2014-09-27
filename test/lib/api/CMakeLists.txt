@@ -5,6 +5,7 @@ project(api_test)
 set (SOURCES
 	test.cpp
 	ApiTest.cpp
+	DropCommandTest.cpp
 	ListKeysTest.cpp
 	ListKeysCommandTest.cpp
 	ReadCommandTest.cpp

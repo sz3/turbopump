@@ -4,6 +4,7 @@
 #include "data_store/IDataStoreReader.h"
 #include <functional>
 
+namespace Turbopump { class Drop; }
 class WriteInstructions;
 
 namespace Turbopump {
@@ -16,6 +17,7 @@ struct Options
 
 	std::function<void(WriteInstructions&, IDataStoreReader::ptr contents)> when_local_write_finishes;
 	std::function<void(WriteInstructions&, IDataStoreReader::ptr contents)> when_mirror_write_finishes;
+	std::function<void(const Turbopump::Drop&)>                             when_drop_finishes;
 };
 }//namespace
 
