@@ -5,11 +5,11 @@
 #include "common/serialize.h"
 
 namespace Turbopump {
-class Read : public Request
+class Delete : public Request
 {
 public:
-	static constexpr const char* _NAME = "read";
-	static constexpr int _ID = 2;
+	static constexpr const char* _NAME = "delete";
+	static constexpr int _ID = 5;
 
 public:
 	std::string name;

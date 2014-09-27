@@ -9,9 +9,9 @@ namespace Turbopump {
 class Write : public Request
 {
 public:
-	static constexpr const char* NAME = "write";
-	static constexpr int LOCAL_ID = 0;
-	static constexpr int ID = 100;
+	static constexpr const char* _NAME = "write";
+	static constexpr int _ID = 0;
+	static constexpr int _INTERNAL_ID = 100;
 
 public:
 	std::string name;

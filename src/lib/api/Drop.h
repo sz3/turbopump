@@ -9,8 +9,8 @@ namespace Turbopump {
 class Drop : public Request
 {
 public:
-	static constexpr const char* NAME = "drop";
-	static constexpr int ID = 4;
+	static constexpr const char* _NAME = "drop";
+	static constexpr int _ID = 4;
 
 public:
 	std::string name;

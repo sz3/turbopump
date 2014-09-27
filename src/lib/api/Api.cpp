@@ -19,38 +19,30 @@ Api::Api(IDataStore& dataStore, const ILocateKeys& locator, IByteStream& writer,
 	, _options(options)
 {
 	// local commands: in this list.
-	_commands[Drop::NAME] = Drop::ID;
-	_commands[Read::NAME] = Read::ID;
-	_commands[ListKeys::NAME] = ListKeys::ID;
-	_commands[Write::NAME] = Write::LOCAL_ID;
+	_commands[Drop::_NAME] = Drop::_ID;
+	_commands[Read::_NAME] = Read::_ID;
+	_commands[ListKeys::_NAME] = ListKeys::_ID;
+	_commands[Write::_NAME] = Write::_ID;
 }
 
-Command* Api::command(int id) const
+Command* Api::command_impl(int id) const
 {
 	switch (id)
 	{
-		case Drop::ID: return new DropCommand(_dataStore, _locator, _options.when_drop_finishes);
-		case ListKeys::ID: return new ListKeysCommand(_dataStore, _writer);
-		case Read::ID: return new ReadCommand(_dataStore, _writer);
-		case Write::LOCAL_ID: return new WriteCommand(_dataStore, _options.when_local_write_finishes);
-		case Write::ID: return new WriteCommand(_dataStore, _options.when_mirror_write_finishes);
+		case Drop::_ID: return new DropCommand(_dataStore, _locator, _options.when_drop_finishes);
+		case ListKeys::_ID: return new ListKeysCommand(_dataStore, _writer);
+		case Read::_ID: return new ReadCommand(_dataStore, _writer);
+		case Write::_ID: return new WriteCommand(_dataStore, _options.when_local_write_finishes);
+		case Write::_INTERNAL_ID: return new WriteCommand(_dataStore, _options.when_mirror_write_finishes);
 
 		default: return NULL;
 	}
 }
 
-std::unique_ptr<Command> Api::command(const std::string& name) const
-{
-	auto it = _commands.find(name);
-	if (it == _commands.end())
-		return NULL;
-	return std::unique_ptr<Command>(command(it->second));
-}
-
 std::unique_ptr<Command> Api::command(int id, const DataBuffer& buffer) const
 {
 	// internal commands: id >= 100 ?
-	std::unique_ptr<Command> operation(command(id));
+	std::unique_ptr<Command> operation(command_impl(id));
 	if (!!operation)
 	{
 		msgpack::unpacked msg;
@@ -60,9 +52,17 @@ std::unique_ptr<Command> Api::command(int id, const DataBuffer& buffer) const
 	return operation;
 }
 
+std::unique_ptr<Command> Api::command_impl(const std::string& name) const
+{
+	auto it = _commands.find(name);
+	if (it == _commands.end())
+		return NULL;
+	return std::unique_ptr<Command>(command_impl(it->second));
+}
+
 std::unique_ptr<Command> Api::command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const
 {
-	std::unique_ptr<Command> operation = command(name);
+	std::unique_ptr<Command> operation = command_impl(name);
 	if (!!operation)
 		operation->request()->load(params);
 	return operation;

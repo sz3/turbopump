@@ -8,8 +8,8 @@ namespace Turbopump {
 class ListKeys : public Request
 {
 public:
-	static constexpr const char* NAME = "list-keys";
-	static constexpr int ID = 3;
+	static constexpr const char* _NAME = "list-keys";
+	static constexpr int _ID = 3;
 
 public:
 	bool all = false;

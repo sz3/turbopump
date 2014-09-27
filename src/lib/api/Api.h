@@ -30,11 +30,21 @@ public:
 	Api(IDataStore& dataStore, const ILocateKeys& locator, IByteStream& writer, const Options& options);
 
 	std::unique_ptr<Command> command(int id, const DataBuffer& buffer) const;
-	std::unique_ptr<Command> command(const std::string& name) const;
 	std::unique_ptr<Command> command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const;
 
+	template <typename Req>
+	std::unique_ptr<Command> command(const Req& req) const
+	{
+		std::unique_ptr<Command> cmd(command_impl(req._ID));
+		if (!cmd)
+			return false;
+		*(Req*)cmd->request() = req;
+		return cmd;
+	}
+
 protected:
-	Command* command(int id) const;
+	Command* command_impl(int id) const;
+	std::unique_ptr<Command> command_impl(const std::string& name) const;
 
 protected:
 	std::unordered_map<std::string, int> _commands;
