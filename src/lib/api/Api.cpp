@@ -7,15 +7,20 @@
 #include "ListKeysCommand.h"
 #include "ReadCommand.h"
 #include "WriteCommand.h"
+
+#include "DemandWriteCommand.h"
+#include "OfferWriteCommand.h"
 #include "common/DataBuffer.h"
 
 // should have a map of commands to do string -> command lookup.
 // return copy of the op (refs, base type + params)
 namespace Turbopump {
 
-Api::Api(IDataStore& dataStore, const ILocateKeys& locator, IByteStream& writer, const Options& options)
-	: _dataStore(dataStore)
+Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IByteStream& writer, const Options& options)
+	: _corrector(corrector)
+	, _dataStore(dataStore)
 	, _locator(locator)
+	, _messenger(messenger)
 	, _writer(writer)
 	, _options(options)
 {
@@ -27,6 +32,9 @@ Api::Api(IDataStore& dataStore, const ILocateKeys& locator, IByteStream& writer,
 	_commands[Write::_NAME] = Write::_ID;
 }
 
+// IByteStream == local
+// Peer == remote
+// need context for each command request?
 Command* Api::command_impl(int id) const
 {
 	switch (id)
@@ -37,6 +45,9 @@ Command* Api::command_impl(int id) const
 		case Read::_ID: return new ReadCommand(_dataStore, _writer);
 		case Write::_ID: return new WriteCommand(_dataStore, _options.when_local_write_finishes);
 		case Write::_INTERNAL_ID: return new WriteCommand(_dataStore, _options.when_mirror_write_finishes);
+
+		case DemandWrite::_ID: return new DemandWriteCommand(_corrector);
+		case OfferWrite::_ID: return new OfferWriteCommand(_dataStore, _messenger);
 
 		default: return NULL;
 	}

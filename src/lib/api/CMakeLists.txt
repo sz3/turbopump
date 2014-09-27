@@ -4,18 +4,25 @@ set(SOURCES
 	Api.cpp
 	Api.h
 	Command.h
+	InternalCommand.h
 	Options.h
 	Request.h
 
 	Delete.h
 	DeleteCommand.cpp
 	DeleteCommand.h
+	DemandWrite.h
+	DemandWriteCommand.cpp
+	DemandWriteCommand.h
 	Drop.h
 	DropCommand.cpp
 	DropCommand.h
 	ListKeys.h
 	ListKeysCommand.cpp
 	ListKeysCommand.h
+	OfferWrite.h
+	OfferWriteCommand.cpp
+	OfferWriteCommand.h
 	Read.h
 	ReadCommand.cpp
 	ReadCommand.h

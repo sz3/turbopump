@@ -2,7 +2,8 @@
 #pragma once
 
 #include "http/StatusCode.h"
-#include <string>
+#include <memory>
+class Peer;
 
 namespace Turbopump {
 class Request;
@@ -20,6 +21,11 @@ public:
 	{
 		return true;
 	}
+
+	// TODO: should setPeer be a simple string?
+	// please?
+	virtual void setPeer(const std::shared_ptr<Peer>&) {}
+	// virtual void setWriter(IWriter*) {}
 
 	StatusCode status() const
 	{
