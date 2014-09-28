@@ -17,6 +17,12 @@ set(SOURCES
 	Drop.h
 	DropCommand.cpp
 	DropCommand.h
+	HealKey.h
+	HealKeyCommand.cpp
+	HealKeyCommand.h
+	KeyRequest.h
+	KeyRequestCommand.cpp
+	KeyRequestCommand.h
 	ListKeys.h
 	ListKeysCommand.cpp
 	ListKeysCommand.h
@@ -26,6 +32,9 @@ set(SOURCES
 	Read.h
 	ReadCommand.cpp
 	ReadCommand.h
+	Sync.h
+	SyncCommand.cpp
+	SyncCommand.h
 	Write.h
 	WriteCommand.cpp
 	WriteCommand.h

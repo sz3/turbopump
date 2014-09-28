@@ -28,7 +28,7 @@ namespace {
 	};
 }
 
-TEST_CASE( "WriteCommandTest/testDefault", "default" )
+TEST_CASE( "WriteCommandTest/testDefault", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -50,7 +50,7 @@ TEST_CASE( "WriteCommandTest/testDefault", "default" )
 	assertEquals( "onCommit(foobar.txt,0,3,[1,mockReaderVersion:1],1)", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testExtraParams", "default" )
+TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -77,7 +77,7 @@ TEST_CASE( "WriteCommandTest/testExtraParams", "default" )
 	assertEquals( "onCommit(foobar.txt,3,5,{1,v1:1},someguy,1)", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testDestructorCleanup", "default" )
+TEST_CASE( "WriteCommandTest/testDestructorCleanup", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -90,7 +90,7 @@ TEST_CASE( "WriteCommandTest/testDestructorCleanup", "default" )
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testFlush", "default" )
+TEST_CASE( "WriteCommandTest/testFlush", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -118,7 +118,7 @@ TEST_CASE( "WriteCommandTest/testFlush", "default" )
 				  "|Writer::write(abcdef)|commit(foobar.txt,{0},3)", dataStore._history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "default" )
+TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -137,7 +137,7 @@ TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "default" )
 				  "|onCommit(foobar.txt,10,[version1])", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testFlush.NoCallback", "default" )
+TEST_CASE( "WriteCommandTest/testFlush.NoCallback", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -155,7 +155,7 @@ TEST_CASE( "WriteCommandTest/testFlush.NoCallback", "default" )
 	assertEquals( 16, command._instructions.offset );
 }
 
-TEST_CASE( "WriteCommandTest/testBadName", "default" )
+TEST_CASE( "WriteCommandTest/testBadName", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -169,7 +169,7 @@ TEST_CASE( "WriteCommandTest/testBadName", "default" )
 	assertEquals( "", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testZeroByteWrite", "default" )
+TEST_CASE( "WriteCommandTest/testZeroByteWrite", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -187,7 +187,7 @@ TEST_CASE( "WriteCommandTest/testZeroByteWrite", "default" )
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testBigWrite", "default" )
+TEST_CASE( "WriteCommandTest/testBigWrite", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -206,7 +206,7 @@ TEST_CASE( "WriteCommandTest/testBigWrite", "default" )
 	assertEquals( "onCommit(bigfile.txt,0,65536,0)|onCommit(bigfile.txt,65536,66560,1)", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "default" )
+TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -225,7 +225,7 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "default" )
 	assertEquals( "onCommit(bigfile.txt,65536,1)", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testBigWrite.Split", "default" )
+TEST_CASE( "WriteCommandTest/testBigWrite.Split", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;

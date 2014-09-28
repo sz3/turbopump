@@ -3,19 +3,17 @@
 
 #include "Request.h"
 #include "common/serialize.h"
+#include "deskew/TreeId.h"
 
 namespace Turbopump {
-class OfferWrite : public Request
+class Sync : public Request, public TreeId
 {
 public:
-	static constexpr const char* _NAME = "offer-write";
-	static constexpr int _ID = 105;
+	static constexpr const char* _NAME = "sync";
+	static constexpr int _ID = 102;
 
 public:
-	std::string name;
-	std::string version;
-	std::string source;
-
-	SERIALIZE(name, version, source);
+	// inherits fields from TreeId
+	SERIALIZE(id, mirrors);
 };
 }//namespace

@@ -9,7 +9,7 @@ class DemandWrite : public Request
 {
 public:
 	static constexpr const char* _NAME = "demand-write";
-	static constexpr int _ID = 102;
+	static constexpr int _ID = 106;
 
 public:
 	std::string name;

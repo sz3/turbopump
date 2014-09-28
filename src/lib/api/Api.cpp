@@ -9,18 +9,22 @@
 #include "WriteCommand.h"
 
 #include "DemandWriteCommand.h"
+#include "HealKeyCommand.h"
+#include "KeyRequestCommand.h"
 #include "OfferWriteCommand.h"
+#include "SyncCommand.h"
 #include "common/DataBuffer.h"
 
 // should have a map of commands to do string -> command lookup.
 // return copy of the op (refs, base type + params)
 namespace Turbopump {
 
-Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IByteStream& writer, const Options& options)
+Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, ISynchronize& sync, IByteStream& writer, const Options& options)
 	: _corrector(corrector)
 	, _dataStore(dataStore)
 	, _locator(locator)
 	, _messenger(messenger)
+	, _sync(sync)
 	, _writer(writer)
 	, _options(options)
 {
@@ -48,6 +52,7 @@ Command* Api::command_impl(int id) const
 
 		case DemandWrite::_ID: return new DemandWriteCommand(_corrector);
 		case OfferWrite::_ID: return new OfferWriteCommand(_dataStore, _messenger);
+		case Sync::_ID: return new SyncCommand(_sync);
 
 		default: return NULL;
 	}
