@@ -5,11 +5,14 @@ project(api_test)
 set (SOURCES
 	DummyTurbopumpApi.h
 	test.cpp
+
 	ApiTest.cpp
 	DeleteCommandTest.cpp
+	DemandWriteCommandTest.cpp
 	DropCommandTest.cpp
 	ListKeysTest.cpp
 	ListKeysCommandTest.cpp
+	OfferWriteCommandTest.cpp
 	ReadCommandTest.cpp
 	WriteTest.cpp
 	WriteCommandTest.cpp
@@ -33,8 +36,11 @@ target_link_libraries(api_test
 
 	common
 	mock
+	membership
 
+	serialize
 	socket
+
 	msgpack
 )
 
