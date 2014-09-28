@@ -38,6 +38,9 @@ set(SOURCES
 	Read.h
 	ReadCommand.cpp
 	ReadCommand.h
+	Status.h
+	StatusCommand.cpp
+	StatusCommand.h
 	Sync.h
 	SyncCommand.cpp
 	SyncCommand.h

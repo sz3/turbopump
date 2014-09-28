@@ -9,14 +9,11 @@
 
 class DataBuffer;
 class IByteStream;
-class IConsistentHashRing;
 class ICorrectSkew;
 class IDataStore;
 class ILocateKeys;
-class IKeyTabulator;
-class IMembership;
 class IMessageSender;
-class IProcessState;
+class IStatusReporter;
 class ISynchronize;
 
 namespace Turbopump {
@@ -25,7 +22,7 @@ class Options;
 class Api
 {
 public:
-	Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, ISynchronize& sync, IByteStream& writer, const Options& options);
+	Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, ISynchronize& sync, IByteStream& writer, const Options& options);
 
 	std::unique_ptr<Command> command(int id, const DataBuffer& buffer) const;
 	std::unique_ptr<Command> command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const;
@@ -51,6 +48,7 @@ protected:
 	IDataStore& _dataStore;
 	const ILocateKeys& _locator;
 	IMessageSender& _messenger;
+	IStatusReporter& _reporter;
 	ISynchronize& _sync;
 	IByteStream& _writer;
 	const Options& _options;

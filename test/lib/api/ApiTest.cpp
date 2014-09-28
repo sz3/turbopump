@@ -10,6 +10,7 @@
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
+#include "mock/MockStatusReporter.h"
 #include "mock/MockSynchronize.h"
 #include "socket/StringByteStream.h"
 #include <memory>
@@ -20,10 +21,11 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
+	MockStatusReporter reporter;
 	MockSynchronize sync;
 	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
 
 	Turbopump::ListKeys req;
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", std::unordered_map<std::string,std::string>());
@@ -39,10 +41,11 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
+	MockStatusReporter reporter;
 	MockSynchronize sync;
 	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
 
 	Turbopump::ListKeys params;
 	params.all = true;
@@ -63,10 +66,11 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
+	MockStatusReporter reporter;
 	MockSynchronize sync;
 	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
 
 	std::unordered_map<std::string,std::string> params;
 	params["all"] = "1";
@@ -85,10 +89,11 @@ TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
 	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
+	MockStatusReporter reporter;
 	MockSynchronize sync;
 	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
 
 	Turbopump::ListKeys req;
 	req.deleted = true;

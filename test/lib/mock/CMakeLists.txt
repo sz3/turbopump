@@ -33,6 +33,7 @@ set(SOURCES
 	MockSchedulerThread.h
 	MockSkewCorrector.cpp
 	MockSkewCorrector.h
+	MockStatusReporter.h
 	MockSynchronize.cpp
 	MockSynchronize.h
 	MockUserPacketHandler.cpp

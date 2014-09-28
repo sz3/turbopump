@@ -2,10 +2,12 @@
 #include "Api.h"
 
 #include "Options.h"
+#include "AddPeerCommand.h"
 #include "DeleteCommand.h"
 #include "DropCommand.h"
 #include "ListKeysCommand.h"
 #include "ReadCommand.h"
+#include "StatusCommand.h"
 #include "WriteCommand.h"
 
 #include "AckWriteCommand.h"
@@ -20,11 +22,12 @@
 // return copy of the op (refs, base type + params)
 namespace Turbopump {
 
-Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, ISynchronize& sync, IByteStream& writer, const Options& options)
+Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, ISynchronize& sync, IByteStream& writer, const Options& options)
 	: _corrector(corrector)
 	, _dataStore(dataStore)
 	, _locator(locator)
 	, _messenger(messenger)
+	, _reporter(reporter)
 	, _sync(sync)
 	, _writer(writer)
 	, _options(options)
@@ -32,8 +35,11 @@ Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& loca
 	// local commands: in this list.
 	_commands[Delete::_NAME] = Delete::_ID;
 	_commands[Drop::_NAME] = Drop::_ID;
-	_commands[Read::_NAME] = Read::_ID;
 	_commands[ListKeys::_NAME] = ListKeys::_ID;
+	_commands[Read::_NAME] = Read::_ID;
+	_commands[Status::_NAME] = Status::_ID;
+	_commands["membership"] = Status::_ID2;
+	_commands["ring"] = Status::_ID3;
 	_commands[Write::_NAME] = Write::_ID;
 }
 
@@ -44,10 +50,14 @@ Command* Api::command_impl(int id) const
 {
 	switch (id)
 	{
+		case AddPeer::_ID: return new AddPeerCommand(*this);
 		case Delete::_ID: return new DeleteCommand(*this);
 		case Drop::_ID: return new DropCommand(_dataStore, _locator, _options.when_drop_finishes);
 		case ListKeys::_ID: return new ListKeysCommand(_dataStore, _writer);
 		case Read::_ID: return new ReadCommand(_dataStore, _writer);
+		case Status::_ID: return new StatusCommand(_reporter, _writer);
+		case Status::_ID2: return new StatusCommand(_reporter, _writer, "membership");
+		case Status::_ID3: return new StatusCommand(_reporter, _writer, "ring");
 		case Write::_ID: return new WriteCommand(_dataStore, _options.when_local_write_finishes);
 		case Write::_INTERNAL_ID: return new WriteCommand(_dataStore, _options.when_mirror_write_finishes);
 
