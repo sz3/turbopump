@@ -6,6 +6,8 @@ set (SOURCES
 	DummyTurbopumpApi.h
 	test.cpp
 
+	AckWriteCommandTest.cpp
+	AddPeerCommandTest.cpp
 	ApiTest.cpp
 	DeleteCommandTest.cpp
 	DemandWriteCommandTest.cpp

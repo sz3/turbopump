@@ -8,6 +8,12 @@ set(SOURCES
 	Options.h
 	Request.h
 
+	AckWrite.h
+	AckWriteCommand.cpp
+	AckWriteCommand.h
+	AddPeer.h
+	AddPeerCommand.cpp
+	AddPeerCommand.h
 	Delete.h
 	DeleteCommand.cpp
 	DeleteCommand.h

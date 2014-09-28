@@ -8,6 +8,7 @@
 #include "ReadCommand.h"
 #include "WriteCommand.h"
 
+#include "AckWriteCommand.h"
 #include "DemandWriteCommand.h"
 #include "HealKeyCommand.h"
 #include "KeyRequestCommand.h"
@@ -50,7 +51,10 @@ Command* Api::command_impl(int id) const
 		case Write::_ID: return new WriteCommand(_dataStore, _options.when_local_write_finishes);
 		case Write::_INTERNAL_ID: return new WriteCommand(_dataStore, _options.when_mirror_write_finishes);
 
+		case AckWrite::_ID: return new AckWriteCommand(_dataStore, _locator, _options.when_drop_finishes);
 		case DemandWrite::_ID: return new DemandWriteCommand(_corrector);
+		case HealKey::_ID: return new HealKeyCommand(_corrector);
+		case KeyRequest::_ID: return new KeyRequestCommand(_corrector);
 		case OfferWrite::_ID: return new OfferWriteCommand(_dataStore, _messenger);
 		case Sync::_ID: return new SyncCommand(_sync);
 
