@@ -2,7 +2,6 @@
 #include "UserActionContext.h"
 
 #include "IUserPacketHandler.h"
-#include "common/DataBuffer.h"
 #include "http/Url.h"
 
 #include <functional>
@@ -32,10 +31,10 @@ StatusCode UserActionContext::status() const
 
 int UserActionContext::onUrl(const char* data, size_t len)
 {
-	// we shouldn't have an action at this point.
+	// we shouldn't have a command at this point.
 	// If we do, somebody effed up the protocol (either us or the client) ...
 	// return 1 == bail out.
-	if (!_action)
+	if (!_command)
 	{
 		_url.append(string(data, len));
 		return 0;
@@ -48,35 +47,34 @@ int UserActionContext::onBegin(HttpParser::Status status)
 	Url url(_url);
 	std::vector<string> parts = url.components();
 	if (!parts.empty())
-		_action = _handler.newAction(parts.front(), url.params());
-	if (!_action)
+		_command = _handler.command(parts.front(), url.params());
+	if (!_command)
 		_status = StatusCode::BadRequest;
 	return 0;
 }
 
 int UserActionContext::onBody(const char* data, size_t len)
 {
-	// that is, if the action is bad, just eat the body and do nothing w/ it
+	// that is, if the command is bad, just eat the body and do nothing w/ it
 	// we'll be complaining back to the client momentarily. :)
-	if (!!_action && _action->good())
+	if (!!_command && _status == 0)
 	{
-		DataBuffer dbuf(data, len);
-		if (!_action->run(dbuf))
-			_status = StatusCode::InternalServerError;
-		else
-			_status = StatusCode::Success;
+		bool res = _command->run(data, len);
+		_status = _command->status();
+		if (_status == 0)
+			_status = res? StatusCode::Success : StatusCode::InternalServerError;
 	}
 	return 0;
 }
 
 int UserActionContext::onComplete()
 {
-	if (!!_action && _action->good() && (_status == 0 || _action->multiPacket()))
+	if (!!_command && _status == 0)
 	{
-		if (!_action->run(DataBuffer::Null()))
-			_status = StatusCode::InternalServerError;
-		else
-			_status = StatusCode::Success;
+		bool res = _command->run();
+		_status = _command->status();
+		if (_status == 0)
+			_status = res? StatusCode::Success : StatusCode::InternalServerError;
 	}
 
 	if (_status == 0)
@@ -85,7 +83,7 @@ int UserActionContext::onComplete()
 
 	_params.clear();
 	_url.clear();
-	_action.reset();
+	_command.reset();
 	_status = 0;
 	return 0;
 }

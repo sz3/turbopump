@@ -2,12 +2,18 @@
 #pragma once
 
 #include "main/IStatusReporter.h"
+#include "util/CallHistory.h"
 
 class MockStatusReporter : public IStatusReporter
 {
 public:
 	std::string status(const std::string& system) const
 	{
-		return system;
+		_history.call("status", system);
+		return _status;
 	}
+
+public:
+	std::string _status;
+	mutable CallHistory _history;
 };

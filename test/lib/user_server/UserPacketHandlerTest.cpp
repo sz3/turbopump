@@ -2,30 +2,34 @@
 #include "unittest.h"
 
 #include "UserPacketHandler.h"
+#include "api/Api.h"
+#include "api/Options.h"
 #include "http/HttpByteStream.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockConsistentHashRing.h"
-#include "mock/MockMembership.h"
-#include "mock/MockKeyTabulator.h"
-#include "mock/MockProcessState.h"
-#include "programmable/TurboApi.h"
+#include "mock/MockLocateKeys.h"
+#include "mock/MockMessageSender.h"
+#include "mock/MockSkewCorrector.h"
+#include "mock/MockStatusReporter.h"
+#include "mock/MockSynchronize.h"
 #include "socket/StringByteStream.h"
 
 TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 {
+	Turbopump::Options options;
+	MockSkewCorrector corrector;
 	MockDataStore dataStore;
-	MockConsistentHashRing ring;
-	MockMembership membership;
-	MockKeyTabulator keyTabulator;
-	MockProcessState state;
-	TurboApi callbacks;
+	MockLocateKeys locator;
+	MockMessageSender messenger;
+	MockStatusReporter reporter;
+	MockSynchronize sync;
 
-	state._summary = "dancing";
+	reporter._status = "dancing";
 
 	{
-		StringByteStream stream("GET /state HTTP/1.1\r\n\r\n");
+		StringByteStream stream("GET /status HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		UserPacketHandler board(httpStream, dataStore, ring, membership, keyTabulator, state, callbacks);
+		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, httpStream, options);
+		UserPacketHandler board(httpStream, api);
 		board.run();
 
 		assertEquals( "HTTP/1.1 200 Success\r\n"
@@ -39,17 +43,19 @@ TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 
 TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 {
+	Turbopump::Options options;
+	MockSkewCorrector corrector;
 	MockDataStore dataStore;
-	MockConsistentHashRing ring;
-	MockMembership membership;
-	MockKeyTabulator keyTabulator;
-	MockProcessState state;
-	TurboApi callbacks;
+	MockLocateKeys locator;
+	MockMessageSender messenger;
+	MockStatusReporter reporter;
+	MockSynchronize sync;
 
 	{
-		StringByteStream stream("GET /local_list?deleted=true&all=true HTTP/1.1\r\n\r\n");
+		StringByteStream stream("GET /list-keys?deleted=1&all=1 HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		UserPacketHandler board(httpStream, dataStore, ring, membership, keyTabulator, state, callbacks);
+		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, httpStream, options);
+		UserPacketHandler board(httpStream, api);
 		board.run();
 
 		assertEquals( "report(1,)", dataStore._history.calls() );

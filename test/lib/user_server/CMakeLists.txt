@@ -26,6 +26,7 @@ target_link_libraries(user_server_test
 	user_server
 
 	actions
+	api
 	common
 	hashing
 	membership
@@ -36,5 +37,7 @@ target_link_libraries(user_server_test
 	serialize
 	socket
 -Wl,--end-group
+
+	msgpack
 )
 

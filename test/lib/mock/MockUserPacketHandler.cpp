@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MockUserPacketHandler.h"
 
-#include "actions/IAction.h"
+#include "api/Command.h"
 #include "serialize/StringUtil.h"
 
 namespace {
@@ -14,7 +14,7 @@ namespace {
 }
 
 MockUserPacketHandler::MockUserPacketHandler()
-	: _action(NULL)
+	: _command(NULL)
 {}
 
 void MockUserPacketHandler::sendResponse(StatusCode status)
@@ -22,10 +22,10 @@ void MockUserPacketHandler::sendResponse(StatusCode status)
 	_history.call("sendResponse", status.str());
 }
 
-std::unique_ptr<IAction> MockUserPacketHandler::newAction(const std::string& actionName, const std::map<std::string,std::string>& params) const
+std::unique_ptr<Turbopump::Command> MockUserPacketHandler::command(const std::string& cmd, const std::unordered_map<std::string,std::string>& params) const
 {
-	_history.call("newAction", actionName, StringUtil::join(params));
-	std::unique_ptr<IAction> action(_action);
-	_action = NULL;
-	return action;
+	_history.call("command", cmd, StringUtil::join(params));
+	std::unique_ptr<Turbopump::Command> command(_command);
+	_command = NULL;
+	return command;
 }

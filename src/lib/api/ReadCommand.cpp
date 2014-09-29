@@ -25,9 +25,9 @@ bool ReadCommand::run(const char*, unsigned)
 		reader = _dataStore.read(params.name, params.version);
 
 	if (!reader)
-		return false;
+		return setStatus(404);
 	while (reader->read(_writer) > 0);
-	return true;
+	return setStatus(200);
 }
 
 Turbopump::Request* ReadCommand::request()

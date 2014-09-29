@@ -2,10 +2,10 @@
 #pragma once
 
 #include "http/StatusCode.h"
-#include <map>
 #include <memory>
 #include <string>
-class IAction;
+#include <unordered_map>
+namespace Turbopump { class Command; }
 
 class IUserPacketHandler
 {
@@ -13,5 +13,5 @@ public:
 	~IUserPacketHandler() {}
 
 	virtual void sendResponse(StatusCode status) = 0;
-	virtual std::unique_ptr<IAction> newAction(const std::string& actionName, const std::map<std::string,std::string>& params) const = 0;
+	virtual std::unique_ptr<Turbopump::Command> command(const std::string& cmd, const std::unordered_map<std::string,std::string>& params) const = 0;
 };

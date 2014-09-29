@@ -15,6 +15,7 @@ target_link_libraries(turbopump
 -Wl,--start-group
 	actions
 	actions_req
+	api
 	common
 	data_store
 	deskew
@@ -34,6 +35,7 @@ target_link_libraries(turbopump
 	udt_socket
 -Wl,--end-group
 
+	msgpack
 	pthread
 	tbb
 	udt

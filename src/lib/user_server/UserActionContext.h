@@ -1,12 +1,12 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "actions/IAction.h"
+#include "api/Command.h"
 #include "http/HttpParser.h"
 #include "http/StatusCode.h"
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 class IUserPacketHandler;
 
 class UserActionContext
@@ -29,6 +29,6 @@ protected:
 	StatusCode _status;
 
 	std::string _url;
-	std::unique_ptr<IAction> _action;
-	std::map<std::string,std::string> _params;
+	std::unique_ptr<Turbopump::Command> _command;
+	std::unordered_map<std::string,std::string> _params;
 };

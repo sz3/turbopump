@@ -17,6 +17,7 @@ TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 
 	assertEquals( "read(myfile)", store._history.calls() );
 	assertEquals( "foo", stream.writeBuffer() );
+	assertEquals( 200, command.status() );
 }
 
 TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
@@ -32,6 +33,7 @@ TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
 
 	assertEquals( "read(myfile,v2)", store._history.calls() );
 	assertEquals( "foo", stream.writeBuffer() );
+	assertEquals( 200, command.status() );
 }
 
 TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
@@ -45,4 +47,5 @@ TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
 
 	assertEquals( "read(myfile)", store._history.calls() );
 	assertEquals( "", stream.writeBuffer() );
+	assertEquals( 404, command.status() );
 }

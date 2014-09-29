@@ -32,10 +32,10 @@ public:
 		return _status;
 	}
 
-	bool setError(int code)
+	bool setStatus(int code)
 	{
 		_status = code;
-		return false;
+		return _status < 400;
 	}
 
 protected:

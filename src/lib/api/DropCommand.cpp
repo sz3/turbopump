@@ -18,19 +18,19 @@ bool DropCommand::run(const char*, unsigned)
 	{
 		std::vector<IDataStoreReader::ptr> reads = _dataStore.read(params.name);
 		if (reads.empty())
-			return false;
+			return setStatus(400);
 
 		params.copies = reads.front()->metadata().totalCopies;
 		if (_locator.keyIsMine(params.name, params.copies))
-			return false;
+			return setStatus(400);
 	}
 
 	if (!_dataStore.drop(params.name))
-		return false;
+		return setStatus(500);
 
 	if (_onDrop)
 		_onDrop(params);
-	return true;
+	return setStatus(200);
 }
 
 Turbopump::Request* DropCommand::request()

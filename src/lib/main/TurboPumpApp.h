@@ -2,9 +2,12 @@
 #pragma once
 
 #include "ProcessState.h"
+#include "StatusReporter.h"
 #include "WanServer.h"
 #include "actions_req/MessageSender.h"
 #include "actions_req/WriteSupervisor.h"
+#include "api/Api.h"
+#include "api/Options.h"
 #include "hashing/ConsistentHashRing.h"
 #include "hashing/LocateKeys.h"
 #include "data_store/RamDataStore.h"
@@ -35,8 +38,12 @@ public:
 
 protected:
 	Event _shutdown;
-	ProcessState _state;
 	StderrLogger _logger;
+	ProcessState _state;
+	StatusReporter _reporter;
+
+	// options
+	Turbopump::Options _options;
 
 	// plugins
 	Callbacks _callbacks;

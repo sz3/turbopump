@@ -2,36 +2,23 @@
 #pragma once
 
 #include "IUserPacketHandler.h"
-#include <map>
-#include <memory>
-#include <string>
 
-class IDataStore;
-class IConsistentHashRing;
+namespace Turbopump { class Api; }
 class IHttpByteStream;
-class IMembership;
-class IKeyTabulator;
-class IProcessState;
-class TurboApi;
 
 // "owns" the stream
 class UserPacketHandler : public IUserPacketHandler
 {
 public:
-	UserPacketHandler(IHttpByteStream& stream, IDataStore& dataStore, IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator, const IProcessState& state, const TurboApi& callbacks);
+	UserPacketHandler(IHttpByteStream& stream, Turbopump::Api& api);
 
 	void run();
 	void sendResponse(StatusCode status);
 
-	std::unique_ptr<IAction> newAction(const std::string& actionName, const std::map<std::string,std::string>& params) const;
+	std::unique_ptr<Turbopump::Command> command(const std::string& cmd, const std::unordered_map<std::string,std::string>& params) const;
 
 protected:
 	IHttpByteStream& _stream;
-	IDataStore& _dataStore;
-	IConsistentHashRing& _ring;
-	IMembership& _membership;
-	IKeyTabulator& _keyTabulator;
-	const IProcessState& _state;
-	const TurboApi& _callbacks;
+	Turbopump::Api& _api;
 };
 

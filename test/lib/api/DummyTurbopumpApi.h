@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Api.h"
+#include "api/Api.h"
 
-#include "Options.h"
+#include "api/Options.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMessageSender.h"

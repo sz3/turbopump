@@ -44,6 +44,7 @@ TEST_CASE( "WriteCommandTest/testDefault", "[unit]" )
 		assertTrue( command.run() );
 		assertTrue( command.finished() );
 		assertFalse( command.run("closed", 6) );
+		assertEquals( 200, command.status() );
 	}
 	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
 	assertEquals( "Writer::setOffset(0)|Writer::write(0123456789)|Writer::write(abcde)|commit(foobar.txt,{0},3)", dataStore._history.calls() );
@@ -71,6 +72,7 @@ TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )
 
 		assertTrue( command.run() );
 		assertTrue( command.finished() );
+		assertEquals( 200, command.status() );
 	}
 	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
 	assertEquals( "Writer::setOffset(20)|Writer::write(0123456789)|commit(foobar.txt,{1,v1:1},5)", dataStore._history.calls() );
@@ -164,7 +166,7 @@ TEST_CASE( "WriteCommandTest/testBadName", "[unit]" )
 
 		assertFalse( command.run() );
 		assertTrue( command.finished() );
-		assertEquals( 400, command.status().integer() );
+		assertEquals( 400, command.status() );
 	}
 	assertEquals( "", _history.calls() );
 }
@@ -220,6 +222,7 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "[unit]" )
 			assertTrue( command.run(buff.data(), buff.size()) );
 		assertTrue( command.run() );
 		assertTrue( command.finished() );
+		assertEquals( 200, command.status() );
 	}
 	assertEquals( 65536, dataStore._store["bigfile.txt"].size() );
 	assertEquals( "onCommit(bigfile.txt,65536,1)", _history.calls() );
@@ -239,6 +242,7 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Split", "[unit]" )
 			assertTrue( command.run(buff.data(), buff.size()) );
 		assertTrue( command.run() );
 		assertTrue( command.finished() );
+		assertEquals( 200, command.status() );
 	}
 	assertEquals( 66000, dataStore._store["bigfile.txt"].size() );
 	assertEquals( "onCommit(bigfile.txt,0,65536,0)|onCommit(bigfile.txt,65536,66000,1)", _history.calls() );

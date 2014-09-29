@@ -58,11 +58,11 @@ bool WriteCommand::commit()
 	_finished = true;
 	_instructions.isComplete = true;
 	if ( !flush() )
-		return false;
+		return setStatus(500);
 
 	_writer.reset();
 	_instructions.outstream.reset();
-	return true;
+	return setStatus(200);
 }
 
 // now: [data]
@@ -80,7 +80,7 @@ bool WriteCommand::run(const char* buff, unsigned size)
 		if (_instructions.name.empty())
 		{
 			_finished = true;
-			return setError(400);
+			return setStatus(400);
 		}
 		_writer = _dataStore.write(_instructions.name);
 		_writer->setOffset(_instructions.offset);
