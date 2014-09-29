@@ -1,35 +1,35 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "UserActionContext.h"
+#include "UserCommandContext.h"
 #include "mock/MockCommand.h"
 #include "mock/MockUserPacketHandler.h"
 using std::string;
 
 namespace {
-	class TestableUserActionContext : public UserActionContext
+	class TestableUserCommandContext : public UserCommandContext
 	{
 	public:
-		TestableUserActionContext(IUserPacketHandler& handler)
-			: UserActionContext(handler)
+		TestableUserCommandContext(IUserPacketHandler& handler)
+			: UserCommandContext(handler)
 		{}
 
-		using UserActionContext::onBegin;
-		using UserActionContext::onBody;
-		using UserActionContext::onComplete;
-		using UserActionContext::onUrl;
+		using UserCommandContext::onBegin;
+		using UserCommandContext::onBody;
+		using UserCommandContext::onComplete;
+		using UserCommandContext::onUrl;
 
-		using UserActionContext::_status;
-		using UserActionContext::_command;
-		using UserActionContext::_params;
-		using UserActionContext::_url;
+		using UserCommandContext::_status;
+		using UserCommandContext::_command;
+		using UserCommandContext::_params;
+		using UserCommandContext::_url;
 	};
 }
 
-TEST_CASE( "UserActionContextTest/testFeed", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testFeed", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	UserActionContext context(handler);
+	UserCommandContext context(handler);
 
 	handler._command = new MockCommand;
 	string buff = "GET /list-keys?deleted=1&all=1 HTTP/1.1\r\n\r\n";
@@ -38,10 +38,10 @@ TEST_CASE( "UserActionContextTest/testFeed", "[unit]" )
 	assertEquals( "command(list-keys,all=1 deleted=1)|sendResponse(200)", handler._history.calls() );
 }
 
-TEST_CASE( "UserActionContextTest/testFeed.Minimal", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testFeed.Minimal", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	UserActionContext context(handler);
+	UserCommandContext context(handler);
 
 	handler._command = new MockCommand;
 	string buff = "GET /status HTTP/1.1\r\n\r\n";
@@ -50,10 +50,10 @@ TEST_CASE( "UserActionContextTest/testFeed.Minimal", "[unit]" )
 	assertEquals( "command(status,)|sendResponse(200)", handler._history.calls() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnUrl", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnUrl", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	string url = "/hello";
 	assertEquals( 0, context.onUrl(url.data(), url.size()) );
@@ -66,10 +66,10 @@ TEST_CASE( "UserActionContextTest/testOnUrl", "[unit]" )
 	assertEquals( "", handler._history.calls() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnUrl.Fails", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnUrl.Fails", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 	context._command.reset(new MockCommand);
 
 	string url = "/hello";
@@ -81,10 +81,10 @@ TEST_CASE( "UserActionContextTest/testOnUrl.Fails", "[unit]" )
 	assertEquals( "", context._url );
 }
 
-TEST_CASE( "UserActionContextTest/testOnBegin", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnBegin", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	handler._command = new MockCommand;
 	context._url = "/foourl";
@@ -96,10 +96,10 @@ TEST_CASE( "UserActionContextTest/testOnBegin", "[unit]" )
 	assertNotNull( context._command.get() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnBegin.BadUrl", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnBegin.BadUrl", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	handler._command = new MockCommand;
 	context._url = "";
@@ -111,10 +111,10 @@ TEST_CASE( "UserActionContextTest/testOnBegin.BadUrl", "[unit]" )
 	assertNull( context._command.get() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnBody", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnBody", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	context._command.reset(new MockCommand);
 	string body = "foobar";
@@ -125,10 +125,10 @@ TEST_CASE( "UserActionContextTest/testOnBody", "[unit]" )
 	assertEquals( "", handler._history.calls() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnBody.Empty", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnBody.Empty", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	context._command.reset(new MockCommand);
 
@@ -138,10 +138,10 @@ TEST_CASE( "UserActionContextTest/testOnBody.Empty", "[unit]" )
 	assertEquals( "", handler._history.calls() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnBody.NoAction", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnBody.NoCommand", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	string body = "foobar";
 
@@ -150,10 +150,10 @@ TEST_CASE( "UserActionContextTest/testOnBody.NoAction", "[unit]" )
 	assertEquals( "", handler._history.calls() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnComplete", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnComplete", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	context._url = "foobar";
 	context._command.reset(new MockCommand);
@@ -165,10 +165,10 @@ TEST_CASE( "UserActionContextTest/testOnComplete", "[unit]" )
 	assertNull( context._command.get() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnComplete.WithExistingStatus", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnComplete.WithExistingStatus", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	context._url = "foobar";
 	context._status = 123;
@@ -181,10 +181,10 @@ TEST_CASE( "UserActionContextTest/testOnComplete.WithExistingStatus", "[unit]" )
 	assertNull( context._command.get() );
 }
 
-TEST_CASE( "UserActionContextTest/testOnComplete.BadAction", "[unit]" )
+TEST_CASE( "UserCommandContextTest/testOnComplete.BadCommand", "[unit]" )
 {
 	MockUserPacketHandler handler;
-	TestableUserActionContext context(handler);
+	TestableUserCommandContext context(handler);
 
 	context._url = "foobar";
 	context._status = 0;

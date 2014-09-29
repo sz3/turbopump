@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
 	IUserPacketHandler.h
-	UserActionContext.cpp
-	UserActionContext.h
+	UserCommandContext.cpp
+	UserCommandContext.h
 	UserPacketHandler.cpp
 	UserPacketHandler.h
 )

@@ -4,7 +4,7 @@ project(user_server_test)
 
 set (SOURCES
 	test.cpp
-	UserActionContextTest.cpp
+	UserCommandContextTest.cpp
 	UserPacketHandlerTest.cpp
 )
 

@@ -9,10 +9,10 @@
 #include <unordered_map>
 class IUserPacketHandler;
 
-class UserActionContext
+class UserCommandContext
 {
 public:
-	UserActionContext(IUserPacketHandler& handler);
+	UserCommandContext(IUserPacketHandler& handler);
 
 	bool feed(const char* buff, unsigned len);
 	StatusCode status() const;

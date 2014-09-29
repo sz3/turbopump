@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "UserPacketHandler.h"
 
-#include "UserActionContext.h"
+#include "UserCommandContext.h"
 #include "api/Api.h"
 #include "http/IHttpByteStream.h"
 #include "http/StatusCode.h"
@@ -16,7 +16,7 @@ UserPacketHandler::UserPacketHandler(IHttpByteStream& stream, Turbopump::Api& ap
 
 void UserPacketHandler::run()
 {
-	UserActionContext actionContext(*this);
+	UserCommandContext context(*this);
 	std::vector<char> buff;
 	buff.resize(8192);
 
@@ -26,7 +26,7 @@ void UserPacketHandler::run()
 		if (bytesRead <= 0)
 			break;
 
-		if (!actionContext.feed(buff.data(), bytesRead))
+		if (!context.feed(buff.data(), bytesRead))
 			break;
 	}
 }

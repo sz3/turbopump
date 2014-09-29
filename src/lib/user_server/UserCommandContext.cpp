@@ -1,5 +1,5 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "UserActionContext.h"
+#include "UserCommandContext.h"
 
 #include "IUserPacketHandler.h"
 #include "http/Url.h"
@@ -9,27 +9,27 @@
 using std::string;
 using namespace std::placeholders;
 
-UserActionContext::UserActionContext(IUserPacketHandler& handler)
+UserCommandContext::UserCommandContext(IUserPacketHandler& handler)
 	: _handler(handler)
 	, _status(0)
 {
-	_parser.setOnUrl( std::bind(&UserActionContext::onUrl, this, _1, _2) );
-	_parser.setOnHeadersComplete( std::bind(&UserActionContext::onBegin, this, _1) );
-	_parser.setOnBody( std::bind(&UserActionContext::onBody, this, _1, _2) );
-	_parser.setOnMessageComplete( std::bind(&UserActionContext::onComplete, this) );
+	_parser.setOnUrl( std::bind(&UserCommandContext::onUrl, this, _1, _2) );
+	_parser.setOnHeadersComplete( std::bind(&UserCommandContext::onBegin, this, _1) );
+	_parser.setOnBody( std::bind(&UserCommandContext::onBody, this, _1, _2) );
+	_parser.setOnMessageComplete( std::bind(&UserCommandContext::onComplete, this) );
 }
 
-bool UserActionContext::feed(const char* buff, unsigned len)
+bool UserCommandContext::feed(const char* buff, unsigned len)
 {
 	return _parser.parseBuffer(buff, len);
 }
 
-StatusCode UserActionContext::status() const
+StatusCode UserCommandContext::status() const
 {
 	return _status;
 }
 
-int UserActionContext::onUrl(const char* data, size_t len)
+int UserCommandContext::onUrl(const char* data, size_t len)
 {
 	// we shouldn't have a command at this point.
 	// If we do, somebody effed up the protocol (either us or the client) ...
@@ -42,7 +42,7 @@ int UserActionContext::onUrl(const char* data, size_t len)
 	return 1;
 }
 
-int UserActionContext::onBegin(HttpParser::Status status)
+int UserCommandContext::onBegin(HttpParser::Status status)
 {
 	Url url(_url);
 	std::vector<string> parts = url.components();
@@ -53,7 +53,7 @@ int UserActionContext::onBegin(HttpParser::Status status)
 	return 0;
 }
 
-int UserActionContext::onBody(const char* data, size_t len)
+int UserCommandContext::onBody(const char* data, size_t len)
 {
 	// that is, if the command is bad, just eat the body and do nothing w/ it
 	// we'll be complaining back to the client momentarily. :)
@@ -67,7 +67,7 @@ int UserActionContext::onBody(const char* data, size_t len)
 	return 0;
 }
 
-int UserActionContext::onComplete()
+int UserCommandContext::onComplete()
 {
 	if (!!_command && _status == 0)
 	{
