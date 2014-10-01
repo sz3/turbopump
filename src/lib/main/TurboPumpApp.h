@@ -8,13 +8,13 @@
 #include "actions_req/WriteSupervisor.h"
 #include "api/Api.h"
 #include "api/Options.h"
-#include "hashing/ConsistentHashRing.h"
-#include "hashing/LocateKeys.h"
 #include "data_store/RamDataStore.h"
 #include "deskew/KeyTabulator.h"
 #include "deskew/ThreadLockedKeyTabulator.h"
 #include "deskew/SkewCorrector.h"
 #include "deskew/Synchronizer.h"
+#include "hashing/ConsistentHashRing.h"
+#include "hashing/LocateKeys.h"
 #include "logging/StderrLogger.h"
 #include "membership/Membership.h"
 #include "programmable/Callbacks.h"
@@ -24,6 +24,7 @@
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
 #include "socket/LocalStreamSocketServer.h"
+#include "socket/NullByteStream.h"
 #include <string>
 
 class TurboPumpApp
@@ -42,8 +43,10 @@ protected:
 	ProcessState _state;
 	StatusReporter _reporter;
 
-	// options
+	// options, api
 	Turbopump::Options _options;
+	Turbopump::Api _api;
+	NullByteStream _fakeWriter;
 
 	// plugins
 	Callbacks _callbacks;

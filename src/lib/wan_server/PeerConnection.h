@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 #include "tbb/concurrent_queue.h"
-class IAction;
+namespace Turbopump { class Command; }
 class VirtualConnection;
 
 // role of this class
@@ -28,7 +28,7 @@ public:
 
 	VirtualConnection& operator[](unsigned char vid);
 	VirtualConnection& virt(unsigned char vid);
-	std::shared_ptr<IAction> action(unsigned char vid);
+	std::shared_ptr<Turbopump::Command> command(unsigned char vid);
 
 protected:
 	std::atomic_flag _processing = ATOMIC_FLAG_INIT;

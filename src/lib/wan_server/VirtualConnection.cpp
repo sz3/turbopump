@@ -1,16 +1,14 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "VirtualConnection.h"
 
-#include <iostream>
-
-void VirtualConnection::setAction(const std::shared_ptr<IAction>& action)
+void VirtualConnection::setCommand(const std::shared_ptr<Turbopump::Command>& command)
 {
-	_action = action;
+	_command = command;
 }
 
-const std::shared_ptr<IAction>& VirtualConnection::action() const
+const std::shared_ptr<Turbopump::Command>& VirtualConnection::command() const
 {
-	return _action;
+	return _command;
 }
 
 void VirtualConnection::push(std::string buffer)

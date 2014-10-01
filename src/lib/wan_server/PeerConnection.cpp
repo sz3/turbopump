@@ -53,10 +53,10 @@ VirtualConnection& PeerConnection::virt(unsigned char vid)
 	return *vii;
 }
 
-std::shared_ptr<IAction> PeerConnection::action(unsigned char vid)
+std::shared_ptr<Turbopump::Command> PeerConnection::command(unsigned char vid)
 {
 	std::shared_ptr<VirtualConnection>& vii = _virts[vid];
 	if (!vii)
 		return NULL;
-	return vii->action();
+	return vii->command();
 }

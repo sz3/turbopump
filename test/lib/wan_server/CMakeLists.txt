@@ -27,7 +27,7 @@ target_link_libraries(wan_server_test
 -Wl,--start-group
 	wan_server
 
-	actions
+	api
 	common
 	hashing
 	membership
@@ -39,6 +39,7 @@ target_link_libraries(wan_server_test
 	socket
 -Wl,--end-group
 
+	msgpack
 	tbb
 )
 

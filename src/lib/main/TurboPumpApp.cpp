@@ -14,6 +14,7 @@ using namespace std::placeholders;
 TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
 	: _logger(socket_address("127.0.0.1", port).toString())
 	, _reporter(_ring, _membership, _state)
+	, _api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, _fakeWriter, _options)
 	, _callbacks(instruct)
 	, _keyTabulator(_keyLocator)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
@@ -25,7 +26,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _keyLocator(_ring, _membership)
 	, _peers(_wanServer)
 	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
-	, _wanPacketHandler(_wanExecutor, _corrector, _localDataStore, _ring, _keyLocator, _membership, _messenger, _peers, _synchronizer, _logger, _callbacks)
+	, _wanPacketHandler(_api, _wanExecutor, _membership, _peers, _logger)
 	, _wanServer(instruct.options, socket_address("127.0.0.1", port), std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
 {
 	_callbacks.initialize(_ring, _keyLocator, _membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);

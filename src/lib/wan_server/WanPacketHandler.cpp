@@ -5,28 +5,18 @@
 #include "PacketParser.h"
 #include "PeerConnection.h"
 #include "VirtualConnection.h"
-#include "actions/AckWriteAction.h"
-#include "actions/DemandWriteAction.h"
-#include "actions/DropAction.h"
-#include "actions/HealKeyAction.h"
-#include "actions/KeyReqAction.h"
-#include "actions/OfferWriteAction.h"
-#include "actions/ReadAction.h"
-#include "actions/SyncAction.h"
-#include "actions/WriteAction.h"
 
-#include "common/ActionParser.h"
+#include "api/Api.h"
 #include "common/DataBuffer.h"
-#include "data_store/IDataStore.h"
 #include "event/IExecutor.h"
 #include "logging/ILog.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
-#include "programmable/TurboApi.h"
+#include "wan_server/IPeerTracker.h"
+
 #include "serialize/StringUtil.h"
 #include "socket/ISocketWriter.h"
 #include "socket/socket_address.h"
-
 #include <iostream>
 #include <memory>
 #include <thread>
@@ -34,20 +24,12 @@
 using std::string;
 using std::shared_ptr;
 
-WanPacketHandler::WanPacketHandler(IExecutor& executor, ICorrectSkew& corrector, IDataStore& dataStore, const IConsistentHashRing& ring, const ILocateKeys& locator,
-								   const IMembership& membership, IMessageSender& messenger, IPeerTracker& peers, ISynchronize& sync,
-								   ILog& logger, const TurboApi& callbacks)
-	: _executor(executor)
-	, _corrector(corrector)
-	, _dataStore(dataStore)
-	, _ring(ring)
-	, _locator(locator)
+WanPacketHandler::WanPacketHandler(Turbopump::Api& api, IExecutor& executor, const IMembership& membership, IPeerTracker& peers, ILog& logger)
+	: _api(api)
+	, _executor(executor)
 	, _membership(membership)
-	, _messenger(messenger)
 	, _peers(peers)
-	, _sync(sync)
 	, _logger(logger)
-	, _callbacks(callbacks)
 {
 }
 
@@ -106,15 +88,15 @@ void WanPacketHandler::doWork(std::weak_ptr<Peer> weakPeer, std::weak_ptr<PeerCo
 	//std::cout << "   WanPacketHandler::doWork(" << std::this_thread::get_id() << ") for " << peer->uid << std::endl;
 
 	do {
-		processPendingBuffers(*peer, *conn);
+		processPendingBuffers(peer, *conn);
 		conn->end_processing();
 	}
 	while (!conn->empty() && conn->begin_processing());
 }
 
-void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& conn)
+void WanPacketHandler::processPendingBuffers(const std::shared_ptr<Peer>& peer, PeerConnection& conn)
 {
-	_logger.logTrace("beginning processing for " + peer.uid);
+	_logger.logTrace("beginning processing for " + peer->uid);
 
 	string buffer;
 	while (conn.popRecv(buffer))
@@ -128,74 +110,47 @@ void WanPacketHandler::processPendingBuffers(const Peer& peer, PeerConnection& c
 			unsigned char virtid;
 			if (!packetGrabber.getNext(virtid, buff))
 			{
-				std::cout << "throwing out '" << buffer << "' from " << peer.uid << std::endl;
+				std::cout << "throwing out '" << buffer << "' from " << peer->uid << std::endl;
 				break;
 			}
 
-			// TODO: implement action teardown, and only attempt to parse the packet if there is no action
-			ActionParser parser;
-			std::shared_ptr<IAction> action(conn.action(virtid));
-			if (!action || !action->good())
+			// TODO: teardown for long lived commands (Writes) is non existent, and a catastrophe.
+			std::shared_ptr<Turbopump::Command> command(conn.command(virtid));
+			if (!command || command->finished())
 			{
-				if (parser.parse(buff))
+				PacketParser commandFinder(buff);
+				unsigned char cid = 0;
+				DataBuffer commandBuff(buff);
+				if (commandFinder.getNext(cid, commandBuff))
 				{
-					_logger.logTrace("received action '" + buffer + "' from " + peer.uid + ". virt " + StringUtil::str((unsigned)virtid) + ", action = " + parser.action());
-					action = newAction(peer, parser.action(), parser.params());
-					if (!action)
+					_logger.logTrace("received command '" + buffer + "' from " + peer->uid + ". virt " + StringUtil::str((unsigned)virtid) + ", command = " + StringUtil::str((unsigned)cid));
+					command = _api.command(cid, commandBuff);
+					if (!command)
 						continue;
-					if (action->multiPacket())
+					command->setPeer(peer);
+
+					if (!command->finished())
 					{
-						//std::cout << "action is multipacket! " << action->name() << std::endl;
+						//std::cout << "command is multipacket! " << command->name() << std::endl;
 						VirtualConnection& virt = conn[virtid];
-						virt.setAction(action);
+						virt.setCommand(command);
 
 						//cleanup pending virt data
 						string pending;
 						while (virt.pop(pending))
-							action->run( DataBuffer(pending.data(), pending.size()) );
+							command->run( pending.data(), pending.size() );
 					}
 				}
 				else
 				{
-					std::cout << "   connection " << peer.uid << ":" << (unsigned)virtid << " saved packet of size " << buff.size() << std::endl;
+					std::cout << "   connection " << peer->uid << ":" << (unsigned)virtid << " saved packet of size " << buff.size() << std::endl;
 					//conn[virtid].push( buff.str() );
 					break;
 				}
 			}
 			//_logger.logDebug("received packet '" + buff.str() + "' from " + peer.uid + ". Calling " + action->name());
-			action->run(buff);
+			command->run(buff.buffer(), buff.size());
 		}
 	}
-	_logger.logTrace("ending processing for " + peer.uid);
-}
-
-std::shared_ptr<IAction> WanPacketHandler::newAction(const Peer& peer, const string& cmdname, const std::map<string,string>& params)
-{
-	std::shared_ptr<IAction> action;
-	if (cmdname == "write")
-	{
-		_logger.logDebug("peer " + peer.uid + " is sending me a file! " + params.find("name")->second);
-		action.reset(new WriteAction(_dataStore, _callbacks.when_mirror_write_finishes));
-	}
-	else if (cmdname == "ack-write")
-		action.reset(new AckWriteAction(_dataStore, _locator, _callbacks.when_drop_finishes));
-	else if (cmdname == "drop")
-		action.reset(new DropAction(_dataStore, _locator, _callbacks.when_drop_finishes));
-	else if (cmdname == "sync")
-		action.reset(new SyncAction(peer, _sync));
-	else if (cmdname == "key-req")
-		action.reset(new KeyReqAction(peer, _corrector));
-	else if (cmdname == "heal-key")
-		action.reset(new HealKeyAction(peer, _corrector));
-	else if (cmdname == "offer-write")
-		action.reset(new OfferWriteAction(peer, _dataStore, _messenger));
-	else if (cmdname == "demand-write")
-		action.reset(new DemandWriteAction(peer, _corrector));
-	//else if (cmdname == "ip")
-		//action.reset(new IpUpdateAction());
-	else
-		return action;
-
-	action->setParams(params);
-	return action;
+	_logger.logTrace("ending processing for " + peer->uid);
 }
