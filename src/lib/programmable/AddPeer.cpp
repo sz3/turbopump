@@ -1,9 +1,8 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "AddPeer.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "common/turbopump_defaults.h"
-#include "data_store/DataEntry.h"
 #include "deskew/IKeyTabulator.h"
 #include "hashing/IConsistentHashRing.h"
 #include "membership/IMembership.h"
@@ -17,11 +16,11 @@ AddPeer::AddPeer(IConsistentHashRing& ring, IMembership& membership, IKeyTabulat
 {
 }
 
-bool AddPeer::run(WriteParams& params, IDataStoreReader::ptr contents)
+bool AddPeer::run(WriteInstructions& params, IDataStoreReader::ptr contents)
 {
-	if (params.filename.find(MEMBERSHIP_FILE_PREFIX) == string::npos)
+	if (params.name.find(MEMBERSHIP_FILE_PREFIX) == string::npos)
 		return false;
-	string uid = params.filename.substr(MEMBERSHIP_FILE_PREFIX_LENGTH-1);
+	string uid = params.name.substr(MEMBERSHIP_FILE_PREFIX_LENGTH-1);
 
 	StringByteStream stream;
 	contents->read(stream);

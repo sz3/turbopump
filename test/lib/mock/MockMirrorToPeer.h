@@ -5,14 +5,14 @@
 class ILocateKeys;
 class IMembership;
 class Peer;
-class WriteParams;
+class WriteInstructions;
 
 class MockMirrorToPeer
 {
 public:
 	MockMirrorToPeer(const ILocateKeys& locator, const IMembership& membership);
 
-	bool chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer);
+	bool chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>& peer);
 
 	static void failOnce();
 	static std::string calls();

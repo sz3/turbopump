@@ -4,14 +4,14 @@
 #include "data_store/IDataStoreReader.h"
 class IMembership;
 class IMessageSender;
-class WriteParams;
+class WriteInstructions;
 
 class NotifyWriteComplete
 {
 public:
 	NotifyWriteComplete(const IMembership& membership, IMessageSender& messenger);
 
-	void run(WriteParams& params, IDataStoreReader::ptr contents);
+	void run(WriteInstructions& params, IDataStoreReader::ptr contents);
 
 protected:
 	const IMembership& _membership;

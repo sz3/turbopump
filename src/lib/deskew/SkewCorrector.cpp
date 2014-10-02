@@ -3,9 +3,9 @@
 
 #include "IKeyTabulator.h"
 #include "IDigestKeys.h"
-#include "actions/WriteParams.h"
 #include "actions_req/IMessageSender.h"
 #include "actions_req/ISuperviseWrites.h"
+#include "api/WriteInstructions.h"
 #include "common/KeyMetadata.h"
 #include "data_store/IDataStore.h"
 #include "deskew/TreeId.h"
@@ -65,9 +65,13 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);
 		for (auto read = readers.begin(); read != readers.end(); ++read)
 		{
-			// WriteParams sets mirror to totalCopies => "don't forward, and notify the source if there is one"
+			// WriteInstructions sets mirror to totalCopies => "don't forward, and notify the source if there is one"
 			unsigned totalCopies = (*read)->metadata().totalCopies;
-			WriteParams write(*it, totalCopies, totalCopies, (*read)->metadata().version.toString(), 0);
+			WriteInstructions write;
+			write.name = *it;
+			write.copies = totalCopies;
+			write.mirror = totalCopies;
+			write.version = (*read)->metadata().version.toString();
 			if (!offloadFrom.empty())
 				write.source = offloadFrom;
 			write.isComplete = true;
@@ -87,7 +91,11 @@ bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std
 		return false;
 
 	unsigned totalCopies = reader->metadata().totalCopies;
-	WriteParams write(name, totalCopies, totalCopies, version, 0);
+	WriteInstructions write;
+	write.name = name;
+	write.copies = totalCopies;
+	write.mirror = totalCopies;
+	write.version = version;
 	write.source = source;
 	write.isComplete = true;
 

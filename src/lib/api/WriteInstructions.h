@@ -2,13 +2,24 @@
 #pragma once
 
 #include "Write.h"
-#include "common/turbopump_defaults.h"
 #include <memory>
-#include <string>
 class ConnectionWriteStream;
 
 struct WriteInstructions : public Turbopump::Write
 {
+	WriteInstructions()
+		: Turbopump::Write()
+	{}
+
+	WriteInstructions(const std::string& name, const std::string& version, short mirror, short copies)
+		: Turbopump::Write()
+	{
+		this->name = name;
+		this->version = version;
+		this->mirror = mirror;
+		this->copies = copies;
+	}
+
 	std::shared_ptr<ConnectionWriteStream> outstream;
-	bool isComplete = 0;
+	bool isComplete = false;
 };

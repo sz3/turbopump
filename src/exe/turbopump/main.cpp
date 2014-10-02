@@ -1,6 +1,6 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
+#include "api/Options.h"
 #include "main/TurboPumpApp.h"
-#include "programmable/TurboApi.h"
 
 #include "optionparser/ezOptionParser.hpp"
 #include <memory>
@@ -58,17 +58,17 @@ int main(int argc, const char** argv)
 	}
 
 	std::cout << turbopath << ":" << port << std::endl;
-	TurboApi api;
+	Turbopump::Options options;
 	if (opt.isSet("--clone"))
-		api.options.partition_keys = false;
+		options.partition_keys = false;
 	if (opt.isSet("--no-write-chaining"))
-		api.options.write_chaining = false;
+		options.write_chaining = false;
 	if (opt.isSet("--no-active-sync"))
-		api.options.active_sync = false;
+		options.active_sync = false;
 	if (opt.isSet("--udp"))
-		api.options.udt = false;
+		options.udt = false;
 
-	_app.reset( new TurboPumpApp(api, turbopath, port) );
+	_app.reset( new TurboPumpApp(options, turbopath, port) );
 
 	::signal(SIGINT, &onShutdown);
 	::signal(SIGPIPE, SIG_IGN); // may use SO_NOSIGPIPE and/or MSG_NOSIGNAL instead...

@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "integration/TurboRunner.h"
 #include "main/TurboPumpApp.h"
 
@@ -26,9 +26,9 @@ using std::string;
 class IntegratedTurboRunner : public TurboRunner
 {
 public:
-	IntegratedTurboRunner(const TurboApi& api, short port)
+	IntegratedTurboRunner(const Turbopump::Options& opts, short port)
 		: TurboRunner(port)
-		, _app(api, dataChannel(), port)
+		, _app(opts, dataChannel(), port)
 		, _thread(std::bind(&TurboPumpApp::run, &_app))
 	{
 		::signal(SIGPIPE, SIG_IGN);
@@ -74,13 +74,13 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 {
 	createMemberFile();
 
-	TurboApi api;
-	api.options.active_sync = true;
-	api.options.write_chaining = false;
-	api.options.partition_keys = false;
+	Turbopump::Options opts;
+	opts.active_sync = true;
+	opts.write_chaining = false;
+	opts.partition_keys = false;
 
-	IntegratedTurboRunner workerOne(api, 9001);
-	IntegratedTurboRunner workerTwo(api, 9002);
+	IntegratedTurboRunner workerOne(opts, 9001);
+	IntegratedTurboRunner workerTwo(opts, 9002);
 
 	workerOne.waitForRunning();
 	workerTwo.waitForRunning();
@@ -165,10 +165,10 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	const unsigned numFiles = 5;
 	createMemberFile();
 
-	TurboApi api;
-	api.options.active_sync = false;
-	api.options.write_chaining = true;
-	api.options.partition_keys = false;
+	Turbopump::Options opts;
+	opts.active_sync = false;
+	opts.write_chaining = true;
+	opts.partition_keys = false;
 
 	// create all checkpoints while we're on an orderly single thread.
 	// the callbacks will be chaotic, but as long as all our map allocations are done, we should be fine
@@ -176,13 +176,13 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	for (unsigned i = 0; i < numFiles; ++i)
 		checkpoints[StringUtil::str(i)];
 
-	api.when_local_write_finishes = api.when_mirror_write_finishes = [&checkpoints] (WriteParams params, IDataStoreReader::ptr)
+	opts.when_local_write_finishes = opts.when_mirror_write_finishes = [&checkpoints] (WriteInstructions& params, IDataStoreReader::ptr)
 	{
-		checkpoints[params.filename].add();
+		checkpoints[params.name].add();
 	};
 
-	IntegratedTurboRunner workerOne(api, 9001);
-	IntegratedTurboRunner workerTwo(api, 9002);
+	IntegratedTurboRunner workerOne(opts, 9001);
+	IntegratedTurboRunner workerTwo(opts, 9002);
 
 	workerOne.waitForRunning();
 	workerTwo.waitForRunning();
@@ -235,13 +235,13 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 	::signal(SIGPIPE, SIG_IGN);
 	createMemberFile();
 
-	TurboApi api;
-	api.options.active_sync = false;
-	api.options.write_chaining = true;
-	api.options.partition_keys = false;
+	Turbopump::Options opts;
+	opts.active_sync = false;
+	opts.write_chaining = true;
+	opts.partition_keys = false;
 
-	IntegratedTurboRunner workerOne(api, 9001);
-	IntegratedTurboRunner workerTwo(api, 9002);
+	IntegratedTurboRunner workerOne(opts, 9001);
+	IntegratedTurboRunner workerTwo(opts, 9002);
 
 	workerOne.waitForRunning();
 	workerTwo.waitForRunning();

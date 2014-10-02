@@ -4,7 +4,7 @@
 #include "socket/UdpServer.h"
 #include "udt_socket/UdtServer.h"
 
-WanServer::WanServer(const TurboApi::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket)
+WanServer::WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket)
 {
 	if (opts.udt)
 		_server.reset( new UdtServer(addr, onPacket) );

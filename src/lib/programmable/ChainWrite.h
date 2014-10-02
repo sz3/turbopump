@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "actions_req/ISuperviseWrites.h"
 #include "data_store/IDataStoreReader.h"
 
@@ -20,7 +20,7 @@ public:
 		, _blocking(blocking)
 	{}
 
-	bool run(WriteParams& params, IDataStoreReader::ptr contents)
+	bool run(WriteInstructions& params, IDataStoreReader::ptr contents)
 	{
 		if (!params.outstream)
 		{

@@ -11,11 +11,12 @@
 #include <iostream>
 using namespace std::placeholders;
 
-TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port)
+TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& streamSocket, short port)
 	: _logger(socket_address("127.0.0.1", port).toString())
 	, _reporter(_ring, _membership, _state)
+	, _options(opts)
 	, _api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, _fakeWriter, _options)
-	, _callbacks(instruct)
+	, _callbacks(_options)
 	, _keyTabulator(_keyLocator)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
 	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeSupervisor, _logger)
@@ -27,7 +28,7 @@ TurboPumpApp::TurboPumpApp(const TurboApi& instruct, const std::string& streamSo
 	, _peers(_wanServer)
 	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
 	, _wanPacketHandler(_api, _wanExecutor, _membership, _peers, _logger)
-	, _wanServer(instruct.options, socket_address("127.0.0.1", port), std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
+	, _wanServer(_options, socket_address("127.0.0.1", port), std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
 {
 	_callbacks.initialize(_ring, _keyLocator, _membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
 }
@@ -45,7 +46,7 @@ void TurboPumpApp::run()
 		_membership.addSelf();
 	}
 
-	if (_callbacks.options.partition_keys)
+	if (_options.partition_keys)
 	{
 		ConsistentHashRing& ring(_ring);
 		auto fun = [&ring] (const Peer& peer) { ring.insert(peer.uid, peer.uid); };

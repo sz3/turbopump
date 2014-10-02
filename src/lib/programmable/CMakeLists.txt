@@ -12,7 +12,6 @@ set(SOURCES
 	NotifyWriteComplete.h
 	RandomizedMirrorToPeer.cpp
 	RandomizedMirrorToPeer.h
-	TurboApi.h
 )
 
 include_directories(

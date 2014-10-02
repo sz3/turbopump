@@ -3,7 +3,7 @@
 
 #include "ChainWrite.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "data_store/IDataStoreReader.h"
 #include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
@@ -30,7 +30,7 @@ TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 	// output
 	supervisor._writer.reset(new MockBufferedConnectionWriter());
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	assertTrue( command.run(params, reader) );
 
 	assertFalse( !params.outstream );
@@ -55,7 +55,7 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 	// output
 	supervisor._writer.reset(new MockBufferedConnectionWriter());
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	assertFalse( command.run(params, reader) );
 
 	assertTrue( !params.outstream );
@@ -78,7 +78,7 @@ TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 	// output
 	// nope!
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	assertFalse( command.run(params, reader) );
 
 	assertTrue( !params.outstream );
@@ -101,7 +101,7 @@ TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 	// output
 	supervisor._writer.reset(new MockBufferedConnectionWriter());
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	assertTrue( command.run(params, reader) );
 
 	assertFalse( !params.outstream );

@@ -21,7 +21,6 @@ add_test(standup_test standup_test)
 
 target_link_libraries(standup_test
 -Wl,--start-group
-	actions
 	actions_req
 	api
 	common

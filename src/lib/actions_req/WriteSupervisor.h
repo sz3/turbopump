@@ -9,10 +9,10 @@ class WriteSupervisor : public ISuperviseWrites
 public:
 	WriteSupervisor(IPeerTracker& peers);
 
-	bool store(const Peer& peer, const WriteParams& write, IDataStoreReader::ptr contents);
+	bool store(const Peer& peer, const WriteInstructions& write, IDataStoreReader::ptr contents);
 
-	std::shared_ptr<ConnectionWriteStream> open(const Peer& peer, const WriteParams& write, bool blocking);
-	bool store(ConnectionWriteStream& conn, const WriteParams& write, IDataStoreReader::ptr contents);
+	std::shared_ptr<ConnectionWriteStream> open(const Peer& peer, const WriteInstructions& write, bool blocking);
+	bool store(ConnectionWriteStream& conn, const WriteInstructions& write, IDataStoreReader::ptr contents);
 
 protected:
 	IPeerTracker& _peers;

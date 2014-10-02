@@ -25,7 +25,6 @@ target_link_libraries(user_server_test
 -Wl,--start-group
 	user_server
 
-	actions
 	api
 	common
 	hashing

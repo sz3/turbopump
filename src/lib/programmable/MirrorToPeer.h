@@ -5,14 +5,14 @@
 class ILocateKeys;
 class IMembership;
 class Peer;
-class WriteParams;
+class WriteInstructions;
 
 class MirrorToPeer
 {
 public:
 	MirrorToPeer(const ILocateKeys& locator, const IMembership& membership);
 
-	bool chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer);
+	bool chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>& peer);
 
 protected:
 	const ILocateKeys& _locator;

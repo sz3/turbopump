@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "RandomizedMirrorToPeer.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "membership/IMembership.h"
 
 RandomizedMirrorToPeer::RandomizedMirrorToPeer(const ILocateKeys& locator, const IMembership& membership)
@@ -9,9 +9,9 @@ RandomizedMirrorToPeer::RandomizedMirrorToPeer(const ILocateKeys& locator, const
 {
 }
 
-bool RandomizedMirrorToPeer::chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer)
+bool RandomizedMirrorToPeer::chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>& peer)
 {
-	if (params.mirror >= params.totalCopies)
+	if (params.mirror >= params.copies)
 		return false;
 
 	peer = _membership.randomPeer();

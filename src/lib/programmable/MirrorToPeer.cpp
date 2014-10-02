@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MirrorToPeer.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "hashing/ILocateKeys.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
@@ -13,13 +13,13 @@ MirrorToPeer::MirrorToPeer(const ILocateKeys& locator, const IMembership& member
 {
 }
 
-bool MirrorToPeer::chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer)
+bool MirrorToPeer::chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>& peer)
 {
 	unsigned next = params.mirror;
-	if (next >= params.totalCopies)
+	if (next >= params.copies)
 		return false;
 
-	std::vector<std::string> locations = _locator.locations(params.filename, params.totalCopies);
+	std::vector<std::string> locations = _locator.locations(params.name, params.copies);
 	shared_ptr<Peer> self = _membership.self();
 	if (!self)
 		return false;

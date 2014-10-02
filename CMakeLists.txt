@@ -29,8 +29,6 @@ set (PROJECTS
    src/exe/turbopump
    src/lib/main
 
-   src/lib/actions
-   test/lib/actions
    src/lib/actions_req
    test/lib/actions_req
    src/lib/api

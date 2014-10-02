@@ -2,7 +2,7 @@
 #include "unittest.h"
 
 #include "RandomizedMirrorToPeer.h"
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "membership/Peer.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMembership.h"
@@ -20,7 +20,7 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testSuccess", "[unit]" )
 	membership._history.clear();
 	RandomizedMirrorToPeer command(locator, membership);
 
-	WriteParams params("file", 123, 456, "v1", 0);
+	WriteInstructions params("file", "v1", 123, 456);
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
 
@@ -37,9 +37,9 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testDone", "[unit]" )
 	membership._history.clear();
 	RandomizedMirrorToPeer command(locator, membership);
 
-	WriteParams params("file", 123, 456, "v1", 0);
+	WriteInstructions params("file", "v1", 3, 3);
 	params.mirror = 3;
-	params.totalCopies = 3;
+	params.copies = 3;
 	shared_ptr<Peer> peer;
 	assertFalse( command.chooseMirror(params, peer) );
 
@@ -54,7 +54,7 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testBadPeer", "[unit]" )
 	membership._history.clear();
 	RandomizedMirrorToPeer command(locator, membership);
 
-	WriteParams params("file", 123, 456, "v1", 0);
+	WriteInstructions params("file", "v1", 123, 456);
 	shared_ptr<Peer> peer;
 	assertFalse( command.chooseMirror(params, peer) );
 

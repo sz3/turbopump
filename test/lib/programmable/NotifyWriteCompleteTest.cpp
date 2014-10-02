@@ -3,7 +3,7 @@
 
 #include "NotifyWriteComplete.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
 #include "mock/MockDataStore.h"
@@ -19,7 +19,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testNotLastCopy", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 0, 2, "v1", 0);
+	WriteInstructions params("myfile", "v1", 0, 2);
 	command.run(params, NULL);
 
 	assertEquals( "", membership._history.calls() );
@@ -32,7 +32,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testNoExtraMirror", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 2, 2, "v1", 0);
+	WriteInstructions params("myfile", "v1", 2, 2);
 	command.run(params, NULL);
 
 	assertEquals( "", membership._history.calls() );
@@ -45,7 +45,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testExtraMirrorNotAMember", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 2, 2, "v1", 0);
+	WriteInstructions params("myfile", "v1", 2, 2);
 	params.source = "bob";
 	command.run(params, NULL);
 
@@ -61,7 +61,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testDropExtraMirror", "[unit]" )
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
-	WriteParams params("myfile", 3, 2, "v1", 0);
+	WriteInstructions params("myfile", "v1", 3, 2);
 	params.source = "peer";
 	IDataStoreReader::ptr reader(new MockDataStore::Reader("data"));
 	command.run(params, reader);

@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MockMirrorToPeer.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "membership/Peer.h"
 #include "util/CallHistory.h"
 
@@ -14,9 +14,9 @@ MockMirrorToPeer::MockMirrorToPeer(const ILocateKeys& locator, const IMembership
 {
 }
 
-bool MockMirrorToPeer::chooseMirror(WriteParams& params, std::shared_ptr<Peer>& peer)
+bool MockMirrorToPeer::chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>& peer)
 {
-	_history.call("chooseMirror", params.filename);
+	_history.call("chooseMirror", params.name);
 	if (!_fail)
 		peer.reset(new Peer("peerid"));
 	_fail = false;

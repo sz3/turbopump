@@ -30,7 +30,7 @@
 class TurboPumpApp
 {
 public:
-	TurboPumpApp(const TurboApi& instruct, const std::string& streamSocket, short port);
+	TurboPumpApp(const Turbopump::Options& opts, const std::string& streamSocket, short port);
 
 	void run();
 	void shutdown();

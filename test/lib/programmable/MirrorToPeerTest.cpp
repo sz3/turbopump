@@ -3,7 +3,7 @@
 
 #include "MirrorToPeer.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "membership/Peer.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMembership.h"
@@ -21,7 +21,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfIsNull", "[unit]" )
 	membership._self.reset();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	shared_ptr<Peer> peer;
 	assertFalse( command.chooseMirror(params, peer) );
 
@@ -45,7 +45,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
 
@@ -69,7 +69,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList_EnsureDelivery", "[unit]" 
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
 
@@ -94,7 +94,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
 
@@ -119,7 +119,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",1,3,"v1",0);
+	WriteInstructions params("file","v1",1,3);
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
 
@@ -144,7 +144,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
 
@@ -168,7 +168,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
 
@@ -192,7 +192,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",3,3,"v1",0);
+	WriteInstructions params("file","v1",3,3);
 	shared_ptr<Peer> peer;
 	assertFalse( command.chooseMirror(params, peer) );
 
@@ -216,7 +216,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",3,4,"v1",0);
+	WriteInstructions params("file","v1",3,4);
 	shared_ptr<Peer> peer;
 	assertFalse( command.chooseMirror(params, peer) );
 
@@ -240,7 +240,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_AlreadyHitSource", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",1,2,"v1",0);
+	WriteInstructions params("file","v1",1,2);
 	params.source = "bbb";
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );
@@ -265,7 +265,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Fin", "[unit]" )
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
-	WriteParams params("file",0,3,"v1",0);
+	WriteInstructions params("file","v1",0,3);
 	params.isComplete = true;
 	shared_ptr<Peer> peer;
 	assertTrue( command.chooseMirror(params, peer) );

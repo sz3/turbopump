@@ -3,7 +3,7 @@
 
 #include "WriteSupervisor.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
 #include "wan_server/ConnectionWriteStream.h"
@@ -37,7 +37,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, false);
 	assertFalse( !conn );
 	assertFalse( ((TestableConnectionWriteStream&)*conn)._blocking );
@@ -69,7 +69,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, false);
 	assertFalse( !conn );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
@@ -99,7 +99,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, true);
 	assertFalse( !conn );
 	assertTrue( ((TestableConnectionWriteStream&)*conn)._blocking );
@@ -131,7 +131,7 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
@@ -152,7 +152,7 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
 	peers._writer.reset(writer);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	params.source = "dude";
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
@@ -175,7 +175,7 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 	writer->_capacity = 10;
 	peers._writer.reset(writer);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
@@ -197,7 +197,7 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 	writer->_capacity = 10;
 	peers._writer.reset(writer);
 
-	WriteParams params("file",2,3,"v1",0);
+	WriteInstructions params("file","v1",2,3);
 	params.isComplete = true;
 	assertTrue( client.store(Peer("dude"), params, reader) );
 

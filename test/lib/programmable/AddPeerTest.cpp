@@ -3,7 +3,7 @@
 
 #include "AddPeer.h"
 
-#include "actions/WriteParams.h"
+#include "api/WriteInstructions.h"
 #include "common/turbopump_defaults.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockConsistentHashRing.h"
@@ -18,7 +18,7 @@ TEST_CASE( "AddPeerTest/testAdd", "[unit]" )
 	MockKeyTabulator index;
 	AddPeer action(ring, membership, index);
 
-	WriteParams params(MEMBERSHIP_FILE_PREFIX + string("fooid"), 0, 0, "v1", 0);
+	WriteInstructions params(MEMBERSHIP_FILE_PREFIX + string("fooid"), "v1", 0, 0);
 	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
 	assertTrue( action.run(params, contents) );
 
@@ -36,7 +36,7 @@ TEST_CASE( "AddPeerTest/testAddExistingWorker", "[unit]" )
 	MockKeyTabulator index;
 	AddPeer action(ring, membership, index);
 
-	WriteParams params(MEMBERSHIP_FILE_PREFIX + string("fooid"), 0, 0, "v1", 0);
+	WriteInstructions params(MEMBERSHIP_FILE_PREFIX + string("fooid"), "v1", 0, 0);
 	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
 	assertTrue( action.run(params, contents) );
 
