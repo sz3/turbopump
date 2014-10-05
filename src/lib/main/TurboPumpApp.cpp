@@ -21,7 +21,7 @@ TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& st
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
 	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeSupervisor, _logger)
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
-	, _messenger(_peers)
+	, _messenger(_packer, _peers)
 	, _writeSupervisor(_peers)
 	, _membership("turbo_members.txt", socket_address("127.0.0.1", port).toString())
 	, _keyLocator(_ring, _membership)

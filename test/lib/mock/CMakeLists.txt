@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	DummyTurbopumpApi.h
 	MockBufferedConnectionWriter.cpp
 	MockBufferedConnectionWriter.h
 	MockCommand.h
@@ -28,6 +29,8 @@ set(SOURCES
 	MockPeerTracker.h
 	MockProcessState.cpp
 	MockProcessState.h
+	MockRequestPacker.cpp
+	MockRequestPacker.h
 	MockSchedulerThread.cpp
 	MockSchedulerThread.h
 	MockSkewCorrector.cpp

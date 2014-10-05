@@ -2,12 +2,13 @@
 #pragma once
 
 #include "IMessageSender.h"
+class IMessagePacker;
 class IPeerTracker;
 
 class MessageSender : public IMessageSender
 {
 public:
-	MessageSender(IPeerTracker& peers);
+	MessageSender(const IMessagePacker& packer, IPeerTracker& peers);
 
 	// used by Synchronizer
 	void digestPing(const Peer& peer, const TreeId& treeid, const MerklePoint& point);
@@ -24,5 +25,6 @@ protected:
 	bool sendMessage(const Peer& peer, const std::string& message, bool blocking=false);
 
 protected:
+	const IMessagePacker& _packer;
 	IPeerTracker& _peers;
 };

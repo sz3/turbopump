@@ -12,6 +12,7 @@ public:
 	virtual ~Request() {}
 
 	virtual void load(const std::unordered_map<std::string,std::string>& params) = 0;
+	virtual void save(std::unordered_map<std::string,std::string>& params) = 0;
 	virtual void msgpack_unpack(msgpack::object) = 0;
 };
 }// namespace Turbopump

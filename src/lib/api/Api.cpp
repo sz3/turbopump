@@ -72,14 +72,14 @@ Command* Api::command_impl(int id) const
 	}
 }
 
-std::unique_ptr<Command> Api::command(int id, const DataBuffer& buffer) const
+std::unique_ptr<Command> Api::command(int id, const char* buff, unsigned size) const
 {
 	// internal commands: id >= 100 ?
 	std::unique_ptr<Command> operation(command_impl(id));
 	if (!!operation)
 	{
 		msgpack::unpacked msg;
-		msgpack::unpack(&msg, buffer.buffer(), buffer.size());
+		msgpack::unpack(&msg, buff, size);
 		msg.get().convert(operation->request());
 	}
 	return operation;

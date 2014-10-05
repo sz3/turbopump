@@ -2,9 +2,8 @@
 #include "unittest.h"
 
 #include "DeleteCommand.h"
-
-#include "DummyTurbopumpApi.h"
 #include "common/VectorClock.h"
+#include "mock/DummyTurbopumpApi.h"
 using std::unique_ptr;
 
 TEST_CASE( "DeleteCommandTest/testDelete", "[unit]" )

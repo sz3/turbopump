@@ -4,8 +4,6 @@
 #include "Api.h"
 #include "Options.h"
 #include "ListKeys.h"
-
-#include "common/DataBuffer.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMessageSender.h"
@@ -53,7 +51,7 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	msgpack::sbuffer sbuf;
 	msgpack::pack(&sbuf, params);
 
-	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::ListKeys::_ID, DataBuffer(sbuf.data(), sbuf.size()));
+	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::ListKeys::_ID, sbuf.data(), sbuf.size());
 	assertFalse( !command );
 
 	assertTrue( command->run() );

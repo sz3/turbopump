@@ -25,6 +25,7 @@ target_link_libraries(actions_req_test
 -Wl,--start-group
 	actions_req
 
+	api
 	common
 	membership
 	mock
@@ -34,6 +35,7 @@ target_link_libraries(actions_req_test
 	socket
 -Wl,--end-group
 
+	msgpack
 	tbb
 )
 

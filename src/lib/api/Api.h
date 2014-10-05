@@ -24,7 +24,7 @@ class Api
 public:
 	Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, ISynchronize& sync, IByteStream& writer, const Options& options);
 
-	std::unique_ptr<Command> command(int id, const DataBuffer& buffer) const;
+	std::unique_ptr<Command> command(int id, const char* buff, unsigned size) const;
 	std::unique_ptr<Command> command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const;
 
 	template <typename Req>

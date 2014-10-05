@@ -2,7 +2,7 @@
 #include "unittest.h"
 
 #include "AddPeerCommand.h"
-#include "DummyTurbopumpApi.h"
+#include "mock/DummyTurbopumpApi.h"
 
 TEST_CASE( "AddPeerCommandTest/testAdd", "[unit]" )
 {

@@ -124,7 +124,7 @@ void WanPacketHandler::processPendingBuffers(const std::shared_ptr<Peer>& peer, 
 				if (commandFinder.getNext(cid, commandBuff))
 				{
 					_logger.logTrace("received command '" + buffer + "' from " + peer->uid + ". virt " + StringUtil::str((unsigned)virtid) + ", command = " + StringUtil::str((unsigned)cid));
-					command = _api.command(cid, commandBuff);
+					command = _api.command(cid, commandBuff.buffer(), commandBuff.size());
 					if (!command)
 						continue;
 					command->setPeer(peer);

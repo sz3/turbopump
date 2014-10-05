@@ -4,6 +4,7 @@
 #include "ProcessState.h"
 #include "StatusReporter.h"
 #include "WanServer.h"
+#include "actions_req/MessagePacker.h"
 #include "actions_req/MessageSender.h"
 #include "actions_req/WriteSupervisor.h"
 #include "api/Api.h"
@@ -58,6 +59,7 @@ protected:
 	Synchronizer _synchronizer;
 
 	// thread scheduling and helpers
+	MessagePacker _packer;
 	MessageSender _messenger;
 	WriteSupervisor _writeSupervisor;
 	SchedulerThread _scheduler;

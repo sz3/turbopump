@@ -1,14 +1,14 @@
 #pragma once
 
 #include "api/Api.h"
-
 #include "api/Options.h"
-#include "mock/MockDataStore.h"
-#include "mock/MockLocateKeys.h"
-#include "mock/MockMessageSender.h"
-#include "mock/MockSkewCorrector.h"
-#include "mock/MockStatusReporter.h"
-#include "mock/MockSynchronize.h"
+
+#include "MockDataStore.h"
+#include "MockLocateKeys.h"
+#include "MockMessageSender.h"
+#include "MockSkewCorrector.h"
+#include "MockStatusReporter.h"
+#include "MockSynchronize.h"
 #include "socket/StringByteStream.h"
 
 class DummyTurbopumpApi : public Turbopump::Api

@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.6)
 project(api_test)
 
 set (SOURCES
-	DummyTurbopumpApi.h
 	test.cpp
 
 	AckWriteCommandTest.cpp

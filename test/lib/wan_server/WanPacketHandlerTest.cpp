@@ -4,9 +4,9 @@
 #include "WanPacketHandler.h"
 
 #include "membership/Peer.h"
-#include "api/DummyTurbopumpApi.h"
 #include "api/KeyRequest.h"
 #include "api/Write.h"
+#include "mock/DummyTurbopumpApi.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
