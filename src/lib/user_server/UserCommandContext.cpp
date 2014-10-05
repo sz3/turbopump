@@ -59,10 +59,11 @@ int UserCommandContext::onBody(const char* data, size_t len)
 	// we'll be complaining back to the client momentarily. :)
 	if (!!_command && _status == 0)
 	{
+
 		bool res = _command->run(data, len);
 		_status = _command->status();
-		if (_status == 0)
-			_status = res? StatusCode::Success : StatusCode::InternalServerError;
+		if (_status == 0 && !res)
+			_status = StatusCode::InternalServerError;
 	}
 	return 0;
 }

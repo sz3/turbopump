@@ -30,7 +30,7 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	});
 
 	// delete file
-	response = cluster[1].query("delete", "name=deleteMe&v=1,1:1");
+	response = cluster[1].query("delete", "name=deleteMe&version=1,1:1");
 	expected = "";
 	waitFor(10, expected + " != " + response, [&]()
 	{

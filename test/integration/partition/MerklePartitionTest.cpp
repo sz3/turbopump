@@ -41,11 +41,11 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 	assertEquals(StringUtil::join(expected), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
-	// setting n=3 here, in case we decide to change the defaults at any point...
+	// setting copies=3 here, in case we decide to change the defaults at any point...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = cluster[i].write(num, "hello!"+num, "n=3");
+		response = cluster[i].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
 
@@ -121,11 +121,11 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	assertEquals(StringUtil::join(expected), response);
 
 	// write ONLY to worker 1.
-	// setting n=3 here, in case we decide to change the defaults at any point...
+	// setting copies=3 here, in case we decide to change the defaults at any point...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = cluster[1].write(num, "hello!"+num, "n=3");
+		response = cluster[1].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
 
@@ -203,11 +203,11 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	assertEquals(StringUtil::join(expected), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
-	// setting n=i here, so we get a different merkle tree per write...
+	// setting copies=i here, so we get a different merkle tree per write...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = cluster[i].write(num, "hello!"+num, "n="+num);
+		response = cluster[i].write(num, "hello!"+num, "copies="+num);
 		assertEquals( "200", response );
 	}
 

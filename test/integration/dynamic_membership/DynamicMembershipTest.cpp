@@ -33,13 +33,13 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	two.start();
 	assertTrue( two.waitForRunning() );
 
-	response = one.post("add_peer", "uid=9002&ip=127.0.0.1:9002");
+	response = one.post("add-peer", "uid=9002&ip=127.0.0.1:9002");
 	assertEquals( "200", response );
 	response = one.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
 				  "9002 127.0.0.1:9002", response );
 
-	response = two.post("add_peer", "uid=9001&ip=127.0.0.1:9001");
+	response = two.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	assertEquals( "200", response );
 	response = two.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
@@ -60,7 +60,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	three.start();
 	assertTrue( three.waitForRunning() );
 
-	response = one.post("add_peer", "uid=9003&ip=127.0.0.1:9003");
+	response = one.post("add-peer", "uid=9003&ip=127.0.0.1:9003");
 	string expectedMembers = "9001 127.0.0.1:9001\n"
 							 "9002 127.0.0.1:9002\n"
 							 "9003 127.0.0.1:9003";
@@ -68,7 +68,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	assertEquals( expectedMembers, response );
 
 	// tell 3 to join
-	response = three.post("add_peer", "uid=9001&ip=127.0.0.1:9001");
+	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
 	waitFor(30, expectedMembers + " != " + response, [&]()
 	{
@@ -103,7 +103,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	{
 		string name = StringUtil::str(i);
 		string contents = "hello" + name;
-		response = one.write(name, contents, "n=3");
+		response = one.write(name, contents, "copies=3");
 		assertEquals( "200", response );
 
 		fileList.push_back("(" + name + ")=>" + StringUtil::str(contents.size()) + "|1,9001:1");
@@ -121,12 +121,12 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	two.start();
 	assertTrue( two.waitForRunning() );
 
-	response = one.post("add_peer", "uid=9002&ip=127.0.0.1:9002");
+	response = one.post("add-peer", "uid=9002&ip=127.0.0.1:9002");
 	response = one.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
 				  "9002 127.0.0.1:9002", response );
 
-	response = two.post("add_peer", "uid=9001&ip=127.0.0.1:9001");
+	response = two.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	response = two.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
 				  "9002 127.0.0.1:9002", response );
@@ -143,7 +143,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	three.start();
 	assertTrue( three.waitForRunning() );
 
-	response = one.post("add_peer", "uid=9003&ip=127.0.0.1:9003");
+	response = one.post("add-peer", "uid=9003&ip=127.0.0.1:9003");
 	string expectedMembers = "9001 127.0.0.1:9001\n"
 							 "9002 127.0.0.1:9002\n"
 							 "9003 127.0.0.1:9003";
@@ -151,7 +151,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	assertEquals( expectedMembers, response );
 
 	// tell 3 to join
-	response = three.post("add_peer", "uid=9001&ip=127.0.0.1:9001");
+	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
 	waitFor(60, expectedMembers + " != " + response, [&]()
 	{

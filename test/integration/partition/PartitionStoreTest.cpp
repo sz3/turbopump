@@ -38,11 +38,11 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 	response = cluster[1].query("ring");
 	assertEquals(StringUtil::join(expected), response);
 
-	// setting n=3 here, so we get 3 "proper" copies of the file instead of 2. (also, if we decide to change the defaults at any point...)
+	// setting copies=3 here, so we get 3 "proper" copies of the file instead of 2.
 	for (unsigned i = 1; i <= 6; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = cluster[1].write(num, "hello!"+num, "n=3");
+		response = cluster[1].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
 
@@ -107,7 +107,7 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	for (unsigned i = 1; i <= 5; ++i)
 	{
 		string num = StringUtil::str(i);
-		response = cluster[1].write(num, "hello!"+num, "n="+num);
+		response = cluster[1].write(num, "hello!"+num, "copies="+num);
 		assertEquals( "200", response );
 	}
 

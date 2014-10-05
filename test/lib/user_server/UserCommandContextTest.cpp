@@ -120,7 +120,7 @@ TEST_CASE( "UserCommandContextTest/testOnBody", "[unit]" )
 	string body = "foobar";
 
 	assertEquals( 0, context.onBody(body.data(), body.size()) );
-	assertEquals( 200, context._status.integer() );
+	assertEquals( 0, context._status.integer() );
 	assertEquals( "run(foobar)", ((MockCommand*)context._command.get())->_history.calls() );
 	assertEquals( "", handler._history.calls() );
 }
@@ -133,7 +133,21 @@ TEST_CASE( "UserCommandContextTest/testOnBody.Empty", "[unit]" )
 	context._command.reset(new MockCommand);
 
 	assertEquals( 0, context.onBody(NULL, 0) );
-	assertEquals( 200, context._status.integer() );
+	assertEquals( 0, context._status.integer() );
+	assertEquals( "run()", ((MockCommand*)context._command.get())->_history.calls() );
+	assertEquals( "", handler._history.calls() );
+}
+
+TEST_CASE( "UserCommandContextTest/testOnBody.Kaboom", "[unit]" )
+{
+	MockUserPacketHandler handler;
+	TestableUserCommandContext context(handler);
+
+	context._command.reset(new MockCommand);
+	context._command->setStatus(504);
+
+	assertEquals( 0, context.onBody(NULL, 0) );
+	assertEquals( 504, context._status.integer() );
 	assertEquals( "run()", ((MockCommand*)context._command.get())->_history.calls() );
 	assertEquals( "", handler._history.calls() );
 }

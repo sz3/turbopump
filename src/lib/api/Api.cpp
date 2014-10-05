@@ -33,6 +33,7 @@ Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& loca
 	, _options(options)
 {
 	// local commands: in this list.
+	_commands[AddPeer::_NAME] = AddPeer::_ID;
 	_commands[Delete::_NAME] = Delete::_ID;
 	_commands[Drop::_NAME] = Drop::_ID;
 	_commands[ListKeys::_NAME] = ListKeys::_ID;

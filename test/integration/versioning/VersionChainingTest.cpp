@@ -16,8 +16,8 @@ TEST_CASE( "VersionChainingTest/testCreateAndFixConflict", "[integration]" )
 
 	string filename = "conflict";
 	// write different versions to multiple machines at once
-	string response = cluster[1].write(filename, "first", "v=1,foo:1");
-	response = cluster[2].write(filename, "second", "v=1,bar:1");
+	string response = cluster[1].write(filename, "first", "version=1,foo:1");
+	response = cluster[2].write(filename, "second", "version=1,bar:1");
 
 	// check for both versions
 	string expected = "(conflict)=>5|1,foo:1 6|1,bar:1";
