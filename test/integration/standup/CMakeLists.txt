@@ -21,7 +21,6 @@ add_test(standup_test standup_test)
 
 target_link_libraries(standup_test
 -Wl,--start-group
-	actions_req
 	api
 	common
 	data_store
@@ -31,9 +30,10 @@ target_link_libraries(standup_test
 	logging
 	main
 	membership
+	peer_client
+	peer_server
 	programmable
 	user_server
-	wan_server
 
 	command_line
 	event

@@ -29,8 +29,6 @@ set (PROJECTS
    src/exe/turbopump
    src/lib/main
 
-   src/lib/actions_req
-   test/lib/actions_req
    src/lib/api
    test/lib/api
    src/lib/common
@@ -44,12 +42,14 @@ set (PROJECTS
    src/lib/logging
    src/lib/membership
    test/lib/membership
+   src/lib/peer_client
+   test/lib/peer_client
+   src/lib/peer_server
+   test/lib/peer_server
    src/lib/programmable
    test/lib/programmable
    src/lib/user_server
    test/lib/user_server
-   src/lib/wan_server
-   test/lib/wan_server
 
    test/integration/standup
    test/integration/versioning

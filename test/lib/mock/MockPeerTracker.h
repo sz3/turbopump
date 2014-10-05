@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "wan_server/IPeerTracker.h"
+#include "peer_server/IPeerTracker.h"
 #include "util/CallHistory.h"
 class IBufferedConnectionWriter;
 

@@ -7,13 +7,13 @@
 #include "KeyRange.h"
 #include "TreeId.h"
 
-#include "actions_req/IMessageSender.h"
 #include "common/MerklePoint.h"
 #include "hashing/Hash.h"
 #include "hashing/IConsistentHashRing.h"
 #include "logging/ILog.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
+#include "peer_client/IMessageSender.h"
 #include <deque>
 #include <sstream>
 using std::shared_ptr;

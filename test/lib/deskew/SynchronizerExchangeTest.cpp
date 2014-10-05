@@ -6,12 +6,14 @@
 #include "KeyTabulator.h"
 #include "Synchronizer.h"
 #include "TreeId.h"
-#include "actions_req/IMessageSender.h"
+
 #include "membership/Peer.h"
 #include "mock/MockConsistentHashRing.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
+#include "peer_client/IMessageSender.h"
+
 #include "serialize/StringUtil.h"
 using std::deque;
 using std::string;

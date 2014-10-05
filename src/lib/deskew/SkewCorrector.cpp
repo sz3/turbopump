@@ -3,14 +3,14 @@
 
 #include "IKeyTabulator.h"
 #include "IDigestKeys.h"
-#include "actions_req/IMessageSender.h"
-#include "actions_req/ISuperviseWrites.h"
 #include "api/WriteInstructions.h"
 #include "common/KeyMetadata.h"
 #include "data_store/IDataStore.h"
 #include "deskew/TreeId.h"
 #include "logging/ILog.h"
 #include "membership/Peer.h"
+#include "peer_client/IMessageSender.h"
+#include "peer_client/ISuperviseWrites.h"
 
 #include "serialize/StringUtil.h"
 #include <deque>

@@ -13,7 +13,6 @@ add_executable (
 
 target_link_libraries(turbopump
 -Wl,--start-group
-	actions_req
 	api
 	common
 	data_store
@@ -22,9 +21,10 @@ target_link_libraries(turbopump
 	logging
 	main
 	membership
+	peer_client
+	peer_server
 	programmable
 	user_server
-	wan_server
 
 	event
 	file

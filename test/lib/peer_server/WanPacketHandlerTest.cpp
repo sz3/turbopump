@@ -10,7 +10,7 @@
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
-#include "wan_server/PeerConnection.h"
+#include "peer_server/PeerConnection.h"
 
 #include "event/SimpleExecutor.h"
 #include "socket/MockSocketWriter.h"

@@ -2,8 +2,8 @@
 #include "NotifyWriteComplete.h"
 
 #include "api/WriteInstructions.h"
-#include "actions_req/IMessageSender.h"
 #include "membership/IMembership.h"
+#include "peer_client/IMessageSender.h"
 using std::shared_ptr;
 
 NotifyWriteComplete::NotifyWriteComplete(const IMembership& membership, IMessageSender& messenger)

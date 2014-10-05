@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(actions_req_test)
+project(peer_client_test)
 
 set (SOURCES
 	test.cpp
@@ -11,25 +11,25 @@ set (SOURCES
 include_directories(
 	${corelib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
-	${turboproj_SOURCE_DIR}/src/lib/actions_req
+	${turboproj_SOURCE_DIR}/src/lib/peer_client
 )
 
 add_executable (
-	actions_req_test
+	peer_client_test
 	${SOURCES}
 )
 
-add_test(actions_req_test actions_req_test)
+add_test(peer_client_test peer_client_test)
 
-target_link_libraries(actions_req_test
+target_link_libraries(peer_client_test
 -Wl,--start-group
-	actions_req
+	peer_client
 
 	api
 	common
 	membership
 	mock
-	wan_server
+	peer_server
 
 	serialize
 	socket

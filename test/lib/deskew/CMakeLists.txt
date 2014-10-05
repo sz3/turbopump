@@ -37,7 +37,7 @@ target_link_libraries(deskew_test
 	hashing
 	membership
 	mock
-	wan_server
+	peer_server
 
 	serialize
 )

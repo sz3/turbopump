@@ -2,8 +2,8 @@
 #pragma once
 
 #include "api/WriteInstructions.h"
-#include "actions_req/ISuperviseWrites.h"
 #include "data_store/IDataStoreReader.h"
+#include "peer_client/ISuperviseWrites.h"
 
 class ILocateKeys;
 class IMembership;

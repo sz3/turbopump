@@ -6,10 +6,10 @@
 #include "api/WriteInstructions.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
-#include "wan_server/ConnectionWriteStream.h"
 #include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockPeerTracker.h"
+#include "peer_server/ConnectionWriteStream.h"
 #include <string>
 using std::shared_ptr;
 using std::string;

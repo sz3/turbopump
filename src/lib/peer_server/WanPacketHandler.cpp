@@ -12,7 +12,7 @@
 #include "logging/ILog.h"
 #include "membership/IMembership.h"
 #include "membership/Peer.h"
-#include "wan_server/IPeerTracker.h"
+#include "peer_server/IPeerTracker.h"
 
 #include "serialize/StringUtil.h"
 #include "socket/ISocketWriter.h"

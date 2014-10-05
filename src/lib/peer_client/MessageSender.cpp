@@ -11,8 +11,9 @@
 #include "common/MerklePoint.h"
 #include "deskew/TreeId.h"
 #include "membership/Peer.h"
-#include "wan_server/IBufferedConnectionWriter.h"
-#include "wan_server/IPeerTracker.h"
+#include "peer_server/IBufferedConnectionWriter.h"
+#include "peer_server/IPeerTracker.h"
+
 #include "msgpack.hpp"
 #include <memory>
 #include <sstream>

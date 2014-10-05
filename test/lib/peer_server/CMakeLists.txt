@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(wan_server_test)
+project(peer_server_test)
 
 set (SOURCES
 	test.cpp
@@ -13,19 +13,19 @@ set (SOURCES
 include_directories(
 	${corelib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
-	${turboproj_SOURCE_DIR}/src/lib/wan_server
+	${turboproj_SOURCE_DIR}/src/lib/peer_server
 )
 
 add_executable (
-	wan_server_test
+	peer_server_test
 	${SOURCES}
 )
 
-add_test(wan_server_test wan_server_test)
+add_test(peer_server_test peer_server_test)
 
-target_link_libraries(wan_server_test
+target_link_libraries(peer_server_test
 -Wl,--start-group
-	wan_server
+	peer_server
 
 	api
 	common

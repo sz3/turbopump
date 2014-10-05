@@ -28,13 +28,13 @@ target_link_libraries(programmable_test
 -Wl,--start-group
 	programmable
 
-	actions_req
 	common
 	data_store
 	hashing
 	mock
 	membership
-	wan_server
+	peer_client
+	peer_server
 
 	serialize
 	socket

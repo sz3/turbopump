@@ -3,9 +3,9 @@
 
 #include "api/WriteInstructions.h"
 #include "membership/Peer.h"
-#include "wan_server/BufferedConnectionWriter.h"
-#include "wan_server/ConnectionWriteStream.h"
-#include "wan_server/IPeerTracker.h"
+#include "peer_server/BufferedConnectionWriter.h"
+#include "peer_server/ConnectionWriteStream.h"
+#include "peer_server/IPeerTracker.h"
 #include <iostream>
 #include <memory>
 #include <sstream>

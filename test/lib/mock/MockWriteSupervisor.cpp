@@ -3,8 +3,8 @@
 
 #include "api/WriteInstructions.h"
 #include "membership/Peer.h"
+#include "peer_server/ConnectionWriteStream.h"
 #include "serialize/StringUtil.h"
-#include "wan_server/ConnectionWriteStream.h"
 
 MockWriteSupervisor::MockWriteSupervisor()
 	: _storeFails(false)
