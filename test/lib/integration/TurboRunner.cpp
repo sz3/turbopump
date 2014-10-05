@@ -70,7 +70,7 @@ std::string TurboRunner::post(std::string action, std::string params, std::strin
 
 std::string TurboRunner::local_list(std::string params) const
 {
-	string body = query("local_list", params);
+	string body = query("list-keys", params);
 	vector<string> files = StringUtil::split(body, '\n');
 	if (files.empty())
 		return "";
@@ -83,7 +83,7 @@ bool TurboRunner::waitForRunning(unsigned seconds) const
 	stopwatch t;
 	while (t.millis() < seconds*1000)
 	{
-		string response = query("state");
+		string response = query("status");
 		if (response == "running")
 			return true;
 		std::cout << response << std::endl;

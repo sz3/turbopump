@@ -23,7 +23,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	string response;
 	waitFor(5, expected + " != " + response, [&]()
 	{
-		response = one.local_list("all=true");
+		response = one.local_list("all=1");
 		return expected == response;
 	});
 
@@ -50,7 +50,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	expected = StringUtil::join(fileList, '\n');
 	waitFor(20, expected + " != " + response, [&]()
 	{
-		response = two.local_list("all=true");
+		response = two.local_list("all=1");
 		return expected == response;
 	});
 
@@ -86,7 +86,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	expected = StringUtil::join(fileList, '\n');
 	waitFor(100, expected + " != " + response, [&]()
 	{
-		response = three.local_list("all=true");
+		response = three.local_list("all=1");
 		return expected == response;
 	});
 }
