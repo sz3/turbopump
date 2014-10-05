@@ -19,3 +19,8 @@ string MessagePacker::package(unsigned char id, const char* packet, unsigned siz
 	pack(&res[0], id, packet, size);
 	return res;
 }
+
+string MessagePacker::package(unsigned char id, const string& packet) const
+{
+	return package(id, packet.data(), packet.size());
+}

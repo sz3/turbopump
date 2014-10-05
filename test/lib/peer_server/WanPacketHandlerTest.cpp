@@ -10,6 +10,7 @@
 #include "mock/MockLogger.h"
 #include "mock/MockMembership.h"
 #include "mock/MockPeerTracker.h"
+#include "peer_client/MessagePacker.h"
 #include "peer_server/PeerConnection.h"
 
 #include "event/SimpleExecutor.h"
@@ -18,12 +19,8 @@
 #include "msgpack.hpp"
 using std::string;
 
-namespace {	
-	string formatPacket(unsigned char virtid, const string& packet)
-	{
-		string header{0, (char)(packet.size()+1), (char)virtid};
-		return header + packet;
-	}
+namespace {
+	MessagePacker _packer;
 
 	string key_request(unsigned first, unsigned last)
 	{
@@ -33,7 +30,7 @@ namespace {
 
 		msgpack::sbuffer sbuf;
 		msgpack::pack(&sbuf, req);
-		return formatPacket(req._ID, string(sbuf.data(), sbuf.size()));
+		return _packer.package(req._ID, sbuf.data(), sbuf.size());
 	}
 
 	string write_request(string name, string data="")
@@ -43,7 +40,7 @@ namespace {
 
 		msgpack::sbuffer sbuf;
 		msgpack::pack(&sbuf, req);
-		return formatPacket(req._ID, string(sbuf.data(), sbuf.size())) + data;
+		return _packer.package(req._ID, sbuf.data(), sbuf.size()) + data;
 	}
 }
 
@@ -57,10 +54,10 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers", "default" )
 	WanPacketHandler handler(api, executor, membership, peers, logger);
 
 	PeerConnection conn;
-	conn.pushRecv(formatPacket(33, "garbage bad action lulz"));
-	conn.pushRecv(formatPacket(33, key_request(1, 10)));
-	conn.pushRecv(formatPacket(33, key_request(2, 20)));
-	conn.pushRecv(formatPacket(33, key_request(3, 30)));
+	conn.pushRecv(_packer.package(33, "garbage bad action lulz"));
+	conn.pushRecv(_packer.package(33, key_request(1, 10)));
+	conn.pushRecv(_packer.package(33, key_request(2, 20)));
+	conn.pushRecv(_packer.package(33, key_request(3, 30)));
 
 	std::shared_ptr<Peer> peer(new Peer("someguid"));
 	handler.processPendingBuffers(peer, conn);
@@ -79,12 +76,12 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ConcurrentFileWrite",
 	WanPacketHandler handler(api, executor, membership, peers, logger);
 
 	PeerConnection conn;
-	conn.pushRecv(formatPacket(33, write_request("foo", "i am a file")));
-	conn.pushRecv(formatPacket(35, write_request("bar", "i am a different file")));
-	conn.pushRecv(formatPacket(35, " with different bytes"));
-	conn.pushRecv(formatPacket(33, " with more bytes!"));
-	conn.pushRecv(formatPacket(35, ""));
-	conn.pushRecv(formatPacket(33, ""));
+	conn.pushRecv(_packer.package(33, write_request("foo", "i am a file")));
+	conn.pushRecv(_packer.package(35, write_request("bar", "i am a different file")));
+	conn.pushRecv(_packer.package(35, " with different bytes"));
+	conn.pushRecv(_packer.package(33, " with more bytes!"));
+	conn.pushRecv(_packer.package(35, ""));
+	conn.pushRecv(_packer.package(33, ""));
 
 	std::shared_ptr<Peer> peer(new Peer("someguid"));
 	handler.processPendingBuffers(peer, conn);
@@ -103,10 +100,10 @@ TEST_CASE( "WanPacketHandlerTest/testProcessPendingBuffers_ReuseOldVirtid", "def
 	WanPacketHandler handler(api, executor, membership, peers, logger);
 
 	PeerConnection conn;
-	conn.pushRecv(formatPacket(33, write_request("foo", "i am a file")));
-	conn.pushRecv(formatPacket(33, ""));
-	conn.pushRecv(formatPacket(33, write_request("bar", "i am a different file")));
-	conn.pushRecv(formatPacket(33, ""));
+	conn.pushRecv(_packer.package(33, write_request("foo", "i am a file")));
+	conn.pushRecv(_packer.package(33, ""));
+	conn.pushRecv(_packer.package(33, write_request("bar", "i am a different file")));
+	conn.pushRecv(_packer.package(33, ""));
 
 	std::shared_ptr<Peer> peer(new Peer("someguid"));
 	handler.processPendingBuffers(peer, conn);
@@ -128,7 +125,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	sock._endpoint = socket_address("1.2.3.4", 10);
 	peers._conn.reset(new PeerConnection);
 
-	string packet = formatPacket(32, "foo");
+	string packet = _packer.package(32, "foo");
 	assertFalse( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "", peers._history.calls() );
 
@@ -139,7 +136,7 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacket", "default" )
 	peers._history.clear();
 
 	// finally, send a properly formatted packet
-	packet = formatPacket(33, key_request(1, 10));
+	packet = _packer.package(33, key_request(1, 10));
 	assertTrue( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "track(someguid)", peers._history.calls() );
 	assertEquals( "pushKeyRange(someguid,,3,1,10,)", api.corrector._history.calls() );
@@ -159,7 +156,9 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	peers._conn.reset(new PeerConnection);
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));
 
-	string packet = formatPacket(35, write_request("foo", "i am a file")) + formatPacket(37, write_request("bar", "another file")) + formatPacket(37, "") + formatPacket(35, "");
+	string packet = _packer.package(35, write_request("foo", "i am a file"))
+			+ _packer.package(37, write_request("bar", "another file"))
+			+ _packer.package(37, "") + _packer.package(35, "");
 	assertTrue( handler.onPacket(sock, packet.data(), packet.size()) );
 	assertEquals( "track(someguid)", peers._history.calls() );
 
@@ -185,12 +184,12 @@ TEST_CASE( "WanPacketHandlerTest/testOnPacketMultiplexing", "default" )
 	membership._ips["1.2.3.4"].reset(new Peer("someguid"));
 
 	// ostensibly, these are file contents for a file write we don't know about yet
-	assertTrue( handler.onPacket(sock, formatPacket(32, "foo")) );
-	assertTrue( handler.onPacket(sock, formatPacket(32, "")) ); // FIN
-	assertTrue( handler.onPacket(sock, formatPacket(32, "bar")) );
+	assertTrue( handler.onPacket(sock, _packer.package(32, "foo")) );
+	assertTrue( handler.onPacket(sock, _packer.package(32, "")) ); // FIN
+	assertTrue( handler.onPacket(sock, _packer.package(32, "bar")) );
 	assertEquals( "", dataStore._store["foo"] );
 
-	assertTrue( handler.onPacket(sock, formatPacket(32, "write|name=foo|see") + formatPacket(32, "smell")) );
+	assertTrue( handler.onPacket(sock, _packer.package(32, "write|name=foo|see") + _packer.package(32, "smell")) );
 	string actual = dataStore._store["foo"];
 	assertEquals( "seesmellfoobar", actual );
 }*/

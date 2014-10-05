@@ -7,6 +7,7 @@ class MessagePacker : public IMessagePacker
 {
 public:
 	std::string package(unsigned char id, const char* packet, unsigned size) const;
+	std::string package(unsigned char id, const std::string& packet) const;
 
 protected:
 	void pack(char* buffer, unsigned char id, const char* packet, unsigned size) const;

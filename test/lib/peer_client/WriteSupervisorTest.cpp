@@ -9,6 +9,7 @@
 #include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockPeerTracker.h"
+#include "mock/MockRequestPacker.h"
 #include "peer_server/ConnectionWriteStream.h"
 #include <string>
 using std::shared_ptr;
@@ -25,8 +26,9 @@ namespace {
 
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 {
+	MockRequestPacker packer;
 	MockPeerTracker peers;
-	WriteSupervisor client(peers);
+	WriteSupervisor client(packer, peers);
 
 	// input
 	MockDataStore store;
@@ -42,7 +44,8 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 	assertFalse( !conn );
 	assertFalse( ((TestableConnectionWriteStream&)*conn)._blocking );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0|,false)", writer->_history.calls() );
+	assertEquals( "package(100)", packer._history.calls() );
+	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},false)", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
@@ -57,8 +60,9 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 {
+	MockRequestPacker packer;
 	MockPeerTracker peers;
-	WriteSupervisor client(peers);
+	WriteSupervisor client(packer, peers);
 
 	// input
 	MockDataStore store;
@@ -73,7 +77,8 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, false);
 	assertFalse( !conn );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0|,false)", writer->_history.calls() );
+	assertEquals( "package(100)", packer._history.calls() );
+	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},false)", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
@@ -87,8 +92,9 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 {
+	MockRequestPacker packer;
 	MockPeerTracker peers;
-	WriteSupervisor client(peers);
+	WriteSupervisor client(packer, peers);
 
 	// input
 	MockDataStore store;
@@ -104,7 +110,8 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 	assertFalse( !conn );
 	assertTrue( ((TestableConnectionWriteStream&)*conn)._blocking );
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0|,true)", writer->_history.calls() );
+	assertEquals( "package(100)", packer._history.calls() );
+	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
@@ -119,8 +126,9 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 
 TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 {
+	MockRequestPacker packer;
 	MockPeerTracker peers;
-	WriteSupervisor client(peers);
+	WriteSupervisor client(packer, peers);
 
 	// input
 	MockDataStore store;
@@ -135,13 +143,15 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0|,true)|write(0,contents,true)", writer->_history.calls() );
+	assertEquals( "package(100)", packer._history.calls() );
+	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)|write(0,contents,true)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 {
+	MockRequestPacker packer;
 	MockPeerTracker peers;
-	WriteSupervisor client(peers);
+	WriteSupervisor client(packer, peers);
 
 	// input
 	MockDataStore store;
@@ -157,13 +167,16 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0 source=dude|,true)|write(0,contents,true)", writer->_history.calls() );
+	assertEquals( "package(100)", packer._history.calls() );
+	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source=dude version=v1},true)"
+				  "|write(0,contents,true)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 {
+	MockRequestPacker packer;
 	MockPeerTracker peers;
-	WriteSupervisor client(peers);
+	WriteSupervisor client(packer, peers);
 
 	// input
 	MockDataStore store;
@@ -179,13 +192,16 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0|,true)|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,turtle,true)", writer->_history.calls() );
+	assertEquals( "package(100)", packer._history.calls() );
+	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)"
+				  "|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,turtle,true)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 {
+	MockRequestPacker packer;
 	MockPeerTracker peers;
-	WriteSupervisor client(peers);
+	WriteSupervisor client(packer, peers);
 
 	// input
 	MockDataStore store;
@@ -202,6 +218,8 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
 	assertEquals( "getWriter(dude)", peers._history.calls() );
-	assertEquals( "write(0,write|name=file i=2 n=3 v=v1 offset=0|,true)|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,,true)|flush(true)", writer->_history.calls() );
+	assertEquals( "package(100)", packer._history.calls() );
+	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)"
+				  "|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,,true)|flush(true)", writer->_history.calls() );
 }
 

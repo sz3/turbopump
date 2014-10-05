@@ -14,15 +14,14 @@ using namespace std::placeholders;
 TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& streamSocket, short port)
 	: _logger(socket_address("127.0.0.1", port).toString())
 	, _reporter(_ring, _membership, _state)
-	, _options(opts)
 	, _api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, _fakeWriter, _callbacks)
-	, _callbacks(_options)
+	, _callbacks(opts)
 	, _keyTabulator(_keyLocator)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
 	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeSupervisor, _logger)
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
 	, _messenger(_packer, _peers)
-	, _writeSupervisor(_peers)
+	, _writeSupervisor(_packer, _peers)
 	, _membership("turbo_members.txt", socket_address("127.0.0.1", port).toString())
 	, _keyLocator(_ring, _membership)
 	, _peers(_wanServer)
@@ -46,7 +45,7 @@ void TurboPumpApp::run()
 		_membership.addSelf();
 	}
 
-	if (_options.partition_keys)
+	if (_callbacks.partition_keys)
 	{
 		ConsistentHashRing& ring(_ring);
 		auto fun = [&ring] (const Peer& peer) { ring.insert(peer.uid, peer.uid); };
@@ -95,7 +94,7 @@ void TurboPumpApp::onClientConnect(int fd)
 {
 	FileByteStream fileStream(fd);
 	HttpByteStream httpStream(fileStream);
-	Turbopump::Api api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, httpStream, _options);
+	Turbopump::Api api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, httpStream, _callbacks);
 	UserPacketHandler handler(httpStream, api);
 	handler.run();
 }

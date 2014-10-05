@@ -3,17 +3,27 @@
 
 #include "api/WriteInstructions.h"
 #include "membership/Peer.h"
+#include "peer_client/IMessagePacker.h"
 #include "peer_server/BufferedConnectionWriter.h"
 #include "peer_server/ConnectionWriteStream.h"
 #include "peer_server/IPeerTracker.h"
 #include <iostream>
 #include <memory>
-#include <sstream>
 using std::string;
 using std::shared_ptr;
 
-WriteSupervisor::WriteSupervisor(IPeerTracker& peers)
-	: _peers(peers)
+namespace {
+	string reqHeader(const IMessagePacker& packer, const Turbopump::Write& request)
+	{
+		msgpack::sbuffer sbuf;
+		msgpack::pack(&sbuf, request);
+		return packer.package(request._INTERNAL_ID, sbuf.data(), sbuf.size());
+	}
+}
+
+WriteSupervisor::WriteSupervisor(const IMessagePacker& packer, IPeerTracker& peers)
+	: _packer(packer)
+	, _peers(peers)
 {
 }
 
@@ -33,14 +43,8 @@ std::shared_ptr<ConnectionWriteStream> WriteSupervisor::open(const Peer& peer, c
 
 	shared_ptr<ConnectionWriteStream> conn(new ConnectionWriteStream(writer, peer.nextActionId(), blocking));
 
-	std::stringstream ss;
-	ss << "write|name=" << write.name << " i=" << write.mirror << " n=" << write.copies << " v=" << write.version << " offset=" << write.offset;
-	if (!write.source.empty())
-		ss << " source=" << write.source;
-	ss << "|";
-	std::string buff(ss.str());
+	std::string buff(reqHeader(_packer, write));
 	conn->write(buff.data(), buff.size());
-
 	return conn;
 }
 

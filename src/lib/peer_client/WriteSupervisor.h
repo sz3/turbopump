@@ -2,12 +2,13 @@
 #pragma once
 
 #include "ISuperviseWrites.h"
+class IMessagePacker;
 class IPeerTracker;
 
 class WriteSupervisor : public ISuperviseWrites
 {
 public:
-	WriteSupervisor(IPeerTracker& peers);
+	WriteSupervisor(const IMessagePacker& packer, IPeerTracker& peers);
 
 	bool store(const Peer& peer, const WriteInstructions& write, IDataStoreReader::ptr contents);
 
@@ -15,5 +16,6 @@ public:
 	bool store(ConnectionWriteStream& conn, const WriteInstructions& write, IDataStoreReader::ptr contents);
 
 protected:
+	const IMessagePacker& _packer;
 	IPeerTracker& _peers;
 };

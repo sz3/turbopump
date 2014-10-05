@@ -45,12 +45,9 @@ protected:
 	StatusReporter _reporter;
 
 	// options, api
-	Turbopump::Options _options;
+	Callbacks _callbacks;
 	Turbopump::Api _api;
 	NullByteStream _fakeWriter;
-
-	// plugins
-	Callbacks _callbacks;
 
 	// healing
 	KeyTabulator _keyTabulator;

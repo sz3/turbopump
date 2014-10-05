@@ -32,6 +32,7 @@ target_link_libraries(peer_server_test
 	hashing
 	membership
 	mock
+	peer_client
 	programmable
 
 	event
