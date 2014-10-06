@@ -14,7 +14,6 @@ class ISuperviseWrites;
 class Callbacks : public Turbopump::Options
 {
 public:
-	Callbacks();
 	Callbacks(const Turbopump::Options& opts);
 
 	void initialize(IConsistentHashRing& ring, ILocateKeys& locator, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer);

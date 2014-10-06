@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Request.h"
-#include "common/serialize.h"
+#include "common/serializers.h"
 #include "deskew/TreeId.h"
 
 namespace Turbopump {

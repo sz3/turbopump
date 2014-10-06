@@ -29,8 +29,8 @@ TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 		StringByteStream stream("GET /status HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
 		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, httpStream, options);
-		UserPacketHandler board(httpStream, api);
-		board.run();
+		UserPacketHandler handler(httpStream, api);
+		handler.run();
 
 		assertEquals( "HTTP/1.1 200 Success\r\n"
 					  "transfer-encoding: chunked\r\n\r\n"
@@ -55,8 +55,8 @@ TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 		StringByteStream stream("GET /list-keys?deleted=1&all=1 HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
 		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, httpStream, options);
-		UserPacketHandler board(httpStream, api);
-		board.run();
+		UserPacketHandler handler(httpStream, api);
+		handler.run();
 
 		assertEquals( "report(1,)", dataStore._history.calls() );
 		assertEquals( "HTTP/1.1 200 Success\r\n"

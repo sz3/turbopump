@@ -65,10 +65,6 @@ namespace
 	}
 }
 
-Callbacks::Callbacks()
-{
-}
-
 Callbacks::Callbacks(const Turbopump::Options& opts)
 	: Turbopump::Options(opts)
 {

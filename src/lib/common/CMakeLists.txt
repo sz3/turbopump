@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	serialize.h
+	serializers.h
 	turbopump_defaults.h
 	ActionParser.cpp
 	ActionParser.h
