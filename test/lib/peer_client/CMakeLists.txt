@@ -4,6 +4,7 @@ project(peer_client_test)
 
 set (SOURCES
 	test.cpp
+	MessagePackerTest.cpp
 	MessageSenderTest.cpp
 	WriteSupervisorTest.cpp
 )

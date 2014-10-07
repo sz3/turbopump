@@ -4,7 +4,6 @@ project(common_test)
 
 set (SOURCES
 	test.cpp
-	ActionParserTest.cpp
 	DataBufferTest.cpp
 	MerklePointTest.cpp
 	MyMemberIdTest.cpp
