@@ -5,16 +5,18 @@
 #include "data_store/IDataStore.h"
 using std::string;
 
-ListKeysCommand::ListKeysCommand(const IDataStore& dataStore, IByteStream& writer)
+ListKeysCommand::ListKeysCommand(const IDataStore& dataStore)
 	: _dataStore(dataStore)
-	, _writer(writer)
 {
 }
 
 bool ListKeysCommand::run(const char*, unsigned)
 {
+	if (!_stream)
+		return false;
+
 	string excludes = params.all? "" : MEMBERSHIP_FILE_PREFIX;
-	_dataStore.report(_writer, params.deleted, excludes);
+	_dataStore.report(*_stream, params.deleted, excludes);
 	return true;
 }
 

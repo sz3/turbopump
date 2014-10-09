@@ -11,7 +11,8 @@ TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 	store._store["myfile"] = "foo";
 	StringByteStream stream;
 
-	ReadCommand command(store, stream);
+	ReadCommand command(store);
+	command.setWriter(&stream);
 	command.params.name = "myfile";
 	assertTrue( command.run() );
 
@@ -20,13 +21,25 @@ TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 	assertEquals( 200, command.status() );
 }
 
+TEST_CASE( "ReadCommandTest/testNullWriter", "[unit]" )
+{
+	MockDataStore store;
+	ReadCommand command(store);
+	command.params.name = "myfile";
+	assertFalse( command.run() );
+
+	assertEquals( "", store._history.calls() );
+	assertEquals( 0, command.status() );
+}
+
 TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
 {
 	MockDataStore store;
 	store._store["myfile"] = "foo";
 	StringByteStream stream;
 
-	ReadCommand command(store, stream);
+	ReadCommand command(store);
+	command.setWriter(&stream);
 	command.params.name = "myfile";
 	command.params.version = "v2";
 	assertTrue( command.run() );
@@ -41,7 +54,8 @@ TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
 	MockDataStore store;
 	StringByteStream stream;
 
-	ReadCommand command(store, stream);
+	ReadCommand command(store);
+	command.setWriter(&stream);
 	command.params.name = "myfile";
 	assertFalse( command.run() );
 

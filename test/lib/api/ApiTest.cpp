@@ -10,7 +10,7 @@
 #include "mock/MockSkewCorrector.h"
 #include "mock/MockStatusReporter.h"
 #include "mock/MockSynchronize.h"
-#include "socket/StringByteStream.h"
+#include "socket/NullByteStream.h"
 #include <memory>
 
 TEST_CASE( "ApiTest/testDefault", "[unit]" )
@@ -21,13 +21,15 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
 	MockSynchronize sync;
-	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
 
 	Turbopump::ListKeys req;
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", std::unordered_map<std::string,std::string>());
 	assertFalse( !command );
+
+	NullByteStream stream;
+	command->setWriter(&stream);
 
 	assertTrue( command->run() );
 	assertEquals( "report(0,.membership/)", store._history.calls() );
@@ -41,9 +43,8 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
 	MockSynchronize sync;
-	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
 
 	Turbopump::ListKeys params;
 	params.all = true;
@@ -53,6 +54,9 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 
 	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::ListKeys::_ID, sbuf.data(), sbuf.size());
 	assertFalse( !command );
+
+	NullByteStream stream;
+	command->setWriter(&stream);
 
 	assertTrue( command->run() );
 	assertEquals( "report(1,)", store._history.calls() );
@@ -66,9 +70,8 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
 	MockSynchronize sync;
-	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
 
 	std::unordered_map<std::string,std::string> params;
 	params["all"] = "1";
@@ -76,6 +79,9 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", params);
 	assertFalse( !command );
+
+	NullByteStream stream;
+	command->setWriter(&stream);
 
 	assertTrue( command->run() );
 	assertEquals( "report(1,)", store._history.calls() );
@@ -89,14 +95,16 @@ TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
 	MockSynchronize sync;
-	StringByteStream stream;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, stream, options);
+	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
 
 	Turbopump::ListKeys req;
 	req.deleted = true;
 	std::unique_ptr<Turbopump::Command> command = api.command(req);
 	assertFalse( !command );
+
+	NullByteStream stream;
+	command->setWriter(&stream);
 
 	assertTrue( command->run() );
 	assertEquals( "report(1,.membership/)", store._history.calls() );

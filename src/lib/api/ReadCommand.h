@@ -2,21 +2,20 @@
 #pragma once
 #include "Read.h"
 
-#include "Command.h"
+#include "StreamingCommand.h"
 class IByteStream;
 class IDataStore;
 
-class ReadCommand : public Turbopump::Command
+class ReadCommand : public StreamingCommand
 {
 public:
-	ReadCommand(const IDataStore& dataStore, IByteStream& writer);
+	ReadCommand(const IDataStore& dataStore);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
 	const IDataStore& _dataStore;
-	IByteStream& _writer;
 
 public:
 	Turbopump::Read params;

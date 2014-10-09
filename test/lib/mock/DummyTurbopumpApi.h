@@ -9,13 +9,12 @@
 #include "MockSkewCorrector.h"
 #include "MockStatusReporter.h"
 #include "MockSynchronize.h"
-#include "socket/StringByteStream.h"
 
 class DummyTurbopumpApi : public Turbopump::Api
 {
 public:
 	DummyTurbopumpApi()
-		: Turbopump::Api(corrector, dataStore, locator, messenger, reporter, sync, writer, options)
+		: Turbopump::Api(corrector, dataStore, locator, messenger, reporter, sync, options)
 	{}
 
 public:
@@ -26,5 +25,4 @@ public:
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
 	MockSynchronize sync;
-	StringByteStream writer;
 };

@@ -9,17 +9,28 @@ TEST_CASE( "ListKeysCommandTest/testDefault", "[unit]" )
 {
 	MockDataStore store;
 	StringByteStream stream;
-	ListKeysCommand command(store, stream);
+	ListKeysCommand command(store);
+	command.setWriter(&stream);
 
 	assertTrue( command.run() );
 	assertEquals( "report(0,.membership/)", store._history.calls() );
+}
+
+TEST_CASE( "ListKeysCommandTest/testNullWriter", "[unit]" )
+{
+	MockDataStore store;
+	ListKeysCommand command(store);
+
+	assertFalse( command.run() );
+	assertEquals( "", store._history.calls() );
 }
 
 TEST_CASE( "ListKeysCommandTest/testDeleted", "[unit]" )
 {
 	MockDataStore store;
 	StringByteStream stream;
-	ListKeysCommand command(store, stream);
+	ListKeysCommand command(store);
+	command.setWriter(&stream);
 	command.params.deleted = true;
 
 	assertTrue( command.run() );
@@ -30,7 +41,8 @@ TEST_CASE( "ListKeysCommandTest/testAll", "[unit]" )
 {
 	MockDataStore store;
 	StringByteStream stream;
-	ListKeysCommand command(store, stream);
+	ListKeysCommand command(store);
+	command.setWriter(&stream);
 	command.params.all = true;
 
 	assertTrue( command.run() );

@@ -4,17 +4,19 @@
 #include "main/IStatusReporter.h"
 #include "socket/IByteStream.h"
 
-StatusCommand::StatusCommand(const IStatusReporter& reporter, IByteStream& writer, const std::string& view)
+StatusCommand::StatusCommand(const IStatusReporter& reporter, const std::string& view)
 	: _reporter(reporter)
-	, _writer(writer)
 {
 	params.view = view;
 }
 
 bool StatusCommand::run(const char*, unsigned)
 {
+	if (!_stream)
+		return false;
+
 	std::string res = _reporter.status(params.view);
-	_writer.write(res.data(), res.size());
+	_stream->write(res.data(), res.size());
 	return true;
 }
 

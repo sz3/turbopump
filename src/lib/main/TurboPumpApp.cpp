@@ -14,7 +14,7 @@ using namespace std::placeholders;
 TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& streamSocket, short port)
 	: _logger(socket_address("127.0.0.1", port).toString())
 	, _reporter(_ring, _membership, _state)
-	, _api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, _fakeWriter, _callbacks)
+	, _api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, _callbacks)
 	, _callbacks(opts)
 	, _keyTabulator(_keyLocator)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
@@ -94,7 +94,6 @@ void TurboPumpApp::onClientConnect(int fd)
 {
 	FileByteStream fileStream(fd);
 	HttpByteStream httpStream(fileStream);
-	Turbopump::Api api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, httpStream, _callbacks);
-	UserPacketHandler handler(httpStream, api);
+	UserPacketHandler handler(httpStream, _api);
 	handler.run();
 }

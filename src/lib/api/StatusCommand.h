@@ -2,21 +2,20 @@
 #pragma once
 #include "Status.h"
 
-#include "Command.h"
+#include "StreamingCommand.h"
 class IByteStream;
 class IStatusReporter;
 
-class StatusCommand : public Turbopump::Command
+class StatusCommand : public StreamingCommand
 {
 public:
-	StatusCommand(const IStatusReporter& reporter, IByteStream& writer, const std::string& view="");
+	StatusCommand(const IStatusReporter& reporter, const std::string& view="");
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
 	const IStatusReporter& _reporter;
-	IByteStream& _writer;
 
 public:
 	Turbopump::Status params;

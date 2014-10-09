@@ -25,7 +25,6 @@
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
 #include "socket/LocalStreamSocketServer.h"
-#include "socket/NullByteStream.h"
 #include <string>
 
 class TurboPumpApp
@@ -47,7 +46,6 @@ protected:
 	// options, api
 	Callbacks _callbacks;
 	Turbopump::Api _api;
-	NullByteStream _fakeWriter;
 
 	// healing
 	KeyTabulator _keyTabulator;

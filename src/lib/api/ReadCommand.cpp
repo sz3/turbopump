@@ -6,14 +6,16 @@
 #include "socket/IByteStream.h"
 #include <vector>
 
-ReadCommand::ReadCommand(const IDataStore& dataStore, IByteStream& writer)
+ReadCommand::ReadCommand(const IDataStore& dataStore)
 	: _dataStore(dataStore)
-	, _writer(writer)
 {
 }
 
 bool ReadCommand::run(const char*, unsigned)
 {
+	if (!_stream)
+		return false;
+
 	IDataStoreReader::ptr reader;
 	if (params.version.empty())
 	{
@@ -26,7 +28,7 @@ bool ReadCommand::run(const char*, unsigned)
 
 	if (!reader)
 		return setStatus(404);
-	while (reader->read(_writer) > 0);
+	while (reader->read(*_stream) > 0);
 	return setStatus(200);
 }
 

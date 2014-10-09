@@ -2,21 +2,20 @@
 #pragma once
 #include "ListKeys.h"
 
-#include "Command.h"
+#include "StreamingCommand.h"
 class IByteStream;
 class IDataStore;
 
-class ListKeysCommand : public Turbopump::Command
+class ListKeysCommand : public StreamingCommand
 {
 public:
-	ListKeysCommand(const IDataStore& dataStore, IByteStream& writer);
+	ListKeysCommand(const IDataStore& dataStore);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
 	const IDataStore& _dataStore;
-	IByteStream& _writer;
 
 public:
 	Turbopump::ListKeys params;

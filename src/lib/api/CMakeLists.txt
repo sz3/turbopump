@@ -7,6 +7,7 @@ set(SOURCES
 	InternalCommand.h
 	Options.h
 	Request.h
+	StreamingCommand.h
 
 	AckWrite.h
 	AckWriteCommand.cpp

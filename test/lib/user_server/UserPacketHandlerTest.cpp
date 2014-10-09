@@ -28,7 +28,7 @@ TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 	{
 		StringByteStream stream("GET /status HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, httpStream, options);
+		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, options);
 		UserPacketHandler handler(httpStream, api);
 		handler.run();
 
@@ -54,7 +54,7 @@ TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 	{
 		StringByteStream stream("GET /list-keys?deleted=1&all=1 HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, httpStream, options);
+		Turbopump::Api api(corrector, dataStore, locator, messenger, reporter, sync, options);
 		UserPacketHandler handler(httpStream, api);
 		handler.run();
 

@@ -7,8 +7,6 @@
 #include <memory>
 #include <unordered_map>
 
-class DataBuffer;
-class IByteStream;
 class ICorrectSkew;
 class IDataStore;
 class ILocateKeys;
@@ -22,7 +20,7 @@ class Options;
 class Api
 {
 public:
-	Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, ISynchronize& sync, IByteStream& writer, const Options& options);
+	Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, ISynchronize& sync, const Options& options);
 
 	std::unique_ptr<Command> command(int id, const char* buff, unsigned size) const;
 	std::unique_ptr<Command> command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const;
@@ -50,7 +48,6 @@ protected:
 	IMessageSender& _messenger;
 	IStatusReporter& _reporter;
 	ISynchronize& _sync;
-	IByteStream& _writer;
 	const Options& _options;
 };
 }//namespace
