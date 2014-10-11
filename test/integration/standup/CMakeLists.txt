@@ -8,7 +8,7 @@ set (SOURCES
 )
 
 include_directories(
-	${corelib_SOURCE_DIR}/test
+	${turbolib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
 )
 
