@@ -19,15 +19,15 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 
 * static and dynamic cluster membership. Online addition of peers. (removal is broken-ish)
 * RAM data store
-* local storage and retrieval of keys via HTTP over unix domain sockets
+* local put/get of keys via HTTP over unix domain sockets
 * auto-versioned writes
-* primitive deletes
+* deletes, kind of (no age-out yet)
 * cross-peer sync
-	* efficient synchronization of changes to data store based on a hierarchical merkle-tree-like summary data structure
+	* (allegedly) efficient synchronization of changes to data store based on a hierarchical merkle-tree-like summary data structure
 * basic function callbacks on write completion
 * inter-box UDP communication for small writes.
 	* No reliability, nor congestion control. YMMV.
-* inter-box UDT communication.
+* inter-box UDT communication. (default)
 	* No ability to reuse bound socket for outgoing connection -> :(
 	* may cause NAT issues going forward
 * partitioning! Mode to distribute keys to only their rightful place, rather than "everywhere".
@@ -57,8 +57,8 @@ Q. I am a possible wizard who somehow got this built and running. How do I store
 
 A. The API is still in flux, but you can use HTTP over unix domain sockets. For example:
 
-* echo -e -n 'GET /state HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
-* echo -e -n 'GET /local_list HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+* echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+* echo -e -n 'GET /list-keys HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
 * echo -e -n 'POST /write?name=foo HTTP/1.1\r\ncontent-length:5\r\n\r\n012345' | nc -U /tmp/turbopump
 * echo -e -n 'GET /read?name=foo HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
 
