@@ -10,11 +10,10 @@
 using std::shared_ptr;
 using std::string;
 
-PeerPacketHandler::PeerPacketHandler(Turbopump::Api& api, IExecutor& executor, const IMembership& membership, ILog& logger)
+PeerPacketHandler::PeerPacketHandler(Turbopump::Api& api, const IMembership& membership, IPeerCommandCenter& center)
 	: _api(api)
-	, _executor(executor)
 	, _membership(membership)
-	, _logger(logger)
+	, _center(center)
 {
 }
 
@@ -32,6 +31,23 @@ bool PeerPacketHandler::onPacket(ISocketWriter& writer, const char* buff, unsign
 		return false;
 	string buffer(buff, size); // decrypt here
 
+	_center.run(peer, buffer);
+	return true;
+}
+
+std::shared_ptr<Turbopump::Command> PeerPacketHandler::command(unsigned cid, const char* buff, unsigned size)
+{
+	return _api.command(cid, buff, size);
+}
+
+
+PeerCommandCenter::PeerCommandCenter(IExecutor& executor)
+	: _executor(executor)
+{
+}
+
+void PeerCommandCenter::run(const std::shared_ptr<Peer>& peer, const std::string& buffer)
+{
 	string endpoint = peer->uid;
 	shared_ptr<PeerCommandRunner> runner =_runners[endpoint];
 	if (!runner)
@@ -42,24 +58,18 @@ bool PeerPacketHandler::onPacket(ISocketWriter& writer, const char* buff, unsign
 	string fin;
 	while (_finished.try_pop(fin))
 		_runners.erase(fin);
-	return true;
 }
 
-std::shared_ptr<Turbopump::Command> PeerPacketHandler::command(unsigned cid, const char* buff, unsigned size)
-{
-	return _api.command(cid, buff, size);
-}
-
-void PeerPacketHandler::markFinished(const std::string& runner)
+void PeerCommandCenter::markFinished(const std::string& runner)
 {
 	_finished.push(runner);
 }
 
 //PeerCommandRunner
 
-PeerCommandRunner::PeerCommandRunner(const std::shared_ptr<Peer>& peer, IPeerPacketHandler& handler)
+PeerCommandRunner::PeerCommandRunner(const std::shared_ptr<Peer>& peer, IPeerCommandCenter& center)
 	: _peer(peer)
-	, _handler(handler)
+	, _center(center)
 {
 }
 
@@ -76,39 +86,43 @@ void PeerCommandRunner::doWork()
 {
 	string buffer;
 	while (_buffers.try_pop(buffer))
-	{
-		DataBuffer unparsed(buffer.data(), buffer.size());
-		PacketParser packetGrabber(unparsed);
+		parseAndRun(buffer);
+	// if no more actions and no more buffers, _center.markFinished(_peer->uid)
+}
 
-		DataBuffer buff(DataBuffer::Null());
-		while (unparsed.size() > 0)
+void PeerCommandRunner::parseAndRun(const std::string& buffer)
+{
+	DataBuffer unparsed(buffer.data(), buffer.size());
+	PacketParser packetGrabber(unparsed);
+
+	DataBuffer buff(DataBuffer::Null());
+	while (unparsed.size() > 0)
+	{
+		unsigned char virtid;
+		if (!packetGrabber.getNext(virtid, buff))
+			break;
+
+		std::shared_ptr<Turbopump::Command> command = _commands[virtid];
+		if (!command || command->finished())
 		{
-			unsigned char virtid;
-			if (!packetGrabber.getNext(virtid, buff))
+			PacketParser commandFinder(buff);
+			unsigned char cid = 0;
+			DataBuffer commandBuff(buff);
+			if (!commandFinder.getNext(cid, commandBuff))
 				break;
 
-			std::shared_ptr<Turbopump::Command> command = _commands[virtid];
-			if (!command || command->finished())
-			{
-				PacketParser commandFinder(buff);
-				unsigned char cid = 0;
-				DataBuffer commandBuff(buff);
-				if (!commandFinder.getNext(cid, commandBuff))
-					break;
+			command = _center.command(cid, commandBuff.buffer(), commandBuff.size());
+			if (!command)
+				continue;
+			command->setPeer(_peer);
 
-				command = _handler.command(cid, commandBuff.buffer(), commandBuff.size());
-				if (!command)
-					continue;
-				command->setPeer(_peer);
-
-				if (!command->finished())
-					_commands[virtid] = command;
-			}
-			command->run(buff.buffer(), buff.size());
+			if (!command->finished())
+				_commands[virtid] = command;
 		}
+		command->run(buff.buffer(), buff.size());
 	}
-	// if no more actions and no more buffers, _handler.markFinished(_peer->uid)
 }
+
 
 bool PeerCommandRunner::addWork(std::string&& buff)
 {

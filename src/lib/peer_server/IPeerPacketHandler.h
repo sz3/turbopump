@@ -5,10 +5,16 @@
 #include <string>
 namespace Turbopump { class Api; class Command; }
 
-class PeerPacketHandler : public IPeerPacketHandler
+class IPeerPacketHandler
 {
 public:
 	virtual std::shared_ptr<Turbopump::Command> command(unsigned cid, const char* buff, unsigned size) = 0;
+};
+
+class IPeerCommandCenter
+{
+public:
+	virtual void run(const std::shared_ptr<Peer>& peer, const std::string& buffer) = 0;
 	virtual void markFinished(const std::string& id) = 0;
 };
 

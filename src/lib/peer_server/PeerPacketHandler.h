@@ -9,7 +9,6 @@
 #include <unordered_map>
 namespace Turbopump { class Api; class Command; }
 class IExecutor;
-class ILog;
 class IMembership;
 class ISocketWriter;
 class Peer;
@@ -17,39 +16,50 @@ class Peer;
 class PeerPacketHandler : public IPeerPacketHandler
 {
 public:
-	PeerPacketHandler(Turbopump::Api& api, IExecutor& executor, const IMembership& membership, ILog& logger);
+	PeerPacketHandler(Turbopump::Api& api, const IMembership& membership, IPeerCommandCenter& center);
 
 	bool onPacket(ISocketWriter& writer, const char* buff, unsigned size);
 
-	std::shared_ptr<Turbopump::Command> command(unsigned cid, const char* buff, unsigned size);
+protected:
+	Turbopump::Api& _api;
+	const IMembership& _membership;
+	IPeerCommandCenter& _center;
+};
+
+class PeerCommandCenter : public IPeerCommandCenter
+{
+public:
+	PeerCommandCenter(IExecutor& executor);
+
+	void run(const std::shared_ptr<Peer>& peer, const std::string& buffer);
 	void markFinished(const std::string& id);
 
 protected:
-	Turbopump::Api& _api;
+
 	IExecutor& _executor;
-	const IMembership& _membership;
-	ILog& _logger;
 
 	std::unordered_map<std::string, std::shared_ptr<PeerCommandRunner>> _runners;
 	tbb::concurrent_queue<std::string> _finished;
 };
 
 
+// maybe split into a subclass that just handles the simple stuff?
 class PeerCommandRunner
 {
 public:
-	PeerCommandRunner(const std::shared_ptr<Peer>& peer, IPeerPacketHandler& handler);
+	PeerCommandRunner(const std::shared_ptr<Peer>& peer, IPeerCommandCenter& center);
 
 	void run();
+	void parseAndRun(const std::string& buffer);
 
 	bool addWork(std::string&& buff);
 
 protected:
-	void doWorker();
+	void doWork();
 
 public:
 	std::shared_ptr<Peer> _peer;
-	IPeerPacketHandler& _handler;
+	IPeerCommandCenter& _center;
 
 	std::atomic_flag _running = ATOMIC_FLAG_INIT;
 	std::unordered_map<unsigned char,std::shared_ptr<Turbopump::Command>> _commands;
