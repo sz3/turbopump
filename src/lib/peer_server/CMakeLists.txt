@@ -6,10 +6,13 @@ set(SOURCES
 	ConnectionWriteStream.cpp
 	ConnectionWriteStream.h
 	IBufferedConnectionWriter.h
+	IPeerPacketHandler.h
 	IPeerTracker.h
 	OrderedPacket.h
 	PacketParser.cpp
 	PacketParser.h
+	PeerPacketHandler.cpp
+	PeerPacketHandler.h
 	PeerConnection.cpp
 	PeerConnection.h
 	PeerTracker.cpp
