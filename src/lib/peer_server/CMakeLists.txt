@@ -3,14 +3,18 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	BufferedConnectionWriter.cpp
 	BufferedConnectionWriter.h
+	ConcurrentCommandCenter.cpp
+	ConcurrentCommandCenter.h
 	ConnectionWriteStream.cpp
 	ConnectionWriteStream.h
 	IBufferedConnectionWriter.h
-	IPeerPacketHandler.h
+	IPeerCommandCenter.h
 	IPeerTracker.h
 	OrderedPacket.h
 	PacketParser.cpp
 	PacketParser.h
+	PeerCommandRunner.cpp
+	PeerCommandRunner.h
 	PeerPacketHandler.cpp
 	PeerPacketHandler.h
 	PeerConnection.cpp
