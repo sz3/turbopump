@@ -18,6 +18,9 @@ public:
 	unsigned capacity() const;
 	int write(unsigned char virtid, const char* buffer, unsigned length, bool blocking);
 	bool flush(bool blocking);
+	bool close();
+
+	std::string target() const;
 
 protected:
 	void pushBytes(unsigned char virtid, const char* buff, unsigned length);

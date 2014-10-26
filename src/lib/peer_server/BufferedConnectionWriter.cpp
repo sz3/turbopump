@@ -126,3 +126,14 @@ unsigned BufferedConnectionWriter::findFirstTruncatedPacket(const char* buff, un
 	}
 	return size;
 }
+
+
+bool BufferedConnectionWriter::close()
+{
+	return _sock->close();
+}
+
+std::string BufferedConnectionWriter::target() const
+{
+	return _sock->target();
+}

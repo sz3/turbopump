@@ -10,6 +10,10 @@ public:
 	unsigned capacity() const;
 	int write(unsigned char virtid, const char* buffer, unsigned length, bool blocking);
 	bool flush(bool blocking);
+	bool close();
+
+	std::string target() const;
+
 public:
 	unsigned _capacity = 1000;
 	mutable CallHistory _history;

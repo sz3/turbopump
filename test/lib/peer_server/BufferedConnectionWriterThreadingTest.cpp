@@ -40,6 +40,11 @@ namespace {
 			return size;
 		}
 
+		bool close()
+		{
+			return true;
+		}
+
 		socket_address endpoint() const { return socket_address(); }
 		string target() const { return "special"; }
 

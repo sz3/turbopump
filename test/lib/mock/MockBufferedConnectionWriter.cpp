@@ -27,3 +27,15 @@ bool MockBufferedConnectionWriter::flush(bool blocking)
 	_history.call("flush", boolStr(blocking));
 	return true;
 }
+
+bool MockBufferedConnectionWriter::close()
+{
+	_history.call("close");
+	return true;
+}
+
+std::string MockBufferedConnectionWriter::target() const
+{
+	_history.call("target");
+	return "target";
+}
