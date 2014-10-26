@@ -6,11 +6,11 @@
 #include "api/WriteInstructions.h"
 #include "data_store/IDataStoreReader.h"
 #include "membership/Peer.h"
-#include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
-#include "mock/MockPeerTracker.h"
 #include "mock/MockRequestPacker.h"
 #include "peer_server/ConnectionWriteStream.h"
+#include "socket/MockSocketServer.h"
+#include "socket/MockSocketWriter.h"
 #include <string>
 using std::shared_ptr;
 using std::string;
@@ -27,8 +27,8 @@ namespace {
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 {
 	MockRequestPacker packer;
-	MockPeerTracker peers;
-	WriteSupervisor client(packer, peers);
+	MockSocketServer server;
+	WriteSupervisor client(packer, server);
 
 	// input
 	MockDataStore store;
@@ -36,14 +36,14 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	MockSocketWriter* writer = new MockSocketWriter();
+	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
 	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, false);
 	assertFalse( !conn );
 	assertFalse( ((TestableConnectionWriteStream&)*conn)._blocking );
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
 	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},false)", writer->_history.calls() );
 
@@ -61,8 +61,8 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 {
 	MockRequestPacker packer;
-	MockPeerTracker peers;
-	WriteSupervisor client(packer, peers);
+	MockSocketServer server;
+	WriteSupervisor client(packer, server);
 
 	// input
 	MockDataStore store;
@@ -70,13 +70,13 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	MockSocketWriter* writer = new MockSocketWriter();
+	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
 	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, false);
 	assertFalse( !conn );
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
 	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},false)", writer->_history.calls() );
 
@@ -93,8 +93,8 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 {
 	MockRequestPacker packer;
-	MockPeerTracker peers;
-	WriteSupervisor client(packer, peers);
+	MockSocketServer server;
+	WriteSupervisor client(packer, server);
 
 	// input
 	MockDataStore store;
@@ -102,14 +102,14 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	MockSocketWriter* writer = new MockSocketWriter();
+	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
 	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, true);
 	assertFalse( !conn );
 	assertTrue( ((TestableConnectionWriteStream&)*conn)._blocking );
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
 	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)", writer->_history.calls() );
 
@@ -127,8 +127,8 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 {
 	MockRequestPacker packer;
-	MockPeerTracker peers;
-	WriteSupervisor client(packer, peers);
+	MockSocketServer server;
+	WriteSupervisor client(packer, server);
 
 	// input
 	MockDataStore store;
@@ -136,13 +136,13 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	MockSocketWriter* writer = new MockSocketWriter();
+	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
 	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)|write(0,contents,true)", writer->_history.calls() );
 }
@@ -150,8 +150,8 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 {
 	MockRequestPacker packer;
-	MockPeerTracker peers;
-	WriteSupervisor client(packer, peers);
+	MockSocketServer server;
+	WriteSupervisor client(packer, server);
 
 	// input
 	MockDataStore store;
@@ -159,14 +159,14 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
-	peers._writer.reset(writer);
+	MockSocketWriter* writer = new MockSocketWriter();
+	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
 	params.source = "dude";
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
 	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source=dude version=v1},true)"
 				  "|write(0,contents,true)", writer->_history.calls() );
@@ -175,8 +175,8 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 {
 	MockRequestPacker packer;
-	MockPeerTracker peers;
-	WriteSupervisor client(packer, peers);
+	MockSocketServer server;
+	WriteSupervisor client(packer, server);
 
 	// input
 	MockDataStore store;
@@ -184,14 +184,14 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	MockSocketWriter* writer = new MockSocketWriter();
 	writer->_capacity = 10;
-	peers._writer.reset(writer);
+	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
 	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)"
 				  "|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,turtle,true)", writer->_history.calls() );
@@ -200,8 +200,8 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 {
 	MockRequestPacker packer;
-	MockPeerTracker peers;
-	WriteSupervisor client(packer, peers);
+	MockSocketServer server;
+	WriteSupervisor client(packer, server);
 
 	// input
 	MockDataStore store;
@@ -209,15 +209,15 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	MockBufferedConnectionWriter* writer = new MockBufferedConnectionWriter();
+	MockSocketWriter* writer = new MockSocketWriter();
 	writer->_capacity = 10;
-	peers._writer.reset(writer);
+	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
 	params.isComplete = true;
 	assertTrue( client.store(Peer("dude"), params, reader) );
 
-	assertEquals( "getWriter(dude)", peers._history.calls() );
+	assertEquals( "getWriter(dude)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
 	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)"
 				  "|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,,true)|flush(true)", writer->_history.calls() );

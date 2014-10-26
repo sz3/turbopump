@@ -2,6 +2,7 @@
 #include "Peer.h"
 
 #include "serialize/StringUtil.h"
+#include "socket/socket_address.h"
 #include <atomic>
 #include <iostream>
 using std::string;
@@ -20,7 +21,7 @@ Peer::Peer(const Peer& peer)
 {
 }
 
-string Peer::address() const
+std::string Peer::address() const
 {
 	if (ips.empty())
 		return "";
@@ -32,7 +33,6 @@ unsigned char Peer::nextActionId() const
 {
 	return _actionId++;
 }
-
 
 string Peer::toString() const
 {

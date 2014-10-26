@@ -3,12 +3,12 @@
 
 #include "ISuperviseWrites.h"
 class IMessagePacker;
-class IPeerTracker;
+class ISocketServer;
 
 class WriteSupervisor : public ISuperviseWrites
 {
 public:
-	WriteSupervisor(const IMessagePacker& packer, IPeerTracker& peers);
+	WriteSupervisor(const IMessagePacker& packer, ISocketServer& server);
 
 	bool store(const Peer& peer, const WriteInstructions& write, IDataStoreReader::ptr contents);
 
@@ -17,5 +17,5 @@ public:
 
 protected:
 	const IMessagePacker& _packer;
-	IPeerTracker& _peers;
+	ISocketServer& _server;
 };

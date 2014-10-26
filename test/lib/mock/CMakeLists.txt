@@ -27,8 +27,6 @@ set(SOURCES
 	MockMirrorToPeer.h
 	MockPeerCommandCenter.cpp
 	MockPeerCommandCenter.h
-	MockPeerTracker.cpp
-	MockPeerTracker.h
 	MockProcessState.cpp
 	MockProcessState.h
 	MockRequestPacker.cpp

@@ -22,7 +22,7 @@ std::shared_ptr<ConnectionWriteStream> MockWriteSupervisor::open(const Peer& pee
 	_history.call("open", peer.uid, write.name, blocking);
 	if (!_writer)
 		return NULL;
-	return std::shared_ptr<ConnectionWriteStream>( new ConnectionWriteStream(_writer, 1, blocking) );
+	return std::shared_ptr<ConnectionWriteStream>( new ConnectionWriteStream(_writer, blocking) );
 }
 
 bool MockWriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, IDataStoreReader::ptr contents)

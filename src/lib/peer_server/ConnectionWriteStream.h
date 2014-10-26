@@ -3,12 +3,12 @@
 
 #include "socket/IByteStream.h"
 #include <memory>
-class IBufferedConnectionWriter;
+class ISocketWriter;
 
 class ConnectionWriteStream : public IByteStream
 {
 public:
-	ConnectionWriteStream(const std::shared_ptr<IBufferedConnectionWriter>& writer, unsigned char virtid, bool blocking);
+	ConnectionWriteStream(const std::shared_ptr<ISocketWriter>& writer, bool blocking);
 
 	unsigned maxPacketLength() const;
 
@@ -17,7 +17,6 @@ public:
 	bool flush();
 
 protected:
-	std::shared_ptr<IBufferedConnectionWriter> _writer;
-	unsigned char _virtid;
+	std::shared_ptr<ISocketWriter> _writer;
 	bool _blocking;
 };

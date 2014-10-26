@@ -40,6 +40,16 @@ namespace {
 			return size;
 		}
 
+		unsigned capacity() const
+		{
+			return 1000;
+		}
+
+		bool flush(bool wait)
+		{
+			return true;
+		}
+
 		bool close()
 		{
 			return true;

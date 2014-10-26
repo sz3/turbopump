@@ -11,8 +11,9 @@
 #include "common/MerklePoint.h"
 #include "deskew/TreeId.h"
 #include "membership/Peer.h"
-#include "peer_server/IBufferedConnectionWriter.h"
-#include "peer_server/IPeerTracker.h"
+#include "socket/ISocketServer.h"
+#include "socket/ISocketWriter.h"
+#include "socket/socket_address.h"
 
 #include "msgpack.hpp"
 #include <memory>
@@ -31,19 +32,26 @@ namespace {
 	}
 }
 
-MessageSender::MessageSender(const IMessagePacker& packer, IPeerTracker& peers)
+MessageSender::MessageSender(const IMessagePacker& packer, ISocketServer& server)
 	: _packer(packer)
-	, _peers(peers)
+	, _server(server)
 {
 }
 
 bool MessageSender::sendMessage(const Peer& peer, const string& message, bool blocking)
 {
-	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
+	socket_address addr;
+	if (!addr.fromString(peer.address()))
+		return false;
+
+	shared_ptr<ISocketWriter> writer(_server.getWriter(addr));
 	if (!writer)
 		return false;
 
-	writer->write(peer.nextActionId(), message.data(), message.size(), blocking);
+	if (blocking)
+		writer->try_send(message.data(), message.size());
+	else
+		writer->send(message.data(), message.size());
 	writer->flush(blocking);
 	return true;
 }

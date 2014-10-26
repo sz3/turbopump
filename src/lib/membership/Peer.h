@@ -4,6 +4,7 @@
 #include <atomic>
 #include <string>
 #include <vector>
+class socket_address;
 
 class Peer
 {
@@ -22,5 +23,5 @@ public:
 	std::vector<std::string> ips;
 
 protected:
-	mutable std::atomic<unsigned char> _actionId;
+	mutable std::atomic<unsigned char> _actionId; // should go away
 };

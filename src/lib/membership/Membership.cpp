@@ -10,6 +10,7 @@
 
 #include "file/StateSaver.h"
 #include "serialize/StringUtil.h"
+#include "socket/socket_address.h"
 #include "util/Random.h"
 #include <algorithm>
 #include <utility>

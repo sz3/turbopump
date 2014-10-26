@@ -1,11 +1,10 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "ConnectionWriteStream.h"
 
-#include "IBufferedConnectionWriter.h"
+#include "socket/ISocketWriter.h"
 
-ConnectionWriteStream::ConnectionWriteStream(const std::shared_ptr<IBufferedConnectionWriter>& writer, unsigned char virtid, bool blocking)
+ConnectionWriteStream::ConnectionWriteStream(const std::shared_ptr<ISocketWriter>& writer, bool blocking)
 	: _writer(writer)
-	, _virtid(virtid)
 	, _blocking(blocking)
 {
 }
@@ -17,7 +16,10 @@ unsigned ConnectionWriteStream::maxPacketLength() const
 
 int ConnectionWriteStream::write(const char* buff, unsigned length)
 {
-	return _writer->write(_virtid, buff, length, _blocking);
+	if (_blocking)
+		return _writer->send(buff, length);
+	else
+		return _writer->try_send(buff, length);
 }
 
 bool ConnectionWriteStream::flush()

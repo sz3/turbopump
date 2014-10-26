@@ -11,7 +11,6 @@
 #include "mock/MockLogger.h"
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
-#include "peer_server/PeerConnection.h"
 
 #include "serialize/StringUtil.h"
 

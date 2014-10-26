@@ -9,7 +9,6 @@ set(SOURCES
 	ConnectionWriteStream.h
 	IBufferedConnectionWriter.h
 	IPeerCommandCenter.h
-	IPeerTracker.h
 	MultiplexedSocketPool.h
 	MultiplexedSocketWriter.cpp
 	MultiplexedSocketWriter.h
@@ -20,14 +19,6 @@ set(SOURCES
 	PeerCommandRunner.h
 	PeerPacketHandler.cpp
 	PeerPacketHandler.h
-	PeerConnection.cpp
-	PeerConnection.h
-	PeerTracker.cpp
-	PeerTracker.h
-	VirtualConnection.cpp
-	VirtualConnection.h
-	WanPacketHandler.cpp
-	WanPacketHandler.h
 )
 
 include_directories(

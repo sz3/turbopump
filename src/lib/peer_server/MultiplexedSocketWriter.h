@@ -12,6 +12,9 @@ public:
 
 	int try_send(const char* buffer, unsigned size);
 	int send(const char* buffer, unsigned size);
+
+	unsigned capacity() const;
+	bool flush(bool wait);
 	bool close();
 
 	socket_address endpoint() const;

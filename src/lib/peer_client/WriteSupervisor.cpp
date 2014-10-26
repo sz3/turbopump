@@ -6,7 +6,8 @@
 #include "peer_client/IMessagePacker.h"
 #include "peer_server/BufferedConnectionWriter.h"
 #include "peer_server/ConnectionWriteStream.h"
-#include "peer_server/IPeerTracker.h"
+#include "socket/ISocketServer.h"
+#include "socket/socket_address.h"
 #include <iostream>
 #include <memory>
 using std::string;
@@ -21,9 +22,9 @@ namespace {
 	}
 }
 
-WriteSupervisor::WriteSupervisor(const IMessagePacker& packer, IPeerTracker& peers)
+WriteSupervisor::WriteSupervisor(const IMessagePacker& packer, ISocketServer& server)
 	: _packer(packer)
-	, _peers(peers)
+	, _server(server)
 {
 }
 
@@ -37,11 +38,15 @@ bool WriteSupervisor::store(const Peer& peer, const WriteInstructions& write, ID
 
 std::shared_ptr<ConnectionWriteStream> WriteSupervisor::open(const Peer& peer, const WriteInstructions& write, bool blocking)
 {
-	shared_ptr<IBufferedConnectionWriter> writer(_peers.getWriter(peer));
+	socket_address addr;
+	if (!addr.fromString(peer.address()))
+		return NULL;
+
+	shared_ptr<ISocketWriter> writer(_server.getWriter(addr));
 	if (!writer)
 		return NULL;
 
-	shared_ptr<ConnectionWriteStream> conn(new ConnectionWriteStream(writer, peer.nextActionId(), blocking));
+	shared_ptr<ConnectionWriteStream> conn(new ConnectionWriteStream(writer, blocking));
 
 	std::string buff(reqHeader(_packer, write));
 	conn->write(buff.data(), buff.size());

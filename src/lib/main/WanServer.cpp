@@ -1,15 +1,17 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "WanServer.h"
 
+#include "peer_server/MultiplexedSocketPool.h"
+
 #include "socket/UdpServer.h"
 #include "udt_socket/UdtServer.h"
 
 WanServer::WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket)
 {
 	if (opts.udt)
-		_server.reset( new UdtServer(addr, onPacket) );
+		_server = new UdtServer(addr, onPacket);
 	else
-		_server.reset( new UdpServer(addr, onPacket) );
+		_server = new UdpServer(addr, onPacket);
 }
 
 bool WanServer::start()

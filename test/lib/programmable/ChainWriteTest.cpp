@@ -5,13 +5,13 @@
 
 #include "api/WriteInstructions.h"
 #include "data_store/IDataStoreReader.h"
-#include "mock/MockBufferedConnectionWriter.h"
 #include "mock/MockDataStore.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMirrorToPeer.h"
 #include "mock/MockWriteSupervisor.h"
 
+#include "socket/MockSocketWriter.h"
 #include <string>
 using std::string;
 
@@ -28,7 +28,7 @@ TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	supervisor._writer.reset(new MockBufferedConnectionWriter());
+	supervisor._writer.reset(new MockSocketWriter());
 
 	WriteInstructions params("file","v1",0,3);
 	assertTrue( command.run(params, reader) );
@@ -53,7 +53,7 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	supervisor._writer.reset(new MockBufferedConnectionWriter());
+	supervisor._writer.reset(new MockSocketWriter());
 
 	WriteInstructions params("file","v1",0,3);
 	assertFalse( command.run(params, reader) );
@@ -99,7 +99,7 @@ TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 	IDataStoreReader::ptr reader = store.read("dummy", "version");
 
 	// output
-	supervisor._writer.reset(new MockBufferedConnectionWriter());
+	supervisor._writer.reset(new MockSocketWriter());
 
 	WriteInstructions params("file","v1",0,3);
 	assertTrue( command.run(params, reader) );

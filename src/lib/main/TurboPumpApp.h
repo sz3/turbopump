@@ -18,8 +18,8 @@
 #include "peer_client/MessagePacker.h"
 #include "peer_client/MessageSender.h"
 #include "peer_client/WriteSupervisor.h"
-#include "peer_server/PeerTracker.h"
-#include "peer_server/WanPacketHandler.h"
+#include "peer_server/ConcurrentCommandCenter.h"
+#include "peer_server/PeerPacketHandler.h"
 #include "programmable/Callbacks.h"
 
 #include "event/SchedulerThread.h"
@@ -64,12 +64,12 @@ protected:
 	Membership _membership;
 	LocateKeys _keyLocator;
 	RamDataStore _localDataStore;
-	PeerTracker _peers;
 
 	// servers!
 	LocalStreamSocketServer _localServer;
-	MultiThreadedExecutor _wanExecutor;
-	//SimpleExecutor _wanExecutor;
-	WanPacketHandler _wanPacketHandler;
-	WanServer _wanServer;
+	MultiThreadedExecutor _peerExecutor;
+	//SimpleExecutor _peerExecutor;
+	ConcurrentCommandCenter _peerCenter;
+	PeerPacketHandler _peerPacketHandler;
+	WanServer _peerServer;
 };

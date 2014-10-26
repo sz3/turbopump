@@ -10,8 +10,6 @@ set (SOURCES
 	MultiplexedSocketPoolTest.cpp
 	PeerCommandRunnerTest.cpp
 	PeerPacketHandlerTest.cpp
-	PeerTrackerTest.cpp
-	WanPacketHandlerTest.cpp
 )
 
 include_directories(

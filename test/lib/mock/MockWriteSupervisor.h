@@ -3,8 +3,8 @@
 
 #include "peer_client/ISuperviseWrites.h"
 #include "util/CallHistory.h"
-class IBufferedConnectionWriter;
 class IPeerTracker;
+class ISocketWriter;
 
 class MockWriteSupervisor : public ISuperviseWrites
 {
@@ -17,7 +17,7 @@ public:
 
 public:
 	CallHistory _history;
-	std::shared_ptr<IBufferedConnectionWriter> _writer;
+	std::shared_ptr<ISocketWriter> _writer;
 	bool _storeFails;
 };
 

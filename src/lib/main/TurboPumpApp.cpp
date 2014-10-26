@@ -20,14 +20,14 @@ TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& st
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
 	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeSupervisor, _logger)
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
-	, _messenger(_packer, _peers)
-	, _writeSupervisor(_packer, _peers)
+	, _messenger(_packer, _peerServer)
+	, _writeSupervisor(_packer, _peerServer)
 	, _membership("turbo_members.txt", socket_address("127.0.0.1", port).toString())
 	, _keyLocator(_ring, _membership)
-	, _peers(_wanServer)
 	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
-	, _wanPacketHandler(_api, _wanExecutor, _membership, _peers, _logger)
-	, _wanServer(_callbacks, socket_address("127.0.0.1", port), std::bind(&WanPacketHandler::onPacket, &_wanPacketHandler, _1, _2, _3))
+	, _peerCenter(_api, _peerExecutor)
+	, _peerPacketHandler(_membership, _peerCenter, _logger)
+	, _peerServer(_callbacks, socket_address("127.0.0.1", port), std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3))
 {
 	_callbacks.initialize(_ring, _keyLocator, _membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
 }
@@ -53,15 +53,15 @@ void TurboPumpApp::run()
 	}
 
 	// servers
-	if (!_wanExecutor.start())
+	if (!_peerExecutor.start())
 	{
-		std::cerr << "failed to start udp handler threads. Abort." << std::endl;
+		std::cerr << "failed to start wan handler threads. Abort." << std::endl;
 		::exit(-1);
 	}
 
-	if (!_wanServer.start())
+	if (!_peerServer.start())
 	{
-		std::cerr << "failed to start wan server. Abort. " << _wanServer.lastError() << std::endl;
+		std::cerr << "failed to start wan server. Abort. " << _peerServer.lastError() << std::endl;
 		::exit(-1);
 	}
 
@@ -80,8 +80,8 @@ void TurboPumpApp::run()
 
 	_scheduler.shutdown();
 	_localServer.stop();
-	_wanServer.stop();
-	_wanExecutor.stop();
+	_peerServer.stop();
+	_peerExecutor.stop();
 }
 
 void TurboPumpApp::shutdown()

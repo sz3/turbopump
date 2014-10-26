@@ -20,6 +20,16 @@ int MultiplexedSocketWriter::send(const char* buffer, unsigned size)
 	return _writer->write(_muxid, buffer, size, true);
 }
 
+unsigned MultiplexedSocketWriter::capacity() const
+{
+	return _writer->capacity();
+}
+
+bool MultiplexedSocketWriter::flush(bool wait)
+{
+	return _writer->flush(wait);
+}
+
 // should also go away!
 bool MultiplexedSocketWriter::close()
 {

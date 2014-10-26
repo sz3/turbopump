@@ -3,12 +3,12 @@
 
 #include "IMessageSender.h"
 class IMessagePacker;
-class IPeerTracker;
+class ISocketServer;
 
 class MessageSender : public IMessageSender
 {
 public:
-	MessageSender(const IMessagePacker& packer, IPeerTracker& peers);
+	MessageSender(const IMessagePacker& packer, ISocketServer& server);
 
 	// used by Synchronizer
 	void digestPing(const Peer& peer, const TreeId& treeid, const MerklePoint& point);
@@ -26,5 +26,5 @@ protected:
 
 protected:
 	const IMessagePacker& _packer;
-	IPeerTracker& _peers;
+	ISocketServer& _server;
 };
