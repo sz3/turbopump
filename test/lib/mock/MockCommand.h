@@ -7,6 +7,11 @@
 class MockCommand : public Turbopump::Command
 {
 public:
+	MockCommand(bool finished=true)
+		: _finished(finished)
+	{
+	}
+
 	bool run(const char* buff=NULL, unsigned size=0)
 	{
 		if (size == 0)
@@ -21,6 +26,12 @@ public:
 		return NULL;
 	}
 
+	bool finished() const
+	{
+		return _finished;
+	}
+
 public:
 	CallHistory _history;
+	bool _finished;
 };

@@ -10,6 +10,9 @@ set(SOURCES
 	IBufferedConnectionWriter.h
 	IPeerCommandCenter.h
 	IPeerTracker.h
+	MultiplexedSocketPool.h
+	MultiplexedSocketWriter.cpp
+	MultiplexedSocketWriter.h
 	OrderedPacket.h
 	PacketParser.cpp
 	PacketParser.h

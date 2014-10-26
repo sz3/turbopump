@@ -42,14 +42,23 @@ void PeerCommandRunner::parseAndRun(const std::string& buffer)
 		if (!packetGrabber.getNext(virtid, buff))
 			break;
 
-		std::shared_ptr<Turbopump::Command> command = _commands[virtid];
+		std::shared_ptr<Turbopump::Command> command;
+		{
+			auto it = _commands.find(virtid);
+			if (it != _commands.end())
+				command = it->second;
+		}
+
 		if (!command || command->finished())
 		{
 			PacketParser commandFinder(buff);
 			unsigned char cid = 0;
 			DataBuffer commandBuff(buff);
 			if (!commandFinder.getNext(cid, commandBuff))
-				break;
+			{
+				buff = commandBuff;
+				continue;
+			}
 
 			command = _center.command(cid, commandBuff.buffer(), commandBuff.size());
 			if (!command)

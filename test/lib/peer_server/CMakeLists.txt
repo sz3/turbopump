@@ -6,6 +6,10 @@ set (SOURCES
 	test.cpp
 	BufferedConnectionWriterTest.cpp
 	BufferedConnectionWriterThreadingTest.cpp
+	ConcurrentCommandCenterTest.cpp
+	MultiplexedSocketPoolTest.cpp
+	PeerCommandRunnerTest.cpp
+	PeerPacketHandlerTest.cpp
 	PeerTrackerTest.cpp
 	WanPacketHandlerTest.cpp
 )

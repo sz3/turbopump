@@ -24,7 +24,7 @@ public:
 protected:
 	void doWork();
 
-public:
+protected:
 	std::shared_ptr<Peer> _peer;
 	IPeerCommandCenter& _center;
 

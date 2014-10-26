@@ -17,10 +17,10 @@ ConcurrentCommandCenter::ConcurrentCommandCenter(Turbopump::Api& api, IExecutor&
 void ConcurrentCommandCenter::run(const std::shared_ptr<Peer>& peer, const std::string& buffer)
 {
 	string endpoint = peer->uid;
-	std::shared_ptr<PeerCommandRunner> runner =_runners[endpoint];
+	std::shared_ptr<PeerCommandRunner>& runner = _runners[endpoint];
 	if (!runner)
 		runner.reset(new PeerCommandRunner(peer, *this));
-	if (runner->addWork(std::move(buffer)))
+	if (runner->addWork(buffer))
 		_executor.execute(std::bind(&PeerCommandRunner::run, runner));
 
 	string fin;
@@ -33,7 +33,7 @@ void ConcurrentCommandCenter::markFinished(const std::string& runner)
 	_finished.push(runner);
 }
 
-std::shared_ptr<Turbopump::Command> ConcurrentCommandCenter::command(unsigned cid, const char* buff, unsigned size)
+std::shared_ptr<Turbopump::Command> ConcurrentCommandCenter::command(int cid, const char* buff, unsigned size)
 {
 	return _api.command(cid, buff, size);
 }

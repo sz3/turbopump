@@ -12,7 +12,7 @@ public:
 	virtual void run(const std::shared_ptr<Peer>& peer, const std::string& buffer) = 0;
 	virtual void markFinished(const std::string& id) = 0;
 
-	virtual std::shared_ptr<Turbopump::Command> command(unsigned cid, const char* buff, unsigned size) = 0;
+	virtual std::shared_ptr<Turbopump::Command> command(int cid, const char* buff, unsigned size) = 0;
 };
 
 

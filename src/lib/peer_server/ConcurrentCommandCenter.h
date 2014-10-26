@@ -19,7 +19,7 @@ public:
 	void run(const std::shared_ptr<Peer>& peer, const std::string& buffer);
 	void markFinished(const std::string& id);
 
-	std::shared_ptr<Turbopump::Command> command(unsigned cid, const char* buff, unsigned size);
+	std::shared_ptr<Turbopump::Command> command(int cid, const char* buff, unsigned size);
 
 protected:
 	Turbopump::Api& _api;
