@@ -27,7 +27,7 @@ TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& st
 	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
 	, _peerCenter(_api, _peerExecutor)
 	, _peerPacketHandler(_membership, _peerCenter, _logger)
-	, _peerServer(_callbacks, socket_address("127.0.0.1", port), std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3))
+	, _peerServer(_callbacks, socket_address("127.0.0.1", port), std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3), _membership)
 {
 	_callbacks.initialize(_ring, _keyLocator, _membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
 }

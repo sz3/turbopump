@@ -4,11 +4,12 @@
 #include "api/Options.h"
 #include "socket/ISocketServer.h"
 #include <memory>
+class IMembership;
 
 class WanServer : public ISocketServer
 {
 public:
-	WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket);
+	WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket, const IMembership& membership);
 
 	bool start();
 	bool stop();
