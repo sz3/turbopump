@@ -49,9 +49,9 @@ bool MessageSender::sendMessage(const Peer& peer, const string& message, bool bl
 		return false;
 
 	if (blocking)
-		writer->try_send(message.data(), message.size());
-	else
 		writer->send(message.data(), message.size());
+	else
+		writer->try_send(message.data(), message.size());
 	writer->flush(blocking);
 	return true;
 }

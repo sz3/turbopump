@@ -10,6 +10,15 @@
 #include "socket/MockSocketServer.h"
 #include "socket/MockSocketWriter.h"
 
+namespace {
+	Peer mockPeer(std::string ip)
+	{
+		Peer peer("foo");
+		peer.ips.push_back(ip);
+		return peer;
+	}
+}
+
 TEST_CASE( "MessageSenderTest/testDigestPing", "[unit]" )
 {
 	MockRequestPacker packer;
@@ -23,11 +32,11 @@ TEST_CASE( "MessageSenderTest/testDigestPing", "[unit]" )
 	point.location.key = 1;
 	point.location.keybits = 2;
 	point.hash = 3;
-	messenger.digestPing(Peer("dude"), TreeId("oak"), point);
+	messenger.digestPing(mockPeer("1.2.3.4:80"), TreeId("oak"), point);
 
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(102)", packer._history.calls() );
-	assertEquals( "write(0,{102 id=oak mirrors=3}1 2 3,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({102 id=oak mirrors=3}1 2 3)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDigestPing.Null", "[unit]" )
@@ -38,11 +47,11 @@ TEST_CASE( "MessageSenderTest/testDigestPing.Null", "[unit]" )
 	server._sock.reset(writer);
 
 	MessageSender messenger(packer, server);
-	messenger.digestPing(Peer("dude"), TreeId("oak"), MerklePoint::null());
+	messenger.digestPing(mockPeer("1.2.3.4:80"), TreeId("oak"), MerklePoint::null());
 
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(102)", packer._history.calls() );
-	assertEquals( "write(0,{102 id=oak mirrors=3}0 65535 0,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({102 id=oak mirrors=3}0 65535 0)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDigestPing.Many", "[unit]" )
@@ -63,11 +72,11 @@ TEST_CASE( "MessageSenderTest/testDigestPing.Many", "[unit]" )
 		point.hash = i*10;
 		points.push_back(point);
 	}
-	messenger.digestPing(Peer("dude"), TreeId("oak",2), points);
+	messenger.digestPing(mockPeer("1.2.3.4:80"), TreeId("oak",2), points);
 
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(102)", packer._history.calls() );
-	assertEquals( "write(0,{102 id=oak mirrors=2}1 1 10|2 2 20|3 3 30,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({102 id=oak mirrors=2}1 1 10|2 2 20|3 3 30)|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
@@ -78,11 +87,11 @@ TEST_CASE( "MessageSenderTest/testRequestKeyRange", "[unit]" )
 	server._sock.reset(writer);
 
 	MessageSender messenger(packer, server);
-	messenger.requestKeyRange(Peer("foo"), TreeId("oak",2), 1234, 5678);
+	messenger.requestKeyRange(mockPeer("1.2.3.4:80"), TreeId("oak",2), 1234, 5678);
 
-	assertEquals( "getWriter(foo)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(103)", packer._history.calls() );
-	assertEquals( "write(0,{103 first=1234 id=oak last=5678 mirrors=2},false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({103 first=1234 id=oak last=5678 mirrors=2})|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testOfferWrite", "[unit]" )
@@ -93,11 +102,11 @@ TEST_CASE( "MessageSenderTest/testOfferWrite", "[unit]" )
 	server._sock.reset(writer);
 
 	MessageSender messenger(packer, server);
-	messenger.offerWrite(Peer("foo"), "file1", "version1", "source1");
+	messenger.offerWrite(mockPeer("1.2.3.4:80"), "file1", "version1", "source1");
 
-	assertEquals( "getWriter(foo)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(105)", packer._history.calls() );
-	assertEquals( "write(0,{105 name=file1 source=source1 version=version1},false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({105 name=file1 source=source1 version=version1})|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
@@ -108,11 +117,11 @@ TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
 	server._sock.reset(writer);
 
 	MessageSender messenger(packer, server);
-	messenger.demandWrite(Peer("foo"), "file1", "version1", "source1");
+	messenger.demandWrite(mockPeer("1.2.3.4:80"), "file1", "version1", "source1");
 
-	assertEquals( "getWriter(foo)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(106)", packer._history.calls() );
-	assertEquals( "write(0,{106 name=file1 source=source1 version=version1},false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({106 name=file1 source=source1 version=version1})|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testAcknowledgeWrite", "[unit]" )
@@ -123,9 +132,9 @@ TEST_CASE( "MessageSenderTest/testAcknowledgeWrite", "[unit]" )
 	server._sock.reset(writer);
 
 	MessageSender messenger(packer, server);
-	messenger.acknowledgeWrite(Peer("foo"), "file1", "version1", 1234);
+	messenger.acknowledgeWrite(mockPeer("1.2.3.4:80"), "file1", "version1", 1234);
 
-	assertEquals( "getWriter(foo)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(101)", packer._history.calls() );
-	assertEquals( "write(0,{101 name=file1 size=1234 version=version1},true)|flush(true)", writer->_history.calls() );
+	assertEquals( "send({101 name=file1 size=1234 version=version1})|flush(true)", writer->_history.calls() );
 }

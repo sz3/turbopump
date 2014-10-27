@@ -22,6 +22,13 @@ namespace {
 		using ConnectionWriteStream::_writer;
 		using ConnectionWriteStream::_blocking;
 	};
+
+	Peer mockPeer(std::string ip)
+	{
+		Peer peer("foo");
+		peer.ips.push_back(ip);
+		return peer;
+	}
 }
 
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
@@ -40,22 +47,22 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
-	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, false);
+	shared_ptr<ConnectionWriteStream> conn = client.open(mockPeer("1.2.3.4:80"), params, false);
 	assertFalse( !conn );
 	assertFalse( ((TestableConnectionWriteStream&)*conn)._blocking );
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},false)", writer->_history.calls() );
+	assertEquals( "try_send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
-	assertEquals( "write(0,contents,false)", writer->_history.calls() );
+	assertEquals( "try_send(contents)", writer->_history.calls() );
 
 	writer->_history.clear();
 	params.isComplete = true;
 	reader = store.read("dummy", "version");
 	assertTrue( client.store(*conn, params, reader) );
-	assertEquals( "write(0,contents,false)|write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send(contents)|try_send()|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
@@ -74,20 +81,20 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
-	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, false);
+	shared_ptr<ConnectionWriteStream> conn = client.open(mockPeer("1.2.3.4:80"), params, false);
 	assertFalse( !conn );
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},false)", writer->_history.calls() );
+	assertEquals( "try_send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
-	assertEquals( "write(0,contents,false)", writer->_history.calls() );
+	assertEquals( "try_send(contents)", writer->_history.calls() );
 
 	writer->_history.clear();
 	params.isComplete = true;
 	assertTrue( client.store(*conn, params, reader) );
-	assertEquals( "write(0,,false)|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send()|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
@@ -106,22 +113,22 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
-	shared_ptr<ConnectionWriteStream> conn = client.open(Peer("dude"), params, true);
+	shared_ptr<ConnectionWriteStream> conn = client.open(mockPeer("1.2.3.4:80"), params, true);
 	assertFalse( !conn );
 	assertTrue( ((TestableConnectionWriteStream&)*conn)._blocking );
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)", writer->_history.calls() );
+	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
-	assertEquals( "write(0,contents,true)", writer->_history.calls() );
+	assertEquals( "send(contents)", writer->_history.calls() );
 
 	writer->_history.clear();
 	params.isComplete = true;
 	reader = store.read("dummy", "version");
 	assertTrue( client.store(*conn, params, reader) );
-	assertEquals( "write(0,contents,true)|write(0,,true)|flush(true)", writer->_history.calls() );
+	assertEquals( "send(contents)|send()|flush(true)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
@@ -140,11 +147,11 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
-	assertTrue( client.store(Peer("dude"), params, reader) );
+	assertTrue( client.store(mockPeer("1.2.3.4:80"), params, reader) );
 
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)|write(0,contents,true)", writer->_history.calls() );
+	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})|send(contents)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
@@ -164,12 +171,12 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 
 	WriteInstructions params("file","v1",2,3);
 	params.source = "dude";
-	assertTrue( client.store(Peer("dude"), params, reader) );
+	assertTrue( client.store(mockPeer("1.2.3.4:80"), params, reader) );
 
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source=dude version=v1},true)"
-				  "|write(0,contents,true)", writer->_history.calls() );
+	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source=dude version=v1})"
+				  "|send(contents)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
@@ -189,12 +196,12 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
-	assertTrue( client.store(Peer("dude"), params, reader) );
+	assertTrue( client.store(mockPeer("1.2.3.4:80"), params, reader) );
 
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)"
-				  "|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,turtle,true)", writer->_history.calls() );
+	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})"
+				  "|send(0123456789)|send(abcdeABCDE)|send(turtle)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
@@ -215,11 +222,11 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 
 	WriteInstructions params("file","v1",2,3);
 	params.isComplete = true;
-	assertTrue( client.store(Peer("dude"), params, reader) );
+	assertTrue( client.store(mockPeer("1.2.3.4:80"), params, reader) );
 
-	assertEquals( "getWriter(dude)", server._history.calls() );
+	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "write(0,{100 copies=3 mirror=2 name=file offset=0 source= version=v1},true)"
-				  "|write(0,0123456789,true)|write(0,abcdeABCDE,true)|write(0,,true)|flush(true)", writer->_history.calls() );
+	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})"
+				  "|send(0123456789)|send(abcdeABCDE)|send()|flush(true)", writer->_history.calls() );
 }
 
