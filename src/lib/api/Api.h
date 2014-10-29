@@ -30,7 +30,7 @@ public:
 	{
 		std::unique_ptr<Command> cmd(command_impl(req._ID));
 		if (!cmd)
-			return false;
+			return NULL;
 		*(Req*)cmd->request() = req;
 		return cmd;
 	}
