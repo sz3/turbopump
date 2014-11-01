@@ -8,9 +8,7 @@
 #include "data_store/IDataStore.h"
 #include "data_store/IDataStoreWriter.h"
 
-#include "file/StateSaver.h"
 #include "serialize/StringUtil.h"
-#include "serialize/str_join.h"
 #include "socket/socket_address.h"
 #include "util/Random.h"
 #include <algorithm>
@@ -37,6 +35,8 @@ namespace {
 		return outstream;
 	}
 }
+#include "file/StateSaver.h"
+#include "serialize/str_join.h"
 
 Membership::Membership(const std::string& filename, const std::string& myip)
 	: _filename(filename)

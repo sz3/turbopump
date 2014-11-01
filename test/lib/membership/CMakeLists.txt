@@ -22,12 +22,13 @@ add_executable (
 add_test(membership_test membership_test)
 
 target_link_libraries(membership_test
-
+-Wl,--start-group
 	membership
 	common
 	mock
 
 	file
 	serialize
+-Wl,--end-group
 )
 

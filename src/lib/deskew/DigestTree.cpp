@@ -3,7 +3,7 @@
 
 #include "common/MerklePoint.h"
 #include "hashing/Hash.h"
-#include <tuple>
+using namespace std::placeholders;
 
 const DigestTree& DigestTree::null()
 {
@@ -74,14 +74,15 @@ void DigestTree::forEachInRange(const std::function<bool(unsigned long long, con
 	_tree.enumerate(fun, first, last);
 }
 
-// for print()
-std::ostream& operator<<(std::ostream& stream, const std::tuple<unsigned long long, std::string>& fileData)
-{
-	stream << std::get<1>(fileData);
-	return stream;
+namespace {
+	// for print()
+	std::string printable(const std::tuple<unsigned long long, std::string>& fileData)
+	{
+		return std::get<1>(fileData);
+	}
 }
 
 void DigestTree::print(int keywidth) const
 {
-	_tree.print(keywidth);
+	_tree.print(std::bind(&printable, _1), keywidth);
 }

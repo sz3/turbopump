@@ -2,7 +2,6 @@
 #include "MockUserPacketHandler.h"
 
 #include "api/Command.h"
-#include "serialize/str_join.h"
 
 namespace {
 	template <class T1, class T2>
@@ -12,6 +11,7 @@ namespace {
 		return outstream;
 	}
 }
+#include "serialize/str_join.h"
 
 MockUserPacketHandler::MockUserPacketHandler()
 	: _command(NULL)

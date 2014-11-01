@@ -2,7 +2,7 @@
 #include "ConsistentHashRing.h"
 
 #include "Hash.h"
-#include "serialize/str_join.h"
+#include <ostream>
 
 namespace {
 	std::ostream& operator<<(std::ostream& outstream, const std::pair<std::string,std::string>& val)
@@ -11,6 +11,7 @@ namespace {
 		return outstream;
 	}
 }
+#include "serialize/str_join.h"
 
 bool ConsistentHashRing::insert(const std::string& node, const std::string& peer)
 {

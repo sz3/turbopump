@@ -23,11 +23,13 @@ add_executable (
 add_test(hashing_test hashing_test)
 
 target_link_libraries(hashing_test
+-Wl,--start-group
 	hashing
-
+	common
 	membership
 	mock
 
 	serialize
+-Wl,--end-group
 )
 

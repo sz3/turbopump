@@ -9,13 +9,21 @@
 
 #include "common/KeyMetadata.h"
 #include "common/MyMemberId.h"
-#include "serialize/str_join.h"
 #include "socket/IByteStream.h"
 #include "socket/StringByteStream.h"
 #include <string>
 
 using std::string;
 using std::vector;
+
+namespace {
+	std::ostream& operator<<(std::ostream& outstream, const VectorClock::clock& clock)
+	{
+		outstream << clock.key << ":" << clock.count;
+		return outstream;
+	}
+}
+#include "serialize/str_join.h"
 
 namespace {
 	class TestableRamDataStore : public RamDataStore
@@ -68,12 +76,6 @@ namespace {
 	public:
 		string _buffer;
 	};
-
-	std::ostream& operator<<(std::ostream& outstream, const bounded_version_vector<string>::clock& clock)
-	{
-		outstream << clock.key << ":" << clock.count;
-		return outstream;
-	}
 
 	std::string versionStr(const IDataStoreReader::ptr& reader)
 	{

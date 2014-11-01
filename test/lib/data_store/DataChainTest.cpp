@@ -4,11 +4,19 @@
 #include "DataChain.h"
 #include "common/MyMemberId.h"
 #include "hashing/Hash.h"
-#include "serialize/str_join.h"
 #include <sstream>
 #include <string>
 using std::shared_ptr;
 using std::string;
+
+namespace {
+	std::ostream& operator<<(std::ostream& outstream, const VectorClock::clock& clock)
+	{
+		outstream << clock.key << ":" << clock.count;
+		return outstream;
+	}
+}
+#include "serialize/str_join.h"
 
 namespace {
 	class TestableDataChain : public DataChain
@@ -28,12 +36,6 @@ namespace {
 		for (auto it = all.begin(); it != all.end(); ++it)
 			entry->md.version.increment(*it);
 		return entry;
-	}
-
-	std::ostream& operator<<(std::ostream& outstream, const VectorClock::clock& clock)
-	{
-		outstream << clock.key << ":" << clock.count;
-		return outstream;
 	}
 }
 

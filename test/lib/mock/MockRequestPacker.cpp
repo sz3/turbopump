@@ -4,7 +4,6 @@
 #include "DummyTurbopumpApi.h"
 #include "api/Request.h"
 #include "serialize/StringUtil.h"
-#include "serialize/str_join.h"
 #include "msgpack.hpp"
 #include <map>
 #include <unordered_map>
@@ -18,6 +17,7 @@ namespace {
 		return outstream;
 	}
 }
+#include "serialize/str_join.h"
 
 std::string MockRequestPacker::package(unsigned char id, const char* packet, unsigned size) const
 {
