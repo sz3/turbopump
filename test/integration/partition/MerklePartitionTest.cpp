@@ -6,6 +6,7 @@
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "time/WaitFor.h"
 
 #include <exception>
@@ -38,7 +39,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
 	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(StringUtil::join(expected), response);
+	assertEquals(turbo::str::join(expected), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
 	// setting copies=3 here, in case we decide to change the defaults at any point...
@@ -118,7 +119,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
 	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(StringUtil::join(expected), response);
+	assertEquals(turbo::str::join(expected), response);
 
 	// write ONLY to worker 1.
 	// setting copies=3 here, in case we decide to change the defaults at any point...
@@ -200,7 +201,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
 	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(StringUtil::join(expected), response);
+	assertEquals(turbo::str::join(expected), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
 	// setting copies=i here, so we get a different merkle tree per write...

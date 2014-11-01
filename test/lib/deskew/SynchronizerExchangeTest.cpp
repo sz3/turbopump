@@ -15,6 +15,7 @@
 #include "peer_client/IMessageSender.h"
 
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 using std::deque;
 using std::string;
 
@@ -148,8 +149,8 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
 
 	// since we're not fixing anything, some keys are duplicated...
-	assertEquals( "one0 one1 one2 one3 one4 one3 one4", StringUtil::join(correctorOne._corrected) );
-	assertEquals( "two3 two2 two4 two1 two0 two3 two2 two4 two1", StringUtil::join(correctorTwo._corrected) );
+	assertEquals( "one0 one1 one2 one3 one4 one3 one4", turbo::str::join(correctorOne._corrected) );
+	assertEquals( "two3 two2 two4 two1 two0 two3 two2 two4 two1", turbo::str::join(correctorTwo._corrected) );
 }
 
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]" )
@@ -189,8 +190,8 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
 	assertEquals( "2 26 46 6 40 9 55 21 67 41 90 32 62 69 54 10 29 8 1 94 56 28 33 49 99 7 65"
-				  " 13 88 71 25 58 0 74 64 61 53 66 57 47 27 60 5 97 4 17 14 20 48 63", StringUtil::join(correctorOne._corrected) );
-	assertEquals( "", StringUtil::join(correctorTwo._corrected) );
+				  " 13 88 71 25 58 0 74 64 61 53 66 57 47 27 60 5 97 4 17 14 20 48 63", turbo::str::join(correctorOne._corrected) );
+	assertEquals( "", turbo::str::join(correctorTwo._corrected) );
 
 
 	// set up trial two
@@ -206,14 +207,14 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
 	assertEquals( "36 79 68 75 44 92 11 77 51 24 16 52 91 23 87 38 30 39 93 45 35 3 70 15 37 18"
-				  " 19 73 42 72 80 12 78 84 96 76 89 31 43 50 82 81 85 98 22", StringUtil::join(correctorOne._corrected) );
-	assertEquals( "", StringUtil::join(correctorTwo._corrected) );
+				  " 19 73 42 72 80 12 78 84 96 76 89 31 43 50 82 81 85 98 22", turbo::str::join(correctorOne._corrected) );
+	assertEquals( "", turbo::str::join(correctorTwo._corrected) );
 
 	for (deque<string>::const_iterator it = correctorOne._corrected.begin(); it != correctorOne._corrected.end(); ++it)
 		indexTwo.update(*it, 0);
 
 	deque<string> filesOne = indexOne.find("fooid").enumerate(0,~0ULL,100);
 	deque<string> filesTwo = indexTwo.find("fooid").enumerate(0,~0ULL,100);
-	//assertEquals( StringUtil::join(filesOne), StringUtil::join(filesTwo) );
+	//assertEquals( turbo::str::join(filesOne), turbo::str::join(filesTwo) );
 	assertEquals( 95, filesTwo.size() );
 }

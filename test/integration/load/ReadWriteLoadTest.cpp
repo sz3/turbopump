@@ -7,6 +7,7 @@
 
 #include "http/HttpResponse.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "time/stopwatch.h"
 #include "time/WaitFor.h"
 #include <algorithm>
@@ -65,7 +66,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	std::cout << "did 100 writes in " << elapsed.millis() << "ms" << std::endl;
 
 	std::sort(fileList.begin(), fileList.end());
-	string expected = StringUtil::join(fileList, '\n');
+	string expected = turbo::str::join(fileList, '\n');
 	string response;
 	stopwatch t;
 	waitFor(30, expected + " != " + response, [&]()
@@ -242,7 +243,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 		if (it->find("65536") == string::npos)
 			badResults.push_back(*it);
 	}
-	assertEquals( "", StringUtil::join(badResults, '\n') );
+	assertEquals( "", turbo::str::join(badResults, '\n') );
 
 	// if we got this far, we would then check the contents of each file
 }

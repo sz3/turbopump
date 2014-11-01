@@ -2,7 +2,7 @@
 #include "MockUserPacketHandler.h"
 
 #include "api/Command.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 
 namespace {
 	template <class T1, class T2>
@@ -24,7 +24,7 @@ void MockUserPacketHandler::sendResponse(StatusCode status)
 
 std::unique_ptr<Turbopump::Command> MockUserPacketHandler::command(const std::string& cmd, const std::unordered_map<std::string,std::string>& params) const
 {
-	_history.call("command", cmd, StringUtil::join(params));
+	_history.call("command", cmd, turbo::str::join(params));
 	std::unique_ptr<Turbopump::Command> command(_command);
 	_command = NULL;
 	return command;

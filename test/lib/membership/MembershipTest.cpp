@@ -7,7 +7,7 @@
 #include "common/turbopump_defaults.h"
 #include "file/FileRemover.h"
 #include "mock/MockDataStore.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include <string>
 #include <vector>
 
@@ -152,7 +152,7 @@ TEST_CASE( "MembershipTest/testForEachPeer", "[unit]" )
 	auto fun = [&peers] (const Peer& peer) { peers.push_back(peer.uid); };
 	membership.forEachPeer(fun);
 
-	assertStringsEqual("barid fooid rabid", StringUtil::join(peers));
+	assertStringsEqual("barid fooid rabid", turbo::str::join(peers));
 }
 
 TEST_CASE( "MembershipTest/testSyncToDataStore", "[unit]" )

@@ -5,6 +5,7 @@
 #include "command_line/CommandLine.h"
 #include "http/HttpResponse.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "time/stopwatch.h"
 
 #include "boost/filesystem.hpp"
@@ -75,7 +76,7 @@ std::string TurboRunner::local_list(std::string params) const
 	if (files.empty())
 		return "";
 	std::sort(files.begin(), files.end());
-	return StringUtil::join(files, '\n');
+	return turbo::str::join(files, '\n');
 }
 
 bool TurboRunner::waitForRunning(unsigned seconds) const

@@ -3,7 +3,7 @@
 
 #include "ConsistentHashRing.h"
 #include "Hash.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 using std::string;
 using std::vector;
 
@@ -69,19 +69,19 @@ TEST_CASE( "ConsistentHashRingTest/testLocations.Simple", "[unit]" )
 	assertEquals( 3, ring._ring.size() );
 
 	vector<string> locs = ring.locations("one", 3);
-	assertEquals( "one two three", StringUtil::join(locs) );
+	assertEquals( "one two three", turbo::str::join(locs) );
 
 	locs = ring.locations("three", 5);
-	assertEquals( "three one two", StringUtil::join(locs) );
+	assertEquals( "three one two", turbo::str::join(locs) );
 
 	locs = ring.locations("two", 2);
-	assertEquals( "two three", StringUtil::join(locs) );
+	assertEquals( "two three", turbo::str::join(locs) );
 
 	locs = ring.locations("foo", 3);
-	assertEquals( "two three one", StringUtil::join(locs) );
+	assertEquals( "two three one", turbo::str::join(locs) );
 
 	locs = ring.locations("bar", 1);
-	assertEquals( "two", StringUtil::join(locs) );
+	assertEquals( "two", turbo::str::join(locs) );
 }
 
 TEST_CASE( "ConsistentHashRingTest/testNodeId", "[unit]" )

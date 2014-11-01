@@ -13,6 +13,7 @@
 #include "peer_client/ISuperviseWrites.h"
 
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include <deque>
 #include <vector>
 #include <iostream>
@@ -59,7 +60,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files = tree.enumerate(first, last);
 
-	_logger.logDebug( "pushing " + StringUtil::str(files.size()) + " keys to peer " + peer.uid + ": " + StringUtil::join(files) );
+	_logger.logDebug( "pushing " + StringUtil::str(files.size()) + " keys to peer " + peer.uid + ": " + turbo::str::join(files) );
 	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
 	{
 		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);

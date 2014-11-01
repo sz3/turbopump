@@ -4,7 +4,7 @@
 #include "DataChain.h"
 #include "common/MyMemberId.h"
 #include "hashing/Hash.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include <sstream>
 #include <string>
 using std::shared_ptr;
@@ -46,7 +46,7 @@ TEST_CASE( "DataChainTest/testBestVersion", "[unit]" )
 	chain._entries.push_back(makeEntry("bar", "foo", "foo"));
 	chain._entries.push_back(makeEntry("rab"));
 
-	assertEquals( "foo:2 rab:1 bar:1", StringUtil::join( chain.bestVersion().clocks() ) );
+	assertEquals( "foo:2 rab:1 bar:1", turbo::str::join( chain.bestVersion().clocks() ) );
 }
 
 TEST_CASE( "DataChainTest/testStore", "[unit]" )
@@ -76,11 +76,11 @@ TEST_CASE( "DataChainTest/testStore", "[unit]" )
 
 	assertEquals( "data!", entries[0]->data );
 	assertEquals( 2, entries[0]->md.totalCopies );
-	assertEquals( "foo:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "foo:1", turbo::str::join(entries[0]->md.version.clocks()) );
 
 	assertEquals( "other!", entries[1]->data );
 	assertEquals( 3, entries[1]->md.totalCopies );
-	assertEquals( "bar:1", StringUtil::join(entries[1]->md.version.clocks()) );
+	assertEquals( "bar:1", turbo::str::join(entries[1]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testStoreSameVersion", "[unit]" )
@@ -110,7 +110,7 @@ TEST_CASE( "DataChainTest/testStoreSameVersion", "[unit]" )
 
 	assertEquals( "data!", entries[0]->data );
 	assertEquals( 2, entries[0]->md.totalCopies );
-	assertEquals( "foo:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "foo:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testStoreSameVersion.Append", "[unit]" )
@@ -149,7 +149,7 @@ TEST_CASE( "DataChainTest/testStoreSameVersion.Append", "[unit]" )
 
 	assertEquals( "data!hereismore!", entries[0]->data );
 	assertEquals( 2, entries[0]->md.totalCopies );
-	assertEquals( "foo:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "foo:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testStore.Supercede", "[unit]" )
@@ -186,7 +186,7 @@ TEST_CASE( "DataChainTest/testStore.Supercede", "[unit]" )
 	assertEquals( 1, chain.entries().size() );
 
 	assertEquals( "superceder!", entries[0]->data );
-	assertEquals( "foo:1 bar:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "foo:1 bar:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testStore.AlreadyExists", "[unit]" )
@@ -211,7 +211,7 @@ TEST_CASE( "DataChainTest/testStore.AlreadyExists", "[unit]" )
 	assertEquals( 1, chain.entries().size() );
 
 	assertEquals( "foo!", entries[0]->data );
-	assertEquals( "foo:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "foo:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testStore.IsSuperceded", "[unit]" )
@@ -246,7 +246,7 @@ TEST_CASE( "DataChainTest/testStore.IsSuperceded", "[unit]" )
 	assertEquals( 1, chain.entries().size() );
 
 	assertEquals( "superceder!", entries[0]->data );
-	assertEquals( "foo:1 bar:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "foo:1 bar:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
@@ -292,19 +292,19 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion", "[unit]" )
 
 	assertEquals( "data!", entries[0]->data );
 	assertEquals( 2, entries[0]->md.totalCopies );
-	assertEquals( "me:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "me:1", turbo::str::join(entries[0]->md.version.clocks()) );
 
 	assertEquals( "other!", entries[1]->data );
 	assertEquals( 3, entries[1]->md.totalCopies );
-	assertEquals( "me:2", StringUtil::join(entries[1]->md.version.clocks()) );
+	assertEquals( "me:2", turbo::str::join(entries[1]->md.version.clocks()) );
 
 	assertEquals( "conflict!", entries[2]->data );
 	assertEquals( 3, entries[2]->md.totalCopies );
-	assertEquals( "conflict:1", StringUtil::join(entries[2]->md.version.clocks()) );
+	assertEquals( "conflict:1", turbo::str::join(entries[2]->md.version.clocks()) );
 
 	assertEquals( "four!", entries[3]->data );
 	assertEquals( 4, entries[3]->md.totalCopies );
-	assertEquals( "me:3 conflict:1", StringUtil::join(entries[3]->md.version.clocks()) );
+	assertEquals( "me:3 conflict:1", turbo::str::join(entries[3]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testStoreAsBestVersion.Supercede", "[unit]" )
@@ -340,7 +340,7 @@ TEST_CASE( "DataChainTest/testStoreAsBestVersion.Supercede", "[unit]" )
 	std::vector< shared_ptr<DataEntry> > entries = chain.entries();
 	assertEquals( 1, entries.size() );
 	assertEquals( "four!", entries[0]->data );
-	assertEquals( "me:3 conflict:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "me:3 conflict:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testMarkDeleted", "[unit]" )
@@ -365,7 +365,7 @@ TEST_CASE( "DataChainTest/testMarkDeleted", "[unit]" )
 	assertEquals( 1, entries.size() );
 	assertEquals( "also deleted!", entries[0]->data );
 	assertEquals( 3, entries[0]->md.totalCopies );
-	assertEquals( "delete:1 valid:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "delete:1 valid:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testMarkDeleted.NeverGotOriginal", "[unit]" )
@@ -390,7 +390,7 @@ TEST_CASE( "DataChainTest/testMarkDeleted.NeverGotOriginal", "[unit]" )
 	assertEquals( 1, entries.size() );
 	assertEquals( "deleted!", entries[0]->data );
 	assertEquals( 5, entries[0]->md.totalCopies );
-	assertEquals( "delete:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "delete:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testMarkDeleted.StoreFails", "[unit]" )
@@ -416,7 +416,7 @@ TEST_CASE( "DataChainTest/testMarkDeleted.StoreFails", "[unit]" )
 	assertEquals( 1, chain.entries().size() );
 
 	assertEquals( "foo!", entries[0]->data );
-	assertEquals( "delete:1 foo:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "delete:1 foo:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testMarkDeleted.OverwriteAndSupercede", "[unit]" )
@@ -444,7 +444,7 @@ TEST_CASE( "DataChainTest/testMarkDeleted.OverwriteAndSupercede", "[unit]" )
 	assertEquals( 1, chain.entries().size() );
 
 	assertEquals( "bar", entries[0]->data );
-	assertEquals( "bar:1 delete:1 foo:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "bar:1 delete:1 foo:1", turbo::str::join(entries[0]->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testFind", "[unit]" )
@@ -486,20 +486,20 @@ TEST_CASE( "DataChainTest/testFind", "[unit]" )
 	version.increment("foo");
 	found = chain.find(version);
 	assertEquals( "data!", found->data );
-	assertEquals( "foo:1", StringUtil::join(found->md.version.clocks()) );
+	assertEquals( "foo:1", turbo::str::join(found->md.version.clocks()) );
 
 	version.clear();
 	version.increment("bar");
 	found = chain.find(version);
 	assertEquals( "other!", found->data );
-	assertEquals( "bar:1", StringUtil::join(found->md.version.clocks()) );
+	assertEquals( "bar:1", turbo::str::join(found->md.version.clocks()) );
 
 	version.clear();
 	version.increment("foo");
 	version.increment("bar");
 	found = chain.find(version);
 	assertEquals( "third!", found->data );
-	assertEquals( "bar:1 foo:1", StringUtil::join(found->md.version.clocks()) );
+	assertEquals( "bar:1 foo:1", turbo::str::join(found->md.version.clocks()) );
 }
 
 TEST_CASE( "DataChainTest/testErase", "[unit]" )
@@ -547,11 +547,11 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 
 	assertEquals( "other!", entries[0]->data );
 	assertEquals( 3, entries[0]->md.totalCopies );
-	assertEquals( "bar:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "bar:1", turbo::str::join(entries[0]->md.version.clocks()) );
 
 	assertEquals( "third!", entries[1]->data );
 	assertEquals( 3, entries[1]->md.totalCopies );
-	assertEquals( "bar:1 foo:1", StringUtil::join(entries[1]->md.version.clocks()) );
+	assertEquals( "bar:1 foo:1", turbo::str::join(entries[1]->md.version.clocks()) );
 
 	// remove "foo bar"
 	version.increment("bar");
@@ -562,7 +562,7 @@ TEST_CASE( "DataChainTest/testErase", "[unit]" )
 
 	assertEquals( "other!", entries[0]->data );
 	assertEquals( 3, entries[0]->md.totalCopies );
-	assertEquals( "bar:1", StringUtil::join(entries[0]->md.version.clocks()) );
+	assertEquals( "bar:1", turbo::str::join(entries[0]->md.version.clocks()) );
 
 	version.clear();
 	// remove "bar"

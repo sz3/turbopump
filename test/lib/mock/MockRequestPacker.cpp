@@ -4,6 +4,7 @@
 #include "DummyTurbopumpApi.h"
 #include "api/Request.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "msgpack.hpp"
 #include <map>
 #include <unordered_map>
@@ -32,5 +33,5 @@ std::string MockRequestPacker::package(unsigned char id, const char* packet, uns
 	std::map<string,string> sorted;
 	for (auto it = map.begin(); it != map.end(); ++it)
 		sorted[it->first] = it->second;
-	return "{" + StringUtil::str((unsigned)id) + " " + StringUtil::join(sorted) + "}";
+	return "{" + StringUtil::str((unsigned)id) + " " + turbo::str::join(sorted) + "}";
 }

@@ -10,6 +10,7 @@
 
 #include "file/StateSaver.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "socket/socket_address.h"
 #include "util/Random.h"
 #include <algorithm>
@@ -203,5 +204,5 @@ void Membership::syncToDataStore(IDataStore& store) const
 
 std::string Membership::toString() const
 {
-	return StringUtil::join(_members, '\n');
+	return turbo::str::join(_members, '\n');
 }

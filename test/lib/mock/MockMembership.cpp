@@ -2,7 +2,7 @@
 #include "MockMembership.h"
 
 #include "membership/Peer.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 
 MockMembership::MockMembership()
 	: _self( new Peer("me") )
@@ -60,7 +60,7 @@ std::shared_ptr<Peer> MockMembership::self() const
 
 bool MockMembership::containsSelf(const std::vector<std::string>& list) const
 {
-	_history.call("containsSelf", StringUtil::join(list, '|'));
+	_history.call("containsSelf", turbo::str::join(list, '|'));
 	return !!_self;
 }
 

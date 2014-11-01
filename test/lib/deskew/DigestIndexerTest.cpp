@@ -6,7 +6,7 @@
 #include "KeyRange.h"
 #include "hashing/Hash.h"
 #include "mock/MockLocateKeys.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include <deque>
 #include <string>
 using std::deque;
@@ -22,22 +22,22 @@ TEST_CASE( "DigestIndexerTest/testNoRingMembers", "[unit]" )
 	index.update("three", 0);
 
 	deque<string> files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::join(files) );
+	assertStringsEqual( "two three one", turbo::str::join(files) );
 
 	index.remove("two");
 	index.remove("three");
 
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::join(files) );
+	assertStringsEqual( "one", turbo::str::join(files) );
 
 	index.update("four", 0);
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::join(files) );
+	assertStringsEqual( "one four", turbo::str::join(files) );
 
 	index.remove("one");
 	index.remove("four");
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::join(files) );
+	assertStringsEqual( "", turbo::str::join(files) );
 }
 
 TEST_CASE( "DigestIndexerTest/testSingleTree", "[unit]" )
@@ -51,22 +51,22 @@ TEST_CASE( "DigestIndexerTest/testSingleTree", "[unit]" )
 	index.update("three", 0);
 
 	deque<string> files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::join(files) );
+	assertStringsEqual( "two three one", turbo::str::join(files) );
 
 	index.remove("two");
 	index.remove("three");
 
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::join(files) );
+	assertStringsEqual( "one", turbo::str::join(files) );
 
 	index.update("four", 0);
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::join(files) );
+	assertStringsEqual( "one four", turbo::str::join(files) );
 
 	index.remove("one");
 	index.remove("four");
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::join(files) );
+	assertStringsEqual( "", turbo::str::join(files) );
 }
 
 TEST_CASE( "DigestIndexerTest/testManyTrees", "[unit]" )
@@ -91,20 +91,20 @@ TEST_CASE( "DigestIndexerTest/testManyTrees", "[unit]" )
 	assertEquals( 3, index.list().size() );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two one", StringUtil::join(files) );
+	assertStringsEqual( "two one", turbo::str::join(files) );
 
 	files = index.find("bbb").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "three four", StringUtil::join(files) );
+	assertStringsEqual( "three four", turbo::str::join(files) );
 
 	files = index.find("ccc").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "five six", StringUtil::join(files) );
+	assertStringsEqual( "five six", turbo::str::join(files) );
 
 	index.remove("five");
 	index.remove("six");
 	assertEquals( 2, index.list().size() );
 
 	files = index.find("ccc").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::join(files) );
+	assertStringsEqual( "", turbo::str::join(files) );
 }
 
 namespace {
@@ -131,9 +131,9 @@ TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted", "[unit]" )
 	index.update("one", 0);
 	index.update("two", 0);
 	assertEquals( "section(one)|sectionIsMine(aaa,3)|section(two)", locator._history.calls() );
-	assertEquals( "aaa", StringUtil::join(index.list()) );
-	assertEquals( "aaa", StringUtil::join(index._unwanted) );
-	assertEquals( "", StringUtil::join(index._wanted) );
+	assertEquals( "aaa", turbo::str::join(index.list()) );
+	assertEquals( "aaa", turbo::str::join(index._unwanted) );
+	assertEquals( "", turbo::str::join(index._wanted) );
 
 	locator._locations[0] = "me";
 	locator._mine = true;
@@ -141,9 +141,9 @@ TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted", "[unit]" )
 	index.update("three", 0);
 	index.update("four", 0);
 	assertEquals( "section(three)|sectionIsMine(me,3)|section(four)", locator._history.calls() );
-	assertEquals( "aaa me", StringUtil::join(index.list()) );
-	assertEquals( "aaa", StringUtil::join(index._unwanted) );
-	assertEquals( "me", StringUtil::join(index._wanted) );
+	assertEquals( "aaa me", turbo::str::join(index.list()) );
+	assertEquals( "aaa", turbo::str::join(index._unwanted) );
+	assertEquals( "me", turbo::str::join(index._wanted) );
 
 	// randomTree picks from wanted trees -- ones we should be doing merkle exchanges for
 	assertEquals( "me", index.randomTree().id().id );
@@ -151,15 +151,15 @@ TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted", "[unit]" )
 
 	index.remove("three");
 	index.remove("four");
-	assertEquals( "aaa", StringUtil::join(index.list()) );
-	assertEquals( "aaa", StringUtil::join(index._unwanted) );
-	assertEquals( "", StringUtil::join(index._wanted) );
+	assertEquals( "aaa", turbo::str::join(index.list()) );
+	assertEquals( "aaa", turbo::str::join(index._unwanted) );
+	assertEquals( "", turbo::str::join(index._wanted) );
 
 	locator._locations[0] = "aaa";
 	index.remove("one");
 	index.remove("two");
-	assertEquals( "", StringUtil::join(index.list()) );
-	assertEquals( "", StringUtil::join(index._unwanted) );
+	assertEquals( "", turbo::str::join(index.list()) );
+	assertEquals( "", turbo::str::join(index._unwanted) );
 }
 
 TEST_CASE( "DigestIndexerTest/testWantedAndUnwanted.NoRing", "[unit]" )
@@ -194,18 +194,18 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.InHalf", "[unit]" )
 	locator._history.clear();
 	index.splitSection("one");
 
-	assertEquals( "aaa one zzz", StringUtil::join(index.list()) );
-	assertEquals( "aaa one zzz", StringUtil::join(index._unwanted) );
+	assertEquals( "aaa one zzz", turbo::str::join(index.list()) );
+	assertEquals( "aaa one zzz", turbo::str::join(index._unwanted) );
 	assertEquals( "one", index.find("one").id().id );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two one", StringUtil::join(files) );
+	assertEquals( "two one", turbo::str::join(files) );
 
 	files = index.find("one").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "five three", StringUtil::join(files) );
+	assertEquals( "five three", turbo::str::join(files) );
 
 	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "four", StringUtil::join(files) );
+	assertEquals( "four", turbo::str::join(files) );
 
 	assertEquals( "section(one)|sectionIsMine(one,3)", locator._history.calls() );
 }
@@ -226,11 +226,11 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.NoKeys", "[unit]" )
 	index.splitSection("13");
 
 	// but 13 doesn't have any keys, so he gets nothing.
-	assertEquals( "two", StringUtil::join(index.list()) );
-	assertEquals( "two", StringUtil::join(index._unwanted) );
+	assertEquals( "two", turbo::str::join(index.list()) );
+	assertEquals( "two", turbo::str::join(index._unwanted) );
 
 	deque<string> files = index.find("two").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three one", StringUtil::join(files) );
+	assertEquals( "two three one", turbo::str::join(files) );
 
 	assertEquals( "section(13)|sectionIsMine(13,3)", locator._history.calls() );
 }
@@ -251,12 +251,12 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeFirst", "[unit]" )
 	index.splitSection("one");
 
 	// one takes all of four's keys!
-	assertEquals( locator._locations[0], StringUtil::join(index.list()) );
-	assertEquals( locator._locations[0], StringUtil::join(index._unwanted) );
+	assertEquals( locator._locations[0], turbo::str::join(index.list()) );
+	assertEquals( locator._locations[0], turbo::str::join(index._unwanted) );
 	assertEquals( locator._locations[0], index.find(locator._locations[0]).id().id );
 
 	deque<string> files = index.find(locator._locations[0]).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three one", StringUtil::join(files) );
+	assertEquals( "two three one", turbo::str::join(files) );
 
 	assertStringsEqual( "section(one)|sectionIsMine(" + locator._locations[0] + ",3)", locator._history.calls() );
 }
@@ -278,11 +278,11 @@ TEST_CASE( "DigestIndexerTest/testSplitSection.BecomeLast", "[unit]" )
 	index.splitSection("four");
 
 	deque<string> files = index.find(locator._locations[0]).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three one", StringUtil::join(files) );
+	assertEquals( "two three one", turbo::str::join(files) );
 
 	// four takes all of 2's keys!
-	assertEquals( locator._locations[0], StringUtil::join(index.list()) );
-	assertEquals( locator._locations[0], StringUtil::join(index._unwanted) );
+	assertEquals( locator._locations[0], turbo::str::join(index.list()) );
+	assertEquals( locator._locations[0], turbo::str::join(index._unwanted) );
 	assertEquals( locator._locations[0], index.find(locator._locations[0]).id().id );
 
 	assertStringsEqual( "section(four)|sectionIsMine(" + locator._locations[0] + ",3)", locator._history.calls() );
@@ -296,7 +296,7 @@ TEST_CASE( "DigestIndexerTest/testSplitEmptyTree", "[unit]" )
 	locator._locations.push_back("one");
 	locator._history.clear();
 	index.splitSection("one");
-	assertEquals( "", StringUtil::join(index.list()) );
+	assertEquals( "", turbo::str::join(index.list()) );
 
 	assertEquals( "", locator._history.calls() );
 }
@@ -315,16 +315,16 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Last", "[unit]" )
 	index.update("three", 0);
 	index.update("four", 0);
 
-	assertEquals( "aaa three", StringUtil::join(index.list()) );
+	assertEquals( "aaa three", turbo::str::join(index.list()) );
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two one", StringUtil::join(files) );
+	assertEquals( "two one", turbo::str::join(files) );
 
 	index.cannibalizeSection("three");
-	assertEquals( "aaa", StringUtil::join(index.list()) );
-	assertEquals( "aaa", StringUtil::join(index._unwanted) );
+	assertEquals( "aaa", turbo::str::join(index.list()) );
+	assertEquals( "aaa", turbo::str::join(index._unwanted) );
 
 	files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three one four", StringUtil::join(files) );
+	assertEquals( "two three one four", turbo::str::join(files) );
 }
 
 TEST_CASE( "DigestIndexerTest/testCannibalizeSection.First", "[unit]" )
@@ -341,17 +341,17 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.First", "[unit]" )
 	index.update("three", 0);
 	index.update("four", 0);
 
-	assertEquals( "aaa ccc", StringUtil::join(index.list()) );
+	assertEquals( "aaa ccc", turbo::str::join(index.list()) );
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two one", StringUtil::join(files) );
+	assertEquals( "two one", turbo::str::join(files) );
 
 	locator._locations[0] = "aaa";
 	index.cannibalizeSection("aaa");
-	assertEquals( "ccc", StringUtil::join(index.list()) );
-	assertEquals( "ccc", StringUtil::join(index._unwanted) );
+	assertEquals( "ccc", turbo::str::join(index.list()) );
+	assertEquals( "ccc", turbo::str::join(index._unwanted) );
 
 	files = index.find("ccc").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two three one four", StringUtil::join(files) );
+	assertEquals( "two three one four", turbo::str::join(files) );
 }
 
 TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Middle", "[unit]" )
@@ -371,18 +371,18 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.Middle", "[unit]" )
 	locator._locations[0] = "zzz";
 	index.update("five", 0);
 
-	assertEquals( "aaa ccc zzz", StringUtil::join(index.list()) );
+	assertEquals( "aaa ccc zzz", turbo::str::join(index.list()) );
 
 	locator._locations[0] = "ccc";
 	index.cannibalizeSection("ccc");
-	assertEquals( "aaa zzz", StringUtil::join(index.list()) );
-	assertEquals( "aaa zzz", StringUtil::join(index._unwanted) );
+	assertEquals( "aaa zzz", turbo::str::join(index.list()) );
+	assertEquals( "aaa zzz", turbo::str::join(index._unwanted) );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two one", StringUtil::join(files) );
+	assertEquals( "two one", turbo::str::join(files) );
 
 	files = index.find("zzz").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "five three four", StringUtil::join(files) );
+	assertEquals( "five three four", turbo::str::join(files) );
 }
 
 // try not to eat the last section
@@ -397,8 +397,8 @@ TEST_CASE( "DigestIndexerTest/testCannibalizeSection.ToEmpty", "[unit]" )
 	index.update("two", 0);
 
 	index.cannibalizeSection("aaa");
-	assertEquals( "aaa", StringUtil::join(index.list()) );
+	assertEquals( "aaa", turbo::str::join(index.list()) );
 
 	deque<string> files = index.find("aaa").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "two one", StringUtil::join(files) );
+	assertEquals( "two one", turbo::str::join(files) );
 }

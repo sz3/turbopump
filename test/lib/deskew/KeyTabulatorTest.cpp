@@ -8,6 +8,7 @@
 #include "TreeId.h"
 #include "mock/MockLocateKeys.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include <deque>
 #include <string>
 using std::deque;
@@ -23,22 +24,22 @@ TEST_CASE( "KeyTabulatorTest/testNoRingMembers", "[unit]" )
 	index.update("three", 0);
 
 	deque<string> files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::join(files) );
+	assertStringsEqual( "two three one", turbo::str::join(files) );
 
 	index.remove("two");
 	index.remove("three");
 
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::join(files) );
+	assertStringsEqual( "one", turbo::str::join(files) );
 
 	index.update("four", 0);
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::join(files) );
+	assertStringsEqual( "one four", turbo::str::join(files) );
 
 	index.remove("one");
 	index.remove("four");
 	files = index.find("").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::join(files) );
+	assertStringsEqual( "", turbo::str::join(files) );
 }
 
 TEST_CASE( "KeyTabulatorTest/testSingleTree", "[unit]" )
@@ -52,22 +53,22 @@ TEST_CASE( "KeyTabulatorTest/testSingleTree", "[unit]" )
 	index.update("three", 0);
 
 	deque<string> files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::join(files) );
+	assertStringsEqual( "two three one", turbo::str::join(files) );
 
 	index.remove("two");
 	index.remove("three");
 
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::join(files) );
+	assertStringsEqual( "one", turbo::str::join(files) );
 
 	index.update("four", 0);
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::join(files) );
+	assertStringsEqual( "one four", turbo::str::join(files) );
 
 	index.remove("one");
 	index.remove("four");
 	files = index.find("fooid").enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::join(files) );
+	assertStringsEqual( "", turbo::str::join(files) );
 }
 
 TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted", "[unit]" )
@@ -152,64 +153,64 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	index.splitSection("555");
 
 	deque<string> files = index.find("2", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "777 111", StringUtil::join(files) );
+	assertEquals( "777 111", turbo::str::join(files) );
 
 	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "888 999 222 666 333 444 555", StringUtil::join(files) );
+	assertEquals( "888 999 222 666 333 444 555", turbo::str::join(files) );
 
 	files = index.find("2", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "77 22", StringUtil::join(files) );
+	assertEquals( "77 22", turbo::str::join(files) );
 
 	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "55 33 99 88 66 44 11", StringUtil::join(files) );
+	assertEquals( "55 33 99 88 66 44 11", turbo::str::join(files) );
 
 	files = index.find("2", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "3", StringUtil::join(files) );
+	assertEquals( "3", turbo::str::join(files) );
 
 	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "2 6 9 8 1 7 5 4", StringUtil::join(files) );
+	assertEquals( "2 6 9 8 1 7 5 4", turbo::str::join(files) );
 
 
 	locator._locations[0] = "44";
 	index.splitSection("44");
 
 	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "333 444 555", StringUtil::join(files) );
+	assertEquals( "333 444 555", turbo::str::join(files) );
 
 	files = index.find("44", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "888 999 222 666", StringUtil::join(files) );
+	assertEquals( "888 999 222 666", turbo::str::join(files) );
 
 	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "11", StringUtil::join(files) );
+	assertEquals( "11", turbo::str::join(files) );
 
 	files = index.find("44", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "55 33 99 88 66 44", StringUtil::join(files) );
+	assertEquals( "55 33 99 88 66 44", turbo::str::join(files) );
 
 	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "8 1 7 5 4", StringUtil::join(files) );
+	assertEquals( "8 1 7 5 4", turbo::str::join(files) );
 
 	files = index.find("44", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "2 6 9", StringUtil::join(files) );
+	assertEquals( "2 6 9", turbo::str::join(files) );
 
 
 	/*locator._locations[0] = "2";
 	index.cannibalizeSection("2");
 
 	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "888 999 222 666", StringUtil::join(files) );
+	assertEquals( "888 999 222 666", turbo::str::join(files) );
 
 	files = index.find("44", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "333 444", StringUtil::join(files) );
+	assertEquals( "333 444", turbo::str::join(files) );
 
 	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "55 33 99 88 66", StringUtil::join(files) );
+	assertEquals( "55 33 99 88 66", turbo::str::join(files) );
 
 	files = index.find("44", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "44 11 77", StringUtil::join(files) );
+	assertEquals( "44 11 77", turbo::str::join(files) );
 
 	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "2 6 9 8 1 7 5 4", StringUtil::join(files) );
+	assertEquals( "2 6 9 8 1 7 5 4", turbo::str::join(files) );
 
 	files = index.find("44", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "", StringUtil::join(files) );*/
+	assertEquals( "", turbo::str::join(files) );*/
 }

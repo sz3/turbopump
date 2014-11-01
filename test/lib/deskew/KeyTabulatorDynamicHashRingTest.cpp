@@ -13,6 +13,7 @@
 #include "membership/Peer.h"
 #include "mock/MockMembership.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 using std::string;
 using std::vector;
 
@@ -45,18 +46,18 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 	std::cout << " *** 2 *** " << std::endl;
 	((const DigestTree&)index.find(Hash("2").base64())).print(2);
 
-	assertEquals( "26 46 6 40 9 21 41 32 10 29 8 1", StringUtil::join(index.find(Hash("1").base64()).enumerate(0, ~0ULL)) );
-	assertEquals( "2 15 37 18 19 42 12 31 43 50 22", StringUtil::join(index.find(Hash("2").base64()).enumerate(0, ~0ULL)) );
-	assertEquals( "17 14 20 48 34 36 44 11 24 16 23 38 30 39 45 35 3", StringUtil::join(index.find(Hash("3").base64()).enumerate(0, ~0ULL)) );
-	assertEquals( "4", StringUtil::join(index.find(Hash("4").base64()).enumerate(0, ~0ULL)) );
-	assertEquals( "28 33 49 7 13 25 47 27 5", StringUtil::join(index.find(Hash("5").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "26 46 6 40 9 21 41 32 10 29 8 1", turbo::str::join(index.find(Hash("1").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "2 15 37 18 19 42 12 31 43 50 22", turbo::str::join(index.find(Hash("2").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "17 14 20 48 34 36 44 11 24 16 23 38 30 39 45 35 3", turbo::str::join(index.find(Hash("3").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "4", turbo::str::join(index.find(Hash("4").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "28 33 49 7 13 25 47 27 5", turbo::str::join(index.find(Hash("5").base64()).enumerate(0, ~0ULL)) );
 
 	// merge sections 4 and 5 (5 happens to hash to *rightbefore* 4, which is why 4 has only one key)
 	index.cannibalizeSection("5");
 	ring.erase("5");
 
-	assertEquals( "", StringUtil::join(index.find(Hash("5").base64()).enumerate(0, ~0ULL)) );
-	assertEquals( "28 33 49 7 13 25 47 27 5 4", StringUtil::join(index.find(Hash("4").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "", turbo::str::join(index.find(Hash("5").base64()).enumerate(0, ~0ULL)) );
+	assertEquals( "28 33 49 7 13 25 47 27 5 4", turbo::str::join(index.find(Hash("4").base64()).enumerate(0, ~0ULL)) );
 
 	index.cannibalizeSection("1");
 	ring.erase("1");
@@ -74,7 +75,7 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 	for (unsigned i = 1; i <= 5; ++i)
 	{
 		string worker = StringUtil::str(i);
-		assertEquals( StringUtil::join(baseLine.find(Hash(worker).base64()).enumerate(0, ~0ULL)),
-					  StringUtil::join(index.find(Hash(worker).base64()).enumerate(0, ~0ULL)) );
+		assertEquals( turbo::str::join(baseLine.find(Hash(worker).base64()).enumerate(0, ~0ULL)),
+					  turbo::str::join(index.find(Hash(worker).base64()).enumerate(0, ~0ULL)) );
 	}
 }

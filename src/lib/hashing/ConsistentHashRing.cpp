@@ -2,7 +2,7 @@
 #include "ConsistentHashRing.h"
 
 #include "Hash.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 
 namespace {
 	std::ostream& operator<<(std::ostream& outstream, const std::pair<std::string,std::string>& val)
@@ -41,5 +41,5 @@ std::string ConsistentHashRing::nodeId(const Hash& key) const
 
 std::string ConsistentHashRing::toString() const
 {
-	return StringUtil::join(_ring);
+	return turbo::str::join(_ring);
 }

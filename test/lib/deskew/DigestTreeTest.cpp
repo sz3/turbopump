@@ -5,7 +5,7 @@
 
 #include "KeyRange.h"
 #include "hashing/Hash.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include <deque>
 #include <string>
 using std::deque;
@@ -22,22 +22,22 @@ TEST_CASE( "DigestTreeTest/testBasics", "[unit]" )
 	assertFalse( tree.empty() );
 
 	deque<string> files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "two three one", StringUtil::join(files) );
+	assertStringsEqual( "two three one", turbo::str::join(files) );
 
 	tree.remove("two");
 	tree.remove("three");
 
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one", StringUtil::join(files) );
+	assertStringsEqual( "one", turbo::str::join(files) );
 
 	tree.update("four", 0);
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "one four", StringUtil::join(files) );
+	assertStringsEqual( "one four", turbo::str::join(files) );
 
 	tree.remove("one");
 	tree.remove("four");
 	files = tree.enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertStringsEqual( "", StringUtil::join(files) );
+	assertStringsEqual( "", turbo::str::join(files) );
 
 	assertTrue( tree.empty() );
 }
@@ -154,6 +154,6 @@ TEST_CASE( "DigestTreeTest/testTraverse_Case1", "[unit]" )
 
 	assertEquals(64, range.first());
 	assertEquals(0xFFFFFFFFFFFFFF7FULL, range.last());
-	assertEquals( "two0", StringUtil::join(treeTwo.enumerate(range.first(), range.last())) );
+	assertEquals( "two0", turbo::str::join(treeTwo.enumerate(range.first(), range.last())) );
 }
 

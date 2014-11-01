@@ -105,5 +105,5 @@ const IDigestKeys& KeyTabulator::unwantedTree() const
 void KeyTabulator::print() const
 {
 	//for (map_type::const_iterator it = _forest.begin(); it != _forest.end(); ++it)
-	//	std::cout << StringUtil::str(it->first) << " : " << StringUtil::join(it->second->list()) << std::endl;
+	//	std::cout << StringUtil::str(it->first) << " : " << turbo::str::join(it->second->list()) << std::endl;
 }

@@ -7,6 +7,7 @@
 
 #include "command_line/CommandLine.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "time/stopwatch.h"
 #include "time/WaitFor.h"
 #include <array>
@@ -227,7 +228,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	});
 
 	for (std::map<string,Checkpoint>::const_iterator it = checkpoints.begin(); it != checkpoints.end(); ++it)
-		std::cout << "  " << it->first << " : " << StringUtil::join(it->second.results()) << std::endl;
+		std::cout << "  " << it->first << " : " << turbo::str::join(it->second.results()) << std::endl;
 }
 
 TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )

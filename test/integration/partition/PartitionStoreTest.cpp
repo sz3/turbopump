@@ -6,6 +6,7 @@
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 
 #include <vector>
 using std::string;
@@ -36,7 +37,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
 	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(StringUtil::join(expected), response);
+	assertEquals(turbo::str::join(expected), response);
 
 	// setting copies=3 here, so we get 3 "proper" copies of the file instead of 2.
 	for (unsigned i = 1; i <= 6; ++i)
@@ -101,7 +102,7 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
 	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(StringUtil::join(expected), response);
+	assertEquals(turbo::str::join(expected), response);
 
 	// write 5 files, all with different replication...
 	for (unsigned i = 1; i <= 5; ++i)

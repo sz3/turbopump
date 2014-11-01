@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MockLocateKeys.h"
 
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 
 MockLocateKeys::MockLocateKeys()
 	: _mine(true)
@@ -22,7 +22,7 @@ std::string MockLocateKeys::section(const std::string& name) const
 
 bool MockLocateKeys::containsSelf(const std::vector<std::string>& locs) const
 {
-	_history.call("containsSelf", StringUtil::join(locs));
+	_history.call("containsSelf", turbo::str::join(locs));
 	return _mine;
 }
 

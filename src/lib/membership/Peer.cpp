@@ -2,6 +2,7 @@
 #include "Peer.h"
 
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "socket/socket_address.h"
 #include <atomic>
 #include <iostream>
@@ -36,7 +37,7 @@ unsigned char Peer::nextActionId() const
 
 string Peer::toString() const
 {
-	string iplist = StringUtil::join(ips, '|');
+	string iplist = turbo::str::join(ips, '|');
 	if (iplist.empty())
 		iplist = "none";
 	return uid + " " + iplist;

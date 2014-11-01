@@ -6,7 +6,7 @@
 #include "Hash.h"
 #include "mock/MockConsistentHashRing.h"
 #include "mock/MockMembership.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 
 TEST_CASE( "LocateKeysTest/testLocations", "[unit]" )
 {
@@ -15,7 +15,7 @@ TEST_CASE( "LocateKeysTest/testLocations", "[unit]" )
 	MockMembership membership;
 
 	LocateKeys locator(ring, membership);
-	assertEquals( "foo bar", StringUtil::join(locator.locations("myfile", 5)) );
+	assertEquals( "foo bar", turbo::str::join(locator.locations("myfile", 5)) );
 	assertStringsEqual( "locations(" + Hash("myfile").base64() + ",5)", ring._history.calls() );
 }
 

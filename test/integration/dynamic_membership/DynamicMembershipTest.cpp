@@ -6,6 +6,7 @@
 
 #include "command_line/CommandLine.h"
 #include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "time/WaitFor.h"
 #include <algorithm>
 using std::string;
@@ -19,7 +20,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	std::vector<string> fileList;
 	fileList.push_back("(.membership/9001)=>14|1,9001:1");
 
-	string expected = StringUtil::join(fileList, '\n');
+	string expected = turbo::str::join(fileList, '\n');
 	string response;
 	waitFor(5, expected + " != " + response, [&]()
 	{
@@ -47,7 +48,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 
 	// test for member keys
 	fileList.push_back("(.membership/9002)=>14|1,9002:1");
-	expected = StringUtil::join(fileList, '\n');
+	expected = turbo::str::join(fileList, '\n');
 	waitFor(20, expected + " != " + response, [&]()
 	{
 		response = two.local_list("all=1");
@@ -83,7 +84,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 
 	// test for member keys
 	fileList.push_back("(.membership/9003)=>14|1,9003:1");
-	expected = StringUtil::join(fileList, '\n');
+	expected = turbo::str::join(fileList, '\n');
 	waitFor(100, expected + " != " + response, [&]()
 	{
 		response = three.local_list("all=1");
@@ -110,7 +111,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	}
 
 	std::sort(fileList.begin(), fileList.end());
-	string expected = StringUtil::join(fileList, '\n');
+	string expected = turbo::str::join(fileList, '\n');
 	waitFor(5, expected + " != " + response, [&]()
 	{
 		response = one.local_list();
@@ -132,7 +133,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 				  "9002 127.0.0.1:9002", response );
 
 	// keys should propagate to two
-	expected = StringUtil::join(fileList, '\n');
+	expected = turbo::str::join(fileList, '\n');
 	waitFor(30, expected + " != " + response, [&]()
 	{
 		response = two.local_list();
@@ -165,7 +166,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	});
 
 	// and keys should propagate to three
-	expected = StringUtil::join(fileList, '\n');
+	expected = turbo::str::join(fileList, '\n');
 	waitFor(100, expected + " != " + response, [&]()
 	{
 		response = three.local_list();

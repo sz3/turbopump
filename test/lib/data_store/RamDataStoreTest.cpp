@@ -9,7 +9,7 @@
 
 #include "common/KeyMetadata.h"
 #include "common/MyMemberId.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str_join.h"
 #include "socket/IByteStream.h"
 #include "socket/StringByteStream.h"
 #include <string>
@@ -77,7 +77,7 @@ namespace {
 
 	std::string versionStr(const IDataStoreReader::ptr& reader)
 	{
-		return StringUtil::join( reader->metadata().version.clocks() );
+		return turbo::str::join( reader->metadata().version.clocks() );
 	}
 }
 
