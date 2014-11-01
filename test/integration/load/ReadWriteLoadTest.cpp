@@ -230,7 +230,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 
 	std::vector<string> results;
 	stopwatch t;
-	waitFor(30, results.size() + " != 90", [&]()
+	waitFor(30, StringUtil::str(results.size()) + " != 90", [&]()
 	{
 		string response = cluster[2].local_list();
 		results = StringUtil::split(response, '\n');

@@ -17,4 +17,5 @@ void MockSkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, uns
 bool MockSkewCorrector::sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
 {
 	_history.call("sendKey", peer.uid, name, version, source);
+	return true;
 }

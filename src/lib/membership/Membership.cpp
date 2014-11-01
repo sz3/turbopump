@@ -103,6 +103,7 @@ bool Membership::addIp(const std::string& ip, const std::string& uid)
 		peer->ips.push_back(ip);
 		_ips[ip] = it->second;
 	}
+	return true;
 }
 
 shared_ptr<Peer> Membership::lookup(const std::string& uid) const
