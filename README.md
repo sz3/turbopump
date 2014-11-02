@@ -5,7 +5,7 @@ An aspiring low-latency, extensible, distributed key value store written in C++1
 ### Build dependencies
 
 * linux (for now)
-* g++ >= 4.8 (for proper c++11)
+* clang >= 3.4 or gcc >= 4.8* (YMMV. [modern gcc does not reliably compile multithreaded applications](https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1228201)) Other compilers are untested. Maybe they work! Maybe they don't!
 * cmake
 
 ### Library dependencies
