@@ -44,7 +44,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	std::vector<string> fileList;
 	stopwatch elapsed;
 	char readBuff[100];
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 300; ++i)
 	{
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		std::cout << "write " << i <<  " connection open at " << elapsed.micros() << "us" << std::endl;
@@ -63,7 +63,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
 		fileList.push_back("(" + name + ")=>" + StringUtil::str(name.size()) + "|1,1:1");
 	}
-	std::cout << "did 100 writes in " << elapsed.millis() << "ms" << std::endl;
+	std::cout << "did 300 writes in " << elapsed.millis() << "ms" << std::endl;
 
 	std::sort(fileList.begin(), fileList.end());
 	string expected = turbo::str::join(fileList, '\n');
