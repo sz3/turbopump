@@ -2,146 +2,145 @@
 #include "unittest.h"
 
 #include "BufferedConnectionWriter.h"
-#include "socket/MockSocketWriter.h"
+#include "socket/mock_socket.h"
 #include <memory>
 #include <string>
 using std::string;
 
 namespace {
-	class TestableBufferedConnectionWriter : public BufferedConnectionWriter
+	class TestableBufferedConnectionWriter : public BufferedConnectionWriter<mock_socket>
 	{
 	public:
-		TestableBufferedConnectionWriter(const std::shared_ptr<ISocketWriter>& sock, unsigned packetsize)
-			: BufferedConnectionWriter(sock, packetsize)
-		{}
+		using BufferedConnectionWriter::BufferedConnectionWriter;
 
 		using BufferedConnectionWriter::findFirstTruncatedPacket;
 		using BufferedConnectionWriter::_buffer;
+		using BufferedConnectionWriter::_sock;
 	};
 }
 
 TEST_CASE( "BufferedConnectionWriterTest/testSmallBuffer.Reliable", "[unit]" )
 {
-	MockSocketWriter* sock = new MockSocketWriter;
-	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 8);
+	mock_socket sock("localhost");
+	BufferedConnectionWriter<mock_socket> writer(sock, 8);
 
 	// a packet size of 8 will give us at most 5 data bytes. -3 bytes of overhead per write (length + virtid)
 
 	string buff = "0123456789abc";
 	assertEquals( buff.size(), writer.write(33, buff.data(), buff.size(), true) );
-	assertEquals( ("send(" + string{0,6,33} + "01234)|send(" + string{0,6,33} + "56789)"), sock->_history.calls() );
+	assertEquals( ("send(" + string{0,6,33} + "01234)|send(" + string{0,6,33} + "56789)"), sock.history().calls() );
 
-	sock->_history.clear();
+	sock.history().clear();
 	buff = "FOO";
 	assertEquals( buff.size(), writer.write(35, buff.data(), buff.size(), true) );
 	// 33 -> previous write gets flushed == matches previous virtid
-	assertEquals( ("send(" + string{0,4,33} + "abc)"), sock->_history.calls() );
+	assertEquals( ("send(" + string{0,4,33} + "abc)"), sock.history().calls() );
 
-	sock->_history.clear();
+	sock.history().clear();
 	writer.flush(true);
-	assertEquals( ("send(" + string{0,4,35} + "FOO)"), sock->_history.calls() );
+	assertEquals( ("send(" + string{0,4,35} + "FOO)"), sock.history().calls() );
 }
 
 TEST_CASE( "BufferedConnectionWriterTest/testBigBuffer.Reliable", "[unit]" )
 {
-	MockSocketWriter* sock = new MockSocketWriter;
-	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 1000);
+	mock_socket sock("localhost");
+	BufferedConnectionWriter<mock_socket> writer(sock, 1000);
 
 	string buff = "0123456789abc";
 	assertEquals( buff.size(), writer.write(37, buff.data(), buff.size(), true) );
-	assertEquals( "", sock->_history.calls() );
+	assertEquals( "", sock.history().calls() );
 
 	buff = "more bytes!!!";
 	assertEquals( buff.size(), writer.write(39, buff.data(), buff.size(), true) );
-	assertEquals( "", sock->_history.calls() );
+	assertEquals( "", sock.history().calls() );
 
 	writer.flush(true);
 	string header1{0, 14, 37};
 	string header2{0, (char)(buff.size()+1), 39};
-	assertEquals( ("send(" + header1 + "0123456789abc" + header2 + "more bytes!!!)"), sock->_history.calls() );
+	assertEquals( ("send(" + header1 + "0123456789abc" + header2 + "more bytes!!!)"), sock.history().calls() );
 }
 
 TEST_CASE( "BufferedConnectionWriterTest/testSmallBuffer.BestEffort", "[unit]" )
 {
-	MockSocketWriter* sock = new MockSocketWriter;
-	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 8);
+	mock_socket sock("localhost");
+	BufferedConnectionWriter<mock_socket> writer(sock, 8);
 
 	// a packet size of 8 will give us at most 5 data bytes. -3 bytes of overhead per write (length + virtid)
 
 	string buff = "0123456789abc";
 	assertEquals( buff.size(), writer.write(33, buff.data(), buff.size(), false) );
-	assertEquals( ("try_send(" + string{0,6,33} + "01234)|try_send(" + string{0,6,33} + "56789)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,6,33} + "01234)|try_send(" + string{0,6,33} + "56789)"), sock.history().calls() );
 
-	sock->_history.clear();
+	sock.history().clear();
 	buff = "FOO";
 	assertEquals( buff.size(), writer.write(35, buff.data(), buff.size(), false) );
 	// 33 -> previous write gets flushed == matches previous virtid
-	assertEquals( ("try_send(" + string{0,4,33} + "abc)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,4,33} + "abc)"), sock.history().calls() );
 
-	sock->_history.clear();
+	sock.history().clear();
 	writer.flush(false);
-	assertEquals( ("try_send(" + string{0,4,35} + "FOO)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,4,35} + "FOO)"), sock.history().calls() );
 }
 
 TEST_CASE( "BufferedConnectionWriterTest/testBigBuffer.BestEffort", "[unit]" )
 {
-	MockSocketWriter* sock = new MockSocketWriter;
-	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 1000);
+	mock_socket sock("localhost");
+	BufferedConnectionWriter<mock_socket> writer(sock, 1000);
 
 	string buff = "0123456789abc";
 	assertEquals( buff.size(), writer.write(37, buff.data(), buff.size(), false) );
-	assertEquals( "", sock->_history.calls() );
+	assertEquals( "", sock.history().calls() );
 
 	buff = "more bytes!!!";
 	assertEquals( buff.size(), writer.write(39, buff.data(), buff.size(), false) );
-	assertEquals( "", sock->_history.calls() );
+	assertEquals( "", sock.history().calls() );
 
 	writer.flush(false);
 	string header1{0, 14, 37};
 	string header2{0, (char)(buff.size()+1), 39};
-	assertEquals( ("try_send(" + header1 + "0123456789abc" + header2 + "more bytes!!!)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + header1 + "0123456789abc" + header2 + "more bytes!!!)"), sock.history().calls() );
 }
 
 TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort", "[unit]" )
 {
-	MockSocketWriter* sock = new MockSocketWriter;
-	sock->_trySendError = true;
-	TestableBufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 8);
+	mock_socket sock("localhost");
+	sock._trySendError = -1;
+	TestableBufferedConnectionWriter writer(sock, 8);
 
 	// write succeeds w/ just 5 bytes written.
 	string buff = "0123456789abc";
 	assertEquals( 5, writer.write(33, buff.data(), buff.size(), false) );
-	assertEquals( ("try_send(" + string{0,6,33} + "01234)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,6,33} + "01234)"), sock.history().calls() );
 	assertEquals( (string{0,6,33} + "01234"), writer._buffer );
 
 	// should hold on to the 5 bytes we "wrote" (but never flushed successfully)
 	// next flush should try to send them.
-	sock->_history.clear();
+	sock.history().clear();
 	assertFalse( writer.flush(false) );
-	assertEquals( ("try_send(" + string{0,6,33} + "01234)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,6,33} + "01234)"), sock.history().calls() );
 	assertEquals( (string{0,6,33} + "01234"), writer._buffer );
 
 	// and if we try and write again, we shouldn't be able to write anything since the buffer is full.
-	sock->_history.clear();
+	sock.history().clear();
 	buff = "56789abc";
 	assertEquals( 0, writer.write(33, buff.data(), buff.size(), false) );
 	// ... but we do try to flush() again
-	assertEquals( ("try_send(" + string{0,6,33} + "01234)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,6,33} + "01234)"), sock.history().calls() );
 
 	// now, if flush() starts to succeed...
-	sock->_trySendError = false;
-	sock->_history.clear();
+	writer._sock._trySendError = false;
+	sock.history().clear();
 	assertEquals( 8, writer.write(33, buff.data(), buff.size(), false) );
-	assertEquals( ("try_send(" + string{0,6,33} + "01234)|try_send(" + string{0,6,33} + "56789)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,6,33} + "01234)|try_send(" + string{0,6,33} + "56789)"), sock.history().calls() );
 	assertEquals( (string{0,4,33} + "abc"), writer._buffer );
 }
 
 TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort.PartialPacket", "[unit]" )
 {
-	MockSocketWriter* sock = new MockSocketWriter;
-	sock->_trySendError = true;
-	sock->_trySendErrorBytes = 20; // claim to have sent 20 bytes on failure
-	TestableBufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 50);
+	mock_socket sock("localhost");
+	sock._trySendError = true;
+	sock._trySendErrorBytes = 20; // claim to have sent 20 bytes on failure
+	TestableBufferedConnectionWriter writer(sock, 50);
 
 	// write succeeds, but only flushes twice
 	string buff = "0123456789";
@@ -149,13 +148,13 @@ TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort.PartialPacket
 
 	buff = "abcdef";
 	assertEquals( 6, writer.write(35, buff.data(), buff.size(), false) );
-	assertEquals( "", sock->_history.calls() );
+	assertEquals( "", sock.history().calls() );
 	assertEquals( (string{0,11,33} + "0123456789" + (string{0,7,35} + "abcdef")), writer._buffer );
 
 	// flush partially fails
-	sock->_history.clear();
+	sock.history().clear();
 	assertFalse( writer.flush(false) );
-	assertEquals( ("try_send(" + string{0,11,33} + "0123456789" + string{0,7,35} + "abcdef)"), sock->_history.calls() );
+	assertEquals( ("try_send(" + string{0,11,33} + "0123456789" + string{0,7,35} + "abcdef)"), sock.history().calls() );
 
 	// hold onto the *entire* failed packet. We sent 20 bytes successfully, but we needed to send 22...
 	assertEquals( (string{0,7,35} + "abcdef"), writer._buffer );
@@ -163,20 +162,20 @@ TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.BestEffort.PartialPacket
 
 TEST_CASE( "BufferedConnectionWriterTest/testFlushFails.Reliable", "[unit]" )
 {
-	MockSocketWriter* sock = new MockSocketWriter;
-	sock->_trySendError = true;
-	TestableBufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 10);
+	mock_socket sock("localhost");
+	sock._trySendError = true;
+	TestableBufferedConnectionWriter writer(sock, 10);
 
 	// write succeeds, doesn't flush
 	string buff = "01234";
 	assertEquals( 5, writer.write(33, buff.data(), buff.size(), true) );
-	assertEquals( "", sock->_history.calls() );
+	assertEquals( "", sock.history().calls() );
 	assertEquals( (string{0,6,33} + "01234"), writer._buffer );
 
 	// next flush should try to send them.
-	sock->_history.clear();
+	sock.history().clear();
 	assertTrue( writer.flush(true) );
-	assertEquals( ("send(" + string{0,6,33} + "01234)"), sock->_history.calls() );
+	assertEquals( ("send(" + string{0,6,33} + "01234)"), sock.history().calls() );
 	assertEquals( "", writer._buffer );
 }
 

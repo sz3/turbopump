@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	BufferedConnectionWriter.cpp
 	BufferedConnectionWriter.h
 	ConcurrentCommandCenter.cpp
 	ConcurrentCommandCenter.h

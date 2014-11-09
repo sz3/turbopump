@@ -92,15 +92,15 @@ TEST_CASE( "MultiplexedSocketPoolTest/testFind", "[unit]" )
 	membership._ips["1.2.3.4:0"] = std::shared_ptr<Peer>(new Peer("one"));
 	TestableMultiplexedSocketPool pool(membership);
 
-	std::shared_ptr<MockSocketWriter> sock(new MockSocketWriter);
-	pool._connections["1.2.3.4:0"] = std::shared_ptr<BufferedConnectionWriter>(new BufferedConnectionWriter(sock, 8));
+	mock_socket sock("1.2.3.4");
+	pool._connections["1.2.3.4:0"] = std::make_shared<BufferedConnectionWriter<mock_socket>>(sock, 8);
 
 	std::shared_ptr<ISocketWriter> writer = pool.find(socket_address("1.2.3.4"));
 	assertTrue( !!writer );
 	assertEquals( 5, writer->send("hello", 5) );
 
 	std::string expected = "send(" + std::string{0,6,0} + "hello)";
-	assertEquals( expected, sock->_history.calls() );
+	assertEquals( expected, sock.history().calls() );
 }
 
 TEST_CASE( "MultiplexedSocketPoolTest/testFindOrAdd.Find", "[unit]" )
@@ -109,15 +109,15 @@ TEST_CASE( "MultiplexedSocketPoolTest/testFindOrAdd.Find", "[unit]" )
 	membership._ips["1.2.3.4:0"] = std::shared_ptr<Peer>(new Peer("one"));
 	TestableMultiplexedSocketPool pool(membership);
 
-	std::shared_ptr<MockSocketWriter> sock(new MockSocketWriter);
-	pool._connections["1.2.3.4:0"] = std::shared_ptr<BufferedConnectionWriter>(new BufferedConnectionWriter(sock, 8));
+	mock_socket sock("1.2.3.4");
+	pool._connections["1.2.3.4:0"] = std::make_shared<BufferedConnectionWriter<mock_socket>>(sock, 8);
 
 	std::shared_ptr<ISocketWriter> writer = pool.find_or_add(mock_socket("1.2.3.4"));
 	assertTrue( !!writer );
 	assertEquals( 5, writer->send("hello", 5) );
 
 	std::string expected = "send(" + std::string{0,6,0} + "hello)";
-	assertEquals( expected, sock->_history.calls() );
+	assertEquals( expected, sock.history().calls() );
 
 	assertEquals( "", membership._history.calls() );
 	assertEquals( 1, pool._connections.size() );
@@ -143,14 +143,12 @@ TEST_CASE( "MultiplexedSocketPoolTest/testClose", "[unit]" )
 	MockMembership membership;
 	TestableMultiplexedSocketPool pool(membership);
 
-	std::shared_ptr<MockSocketWriter> sockWriter(new MockSocketWriter);
-	pool._connections["1.2.3.4:0"] = std::shared_ptr<BufferedConnectionWriter>(new BufferedConnectionWriter(sockWriter, 8));
-
 	mock_socket sock("1.2.3.4");
+	pool._connections["1.2.3.4:0"] = std::make_shared<BufferedConnectionWriter<mock_socket>>(sock, 8);
+
 	pool.close(sock);
 	assertEquals( 0, pool._connections.size() );
-	assertEquals( "close()", sock._history.calls() );
-	assertEquals( "", sockWriter->_history.calls() );
+	assertEquals( "close()", sock.history().calls() );
 }
 
 TEST_CASE( "MultiplexedSocketPoolTest/testClose.NoCachedSocket", "[unit]" )
@@ -161,7 +159,7 @@ TEST_CASE( "MultiplexedSocketPoolTest/testClose.NoCachedSocket", "[unit]" )
 	mock_socket sock("1.2.3.4");
 	pool.close(sock);
 	assertEquals( 0, pool._connections.size() );
-	assertEquals( "close()", sock._history.calls() );
+	assertEquals( "close()", sock.history().calls() );
 }
 
 TEST_CASE( "MultiplexedSocketPoolTest/testCloseAll", "[unit]" )
@@ -169,17 +167,17 @@ TEST_CASE( "MultiplexedSocketPoolTest/testCloseAll", "[unit]" )
 	MockMembership membership;
 	TestableMultiplexedSocketPool pool(membership);
 
-	std::shared_ptr<MockSocketWriter> sockWriter1(new MockSocketWriter);
-	std::shared_ptr<MockSocketWriter> sockWriter2(new MockSocketWriter);
-	std::shared_ptr<MockSocketWriter> sockWriter3(new MockSocketWriter);
+	mock_socket sock1("1.2.3.4");
+	mock_socket sock2("5.6.7.8");
+	mock_socket sock3("8.8.8.8");
 
-	pool._connections["1.2.3.4:0"] = std::shared_ptr<BufferedConnectionWriter>(new BufferedConnectionWriter(sockWriter1, 8));
-	pool._connections["5.6.7.8:0"] = std::shared_ptr<BufferedConnectionWriter>(new BufferedConnectionWriter(sockWriter2, 8));
-	pool._connections["8.8.8.8:0"] = std::shared_ptr<BufferedConnectionWriter>(new BufferedConnectionWriter(sockWriter3, 8));
+	pool._connections["1.2.3.4:0"] = std::make_shared<BufferedConnectionWriter<mock_socket>>(sock1, 8);
+	pool._connections["5.6.7.8:0"] = std::make_shared<BufferedConnectionWriter<mock_socket>>(sock2, 8);
+	pool._connections["8.8.8.8:0"] = std::make_shared<BufferedConnectionWriter<mock_socket>>(sock3, 8);
 
 	pool.close_all();
 	assertEquals( 0, pool._connections.size() );
-	assertEquals( "close()", sockWriter1->_history.calls() );
-	assertEquals( "close()", sockWriter2->_history.calls() );
-	assertEquals( "close()", sockWriter3->_history.calls() );
+	assertEquals( "close()", sock1.history().calls() );
+	assertEquals( "close()", sock2.history().calls() );
+	assertEquals( "close()", sock3.history().calls() );
 }

@@ -11,10 +11,10 @@
 using std::string;
 
 namespace {
-	class SpecialSocketWriter : public ISocketWriter
+	class special_socket
 	{
 	public:
-		SpecialSocketWriter()
+		special_socket()
 			: _blockingWriters(0)
 			, _blockingCollisions(0)
 			, _asyncWriters(0)
@@ -66,12 +66,21 @@ namespace {
 		mutable unsigned _writeBytes;
 
 	};
+
+	class TestableBufferedConnectionWriter : public BufferedConnectionWriter<special_socket>
+	{
+	public:
+		TestableBufferedConnectionWriter(unsigned packetsize)
+			: BufferedConnectionWriter(special_socket(), packetsize)
+		{}
+
+		using BufferedConnectionWriter::_sock;
+	};
 }
 
 TEST_CASE( "BufferedConnectionWriterThreadingTest/testMultiThreading", "[unit]" )
 {
-	SpecialSocketWriter* sock = new SpecialSocketWriter;
-	BufferedConnectionWriter writer(std::shared_ptr<ISocketWriter>(sock), 15);
+	TestableBufferedConnectionWriter writer(15);
 
 	string buff = "0123456789";
 	auto blocking = [&] () { writer.write(33, buff.data(), buff.size(), true); };
@@ -88,10 +97,10 @@ TEST_CASE( "BufferedConnectionWriterThreadingTest/testMultiThreading", "[unit]" 
 		(*it).join();
 	writer.flush(true);
 
-	assertEquals( 0, sock->_blockingWriters );
-	assertEquals( 0, sock->_blockingCollisions );
-	assertEquals( 0, sock->_asyncWriters );
-	assertEquals( 0, sock->_asyncCollisions );
-	assertEquals( (30*13*2), sock->_writeBytes );
+	assertEquals( 0, writer._sock._blockingWriters );
+	assertEquals( 0, writer._sock._blockingCollisions );
+	assertEquals( 0, writer._sock._asyncWriters );
+	assertEquals( 0, writer._sock._asyncCollisions );
+	assertEquals( (30*13*2), writer._sock._writeBytes );
 }
 
