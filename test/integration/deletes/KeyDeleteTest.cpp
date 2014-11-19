@@ -5,7 +5,7 @@
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 #include "serialize/StringUtil.h"
-#include "time/WaitFor.h"
+#include "time/wait_for.h"
 using std::string;
 
 TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
@@ -18,12 +18,12 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 
 	// wait for file
 	string expected = "(deleteMe)=>5|1,1:1";
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list();
 		return expected == response;
 	});
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();
 		return expected == response;
@@ -32,24 +32,24 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	// delete file
 	response = cluster[1].query("delete", "name=deleteMe&version=1,1:1");
 	expected = "";
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list();
 		return expected == response;
 	});
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();
 		return expected == response;
 	});
 
 	expected = "(deleteMe)=>9|2,delete:1,1:1";
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list("deleted=1");
 		return expected == response;
 	});
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list("deleted=1");
 		return expected == response;

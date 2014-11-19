@@ -9,7 +9,7 @@
 #include "serialize/StringUtil.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
-#include "time/WaitFor.h"
+#include "time/wait_for.h"
 #include <algorithm>
 #include <iostream>
 #include <string>
@@ -18,6 +18,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 using std::string;
+using turbo::stopwatch;
 
 namespace {
 	int openStreamSocket(string where)
@@ -69,7 +70,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 	string expected = turbo::str::join(fileList, '\n');
 	string response;
 	stopwatch t;
-	waitFor(30, expected + " != " + response, [&]()
+	wait_for(30, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();
 		return expected == response;
@@ -230,7 +231,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 
 	std::vector<string> results;
 	stopwatch t;
-	waitFor(30, StringUtil::str(results.size()) + " != 90", [&]()
+	wait_for(30, StringUtil::str(results.size()) + " != 90", [&]()
 	{
 		string response = cluster[2].local_list();
 		results = StringUtil::split(response, '\n');

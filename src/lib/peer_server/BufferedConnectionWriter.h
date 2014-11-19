@@ -81,7 +81,7 @@ int BufferedConnectionWriter<Socket>::write(unsigned char virtid, const char* bu
 	bool good = true;
 
 	// get syncLock first, since we will be temporarily giving up buffLock...
-	conditional_lock_guard<std::mutex> syncLock(_syncFlushMutex, blocking);
+	turbo::conditional_lock_guard<std::mutex> syncLock(_syncFlushMutex, blocking);
 	std::lock_guard<std::mutex> buffLock(_buffMutex);
 	if (_buffer.size() > 0 && _buffer.size() + remaining > maxBufferSize)
 		good = flush_internal(blocking);
@@ -113,7 +113,7 @@ template <typename Socket>
 bool BufferedConnectionWriter<Socket>::flush(bool blocking)
 {
 	// get syncLock first, since we will be temporarily giving up buffLock...
-	conditional_lock_guard<std::mutex> syncLock(_syncFlushMutex, blocking);
+	turbo::conditional_lock_guard<std::mutex> syncLock(_syncFlushMutex, blocking);
 	std::lock_guard<std::mutex> buffLock(_buffMutex);
 	return flush_internal(blocking);
 }
@@ -125,7 +125,7 @@ bool BufferedConnectionWriter<Socket>::flush_internal(bool blocking)
 	{
 		std::string buff(_buffer);
 		_buffer.clear();
-		unlock_guard<std::mutex> unlock(_buffMutex);
+		turbo::unlock_guard<std::mutex> unlock(_buffMutex);
 
 		// TODO: retry if sent < buff.size()?
 		return _sock.send(buff.data(), buff.size());

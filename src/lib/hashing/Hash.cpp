@@ -7,7 +7,7 @@ using std::string;
 
 namespace {
 	std::function<std::string(const std::string&)> _hasher = [] (const string& in) {
-		tiger_hash hasher;
+		turbo::tiger_hash hasher;
 		return hasher(in);
 	};
 }

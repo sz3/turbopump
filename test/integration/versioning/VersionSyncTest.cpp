@@ -5,7 +5,7 @@
 #include "integration/TurboRunner.h"
 
 #include "command_line/CommandLine.h"
-#include "time/WaitFor.h"
+#include "time/wait_for.h"
 using std::string;
 
 TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
@@ -21,7 +21,7 @@ TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
 
 	// wait for propagation
 	string expected = "(conflict)=>5|1,foo:1 6|1,bar:1";
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list();
 		return expected == response;
@@ -29,7 +29,7 @@ TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
 
 	// same keys stored in a different order
 	expected = "(conflict)=>6|1,bar:1 5|1,foo:1";
-	waitFor(10, expected + " != " + response, [&]()
+	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();
 		return expected == response;

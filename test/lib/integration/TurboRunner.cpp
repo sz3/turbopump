@@ -81,7 +81,7 @@ std::string TurboRunner::local_list(std::string params) const
 
 bool TurboRunner::waitForRunning(unsigned seconds) const
 {
-	stopwatch t;
+	turbo::stopwatch t;
 	while (t.millis() < seconds*1000)
 	{
 		string response = query("status");

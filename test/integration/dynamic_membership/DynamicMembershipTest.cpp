@@ -7,7 +7,7 @@
 #include "command_line/CommandLine.h"
 #include "serialize/StringUtil.h"
 #include "serialize/str_join.h"
-#include "time/WaitFor.h"
+#include "time/wait_for.h"
 #include <algorithm>
 using std::string;
 
@@ -22,7 +22,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 
 	string expected = turbo::str::join(fileList, '\n');
 	string response;
-	waitFor(5, expected + " != " + response, [&]()
+	wait_for(5, expected + " != " + response, [&]()
 	{
 		response = one.local_list("all=1");
 		return expected == response;
@@ -49,7 +49,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	// test for member keys
 	fileList.push_back("(.membership/9002)=>14|1,9002:1");
 	expected = turbo::str::join(fileList, '\n');
-	waitFor(20, expected + " != " + response, [&]()
+	wait_for(20, expected + " != " + response, [&]()
 	{
 		response = two.local_list("all=1");
 		return expected == response;
@@ -71,12 +71,12 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	// tell 3 to join
 	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
-	waitFor(30, expectedMembers + " != " + response, [&]()
+	wait_for(30, expectedMembers + " != " + response, [&]()
 	{
 		response = three.query("membership");
 		return expectedMembers == response;
 	});
-	waitFor(30, expectedMembers + " != " + response, [&]()
+	wait_for(30, expectedMembers + " != " + response, [&]()
 	{
 		response = two.query("membership");
 		return expectedMembers == response;
@@ -85,7 +85,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	// test for member keys
 	fileList.push_back("(.membership/9003)=>14|1,9003:1");
 	expected = turbo::str::join(fileList, '\n');
-	waitFor(100, expected + " != " + response, [&]()
+	wait_for(100, expected + " != " + response, [&]()
 	{
 		response = three.local_list("all=1");
 		return expected == response;
@@ -112,7 +112,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 
 	std::sort(fileList.begin(), fileList.end());
 	string expected = turbo::str::join(fileList, '\n');
-	waitFor(5, expected + " != " + response, [&]()
+	wait_for(5, expected + " != " + response, [&]()
 	{
 		response = one.local_list();
 		return expected == response;
@@ -134,7 +134,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 
 	// keys should propagate to two
 	expected = turbo::str::join(fileList, '\n');
-	waitFor(30, expected + " != " + response, [&]()
+	wait_for(30, expected + " != " + response, [&]()
 	{
 		response = two.local_list();
 		return expected == response;
@@ -154,12 +154,12 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	// tell 3 to join
 	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
-	waitFor(60, expectedMembers + " != " + response, [&]()
+	wait_for(60, expectedMembers + " != " + response, [&]()
 	{
 		response = three.query("membership");
 		return expectedMembers == response;
 	});
-	waitFor(60, expectedMembers + " != " + response, [&]()
+	wait_for(60, expectedMembers + " != " + response, [&]()
 	{
 		response = two.query("membership");
 		return expectedMembers == response;
@@ -167,7 +167,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 
 	// and keys should propagate to three
 	expected = turbo::str::join(fileList, '\n');
-	waitFor(100, expected + " != " + response, [&]()
+	wait_for(100, expected + " != " + response, [&]()
 	{
 		response = three.local_list();
 		return expected == response;

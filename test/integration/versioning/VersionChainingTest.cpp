@@ -5,7 +5,7 @@
 #include "integration/TurboRunner.h"
 
 #include "command_line/CommandLine.h"
-#include "time/WaitFor.h"
+#include "time/wait_for.h"
 using std::string;
 
 TEST_CASE( "VersionChainingTest/testCreateAndFixConflict", "[integration]" )

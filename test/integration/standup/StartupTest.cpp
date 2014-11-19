@@ -9,7 +9,7 @@
 #include "serialize/StringUtil.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
-#include "time/WaitFor.h"
+#include "time/wait_for.h"
 #include <array>
 #include <functional>
 #include <iostream>
@@ -23,6 +23,7 @@
 #include <unistd.h>
 using std::shared_ptr;
 using std::string;
+using turbo::stopwatch;
 
 class IntegratedTurboRunner : public TurboRunner
 {
@@ -115,13 +116,13 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	                  "(two3)=>11|1,two:1\n"
 	                  "(two4)=>11|1,two:1";
 
-	waitFor(5, response + " != " + expected, [&]()
+	wait_for(5, response + " != " + expected, [&]()
 	{
 		response = workerTwo.local_list();
 		return expected == response;
 	});
 
-	waitFor(5, response + " != " + expected, [&]()
+	wait_for(5, response + " != " + expected, [&]()
 	{
 		response = workerOne.local_list();
 		return expected == response;
@@ -221,7 +222,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 					  "(primer)=>20|1,two:1";
 
 	string response;
-	waitFor(5, response + " != " + expected, [&]()
+	wait_for(5, response + " != " + expected, [&]()
 	{
 		response = workerTwo.local_list();
 		return expected == response;
@@ -269,7 +270,7 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 	assertEquals(expected, response);
 
 	expected = "(0)=>66560|1,two:1";
-	waitFor(5, response + " != " + expected, [&]()
+	wait_for(5, response + " != " + expected, [&]()
 	{
 		response = workerTwo.local_list();
 		return expected == response;

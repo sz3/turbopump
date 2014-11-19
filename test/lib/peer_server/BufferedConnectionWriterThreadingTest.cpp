@@ -4,7 +4,7 @@
 #include "BufferedConnectionWriter.h"
 #include "socket/ISocketWriter.h"
 #include "socket/socket_address.h"
-#include "time/WaitFor.h"
+#include "time/wait_for.h"
 #include <string>
 #include <thread>
 #include <vector>
