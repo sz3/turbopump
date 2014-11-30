@@ -79,7 +79,7 @@ TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )
 	assertEquals( "onCommit(foobar.txt,3,5,{1,v1:1},someguy,1)", _history.calls() );
 }
 
-TEST_CASE( "WriteCommandTest/testDestructorCleanup", "[unit]" )
+TEST_CASE( "WriteCommandTest/testDestructorNoCommit", "[unit]" )
 {
 	_history.clear();
 	MockDataStore dataStore;
@@ -88,8 +88,8 @@ TEST_CASE( "WriteCommandTest/testDestructorCleanup", "[unit]" )
 		command._instructions.name = "foobar.txt";
 		assertTrue( command.run("0123456789", 10) );
 	}
-	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
-	assertEquals( "onCommit(foobar.txt)", _history.calls() );
+	assertEquals( "", dataStore._store["foobar.txt"] );
+	assertEquals( "", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testFlush", "[unit]" )

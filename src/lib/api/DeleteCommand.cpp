@@ -22,7 +22,9 @@ bool DeleteCommand::run(const char*, unsigned)
 	std::unique_ptr<Turbopump::Command> cmd(_api.command(req));
 
 	std::string timestamp("timestamp");
-	return cmd->run(timestamp.data(), timestamp.size());
+	if ( !cmd->run(timestamp.data(), timestamp.size()) )
+		return false;
+	return cmd->run(); // commit
 }
 
 Turbopump::Request* DeleteCommand::request()

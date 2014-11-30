@@ -23,8 +23,6 @@ WriteCommand::WriteCommand(IDataStore& dataStore, std::function<void(WriteInstru
 
 WriteCommand::~WriteCommand()
 {
-	if (!_finished && _writer)
-		commit();
 }
 
 Turbopump::Request* WriteCommand::request()
