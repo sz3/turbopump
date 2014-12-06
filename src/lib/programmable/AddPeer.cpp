@@ -18,7 +18,7 @@ AddPeer::AddPeer(IConsistentHashRing& ring, IMembership& membership, IKeyTabulat
 
 bool AddPeer::run(WriteInstructions& params, IDataStoreReader::ptr contents)
 {
-	if (params.name.find(MEMBERSHIP_FILE_PREFIX) == string::npos)
+	if (params.name.find(MEMBERSHIP_FILE_PREFIX) != 0)
 		return false;
 	string uid = params.name.substr(MEMBERSHIP_FILE_PREFIX_LENGTH-1);
 
