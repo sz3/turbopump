@@ -3,13 +3,14 @@
 
 #include "readstream.h"
 #include "common/KeyMetadata.h"
+#include <functional>
 #include <memory>
 class IWriter;
 
 class writestream 
 {
 public:
-	writestream(IWriter* writer, const KeyMetadata& md);
+	writestream(IWriter* writer, const KeyMetadata& md, std::function<bool(const KeyMetadata&)> onClose = NULL);
 	bool good() const;
 
 	int write(const char* buffer, unsigned length);
@@ -21,4 +22,5 @@ public:
 protected:
 	std::shared_ptr<IWriter> _writer;
 	KeyMetadata _md;
+	std::function<bool(const KeyMetadata&)> _onClose;
 };

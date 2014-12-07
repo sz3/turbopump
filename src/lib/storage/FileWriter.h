@@ -2,13 +2,12 @@
 #pragma once
 
 #include "IWriter.h"
-#include <functional>
 #include <string>
 
 class FileWriter : public IWriter
 {
 public:
-	FileWriter(const std::string& filename, std::function<bool()> onClose = NULL);
+	FileWriter(const std::string& filename);
 	~FileWriter();
 
 	bool good() const;
@@ -22,9 +21,7 @@ public:
 
 protected:
 	bool open(const std::string& filename); //TODO: offset
-	void close_internal();
 
 protected:
 	int _fd;
-	std::function<bool()> _onClose;
 };

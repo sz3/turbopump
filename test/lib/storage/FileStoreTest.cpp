@@ -94,6 +94,21 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 	assertEquals( 10, reader.size() );
 }
 
+TEST_CASE( "FileStoreTest/testOverwrite", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	write_file(store, "myfile", "0123456789");
+	write_file(store, "myfile", "abcdef");
+	write_file(store, "myfile", "ha ha ha!");
+
+	vector<string> versions = store.versions("myfile");
+	assertEquals( "1,increment:3", turbo::str::join(versions) );
+}
+
 TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
 {
 	MyMemberId("increment");

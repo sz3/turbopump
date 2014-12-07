@@ -22,6 +22,7 @@
 #include "dirent.h"
 using std::shared_ptr;
 using std::string;
+using namespace std::placeholders;
 
 namespace {
 	// will probably eventually store files by hash. (consistent length names are nice)
@@ -40,11 +41,6 @@ namespace {
 		closedir(dirp);
 
 		return entries;
-	}
-
-	bool onWriteComplete(FileStore& store, const std::string& src, const std::string& dest)
-	{
-		return File::rename(src, dest);
 	}
 }
 
@@ -94,10 +90,9 @@ writestream FileStore::write(const std::string& name, const std::string& version
 		md.version.increment(MyMemberId());
 	}
 
-	string filename(filepath(name, md.version.toString()));
-	string tempname = filename + "~";
+	string tempname(filepath(name, md.version.toString()) + "~");
 	boost::filesystem::create_directories(dirpath(name));
-	return writestream(new FileWriter(tempname, std::bind(&onWriteComplete, std::ref(*this), tempname, filename)), md);
+	return writestream(new FileWriter(tempname), md, std::bind(&FileStore::onWriteComplete, this, name, _1));
 }
 
 readstream FileStore::read(const std::string& name, const std::string& version) const
@@ -159,6 +154,29 @@ std::vector<std::string> FileStore::versions(const std::string& name, bool inpro
 bool FileStore::remove(const std::string& name)
 {
 	boost::filesystem::remove_all(dirpath(name));
+	return true;
+}
+
+bool FileStore::onWriteComplete(const std::string& name, const KeyMetadata& md)
+{
+	string filename(filepath(name, md.version.toString()));
+	string tempname = filename + "~";
+	if ( !File::rename(tempname, filename) )
+		return false;
+
+	return purgeObsolete(name, md.version);
+}
+
+bool FileStore::purgeObsolete(const std::string& name, const VectorClock& master)
+{
+	std::vector<std::string> vs(versions(name));
+	for (const std::string& v : vs)
+	{
+		VectorClock version;
+		version.fromString(v);
+		if (version < master)
+			File::remove(filepath(name, version.toString()));
+	}
 	return true;
 }
 

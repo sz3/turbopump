@@ -3,9 +3,10 @@
 
 #include "IWriter.h"
 
-writestream::writestream(IWriter* writer, const KeyMetadata& md)
+writestream::writestream(IWriter* writer, const KeyMetadata& md, std::function<bool(const KeyMetadata&)> onClose)
 	: _writer(writer)
 	, _md(md)
+	, _onClose(onClose)
 {
 }
 
@@ -24,10 +25,14 @@ bool writestream::flush()
 	return _writer->flush();
 }
 
-// mark as completed. Means a rename, ultimately, but: call the callback!
+// mark as completed. Call the callback! For FileStore, this means a rename...
 bool writestream::close()
 {
-	return _writer->close();
+	if ( !_writer->close() )
+		return false;
+	if (_onClose)
+		return _onClose(_md);
+	return true;
 }
 
 readstream writestream::reader() const
