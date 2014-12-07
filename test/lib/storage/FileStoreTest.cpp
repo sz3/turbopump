@@ -10,6 +10,7 @@
 #include "serialize/str_join.h"
 
 #include <boost/filesystem.hpp>
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
@@ -197,6 +198,7 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	auto fun = [&files] (const std::string& name) { files.push_back(name); return true; };
 	store.enumerate(fun, 100);
 
-	assertEquals( "foo oof bar", turbo::str::join(files) );
+	std::sort(files.begin(), files.end());
+	assertEquals( "bar foo oof", turbo::str::join(files) );
 }
 
