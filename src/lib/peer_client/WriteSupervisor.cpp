@@ -66,7 +66,8 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 
 	// TODO: rewrite read loop entirely to be callback driven, in prep for disk IO which occurs on a different thread.
 
-	// TODO: some question as to whether we should always seek or not...
+	// TODO: seek()/setPosition() is tied to WriteCommand setting the offset from the writer. The Writer also produces the reader. Should it happen automagically?
+	// I'm thinking *not*, just to make it consistent across callbacks. No guarantee that the file position on `contents` is where you want it to be anyway, so setPosition() is the safe thing to do.
 	if (write.offset > 0)
 	{
 		if (!contents->seek(write.offset))

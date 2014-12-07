@@ -24,6 +24,11 @@ namespace {
 	}
 }
 
+FileReader::FileReader(int fd)
+	: _fd(fd)
+{
+}
+
 FileReader::FileReader(const std::string& filename, unsigned long long offset)
 	: _fd(-1)
 {
@@ -37,7 +42,7 @@ FileReader::~FileReader()
 
 void FileReader::close()
 {
-	if (_fd != -1)
+	if (good())
 	{
 		::close(_fd);
 		_fd = -1;
@@ -49,7 +54,7 @@ bool FileReader::open(const std::string& filename, unsigned long long offset)
 	_fd = ::open(filename.c_str(), O_RDONLY | O_NOATIME);
 	if ( !good() )
 		std::cout << "couldn't read file: " << filename << ", " << ::strerror(errno) << std::endl;
-	if (offset != 0 && ::lseek64(_fd, offset, SEEK_SET) == -1)
+	if ( offset != 0 && !setPosition(offset) )
 	{
 		std::cout << "couldn't seek for read of: " << filename << ", " << ::strerror(errno) << std::endl;
 		close();
@@ -60,6 +65,16 @@ bool FileReader::open(const std::string& filename, unsigned long long offset)
 bool FileReader::good() const
 {
 	return _fd != -1;
+}
+
+unsigned long long FileReader::size() const
+{
+	return file_size(_fd);
+}
+
+bool FileReader::setPosition(unsigned long long pos)
+{
+	return ::lseek64(_fd, pos, SEEK_SET) != -1;
 }
 
 int FileReader::stream(IByteStream& sink)
@@ -83,9 +98,4 @@ int FileReader::stream(IByteStream& sink)
 			break;
 	}
 	return totalBytes;
-}
-
-unsigned long long FileReader::size() const
-{
-	return file_size(_fd);
 }

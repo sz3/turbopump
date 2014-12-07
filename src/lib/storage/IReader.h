@@ -9,7 +9,8 @@ class IReader
 public:
 	virtual ~IReader() {}
 	virtual bool good() const = 0;
-
-	virtual int stream(IByteStream& sink) = 0;
 	virtual unsigned long long size() const = 0;
+
+	virtual bool setPosition(unsigned long long offset) = 0;
+	virtual int stream(IByteStream& sink) = 0;
 };

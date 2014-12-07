@@ -2,10 +2,13 @@
 #include "FileWriter.h"
 
 #include "FileReader.h"
-#include <cstdio>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 FileWriter::FileWriter(const std::string& filename, std::function<bool()> onClose)
-	: _fd(NULL)
+	: _fd(-1)
 	, _onClose(onClose)
 {
 	open(filename);
@@ -20,25 +23,30 @@ void FileWriter::close_internal()
 {
 	if ( good() )
 	{
-		::fclose(_fd);
-		_fd = NULL;
+		::close(_fd);
+		_fd = -1;
 	}
 }
 
 bool FileWriter::open(const std::string& filename)
 {
-	_fd = ::fopen(filename.c_str(), "ab");
-	return _fd != NULL;
+	_fd = ::open(filename.c_str(), O_RDWR | O_CREAT | O_NOATIME, S_IRWXU);
+	return good();
 }
 
 bool FileWriter::good() const
 {
-	return _fd != NULL;
+	return _fd != -1;
+}
+
+unsigned long long FileWriter::position() const
+{
+	return ::lseek64(_fd, 0, SEEK_CUR);
 }
 
 int FileWriter::write(const char* buffer, unsigned length)
 {
-	return ::fwrite(buffer, sizeof(char), length, _fd);
+	return ::write(_fd, buffer, length);
 }
 
 bool FileWriter::flush()
@@ -57,9 +65,7 @@ bool FileWriter::close()
 
 IReader* FileWriter::reader() const
 {
-	// FileReader needs to know when to stop!
-	// FileWriter needs to hold more information... maybe?
-	// ... better yet, WriteStream holds a shared_ptr<IWriter>, and handles all the boring crap himself?
-	return NULL;
+	// rather than ::dup() each time, I'd like to do it once.
+	return new FileReader(::dup(_fd));
 }
 

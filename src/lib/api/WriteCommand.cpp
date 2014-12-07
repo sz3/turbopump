@@ -46,7 +46,7 @@ bool WriteCommand::flush()
 	if (_onCommit)
 		_onCommit(_instructions, reader);
 
-	_instructions.offset = reader->size();
+	_instructions.offset = reader->size(); // _writer->position()
 	_bytesSinceLastFlush = 0;
 	return true;
 }

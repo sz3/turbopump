@@ -12,6 +12,8 @@ public:
 	~FileWriter();
 
 	bool good() const;
+	unsigned long long position() const;
+
 	int write(const char* buffer, unsigned length);
 	bool flush();
 	bool close();
@@ -23,6 +25,6 @@ protected:
 	void close_internal();
 
 protected:
-	FILE* _fd;
+	int _fd;
 	std::function<bool()> _onClose;
 };

@@ -9,6 +9,7 @@ class IWriter
 public:
 	virtual ~IWriter() {}
 	virtual bool good() const = 0;
+	virtual unsigned long long position() const = 0;
 
 	virtual int write(const char* buffer, unsigned length) = 0;
 	virtual bool flush() = 0;
