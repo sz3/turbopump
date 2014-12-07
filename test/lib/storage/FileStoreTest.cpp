@@ -37,14 +37,14 @@ namespace {
 	public:
 		using FileStore::FileStore;
 
-		using FileStore::bestVersion;
+		using FileStore::mergedVersion;
 		using FileStore::dirpath;
 		using FileStore::filepath;
 	};
 
-	void write_file(FileStore& store, const std::string& name, const std::string& contents)
+	void write_file(FileStore& store, const std::string& name, const std::string& contents, const std::string& version="")
 	{
-		writestream writer = store.write(name);
+		writestream writer = store.write(name, version);
 		assert( writer.good() );
 		writer.write(contents.data(), contents.size());
 		writer.close();
@@ -62,7 +62,7 @@ TEST_CASE( "FileStoreTest/testPaths", "[unit]" )
 
 TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 {
-	MyMemberId("1");
+	MyMemberId("increment");
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -78,77 +78,83 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 
 	// but if we ask for in progress writes, we should see it.
 	versions = store.versions("myfile", true);
-	assertEquals( "1,1:1", turbo::str::join(versions) );
+	assertEquals( "1,increment:1", turbo::str::join(versions) );
 
-	readstream reader = store.read("myfile", "1,1:1");
+	readstream reader = store.read("myfile", "1,increment:1");
 	assertFalse( reader.good() );
 
 	// close/commit, and all is well.
 	assertTrue( writer.close() );
 
 	versions = store.versions("myfile");
-	assertEquals( "1,1:1", turbo::str::join(versions) );
+	assertEquals( "1,increment:1", turbo::str::join(versions) );
 
-	reader = store.read("myfile", "1,1:1");
+	reader = store.read("myfile", "1,increment:1");
 	assertTrue( reader.good() );
 	assertEquals( 10, reader.size() );
 }
 
 TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
 {
-	MyMemberId("1");
+	MyMemberId("increment");
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
 
-	{
-		writestream writer = store.write("myfile");
-		assertTrue( writer.good() );
-
-		string bytes = "0123456789";
-		assertEquals( 10, writer.write(bytes.data(), bytes.size()) );
-		assertTrue( writer.close() );
-	}
+	write_file(store, "myfile", "0123456789");
 	{
 		readstream reader = store.read("myfile");
 		assertTrue( reader.good() );
-		assertEquals( "1,1:1", reader.version() );
+		assertEquals( "1,increment:1", reader.version() );
 		assertEquals( 10, reader.size() );
 	}
 
-	{
-		writestream writer = store.write("myfile");
-		assertTrue( writer.good() );
-
-		string bytes = "abcdef";
-		assertEquals( 6, writer.write(bytes.data(), bytes.size()) );
-		assertTrue( writer.close() );
-	}
+	write_file(store, "myfile", "abcdef");
 	{
 		readstream reader = store.read("myfile");
 		assertTrue( reader );
-		assertEquals( "1,1:2", reader.version() );
+		assertEquals( "1,increment:2", reader.version() );
 		assertEquals( 6, reader.size() );
 	}
 }
 
-TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
+TEST_CASE( "FileStoreTest/testReadCantDecide", "[unit]" )
 {
-	MyMemberId("1");
+	MyMemberId("increment");
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
 
-	{
-		VectorClock version;
-		version.increment("foo");
-		writestream writer = store.write("myfile", version.toString());
-		assertTrue( writer.good() );
+	VectorClock v1;
+	v1.increment("foo");
+	write_file(store, "myfile", "0123456789", v1.toString());
 
-		string bytes = "0123456789";
-		assertEquals( 10, writer.write(bytes.data(), bytes.size()) );
-		assertTrue( writer.close() );
-	}
+	VectorClock v2;
+	v2.increment("bar");
+	write_file(store, "myfile", "abcdef", v2.toString());
+
+	readstream reader = store.read("myfile");
+	assertFalse( reader.good() );
+
+	// fix the conflict
+	write_file(store, "myfile", "fix!");
+
+	reader = store.read("myfile");
+	assertTrue( reader );
+	assertEquals( "3,increment:1,foo:1,bar:1", reader.version() );
+	assertEquals( 4, reader.size() );
+}
+
+TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	VectorClock v1;
+	v1.increment("foo");
+	write_file(store, "myfile", "0123456789", v1.toString());
 	{
 		readstream reader = store.read("myfile");
 		assertTrue( reader.good() );
@@ -156,17 +162,11 @@ TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 		assertEquals( 10, reader.size() );
 	}
 
+	VectorClock v2;
+	v2.increment("bar");
+	write_file(store, "myfile", "abcdef", v2.toString());
 	{
-		VectorClock version;
-		version.increment("bar");
-		writestream writer = store.write("myfile", version.toString());
-		assertTrue( writer.good() );
-
-		string bytes = "abcdef";
-		assertEquals( 6, writer.write(bytes.data(), bytes.size()) );
-		assertTrue( writer.close() );
-
-		readstream reader = store.read("myfile", version.toString());
+		readstream reader = store.read("myfile", v2.toString());
 		assertTrue( reader );
 		assertEquals( "1,bar:1", reader.version() );
 		assertEquals( 6, reader.size() );
@@ -186,7 +186,7 @@ TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 
 TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 {
-	MyMemberId("1");
+	MyMemberId("increment");
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);

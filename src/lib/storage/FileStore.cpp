@@ -42,9 +42,9 @@ namespace {
 		return entries;
 	}
 
-	bool onWriteComplete(const std::string& src, const std::string& dest)
+	bool onWriteComplete(FileStore& store, const std::string& src, const std::string& dest)
 	{
-
+		return File::rename(src, dest);
 	}
 }
 
@@ -66,7 +66,7 @@ std::string FileStore::filepath(const std::string& name, const std::string& vers
 	return dirpath(name) + "/" + version;
 }
 
-VectorClock FileStore::bestVersion(const std::string& name) const
+VectorClock FileStore::mergedVersion(const std::string& name) const
 {
 	VectorClock version;
 	std::vector<std::string> vs(versions(name, true));
@@ -90,14 +90,14 @@ writestream FileStore::write(const std::string& name, const std::string& version
 	md.version.fromString(version);
 	if (md.version.empty())
 	{
-		md.version = bestVersion(name);
+		md.version = mergedVersion(name);
 		md.version.increment(MyMemberId());
 	}
 
 	string filename(filepath(name, md.version.toString()));
 	string tempname = filename + "~";
 	boost::filesystem::create_directories(dirpath(name));
-	return writestream(new FileWriter(tempname, std::bind(&File::rename, tempname, filename)), md);
+	return writestream(new FileWriter(tempname, std::bind(&onWriteComplete, std::ref(*this), tempname, filename)), md);
 }
 
 readstream FileStore::read(const std::string& name, const std::string& version) const
@@ -105,12 +105,7 @@ readstream FileStore::read(const std::string& name, const std::string& version) 
 	KeyMetadata md;
 	md.version.fromString(version);
 	if (md.version.empty())
-	{
-		std::vector<std::string> vs = versions(name);
-		if (vs.empty())
-			return readstream();
-		md.version.fromString(vs.back());
-	}
+		md.version = mergedVersion(name);
 
 	// set md.totalCopies based on name
 	if (name.find(MEMBERSHIP_FILE_PREFIX) == 0)

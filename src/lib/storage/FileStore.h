@@ -26,7 +26,7 @@ public:
 protected:
 	std::string dirpath(const std::string& name) const;
 	std::string filepath(const std::string& name, const std::string& version) const;
-	VectorClock bestVersion(const std::string& filename) const;
+	VectorClock mergedVersion(const std::string& filename) const;
 
 protected:
 	std::string _homedir;
