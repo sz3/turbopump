@@ -64,9 +64,25 @@ bool FileReader::good() const
 
 int FileReader::stream(IByteStream& sink)
 {
+	// somehow, optional unsigned long long limit passed in from the FileWriter
+
 	char buff[sink.maxPacketLength()];
-	unsigned bytesRead = ::read(_fd, buff, sink.maxPacketLength());
-	return sink.write(buff, bytesRead);
+	unsigned long long totalBytes = 0;
+	while (1)
+	{
+		unsigned bytesRead = ::read(_fd, buff, sink.maxPacketLength());
+		if (bytesRead == 0)
+			break;
+
+		int bytesWrit = sink.write(buff, bytesRead);
+		if (bytesWrit <= 0)
+			break;
+
+		totalBytes += bytesWrit;
+		if (bytesWrit != bytesRead)
+			break;
+	}
+	return totalBytes;
 }
 
 unsigned long long FileReader::size() const

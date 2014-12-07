@@ -55,7 +55,7 @@ bool FileWriter::close()
 	return _onClose();
 }
 
-std::shared_ptr<IReader> FileWriter::reader() const
+IReader* FileWriter::reader() const
 {
 	// FileReader needs to know when to stop!
 	// FileWriter needs to hold more information... maybe?

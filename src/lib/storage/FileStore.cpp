@@ -28,18 +28,18 @@ namespace {
 	// For now, some shortcuts.
 	std::vector<std::string> list(const std::string& dir)
 	{
-		std::vector<std::string> files;
+		std::vector<std::string> entries;
 
 		DIR* dirp = opendir(dir.c_str());
 		if (dirp == NULL)
-			return files;
+			return entries;
 
 		struct dirent* dp;
 		while ((dp = readdir(dirp)) != NULL)
-			files.push_back(dp->d_name);
+			entries.push_back(dp->d_name);
 		closedir(dirp);
 
-		return files;
+		return entries;
 	}
 
 	bool onWriteComplete(const std::string& src, const std::string& dest)
@@ -57,7 +57,8 @@ FileStore::FileStore(const std::string& homedir)
 
 std::string FileStore::dirpath(const std::string& name) const
 {
-	return _homedir + "/" + Hash(name).base64() + "/" + name;
+	// eventually we'll base85 encode the Hash and use it for a filename. Probably.
+	return _homedir + "/" + name;
 }
 
 std::string FileStore::filepath(const std::string& name, const std::string& version) const
@@ -78,8 +79,6 @@ VectorClock FileStore::bestVersion(const std::string& name) const
 	return version;
 }
 
-// TODO: metadata is gone away, perhaps we'll have something like WriteFlags instead?
-//  include offset, supercede behavior, etc. Basically, stuff that the FileWriter will care about.
 writestream FileStore::write(const std::string& name, const std::string& version, unsigned long long offset)
 {
 	// TODO: supercede behavior can only happen at the *end* of a write.
@@ -98,7 +97,7 @@ writestream FileStore::write(const std::string& name, const std::string& version
 	string filename(filepath(name, md.version.toString()));
 	string tempname = filename + "~";
 	boost::filesystem::create_directories(dirpath(name));
-	return writestream(shared_ptr<IWriter>(new FileWriter(tempname, std::bind(&File::rename, tempname, filename))), md);
+	return writestream(new FileWriter(tempname, std::bind(&File::rename, tempname, filename)), md);
 }
 
 readstream FileStore::read(const std::string& name, const std::string& version) const
@@ -118,13 +117,15 @@ readstream FileStore::read(const std::string& name, const std::string& version) 
 		md.totalCopies = 0;
 
 	string filename(filepath(name, md.version.toString()));
-	return readstream(shared_ptr<IReader>(new FileReader(filename)), md);
+	return readstream(new FileReader(filename), md);
 }
 
 std::vector<readstream> FileStore::readAll(const std::string& name) const
 {
 	std::vector<readstream> all;
-	// for each, read(name, version)
+	std::vector<std::string> vs(versions(name));
+	for (const std::string& version : vs)
+		all.push_back( read(name, version) );
 	return all;
 }
 
@@ -168,4 +169,13 @@ bool FileStore::remove(const std::string& name)
 
 void FileStore::enumerate(const std::function<bool(const std::string&)> callback, unsigned limit) const
 {
+	int i = 0;
+	boost::filesystem::directory_iterator end;
+	for (boost::filesystem::directory_iterator it(_homedir); it != end; ++it)
+	{
+		boost::filesystem::path pa = it->path();
+		callback(pa.filename().string());
+		if (++i >= limit)
+			break;
+	}
 }

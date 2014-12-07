@@ -11,7 +11,7 @@
 readstream::readstream()
 {}
 
-readstream::readstream(const std::shared_ptr<IReader>& reader, const KeyMetadata& md)
+readstream::readstream(IReader* reader, const KeyMetadata& md)
 	: _reader(reader)
 	, _md(md)
 {

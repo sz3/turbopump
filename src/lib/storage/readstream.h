@@ -11,7 +11,7 @@ class readstream
 {
 public:
 	readstream();
-	readstream(const std::shared_ptr<IReader>& reader, const KeyMetadata& md);
+	readstream(IReader* reader, const KeyMetadata& md);
 
 	operator bool() const;
 	bool good() const;

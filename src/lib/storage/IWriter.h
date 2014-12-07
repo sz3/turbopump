@@ -14,5 +14,5 @@ public:
 	virtual bool flush() = 0;
 	virtual bool close() = 0;
 
-	virtual std::shared_ptr<IReader> reader() const = 0;
+	virtual IReader* reader() const = 0;
 };

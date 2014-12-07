@@ -3,7 +3,7 @@
 
 #include "IWriter.h"
 
-writestream::writestream(const std::shared_ptr<IWriter>& writer, const KeyMetadata& md)
+writestream::writestream(IWriter* writer, const KeyMetadata& md)
 	: _writer(writer)
 	, _md(md)
 {

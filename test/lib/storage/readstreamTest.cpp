@@ -12,7 +12,7 @@ TEST_CASE( "readstreamTest/testMetadata", "[unit]" )
 	md.version.increment("foo");
 	md.totalCopies = 2;
 
-	readstream reader(std::shared_ptr<FileReader>(new FileReader("myfile")), md);
+	readstream reader(new FileReader("myfile"), md);
 	//assertEquals( 0, reader.size() );
 	//assertEquals( 1234, reader.digest() );
 	assertEquals( md.version.toString(), reader.version() );

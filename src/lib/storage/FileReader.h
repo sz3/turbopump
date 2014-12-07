@@ -6,7 +6,7 @@
 class FileReader : public IReader
 {
 public:
-	FileReader(const std::string& filename, unsigned long long offset = 0);
+	FileReader(const std::string& filename, unsigned long long offset=0);
 	~FileReader();
 
 	bool good() const;

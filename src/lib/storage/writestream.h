@@ -9,7 +9,7 @@ class IWriter;
 class writestream 
 {
 public:
-	writestream(const std::shared_ptr<IWriter>& writer, const KeyMetadata& md);
+	writestream(IWriter* writer, const KeyMetadata& md);
 	bool good() const;
 
 	int write(const char* buffer, unsigned length);

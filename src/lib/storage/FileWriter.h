@@ -16,7 +16,7 @@ public:
 	bool flush();
 	bool close();
 
-	std::shared_ptr<IReader> reader() const;
+	IReader* reader() const;
 
 protected:
 	bool open(const std::string& filename); //TODO: offset
