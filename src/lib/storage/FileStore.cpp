@@ -25,8 +25,8 @@ using std::string;
 using namespace std::placeholders;
 
 namespace {
-	// will probably eventually store files by hash. (consistent length names are nice)
-	// For now, some shortcuts.
+	// used to get all versions of a file == list all files in a file's directory.
+	// names will likely be base85 encoded, but for now it's a simple VectorClock::toString().
 	std::vector<std::string> list(const std::string& dir)
 	{
 		std::vector<std::string> entries;
@@ -77,10 +77,6 @@ VectorClock FileStore::mergedVersion(const std::string& name) const
 
 writestream FileStore::write(const std::string& name, const std::string& version, unsigned long long offset)
 {
-	// TODO: supercede behavior can only happen at the *end* of a write.
-	//  what's the end? When the file matches its checksum... OR, if it's the a client write and we never got a checksum, when the writer closes. (aka, wild guess)
-	// TODO: what about storing md in general? Probably append it to the front of the file...? Better yet, if we need a md file to manage versioning anyway, why not use it for more stuff...
-
 	// just version it at the outset! Why not?
 	KeyMetadata md;
 	md.version.fromString(version);
@@ -102,7 +98,7 @@ readstream FileStore::read(const std::string& name, const std::string& version) 
 	if (md.version.empty())
 		md.version = mergedVersion(name);
 
-	// set md.totalCopies based on name
+	// set md.totalCopies based on name. Not doing per file metadata! (except where the file system supports it...)
 	if (name.find(MEMBERSHIP_FILE_PREFIX) == 0)
 		md.totalCopies = 0;
 
@@ -124,9 +120,9 @@ bool FileStore::exists(const std::string& name, const std::string& version) cons
 	return File::exists(filepath(name, version));
 }
 
-std::vector<std::string> FileStore::versions(const std::string& name, bool inprogress) const
+std::vector<std::string> FileStore::versions(const std::string& name, bool inprogress/*=false*/) const
 {
-	// if complete, in progress versions are ignored.
+	// by default, in progress versions are ignored.
 
 	std::vector<std::string> versions = list(dirpath(name));
 	for (auto it = versions.begin(); it != versions.end();)
