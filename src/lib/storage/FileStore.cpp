@@ -12,6 +12,7 @@
 #include "hashing/Hash.h"
 
 #include "file/File.h"
+#include "serialize/StringUtil.h"
 #include <cstring>
 #include <functional>
 #include <iostream>
@@ -183,7 +184,15 @@ void FileStore::enumerate(const std::function<bool(const std::string&)> callback
 	for (boost::filesystem::directory_iterator it(_homedir); it != end; ++it)
 	{
 		boost::filesystem::path pa = it->path();
-		callback(pa.filename().string());
+		string report = pa.filename().string() + " =>";
+
+		for (boost::filesystem::directory_iterator version_it(pa); version_it != end; ++version_it)
+		{
+			boost::filesystem::path vpath = version_it->path();
+			report += " " + StringUtil::str(boost::filesystem::file_size(vpath)) + "|" + vpath.filename().string();
+		}
+
+		callback(report);
 		if (++i >= limit)
 			break;
 	}

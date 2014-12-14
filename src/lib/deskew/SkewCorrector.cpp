@@ -4,13 +4,13 @@
 #include "IKeyTabulator.h"
 #include "IDigestKeys.h"
 #include "api/WriteInstructions.h"
-#include "common/KeyMetadata.h"
-#include "data_store/IDataStore.h"
 #include "deskew/TreeId.h"
 #include "logging/ILog.h"
 #include "membership/Peer.h"
 #include "peer_client/IMessageSender.h"
 #include "peer_client/ISuperviseWrites.h"
+#include "storage/IStore.h"
+#include "storage/readstream.h"
 
 #include "serialize/StringUtil.h"
 #include "serialize/str_join.h"
@@ -19,10 +19,10 @@
 #include <iostream>
 using std::string;
 
-SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IMessageSender& messenger, ISuperviseWrites& sender, ILog& logger)
+SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IStore& store, IMessageSender& messenger, ISuperviseWrites& sender, ILog& logger)
 	: _index(index)
-	, _store(store)
 	, _messenger(messenger)
+	, _store(store)
 	, _sender(sender)
 	, _logger(logger)
 {
@@ -47,9 +47,9 @@ void SkewCorrector::healKey(const Peer& peer, const TreeId& treeid, unsigned lon
 	// me: write / don't
 	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
 	{
-		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);
-		for (auto read = readers.begin(); read != readers.end(); ++read)
-			_messenger.offerWrite(peer, *it, (*read)->metadata().version.toString(), "");
+		std::vector<string> versions = _store.versions(*it);
+		for (const string& version : versions)
+			_messenger.offerWrite(peer, *it, version, "");
 	}
 }
 
@@ -61,22 +61,22 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 	std::deque<string> files = tree.enumerate(first, last);
 
 	_logger.logDebug( "pushing " + StringUtil::str(files.size()) + " keys to peer " + peer.uid + ": " + turbo::str::join(files) );
-	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
+	for (const string& file : files)
 	{
-		std::vector<IDataStoreReader::ptr> readers = _store.read(*it);
-		for (auto read = readers.begin(); read != readers.end(); ++read)
+		std::vector<readstream> readers = _store.readAll(file);
+		for (readstream& read : readers)
 		{
 			// WriteInstructions sets mirror to totalCopies => "don't forward, and notify the source if there is one"
-			unsigned totalCopies = (*read)->metadata().totalCopies;
+			unsigned totalCopies = read.mirrors();
 			WriteInstructions write;
-			write.name = *it;
+			write.name = file;
 			write.copies = totalCopies;
 			write.mirror = totalCopies;
-			write.version = (*read)->metadata().version.toString();
+			write.version = read.version();
 			if (!offloadFrom.empty())
 				write.source = offloadFrom;
 			write.isComplete = true;
-			if (!_sender.store(peer, write, *read))
+			if (!_sender.store(peer, write, read))
 			{
 				std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
 				return; // TODO: last error?
@@ -87,11 +87,11 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 
 bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
 {
-	IDataStoreReader::ptr reader = _store.read(name, version);
+	readstream reader = _store.read(name, version);
 	if (!reader)
 		return false;
 
-	unsigned totalCopies = reader->metadata().totalCopies;
+	unsigned totalCopies = reader.mirrors();
 	WriteInstructions write;
 	write.name = name;
 	write.copies = totalCopies;

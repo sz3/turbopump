@@ -178,7 +178,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	for (unsigned i = 0; i < numFiles; ++i)
 		checkpoints[StringUtil::str(i)];
 
-	opts.when_local_write_finishes = opts.when_mirror_write_finishes = [&checkpoints] (WriteInstructions& params, IDataStoreReader::ptr)
+	opts.when_local_write_finishes = opts.when_mirror_write_finishes = [&checkpoints] (WriteInstructions& params, readstream&)
 	{
 		checkpoints[params.name].add();
 	};

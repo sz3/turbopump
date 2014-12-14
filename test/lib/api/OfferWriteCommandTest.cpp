@@ -3,13 +3,13 @@
 
 #include "OfferWriteCommand.h"
 #include "membership/Peer.h"
-#include "mock/MockDataStore.h"
 #include "mock/MockMessageSender.h"
+#include "mock/MockStore.h"
 
 TEST_CASE( "OfferWriteCommandTest/testRun.AlreadyHaveKey", "[unit]" )
 {
-	MockDataStore store;
-	store._store["foo"] = "bar";
+	MockStore store;
+	store._reads["foo"] = "bar";
 	MockMessageSender messenger;
 	OfferWriteCommand command(store, messenger);
 
@@ -24,7 +24,7 @@ TEST_CASE( "OfferWriteCommandTest/testRun.AlreadyHaveKey", "[unit]" )
 
 TEST_CASE( "OfferWriteCommandTest/testRun.NeedKey", "[unit]" )
 {
-	MockDataStore store;
+	MockStore store;
 	MockMessageSender messenger;
 	OfferWriteCommand command(store, messenger);
 

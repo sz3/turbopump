@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	readstream.cpp
 	readstream.h
-	writestream.cpp
 	writestream.h
 	IStore.h
 	IReader.h
@@ -14,6 +12,7 @@ set(SOURCES
 	FileStore.h
 	FileWriter.cpp
 	FileWriter.h
+	StringReader.h
 )
 
 include_directories(
@@ -22,4 +21,7 @@ include_directories(
 
 add_library(storage STATIC ${SOURCES})
 
-
+target_link_libraries(storage
+	boost_filesystem
+	boost_system
+)

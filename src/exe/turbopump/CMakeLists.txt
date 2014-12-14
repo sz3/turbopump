@@ -15,7 +15,6 @@ target_link_libraries(turbopump
 -Wl,--start-group
 	api
 	common
-	data_store
 	deskew
 	hashing
 	logging
@@ -24,6 +23,7 @@ target_link_libraries(turbopump
 	peer_client
 	peer_server
 	programmable
+	storage
 	user_server
 
 	event

@@ -14,16 +14,17 @@ using namespace std::placeholders;
 TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& streamSocket, short port)
 	: _logger(socket_address("127.0.0.1", port).toString())
 	, _reporter(_ring, _membership, _state)
-	, _api(_corrector, _localDataStore, _keyLocator, _messenger, _reporter, _synchronizer, _callbacks)
+	, _api(_corrector, _keyLocator, _messenger, _reporter, _fileStore, _synchronizer, _callbacks)
 	, _callbacks(opts)
 	, _keyTabulator(_keyLocator)
 	, _threadLockedKeyTabulator(_keyTabulator, _scheduler)
-	, _corrector(_keyTabulator, _localDataStore, _messenger, _writeSupervisor, _logger)
+	, _corrector(_keyTabulator, _fileStore, _messenger, _writeSupervisor, _logger)
 	, _synchronizer(_ring, _membership, _keyTabulator, _messenger, _corrector, _logger)
 	, _messenger(_packer, _peerServer)
 	, _writeSupervisor(_packer, _peerServer)
 	, _membership("turbo_members.txt", socket_address("127.0.0.1", port).toString())
 	, _keyLocator(_ring, _membership)
+	, _fileStore("/tmp/turbo_" + StringUtil::str(port))
 	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
 	, _peerCenter(_api, _peerExecutor)
 	, _peerPacketHandler(_membership, _peerCenter, _logger)
@@ -38,7 +39,7 @@ void TurboPumpApp::run()
 
 	// membership
 	if (_membership.load())
-		_membership.syncToDataStore(_localDataStore);
+		_membership.syncToDataStore(_fileStore);
 	else
 	{
 		std::cerr << "failed to load membership. Warn." << std::endl;

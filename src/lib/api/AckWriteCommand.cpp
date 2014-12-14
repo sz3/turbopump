@@ -3,11 +3,11 @@
 
 #include "Drop.h"
 #include "common/KeyMetadata.h"
-#include "data_store/IDataStore.h"
-#include "data_store/IDataStoreReader.h"
+#include "storage/IStore.h"
+#include "storage/readstream.h"
 #include "hashing/ILocateKeys.h"
 
-AckWriteCommand::AckWriteCommand(IDataStore& store, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop)
+AckWriteCommand::AckWriteCommand(IStore& store, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop)
 	: _store(store)
 	, _locator(locator)
 	, _onDrop(onDrop)
@@ -16,15 +16,15 @@ AckWriteCommand::AckWriteCommand(IDataStore& store, const ILocateKeys& locator, 
 
 bool AckWriteCommand::run(const char*, unsigned)
 {
-	IDataStoreReader::ptr reader = _store.read(params.name, params.version);
+	readstream reader = _store.read(params.name, params.version);
 	if (!reader)
 		return false;
 
 	// right now, we don't do anything unless we've been ack'd the whole file
-	if (reader->size() != params.size)
+	if (reader.size() != params.size)
 		return false;
 
-	unsigned short totalCopies = reader->metadata().totalCopies;
+	unsigned short totalCopies = reader.mirrors();
 	if (!_locator.keyIsMine(params.name, totalCopies))
 	{
 		Turbopump::Drop req;
@@ -37,7 +37,7 @@ bool AckWriteCommand::run(const char*, unsigned)
 
 bool AckWriteCommand::drop(const Turbopump::Drop& req)
 {
-	if (!_store.drop(req.name))
+	if (!_store.remove(req.name))
 		return false;
 	if (_onDrop)
 		_onDrop(req);

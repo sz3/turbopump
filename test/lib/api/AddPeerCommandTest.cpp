@@ -3,10 +3,12 @@
 
 #include "AddPeerCommand.h"
 #include "mock/DummyTurbopumpApi.h"
+#include "mock/MockStoreWriter.h"
 
 TEST_CASE( "AddPeerCommandTest/testAdd", "[unit]" )
 {
 	DummyTurbopumpApi api;
+	api.store._writer = new MockStoreWriter();
 	AddPeerCommand command(api);
 
 	command.params.uid = "fooid";
@@ -15,5 +17,6 @@ TEST_CASE( "AddPeerCommandTest/testAdd", "[unit]" )
 	assertTrue( command.run() );
 	assertEquals( "Writer::setOffset(0)|"
 				  "Writer::write(localhost:9001)|"
-				  "commit(.membership/fooid,{1,fooid:1},0)", api.dataStore._history.calls() );
+				  "commit(.membership/fooid,{1,fooid:1},0)", api.store._history.calls() );
+	assertEquals( "", MockStoreWriter().calls() );
 }

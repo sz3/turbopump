@@ -4,6 +4,8 @@
 #include "api/WriteInstructions.h"
 #include "membership/Peer.h"
 #include "peer_server/ConnectionWriteStream.h"
+#include "storage/readstream.h"
+
 #include "serialize/StringUtil.h"
 
 MockWriteSupervisor::MockWriteSupervisor()
@@ -11,7 +13,7 @@ MockWriteSupervisor::MockWriteSupervisor()
 {
 }
 
-bool MockWriteSupervisor::store(const Peer& peer, const WriteInstructions& write, IDataStoreReader::ptr contents)
+bool MockWriteSupervisor::store(const Peer& peer, const WriteInstructions& write, readstream& contents)
 {
 	_history.call("store", peer.uid, write.name, write.mirror, write.copies, "["+write.version+"]", write.source, write.isComplete);
 	return !_storeFails;
@@ -25,8 +27,8 @@ std::shared_ptr<ConnectionWriteStream> MockWriteSupervisor::open(const Peer& pee
 	return std::shared_ptr<ConnectionWriteStream>( new ConnectionWriteStream(_writer, blocking) );
 }
 
-bool MockWriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, IDataStoreReader::ptr contents)
+bool MockWriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents)
 {
-	_history.call("store", write.name + "|" + write.version + "|" + StringUtil::str(write.isComplete), contents->size());
+	_history.call("store", write.name + "|" + write.version + "|" + StringUtil::str(write.isComplete), contents.size());
 	return true;
 }

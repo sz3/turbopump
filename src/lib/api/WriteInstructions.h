@@ -22,4 +22,5 @@ struct WriteInstructions : public Turbopump::Write
 
 	std::shared_ptr<ConnectionWriteStream> outstream;
 	bool isComplete = false;
+	unsigned long long digest = 0;
 };

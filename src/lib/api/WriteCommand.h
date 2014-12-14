@@ -4,17 +4,17 @@
 #include "Command.h"
 
 #include "WriteInstructions.h"
-#include "data_store/IDataStoreReader.h"
-#include "data_store/IDataStoreWriter.h"
-#include <functional>
+#include "storage/writestream.h"
 
-class IDataStore;
+#include <functional>
+class IStore;
+class readstream;
 
 class WriteCommand : public Turbopump::Command
 {
 public:
 	// instead of passing in a function, dedicate an interface to predefined functions, and have the params select from it?
-	WriteCommand(IDataStore& dataStore, std::function<void(WriteInstructions&, IDataStoreReader::ptr)> onCommit=NULL);
+	WriteCommand(IStore& store, std::function<void(WriteInstructions&, readstream&)> onCommit=NULL);
 	~WriteCommand();
 
 	Turbopump::Request* request();
@@ -26,12 +26,12 @@ protected:
 	bool commit();
 
 protected:
-	IDataStore& _dataStore;
-	std::function<void(WriteInstructions&, IDataStoreReader::ptr)> _onCommit;
+	IStore& _store;
+	std::function<void(WriteInstructions&, readstream&)> _onCommit;
 	bool _started;
 	bool _finished;
 	unsigned _bytesSinceLastFlush;
 
 	WriteInstructions _instructions;
-	IDataStoreWriter::ptr _writer;
+	writestream _writer;
 };

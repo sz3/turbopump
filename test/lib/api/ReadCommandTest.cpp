@@ -2,13 +2,13 @@
 #include "unittest.h"
 
 #include "ReadCommand.h"
-#include "mock/MockDataStore.h"
+#include "mock/MockStore.h"
 #include "socket/StringByteStream.h"
 
 TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 {
-	MockDataStore store;
-	store._store["myfile"] = "foo";
+	MockStore store;
+	store._reads["myfile"] = "foo";
 	StringByteStream stream;
 
 	ReadCommand command(store);
@@ -23,7 +23,7 @@ TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 
 TEST_CASE( "ReadCommandTest/testNullWriter", "[unit]" )
 {
-	MockDataStore store;
+	MockStore store;
 	ReadCommand command(store);
 	command.params.name = "myfile";
 	assertFalse( command.run() );
@@ -34,8 +34,8 @@ TEST_CASE( "ReadCommandTest/testNullWriter", "[unit]" )
 
 TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
 {
-	MockDataStore store;
-	store._store["myfile"] = "foo";
+	MockStore store;
+	store._reads["myfile"] = "foo";
 	StringByteStream stream;
 
 	ReadCommand command(store);
@@ -51,7 +51,7 @@ TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
 
 TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
 {
-	MockDataStore store;
+	MockStore store;
 	StringByteStream stream;
 
 	ReadCommand command(store);

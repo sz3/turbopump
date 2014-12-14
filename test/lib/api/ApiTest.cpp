@@ -4,11 +4,11 @@
 #include "Api.h"
 #include "Options.h"
 #include "ListKeys.h"
-#include "mock/MockDataStore.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
 #include "mock/MockStatusReporter.h"
+#include "mock/MockStore.h"
 #include "mock/MockSynchronize.h"
 #include "socket/NullByteStream.h"
 #include <memory>
@@ -16,13 +16,13 @@
 TEST_CASE( "ApiTest/testDefault", "[unit]" )
 {
 	MockSkewCorrector corrector;
-	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
+	MockStore store;
 	MockSynchronize sync;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
 	Turbopump::ListKeys req;
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", std::unordered_map<std::string,std::string>());
@@ -38,13 +38,13 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 {
 	MockSkewCorrector corrector;
-	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
+	MockStore store;
 	MockSynchronize sync;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
 	Turbopump::ListKeys params;
 	params.all = true;
@@ -65,13 +65,13 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 {
 	MockSkewCorrector corrector;
-	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
+	MockStore store;
 	MockSynchronize sync;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
 	std::unordered_map<std::string,std::string> params;
 	params["all"] = "1";
@@ -90,13 +90,13 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
 {
 	MockSkewCorrector corrector;
-	MockDataStore store;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
+	MockStore store;
 	MockSynchronize sync;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, store, locator, messenger, reporter, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
 	Turbopump::ListKeys req;
 	req.deleted = true;

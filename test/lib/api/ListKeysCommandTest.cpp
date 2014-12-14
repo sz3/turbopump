@@ -2,12 +2,12 @@
 #include "unittest.h"
 
 #include "ListKeysCommand.h"
-#include "mock/MockDataStore.h"
+#include "mock/MockStore.h"
 #include "socket/StringByteStream.h"
 
 TEST_CASE( "ListKeysCommandTest/testDefault", "[unit]" )
 {
-	MockDataStore store;
+	MockStore store;
 	StringByteStream stream;
 	ListKeysCommand command(store);
 	command.setWriter(&stream);
@@ -18,7 +18,7 @@ TEST_CASE( "ListKeysCommandTest/testDefault", "[unit]" )
 
 TEST_CASE( "ListKeysCommandTest/testNullWriter", "[unit]" )
 {
-	MockDataStore store;
+	MockStore store;
 	ListKeysCommand command(store);
 
 	assertFalse( command.run() );
@@ -27,7 +27,7 @@ TEST_CASE( "ListKeysCommandTest/testNullWriter", "[unit]" )
 
 TEST_CASE( "ListKeysCommandTest/testDeleted", "[unit]" )
 {
-	MockDataStore store;
+	MockStore store;
 	StringByteStream stream;
 	ListKeysCommand command(store);
 	command.setWriter(&stream);
@@ -39,7 +39,7 @@ TEST_CASE( "ListKeysCommandTest/testDeleted", "[unit]" )
 
 TEST_CASE( "ListKeysCommandTest/testAll", "[unit]" )
 {
-	MockDataStore store;
+	MockStore store;
 	StringByteStream stream;
 	ListKeysCommand command(store);
 	command.setWriter(&stream);

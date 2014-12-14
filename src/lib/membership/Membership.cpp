@@ -5,8 +5,8 @@
 #include "common/turbopump_defaults.h"
 #include "common/KeyMetadata.h"
 #include "common/MyMemberId.h"
-#include "data_store/IDataStore.h"
-#include "data_store/IDataStoreWriter.h"
+#include "storage/IStore.h"
+#include "storage/writestream.h"
 
 #include "serialize/StringUtil.h"
 #include "socket/socket_address.h"
@@ -188,17 +188,16 @@ void Membership::forEachPeer(std::function<void(const Peer&)> fun) const
 		fun(*it->second);
 }
 
-void Membership::syncToDataStore(IDataStore& store) const
+void Membership::syncToDataStore(IStore& store) const
 {
 	// TODO: this doesn't address the KeyTabulator!!
 	// crap is gonna be weird as a result.
 	auto fun = [&store] (const Peer& peer)
 	{
-		IDataStoreWriter::ptr writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid);
+		writestream writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid);
 		string data = peer.address();
-		writer->write(data.data(), data.size());
-		writer->metadata().totalCopies = 0;
-		writer->commit();
+		writer.write(data.data(), data.size());
+		writer.close();
 	};
 	forEachPeer(fun);
 }

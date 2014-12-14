@@ -3,16 +3,16 @@
 
 #include "ICorrectSkew.h"
 
-class IDataStore;
 class IKeyTabulator;
 class ILog;
 class IMessageSender;
+class IStore;
 class ISuperviseWrites;
 
 class SkewCorrector : public ICorrectSkew
 {
 public:
-	SkewCorrector(const IKeyTabulator& index, const IDataStore& store, IMessageSender& messenger, ISuperviseWrites& sender, ILog& logger);
+	SkewCorrector(const IKeyTabulator& index, const IStore& store, IMessageSender& messenger, ISuperviseWrites& sender, ILog& logger);
 
 	void healKey(const Peer& peer, const TreeId& treeid, unsigned long long key);
 	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="");
@@ -20,7 +20,7 @@ public:
 
 protected:
 	const IKeyTabulator& _index;
-	const IDataStore& _store;
+	const IStore& _store;
 	IMessageSender& _messenger;
 	ISuperviseWrites& _sender;
 	ILog& _logger;

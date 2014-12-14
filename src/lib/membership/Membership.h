@@ -12,7 +12,7 @@
 // guid -> ip:port
 // guid is master key, changes to ip:port are signed by ed25519.
 
-class IDataStore;
+class IStore;
 class Peer;
 
 class Membership : public IMembership
@@ -39,7 +39,7 @@ public:
 	std::shared_ptr<Peer> randomPeerFromList(std::vector<std::string> list) const;
 
 	void forEachPeer(std::function<void(const Peer&)> fun) const;
-	void syncToDataStore(IDataStore& store) const;
+	void syncToDataStore(IStore& store) const;
 
 	std::string toString() const;
 

@@ -3,26 +3,26 @@
 #include "api/Api.h"
 #include "api/Options.h"
 
-#include "MockDataStore.h"
 #include "MockLocateKeys.h"
 #include "MockMessageSender.h"
 #include "MockSkewCorrector.h"
 #include "MockStatusReporter.h"
+#include "MockStore.h"
 #include "MockSynchronize.h"
 
 class DummyTurbopumpApi : public Turbopump::Api
 {
 public:
 	DummyTurbopumpApi()
-		: Turbopump::Api(corrector, dataStore, locator, messenger, reporter, sync, options)
+		: Turbopump::Api(corrector, locator, messenger, reporter, store, sync, options)
 	{}
 
 public:
 	Turbopump::Options options;
 	MockSkewCorrector corrector;
-	MockDataStore dataStore;
 	MockLocateKeys locator;
 	MockMessageSender messenger;
 	MockStatusReporter reporter;
+	MockStore store;
 	MockSynchronize sync;
 };

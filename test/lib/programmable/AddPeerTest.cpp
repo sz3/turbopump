@@ -4,8 +4,11 @@
 #include "AddPeer.h"
 
 #include "api/WriteInstructions.h"
+#include "common/KeyMetadata.h"
 #include "common/turbopump_defaults.h"
-#include "mock/MockDataStore.h"
+#include "storage/readstream.h"
+#include "storage/StringReader.h"
+
 #include "mock/MockConsistentHashRing.h"
 #include "mock/MockMembership.h"
 #include "mock/MockKeyTabulator.h"
@@ -19,7 +22,7 @@ TEST_CASE( "AddPeerTest/testAdd", "[unit]" )
 	AddPeer action(ring, membership, index);
 
 	WriteInstructions params(MEMBERSHIP_FILE_PREFIX + string("fooid"), "v1", 0, 0);
-	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
+	readstream contents( new StringReader("localhost:9001"), KeyMetadata() );
 	assertTrue( action.run(params, contents) );
 
 	assertEquals( "add(fooid)|addIp(localhost:9001,fooid)|save()", membership._history.calls() );
@@ -37,7 +40,7 @@ TEST_CASE( "AddPeerTest/testAddExistingWorker", "[unit]" )
 	AddPeer action(ring, membership, index);
 
 	WriteInstructions params(MEMBERSHIP_FILE_PREFIX + string("fooid"), "v1", 0, 0);
-	IDataStoreReader::ptr contents( new MockDataStore::Reader("localhost:9001") );
+	readstream contents( new StringReader("localhost:9001"), KeyMetadata() );
 	assertTrue( action.run(params, contents) );
 
 	assertEquals( "add(fooid)|addIp(localhost:9001,fooid)|save()", membership._history.calls() );

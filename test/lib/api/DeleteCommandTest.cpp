@@ -19,5 +19,5 @@ TEST_CASE( "DeleteCommandTest/testDelete", "[unit]" )
 	assertTrue( command.run() );
 	assertEquals( "Writer::setOffset(0)|"
 				  "Writer::write(timestamp)|"
-				  "commit(deleted!,{2,delete:1,foo:1},3)", api.dataStore._history.calls() );
+				  "commit(deleted!,{2,delete:1,foo:1},3)", api.store._history.calls() );
 }

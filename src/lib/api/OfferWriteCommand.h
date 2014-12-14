@@ -3,19 +3,19 @@
 #include "OfferWrite.h"
 
 #include "InternalCommand.h"
-class IDataStore;
 class IMessageSender;
+class IStore;
 
 class OfferWriteCommand : public InternalCommand
 {
 public:
-	OfferWriteCommand(const IDataStore& store, IMessageSender& messenger);
+	OfferWriteCommand(const IStore& store, IMessageSender& messenger);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
-	const IDataStore& _store;
+	const IStore& _store;
 	IMessageSender& _messenger;
 
 public:

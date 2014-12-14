@@ -6,7 +6,6 @@
 #include "WanServer.h"
 #include "api/Api.h"
 #include "api/Options.h"
-#include "data_store/RamDataStore.h"
 #include "deskew/KeyTabulator.h"
 #include "deskew/ThreadLockedKeyTabulator.h"
 #include "deskew/SkewCorrector.h"
@@ -21,6 +20,7 @@
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
 #include "programmable/Callbacks.h"
+#include "storage/FileStore.h"
 
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
@@ -63,7 +63,7 @@ protected:
 	ConsistentHashRing _ring;
 	Membership _membership;
 	LocateKeys _keyLocator;
-	RamDataStore _localDataStore;
+	FileStore _fileStore;
 
 	// servers!
 	LocalStreamSocketServer _localServer;

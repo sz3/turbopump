@@ -4,8 +4,9 @@
 #include "WriteCommand.h"
 
 #include "WriteInstructions.h"
-#include "data_store/IDataStoreReader.h"
-#include "mock/MockDataStore.h"
+#include "storage/readstream.h"
+
+#include "mock/MockStore.h"
 #include "util/CallHistory.h"
 #include <string>
 using std::string;
@@ -16,8 +17,8 @@ namespace {
 	class TestableWriteCommand : public WriteCommand
 	{
 	public:
-		TestableWriteCommand(IDataStore& dataStore, std::function<void(WriteInstructions&, IDataStoreReader::ptr)> onCommit=NULL)
-			: WriteCommand(dataStore, onCommit)
+		TestableWriteCommand(IStore& store, std::function<void(WriteInstructions&, readstream&)> onCommit=NULL)
+			: WriteCommand(store, onCommit)
 		{}
 
 		using WriteCommand::commit;
@@ -31,10 +32,10 @@ namespace {
 TEST_CASE( "WriteCommandTest/testDefault", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		auto callback = [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name, ins.mirror, ins.copies, "["+ins.version+"]", ins.isComplete); };
-		TestableWriteCommand command(dataStore, callback);
+		auto callback = [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.mirror, ins.copies, "["+ins.version+"]", ins.isComplete); };
+		TestableWriteCommand command(store, callback);
 		command._instructions.name = "foobar.txt";
 
 		assertTrue( command.run("0123456789", 10) );
@@ -46,18 +47,18 @@ TEST_CASE( "WriteCommandTest/testDefault", "[unit]" )
 		assertFalse( command.run("closed", 6) );
 		assertEquals( 200, command.status() );
 	}
-	assertEquals( "0123456789abcde", dataStore._store["foobar.txt"] );
-	assertEquals( "Writer::setOffset(0)|Writer::write(0123456789)|Writer::write(abcde)|commit(foobar.txt,{0},3)", dataStore._history.calls() );
+	assertEquals( "0123456789abcde", store._history.calls() );
+	//assertEquals( "Writer::setOffset(0)|Writer::write(0123456789)|Writer::write(abcde)|commit(foobar.txt,{0},3)", dataStore._history.calls() );
 	assertEquals( "onCommit(foobar.txt,0,3,[1,mockReaderVersion:1],1)", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		auto callback = [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name, ins.mirror, ins.copies, "{"+ins.version+"}", ins.source, ins.isComplete); };
-		TestableWriteCommand command(dataStore, callback);
+		auto callback = [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.mirror, ins.copies, "{"+ins.version+"}", ins.source, ins.isComplete); };
+		TestableWriteCommand command(store, callback);
 		command._instructions.name = "foobar.txt";
 		command._instructions.copies = 5;
 		command._instructions.mirror = 3;
@@ -74,30 +75,29 @@ TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )
 		assertTrue( command.finished() );
 		assertEquals( 200, command.status() );
 	}
-	assertEquals( "0123456789", dataStore._store["foobar.txt"] );
-	assertEquals( "Writer::setOffset(20)|Writer::write(0123456789)|commit(foobar.txt,{1,v1:1},5)", dataStore._history.calls() );
+	assertEquals( "Writer::setOffset(20)|Writer::write(0123456789)|commit(foobar.txt,{1,v1:1},5)", store._history.calls() );
 	assertEquals( "onCommit(foobar.txt,3,5,{1,v1:1},someguy,1)", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testDestructorNoCommit", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name); });
+		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name); });
 		command._instructions.name = "foobar.txt";
 		assertTrue( command.run("0123456789", 10) );
 	}
-	assertEquals( "", dataStore._store["foobar.txt"] );
+	assertEquals( "0123456789abcde", store._history.calls() );
 	assertEquals( "", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testFlush", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 
-	TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name, ins.offset, "["+ins.version+"]"); });
+	TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.offset, "["+ins.version+"]"); });
 	command._instructions.name = "foobar.txt";
 
 	assertTrue( command.run("0123456789", 10) );
@@ -112,20 +112,19 @@ TEST_CASE( "WriteCommandTest/testFlush", "[unit]" )
 	assertTrue( command.flush() );
 	assertEquals( 16, command._instructions.offset );
 
-	assertEquals( "0123456789abcdef", dataStore._store["foobar.txt"] );
-	assertEquals( "onCommit(foobar.txt,0,[1,mockReaderVersion:1])"
-				  "|onCommit(foobar.txt,10,[1,mockReaderVersion:1])", _history.calls() );
 	assertEquals( "Writer::setOffset(0)"
 				  "|Writer::write(0123456789)|commit(foobar.txt,{0},3)"
-				  "|Writer::write(abcdef)|commit(foobar.txt,{0},3)", dataStore._history.calls() );
+				  "|Writer::write(abcdef)|commit(foobar.txt,{0},3)", store._history.calls() );
+	assertEquals( "onCommit(foobar.txt,0,[1,mockReaderVersion:1])"
+				  "|onCommit(foobar.txt,10,[1,mockReaderVersion:1])", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 
-	TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name, ins.offset, "["+ins.version+"]"); });
+	TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.offset, "["+ins.version+"]"); });
 	command._instructions.name = "foobar.txt";
 	command._instructions.version = "version1";
 
@@ -134,7 +133,7 @@ TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "[unit]" )
 	assertTrue( command.run("abcdef", 6) );
 	assertTrue( command.flush() );
 
-	assertEquals( "0123456789abcdef", dataStore._store["foobar.txt"] );
+	assertEquals( "0123456789abcdef", store._history.calls() );
 	assertEquals( "onCommit(foobar.txt,0,[version1])"
 				  "|onCommit(foobar.txt,10,[version1])", _history.calls() );
 }
@@ -142,9 +141,9 @@ TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "[unit]" )
 TEST_CASE( "WriteCommandTest/testFlush.NoCallback", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 
-	TestableWriteCommand command(dataStore);
+	TestableWriteCommand command(store);
 	command._instructions.name = "foobar.txt";
 	command._instructions.version = "version1";
 
@@ -153,16 +152,16 @@ TEST_CASE( "WriteCommandTest/testFlush.NoCallback", "[unit]" )
 	assertTrue( command.run("abcdef", 6) );
 	assertTrue( command.flush() );
 
-	assertEquals( "0123456789abcdef", dataStore._store["foobar.txt"] );
+	assertEquals( "0123456789abcde", store._history.calls() );
 	assertEquals( 16, command._instructions.offset );
 }
 
 TEST_CASE( "WriteCommandTest/testBadName", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		WriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name); });
+		WriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name); });
 
 		assertFalse( command.run() );
 		assertTrue( command.finished() );
@@ -174,9 +173,9 @@ TEST_CASE( "WriteCommandTest/testBadName", "[unit]" )
 TEST_CASE( "WriteCommandTest/testZeroByteWrite", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr){ _history.call("onCommit", ins.name); });
+		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name); });
 		command._instructions.name = "foobar.txt";
 
 		assertTrue( command.run(NULL, 0) );
@@ -185,16 +184,16 @@ TEST_CASE( "WriteCommandTest/testZeroByteWrite", "[unit]" )
 		assertTrue( command.finished() );
 		assertFalse( command.run(NULL, 0) );
 	}
-	assertEquals( "", dataStore._store["foobar.txt"] );
+	assertEquals( "0123456789abcde", store._history.calls() );
 	assertEquals( "onCommit(foobar.txt)", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testBigWrite", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr reader){ _history.call("onCommit", ins.name, ins.offset, reader->size(), ins.isComplete); });
+		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream& reader){ _history.call("onCommit", ins.name, ins.offset, reader.size(), ins.isComplete); });
 		command._instructions.name = "bigfile.txt";
 
 		std::string buff;
@@ -204,16 +203,17 @@ TEST_CASE( "WriteCommandTest/testBigWrite", "[unit]" )
 		assertTrue( command.run() );
 		assertTrue( command.finished() );
 	}
-	assertEquals( (65*1024), dataStore._store["bigfile.txt"].size() );
+	assertEquals( "0123456789abcde", store._history.calls() );
+	//assertEquals( (65*1024), dataStore._store["bigfile.txt"].size() );
 	assertEquals( "onCommit(bigfile.txt,0,65536,0)|onCommit(bigfile.txt,65536,66560,1)", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr reader){ _history.call("onCommit", ins.name, reader->size(), ins.isComplete); });
+		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream& reader){ _history.call("onCommit", ins.name, reader.size(), ins.isComplete); });
 		command._instructions.name = "bigfile.txt";
 
 		std::string buff;
@@ -224,16 +224,17 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "[unit]" )
 		assertTrue( command.finished() );
 		assertEquals( 200, command.status() );
 	}
-	assertEquals( 65536, dataStore._store["bigfile.txt"].size() );
+	assertEquals( "0123456789abcde", store._history.calls() );
+	//assertEquals( 65536, dataStore._store["bigfile.txt"].size() );
 	assertEquals( "onCommit(bigfile.txt,65536,1)", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testBigWrite.Split", "[unit]" )
 {
 	_history.clear();
-	MockDataStore dataStore;
+	MockStore store;
 	{
-		TestableWriteCommand command(dataStore, [&](WriteInstructions& ins, IDataStoreReader::ptr reader){ _history.call("onCommit", ins.name, ins.offset, reader->size(), ins.isComplete); });
+		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream& reader){ _history.call("onCommit", ins.name, ins.offset, reader.size(), ins.isComplete); });
 		command._instructions.name = "bigfile.txt";
 
 		std::string buff;
@@ -244,6 +245,7 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Split", "[unit]" )
 		assertTrue( command.finished() );
 		assertEquals( 200, command.status() );
 	}
-	assertEquals( 66000, dataStore._store["bigfile.txt"].size() );
+	assertEquals( "0123456789abcde", store._history.calls() );
+	//assertEquals( 66000, dataStore._store["bigfile.txt"].size() );
 	assertEquals( "onCommit(bigfile.txt,0,65536,0)|onCommit(bigfile.txt,65536,66000,1)", _history.calls() );
 }

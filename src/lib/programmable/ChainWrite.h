@@ -2,9 +2,7 @@
 #pragma once
 
 #include "api/WriteInstructions.h"
-#include "data_store/IDataStoreReader.h"
 #include "peer_client/ISuperviseWrites.h"
-
 class ILocateKeys;
 class IMembership;
 class Peer;
@@ -20,7 +18,7 @@ public:
 		, _blocking(blocking)
 	{}
 
-	bool run(WriteInstructions& params, IDataStoreReader::ptr contents)
+	bool run(WriteInstructions& params, readstream& contents)
 	{
 		if (!params.outstream)
 		{

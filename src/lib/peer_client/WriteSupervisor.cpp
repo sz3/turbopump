@@ -6,6 +6,9 @@
 #include "peer_client/IMessagePacker.h"
 #include "peer_server/BufferedConnectionWriter.h"
 #include "peer_server/ConnectionWriteStream.h"
+#include "storage/IStore.h"
+#include "storage/readstream.h"
+
 #include "socket/ISocketServer.h"
 #include "socket/socket_address.h"
 #include <iostream>
@@ -28,7 +31,7 @@ WriteSupervisor::WriteSupervisor(const IMessagePacker& packer, ISocketServer& se
 {
 }
 
-bool WriteSupervisor::store(const Peer& peer, const WriteInstructions& write, IDataStoreReader::ptr contents)
+bool WriteSupervisor::store(const Peer& peer, const WriteInstructions& write, readstream& contents)
 {
 	std::shared_ptr<ConnectionWriteStream> conn = open(peer, write, true);
 	if (!conn)
@@ -53,10 +56,10 @@ std::shared_ptr<ConnectionWriteStream> WriteSupervisor::open(const Peer& peer, c
 	return conn;
 }
 
-bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, IDataStoreReader::ptr contents)
+bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents)
 {
 	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
-	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto IDataStoreReader::ptrs
+	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto readstreams
 	//  and our transfer progress (bytesWrit)
 	//
 
@@ -70,13 +73,13 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 	// I'm thinking *not*, just to make it consistent across callbacks. No guarantee that the file position on `contents` is where you want it to be anyway, so setPosition() is the safe thing to do.
 	if (write.offset > 0)
 	{
-		if (!contents->seek(write.offset))
+		if (!contents.setPosition(write.offset))
 			return false;
 	}
 
 	int bytesWrit = 0;
 	int wrote = 0;
-	while ((wrote = contents->read(conn)) > 0)
+	while ((wrote = contents.stream(conn)) > 0)
 		bytesWrit += wrote;
 
 	if (wrote == -1)

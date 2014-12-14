@@ -4,11 +4,12 @@
 #include "NotifyWriteComplete.h"
 
 #include "api/WriteInstructions.h"
-#include "data_store/IDataStoreReader.h"
+#include "common/KeyMetadata.h"
 #include "membership/Peer.h"
-#include "mock/MockDataStore.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMessageSender.h"
+#include "storage/readstream.h"
+#include "storage/StringReader.h"
 #include <string>
 
 using std::string;
@@ -20,7 +21,8 @@ TEST_CASE( "NotifyWriteCompleteTest/testNotLastCopy", "[unit]" )
 	NotifyWriteComplete command(membership, messenger);
 
 	WriteInstructions params("myfile", "v1", 0, 2);
-	command.run(params, NULL);
+	readstream reader(NULL, KeyMetadata());
+	command.run(params, reader);
 
 	assertEquals( "", membership._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -33,7 +35,8 @@ TEST_CASE( "NotifyWriteCompleteTest/testNoExtraMirror", "[unit]" )
 	NotifyWriteComplete command(membership, messenger);
 
 	WriteInstructions params("myfile", "v1", 2, 2);
-	command.run(params, NULL);
+	readstream reader(NULL, KeyMetadata());
+	command.run(params, reader);
 
 	assertEquals( "", membership._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -47,7 +50,8 @@ TEST_CASE( "NotifyWriteCompleteTest/testExtraMirrorNotAMember", "[unit]" )
 
 	WriteInstructions params("myfile", "v1", 2, 2);
 	params.source = "bob";
-	command.run(params, NULL);
+	readstream reader(NULL, KeyMetadata());
+	command.run(params, reader);
 
 	assertEquals( "lookup(bob)", membership._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -63,7 +67,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testDropExtraMirror", "[unit]" )
 
 	WriteInstructions params("myfile", "v1", 3, 2);
 	params.source = "peer";
-	IDataStoreReader::ptr reader(new MockDataStore::Reader("data"));
+	readstream reader(new StringReader("data"), KeyMetadata());
 	command.run(params, reader);
 
 	assertEquals( "lookup(peer)", membership._history.calls() );

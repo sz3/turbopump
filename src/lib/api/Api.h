@@ -8,10 +8,10 @@
 #include <unordered_map>
 
 class ICorrectSkew;
-class IDataStore;
 class ILocateKeys;
 class IMessageSender;
 class IStatusReporter;
+class IStore;
 class ISynchronize;
 
 namespace Turbopump {
@@ -20,7 +20,7 @@ class Options;
 class Api
 {
 public:
-	Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, ISynchronize& sync, const Options& options);
+	Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, IStore& store, ISynchronize& sync, const Options& options);
 
 	std::unique_ptr<Command> command(int id, const char* buff, unsigned size) const;
 	std::unique_ptr<Command> command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const;
@@ -43,10 +43,10 @@ protected:
 	std::unordered_map<std::string, int> _commands;
 
 	ICorrectSkew& _corrector;
-	IDataStore& _dataStore;
 	const ILocateKeys& _locator;
 	IMessageSender& _messenger;
 	IStatusReporter& _reporter;
+	IStore& _store;
 	ISynchronize& _sync;
 	const Options& _options;
 };

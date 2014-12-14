@@ -4,6 +4,7 @@
 #include "api/WriteInstructions.h"
 #include "membership/IMembership.h"
 #include "peer_client/IMessageSender.h"
+#include "storage/readstream.h"
 using std::shared_ptr;
 
 NotifyWriteComplete::NotifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
@@ -12,13 +13,13 @@ NotifyWriteComplete::NotifyWriteComplete(const IMembership& membership, IMessage
 {
 }
 
-void NotifyWriteComplete::run(WriteInstructions& params, IDataStoreReader::ptr contents)
+void NotifyWriteComplete::run(WriteInstructions& params, readstream& contents)
 {
 	if (params.mirror >= params.copies && !params.source.empty())
 	{
 		shared_ptr<Peer> source = _membership.lookup(params.source);
 		if (source)
-			_messenger.acknowledgeWrite(*source, params.name, params.version, contents->size());
+			_messenger.acknowledgeWrite(*source, params.name, params.version, contents.size());
 	}
 }
 

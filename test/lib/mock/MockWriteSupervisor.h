@@ -10,10 +10,10 @@ class MockWriteSupervisor : public ISuperviseWrites
 {
 public:
 	MockWriteSupervisor();
-	bool store(const Peer& peer, const WriteInstructions& write, IDataStoreReader::ptr contents);
+	bool store(const Peer& peer, const WriteInstructions& write, readstream& contents);
 
 	std::shared_ptr<ConnectionWriteStream> open(const Peer& peer, const WriteInstructions& write, bool blocking);
-	bool store(ConnectionWriteStream& conn, const WriteInstructions& write, IDataStoreReader::ptr contents);
+	bool store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents);
 
 public:
 	CallHistory _history;

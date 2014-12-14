@@ -6,6 +6,8 @@
 #include "deskew/IKeyTabulator.h"
 #include "hashing/IConsistentHashRing.h"
 #include "membership/IMembership.h"
+#include "storage/readstream.h"
+
 #include "socket/StringByteStream.h"
 using std::string;
 
@@ -16,14 +18,14 @@ AddPeer::AddPeer(IConsistentHashRing& ring, IMembership& membership, IKeyTabulat
 {
 }
 
-bool AddPeer::run(WriteInstructions& params, IDataStoreReader::ptr contents)
+bool AddPeer::run(WriteInstructions& params, readstream& contents)
 {
 	if (params.name.find(MEMBERSHIP_FILE_PREFIX) != 0)
 		return false;
 	string uid = params.name.substr(MEMBERSHIP_FILE_PREFIX_LENGTH-1);
 
 	StringByteStream stream;
-	contents->read(stream);
+	contents.stream(stream);
 	string ip = stream.writeBuffer();
 
 	bool isNew = _membership.add(uid);

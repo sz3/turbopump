@@ -4,19 +4,19 @@
 
 #include "Command.h"
 #include <functional>
-class IDataStore;
 class ILocateKeys;
+class IStore;
 
 class DropCommand : public Turbopump::Command
 {
 public:
-	DropCommand(IDataStore& dataStore, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop);
+	DropCommand(IStore& store, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
-	IDataStore& _dataStore;
+	IStore& _store;
 	const ILocateKeys& _locator;
 	std::function<void(const Turbopump::Drop&)> _onDrop;
 

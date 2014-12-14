@@ -4,11 +4,13 @@
 #include "WriteSupervisor.h"
 
 #include "api/WriteInstructions.h"
-#include "data_store/IDataStoreReader.h"
+#include "common/KeyMetadata.h"
 #include "membership/Peer.h"
-#include "mock/MockDataStore.h"
 #include "mock/MockRequestPacker.h"
 #include "peer_server/ConnectionWriteStream.h"
+#include "storage/readstream.h"
+#include "storage/StringReader.h"
+
 #include "socket/MockSocketServer.h"
 #include "socket/MockSocketWriter.h"
 #include <string>
@@ -38,9 +40,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream reader(new StringReader("contents"), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
@@ -60,7 +60,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 
 	writer->_history.clear();
 	params.isComplete = true;
-	reader = store.read("dummy", "version");
+	reader = readstream(new StringReader("contents"), KeyMetadata());
 	assertTrue( client.store(*conn, params, reader) );
 	assertEquals( "try_send(contents)|try_send()|flush(false)", writer->_history.calls() );
 }
@@ -72,9 +72,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream reader(new StringReader("contents"), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
@@ -104,9 +102,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream reader(new StringReader("contents"), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
@@ -126,7 +122,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 
 	writer->_history.clear();
 	params.isComplete = true;
-	reader = store.read("dummy", "version");
+	reader = readstream(new StringReader("contents"), KeyMetadata());
 	assertTrue( client.store(*conn, params, reader) );
 	assertEquals( "send(contents)|send()|flush(true)", writer->_history.calls() );
 }
@@ -138,9 +134,7 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream reader(new StringReader("contents"), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
@@ -161,9 +155,7 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream reader(new StringReader("contents"), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
@@ -186,9 +178,7 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "0123456789abcdeABCDEturtle";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream reader(new StringReader("0123456789abcdeABCDEturtle"), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
@@ -211,9 +201,7 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "0123456789abcdeABCDE";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream reader(new StringReader("0123456789abcdeABCDE"), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();

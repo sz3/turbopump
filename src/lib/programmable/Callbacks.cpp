@@ -9,8 +9,9 @@
 
 #include "api/Drop.h"
 #include "deskew/IKeyTabulator.h"
-#include "util/FunctionChainer.h"
+#include "storage/readstream.h"
 
+#include "util/FunctionChainer.h"
 #include <deque>
 #include <functional>
 using std::bind;
@@ -21,20 +22,20 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(WriteInstructions&, IDataStoreReader::ptr)> membershipAddFunct(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
+	std::function<void(WriteInstructions&, readstream&)> membershipAddFunct(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
 	{
-		return [&] (WriteInstructions& params, IDataStoreReader::ptr contents)
+		return [&] (WriteInstructions& params, readstream& contents)
 		{
 			AddPeer adder(ring, membership, keyTabulator);
 			adder.run(params, contents);
 		};
 	}
 
-	std::function<void(WriteInstructions&, IDataStoreReader::ptr)> digestAddFunct(IKeyTabulator& keyTabulator)
+	std::function<void(WriteInstructions&, readstream&)> digestAddFunct(IKeyTabulator& keyTabulator)
 	{
-		return [&] (WriteInstructions& params, IDataStoreReader::ptr contents)
+		return [&] (WriteInstructions& params, readstream& contents)
 		{
-			keyTabulator.update(params.name, contents->summary(), params.copies);
+			keyTabulator.update(params.name, params.digest xor contents.digest(), params.copies);
 		};
 	}
 
@@ -46,19 +47,19 @@ namespace
 		};
 	}
 
-	std::function<void(WriteInstructions&, IDataStoreReader::ptr)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
+	std::function<void(WriteInstructions&, readstream&)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
 	{
 		std::shared_ptr<NotifyWriteComplete> cmd(new NotifyWriteComplete(membership, messenger));
 		return bind(&NotifyWriteComplete::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteInstructions&, IDataStoreReader::ptr)> writeChainFunct_cloneMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
+	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_cloneMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
 	{
 		std::shared_ptr< ChainWrite<RandomizedMirrorToPeer> > cmd(new ChainWrite<RandomizedMirrorToPeer>(locator, membership, writer, blocking));
 		return bind(&ChainWrite<RandomizedMirrorToPeer>::run, cmd, _1, _2);
 	}
 
-	std::function<void(WriteInstructions&, IDataStoreReader::ptr)> writeChainFunct_partitionMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
+	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_partitionMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
 	{
 		std::shared_ptr< ChainWrite<MirrorToPeer> > cmd(new ChainWrite<MirrorToPeer>(locator, membership, writer, blocking));
 		return bind(&ChainWrite<MirrorToPeer>::run, cmd, _1, _2);
@@ -77,7 +78,7 @@ void Callbacks::initialize(IConsistentHashRing& ring, ILocateKeys& locator, IMem
 
 	// on local write
 	{
-		FunctionChainer<WriteInstructions&, IDataStoreReader::ptr> chain(when_local_write_finishes);
+		FunctionChainer<WriteInstructions&, readstream&> chain(when_local_write_finishes);
 		if (active_sync)
 			chain.add( digestAddFunct(keyTabulator) );
 
@@ -95,7 +96,7 @@ void Callbacks::initialize(IConsistentHashRing& ring, ILocateKeys& locator, IMem
 
 	// on mirror write
 	{
-		FunctionChainer<WriteInstructions&, IDataStoreReader::ptr> chain(when_mirror_write_finishes);
+		FunctionChainer<WriteInstructions&, readstream&> chain(when_mirror_write_finishes);
 		if (active_sync)
 			chain.add( digestAddFunct(keyTabulator) );
 

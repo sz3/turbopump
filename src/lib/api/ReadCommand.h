@@ -4,18 +4,18 @@
 
 #include "StreamingCommand.h"
 class IByteStream;
-class IDataStore;
+class IStore;
 
 class ReadCommand : public StreamingCommand
 {
 public:
-	ReadCommand(const IDataStore& dataStore);
+	ReadCommand(const IStore& store);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
-	const IDataStore& _dataStore;
+	const IStore& _store;
 
 public:
 	Turbopump::Read params;

@@ -4,12 +4,12 @@
 #include "ChainWrite.h"
 
 #include "api/WriteInstructions.h"
-#include "data_store/IDataStoreReader.h"
-#include "mock/MockDataStore.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMembership.h"
 #include "mock/MockMirrorToPeer.h"
 #include "mock/MockWriteSupervisor.h"
+#include "storage/readstream.h"
+#include "storage/StringReader.h"
 
 #include "socket/MockSocketWriter.h"
 #include <string>
@@ -23,15 +23,13 @@ TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, true);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream contents( new StringReader("contents"), KeyMetadata() );
 
 	// output
 	supervisor._writer.reset(new MockSocketWriter());
 
 	WriteInstructions params("file","v1",0,3);
-	assertTrue( command.run(params, reader) );
+	assertTrue( command.run(params, contents) );
 
 	assertFalse( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
@@ -48,15 +46,13 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream contents( new StringReader("contents"), KeyMetadata() );
 
 	// output
 	supervisor._writer.reset(new MockSocketWriter());
 
 	WriteInstructions params("file","v1",0,3);
-	assertFalse( command.run(params, reader) );
+	assertFalse( command.run(params, contents) );
 
 	assertTrue( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
@@ -71,15 +67,13 @@ TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream contents( new StringReader("contents"), KeyMetadata() );
 
 	// output
 	// nope!
 
 	WriteInstructions params("file","v1",0,3);
-	assertFalse( command.run(params, reader) );
+	assertFalse( command.run(params, contents) );
 
 	assertTrue( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
@@ -94,15 +88,13 @@ TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
 	// input
-	MockDataStore store;
-	store._store["dummy"] = "contents";
-	IDataStoreReader::ptr reader = store.read("dummy", "version");
+	readstream contents( new StringReader("contents"), KeyMetadata() );
 
 	// output
 	supervisor._writer.reset(new MockSocketWriter());
 
 	WriteInstructions params("file","v1",0,3);
-	assertTrue( command.run(params, reader) );
+	assertTrue( command.run(params, contents) );
 
 	assertFalse( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
@@ -110,16 +102,16 @@ TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 
 	supervisor._history.clear();
 
-	reader = store.read("dummy", "version");
-	assertTrue( command.run(params, reader) );
+	contents = readstream( new StringReader("contents"), KeyMetadata() );
+	assertTrue( command.run(params, contents) );
 	assertEquals( "", MockMirrorToPeer::calls() );
 	assertEquals( "store(file|v1|false,8)", supervisor._history.calls() );
 
 	supervisor._history.clear();
 
-	reader = store.read("dummy", "version");
+	contents = readstream(new StringReader("contents"), KeyMetadata());
 	params.isComplete = true;
-	assertTrue( command.run(params, reader) );
+	assertTrue( command.run(params, contents) );
 	assertEquals( "", MockMirrorToPeer::calls() );
 	assertEquals( "store(file|v1|true,8)", supervisor._history.calls() );
 }

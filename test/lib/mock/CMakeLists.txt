@@ -29,6 +29,12 @@ set(SOURCES
 	MockPeerCommandCenter.h
 	MockProcessState.cpp
 	MockProcessState.h
+	MockStore.cpp
+	MockStore.h
+	MockStoreReader.cpp
+	MockStoreReader.h
+	MockStoreWriter.cpp
+	MockStoreWriter.h
 	MockRequestPacker.cpp
 	MockRequestPacker.h
 	MockSchedulerThread.cpp

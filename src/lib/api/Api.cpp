@@ -21,12 +21,12 @@
 // return copy of the op (refs, base type + params)
 namespace Turbopump {
 
-Api::Api(ICorrectSkew& corrector, IDataStore& dataStore, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, ISynchronize& sync, const Options& options)
+Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, IStore& store, ISynchronize& sync, const Options& options)
 	: _corrector(corrector)
-	, _dataStore(dataStore)
 	, _locator(locator)
 	, _messenger(messenger)
 	, _reporter(reporter)
+	, _store(store)
 	, _sync(sync)
 	, _options(options)
 {
@@ -51,20 +51,20 @@ Command* Api::command_impl(int id) const
 	{
 		case AddPeer::_ID: return new AddPeerCommand(*this);
 		case Delete::_ID: return new DeleteCommand(*this);
-		case Drop::_ID: return new DropCommand(_dataStore, _locator, _options.when_drop_finishes);
-		case ListKeys::_ID: return new ListKeysCommand(_dataStore);
-		case Read::_ID: return new ReadCommand(_dataStore);
+		case Drop::_ID: return new DropCommand(_store, _locator, _options.when_drop_finishes);
+		case ListKeys::_ID: return new ListKeysCommand(_store);
+		case Read::_ID: return new ReadCommand(_store);
 		case Status::_ID: return new StatusCommand(_reporter);
 		case Status::_ID2: return new StatusCommand(_reporter, "membership");
 		case Status::_ID3: return new StatusCommand(_reporter, "ring");
-		case Write::_ID: return new WriteCommand(_dataStore, _options.when_local_write_finishes);
-		case Write::_INTERNAL_ID: return new WriteCommand(_dataStore, _options.when_mirror_write_finishes);
+		case Write::_ID: return new WriteCommand(_store, _options.when_local_write_finishes);
+		case Write::_INTERNAL_ID: return new WriteCommand(_store, _options.when_mirror_write_finishes);
 
-		case AckWrite::_ID: return new AckWriteCommand(_dataStore, _locator, _options.when_drop_finishes);
+		case AckWrite::_ID: return new AckWriteCommand(_store, _locator, _options.when_drop_finishes);
 		case DemandWrite::_ID: return new DemandWriteCommand(_corrector);
 		case HealKey::_ID: return new HealKeyCommand(_corrector);
 		case KeyRequest::_ID: return new KeyRequestCommand(_corrector);
-		case OfferWrite::_ID: return new OfferWriteCommand(_dataStore, _messenger);
+		case OfferWrite::_ID: return new OfferWriteCommand(_store, _messenger);
 		case Sync::_ID: return new SyncCommand(_sync);
 
 		default: return NULL;

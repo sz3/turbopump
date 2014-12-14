@@ -4,18 +4,20 @@
 
 #include "StreamingCommand.h"
 class IByteStream;
-class IDataStore;
+class IStore;
 
 class ListKeysCommand : public StreamingCommand
 {
 public:
-	ListKeysCommand(const IDataStore& dataStore);
+	ListKeysCommand(const IStore& store);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
+	bool print_key(const std::string& report) const;
+
 protected:
-	const IDataStore& _dataStore;
+	const IStore& _store;
 
 public:
 	Turbopump::ListKeys params;

@@ -214,6 +214,8 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	store.enumerate(fun, 100);
 
 	std::sort(files.begin(), files.end());
-	assertEquals( "bar foo oof", turbo::str::join(files) );
+	assertEquals( "bar => 5|1,increment:1\n"
+				  "foo => 10|1,increment:1\n"
+				  "oof => 4|1,increment:1", turbo::str::join(files, '\n') );
 }
 

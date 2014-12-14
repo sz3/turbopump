@@ -127,11 +127,10 @@ TEST_CASE( "ConcurrentCommandCenterTest/testRun.Multipacket", "[unit]" )
 	center.run(peer, _packer.package(35, "ignored") + _packer.package(33, "woohoo"));
 
 	assertEquals( 1, center._runners.size() );
-	assertEquals( 0, api.dataStore._store.size() );
+	assertEquals( "", api.store._history.calls() );
 
 	center.run(peer, _packer.package(33, "")); // flush
-	assertEquals( 1, api.dataStore._store.size() );
-	assertEquals( "0123456789byteswoohoo", api.dataStore._store["foo"] );
+	assertEquals( "0123456789byteswoohoo", api.store._history.calls() );
 
 	assertEquals( 1, center._runners.size() );
 }

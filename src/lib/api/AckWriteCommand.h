@@ -4,15 +4,15 @@
 
 #include "Command.h"
 #include <functional>
-class IDataStore;
 class ILocateKeys;
+class IStore;
 
 namespace Turbopump { class Drop; }
 
 class AckWriteCommand : public Turbopump::Command
 {
 public:
-	AckWriteCommand(IDataStore& store, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop=NULL);
+	AckWriteCommand(IStore& store, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop=NULL);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
@@ -20,7 +20,7 @@ public:
 	bool drop(const Turbopump::Drop& params);
 
 protected:
-	IDataStore& _store;
+	IStore& _store;
 	const ILocateKeys& _locator;
 	std::function<void(const Turbopump::Drop&)> _onDrop;
 

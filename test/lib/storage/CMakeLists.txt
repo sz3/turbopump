@@ -32,7 +32,4 @@ target_link_libraries(storage_test
 	file
 	serialize
 	socket
-
-	boost_filesystem
-	boost_system
 )

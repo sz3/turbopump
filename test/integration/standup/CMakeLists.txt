@@ -23,7 +23,6 @@ target_link_libraries(standup_test
 -Wl,--start-group
 	api
 	common
-	data_store
 	deskew
 	hashing
 	integration
@@ -33,6 +32,7 @@ target_link_libraries(standup_test
 	peer_client
 	peer_server
 	programmable
+	storage
 	user_server
 
 	command_line

@@ -29,12 +29,12 @@ target_link_libraries(programmable_test
 	programmable
 
 	common
-	data_store
 	hashing
 	mock
 	membership
 	peer_client
 	peer_server
+	storage
 
 	serialize
 	socket

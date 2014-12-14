@@ -47,6 +47,8 @@ set (PROJECTS
    test/lib/peer_server
    src/lib/programmable
    test/lib/programmable
+   src/lib/storage
+   test/lib/storage
    src/lib/user_server
    test/lib/user_server
 
