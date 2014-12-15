@@ -16,9 +16,8 @@ TEST_CASE( "DropCommandTest/testKeyIsMine", "[unit]" )
 	command.params.name = "mine";
 	assertFalse( command.run() );
 
-	assertEquals( "read(mine)", store._history.calls() );
-	//assertEquals( "foo", store._store["mine"] );
-	assertEquals( "keyIsMine(mine,1)", locator._history.calls() );
+	assertEquals( "read(mine,)", store._history.calls() );
+	assertEquals( "keyIsMine(mine,3)", locator._history.calls() );
 	assertEquals( 400, command.status() );
 }
 
@@ -34,9 +33,8 @@ TEST_CASE( "DropCommandTest/testKeyIsntMine", "[unit]" )
 
 	assertTrue( command.run() );
 
-	assertEquals( "read(notmine)|drop(notmine)", store._history.calls() );
-	//assertEquals( "", store._store["notmine"] );
-	assertEquals( "keyIsMine(notmine,1)", locator._history.calls() );
+	assertEquals( "read(notmine,)|remove(notmine)", store._history.calls() );
+	assertEquals( "keyIsMine(notmine,3)", locator._history.calls() );
 	assertEquals( 200, command.status() );
 }
 
@@ -53,8 +51,7 @@ TEST_CASE( "DropCommandTest/testCallback", "[unit]" )
 	command.params.name = "key";
 	assertTrue( command.run() );
 
-	assertEquals( "read(key)|drop(key)", store._history.calls() );
-	//assertEquals( "", store._store["key"] );
-	assertEquals( "keyIsMine(key,1)", locator._history.calls() );
-	assertEquals( "onDrop(key,1)", history.calls() );
+	assertEquals( "read(key,)|remove(key)", store._history.calls() );
+	assertEquals( "keyIsMine(key,3)", locator._history.calls() );
+	assertEquals( "onDrop(key,3)", history.calls() );
 }

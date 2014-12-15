@@ -19,13 +19,14 @@ bool MockStoreWriter::good() const
 
 unsigned long long MockStoreWriter::position() const
 {
-	return _position;
+	return _reader.size();
 }
 
 int MockStoreWriter::write(const char* buffer, unsigned length)
 {
-	_history.call("write", std::string(buffer, length));
-	_position += length;
+	std::string data(buffer, length);
+	_history.call("write", data);
+	_reader += data;
 	return length;
 }
 

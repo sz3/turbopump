@@ -25,6 +25,7 @@ TEST_CASE( "OfferWriteCommandTest/testRun.AlreadyHaveKey", "[unit]" )
 TEST_CASE( "OfferWriteCommandTest/testRun.NeedKey", "[unit]" )
 {
 	MockStore store;
+	store._exists = false;
 	MockMessageSender messenger;
 	OfferWriteCommand command(store, messenger);
 

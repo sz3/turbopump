@@ -11,7 +11,6 @@ TEST_CASE( "DeleteCommandTest/testDelete", "[unit]" )
 {
 	DummyTurbopumpApi api;
 	api.store._writer = new MockStoreWriter();
-	api.store._writer->_reader = "readme";
 	DeleteCommand command(api);
 
 	VectorClock version;
@@ -20,7 +19,6 @@ TEST_CASE( "DeleteCommandTest/testDelete", "[unit]" )
 	command.params.name = "deleted!";
 
 	assertTrue( command.run() );
-	assertEquals( "Writer::setOffset(0)|"
-				  "Writer::write(timestamp)|"
-				  "commit(deleted!,{2,delete:1,foo:1},3)", api.store._history.calls() );
+	assertEquals( "write(deleted!,2,delete:1,foo:1,0)", api.store._history.calls() );
+	assertEquals( "write(timestamp)|flush()|reader()|close()", MockStoreWriter::calls() );
 }

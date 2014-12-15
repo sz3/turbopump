@@ -13,7 +13,7 @@ TEST_CASE( "ListKeysCommandTest/testDefault", "[unit]" )
 	command.setWriter(&stream);
 
 	assertTrue( command.run() );
-	assertEquals( "report(0,.membership/)", store._history.calls() );
+	assertEquals( "enumerate(1000)", store._history.calls() );
 }
 
 TEST_CASE( "ListKeysCommandTest/testNullWriter", "[unit]" )
@@ -34,7 +34,7 @@ TEST_CASE( "ListKeysCommandTest/testDeleted", "[unit]" )
 	command.params.deleted = true;
 
 	assertTrue( command.run() );
-	assertEquals( "report(1,.membership/)", store._history.calls() );
+	assertEquals( "enumerate(1000)", store._history.calls() );
 }
 
 TEST_CASE( "ListKeysCommandTest/testAll", "[unit]" )
@@ -46,5 +46,5 @@ TEST_CASE( "ListKeysCommandTest/testAll", "[unit]" )
 	command.params.all = true;
 
 	assertTrue( command.run() );
-	assertEquals( "report(0,)", store._history.calls() );
+	assertEquals( "enumerate(1000)", store._history.calls() );
 }

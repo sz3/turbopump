@@ -17,7 +17,7 @@ public:
 
 	IReader* reader() const;
 
-	std::string calls();
+	static std::string calls();
 
 public:
 	unsigned long long _position = 0;

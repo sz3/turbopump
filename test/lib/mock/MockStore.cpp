@@ -12,6 +12,8 @@ writestream MockStore::write(const std::string& name, const std::string& version
 	_history.call("write", name, version, offset);
 	KeyMetadata md;
 	md.version.fromString(version);
+	if (md.version.empty())
+		md.version.increment("mock");
 
 	IWriter* writer = _writer;
 	_writer = NULL;

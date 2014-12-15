@@ -16,7 +16,7 @@ TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 	command.params.name = "myfile";
 	assertTrue( command.run() );
 
-	assertEquals( "read(myfile)", store._history.calls() );
+	assertEquals( "read(myfile,)", store._history.calls() );
 	assertEquals( "foo", stream.writeBuffer() );
 	assertEquals( 200, command.status() );
 }
@@ -59,7 +59,7 @@ TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
 	command.params.name = "myfile";
 	assertFalse( command.run() );
 
-	assertEquals( "read(myfile)", store._history.calls() );
+	assertEquals( "read(myfile,)", store._history.calls() );
 	assertEquals( "", stream.writeBuffer() );
 	assertEquals( 404, command.status() );
 }

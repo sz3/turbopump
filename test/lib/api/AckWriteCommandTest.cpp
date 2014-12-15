@@ -35,7 +35,6 @@ TEST_CASE( "AckWriteCommandTest/testAck.MismatchSize", "[unit]" )
 
 	assertFalse( command.run() );
 	assertEquals( "read(myfile,1,hi:1)", store._history.calls() );
-	//assertEquals( "foobar", store._store["myfile"] );
 	assertEquals( "", locator._history.calls() );
 }
 
@@ -53,8 +52,7 @@ TEST_CASE( "AckWriteCommandTest/testAck.FileIsMine", "[unit]" )
 
 	assertTrue( command.run() );
 	assertEquals( "read(myfile,1,hi:1)", store._history.calls() );
-	//assertEquals( "foobar", store._store["myfile"] );
-	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
+	assertEquals( "keyIsMine(myfile,3)", locator._history.calls() );
 }
 
 TEST_CASE( "AckWriteCommandTest/testAck.FileIsntMine", "[unit]" )
@@ -70,9 +68,8 @@ TEST_CASE( "AckWriteCommandTest/testAck.FileIsntMine", "[unit]" )
 	command.params.size = 6;
 
 	assertTrue( command.run() );
-	assertEquals( "read(myfile,1,hi:1)|drop(myfile)", store._history.calls() );
-	//assertEquals( "", store._store["myfile"] );
-	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
+	assertEquals( "read(myfile,1,hi:1)|remove(myfile)", store._history.calls() );
+	assertEquals( "keyIsMine(myfile,3)", locator._history.calls() );
 }
 
 TEST_CASE( "AckWriteCommandTest/testAck.DropCallback", "[unit]" )
@@ -90,8 +87,7 @@ TEST_CASE( "AckWriteCommandTest/testAck.DropCallback", "[unit]" )
 	command.params.size = 6;
 
 	assertTrue( command.run() );
-	assertEquals( "read(myfile,1,hi:1)|drop(myfile)", store._history.calls() );
-	//assertEquals( "", store._store["myfile"] );
-	assertEquals( "keyIsMine(myfile,1)", locator._history.calls() );
-	assertEquals( "onDrop(myfile,1)", history.calls() );
+	assertEquals( "read(myfile,1,hi:1)|remove(myfile)", store._history.calls() );
+	assertEquals( "keyIsMine(myfile,3)", locator._history.calls() );
+	assertEquals( "onDrop(myfile,3)", history.calls() );
 }
