@@ -27,7 +27,9 @@ public:
 
 	int stream(IByteStream& sink)
 	{
-		return sink.write(_data.data(), _data.size());
+		int res = sink.write(_data.data(), _data.size());
+		_data.clear();
+		return res;
 	}
 
 protected:

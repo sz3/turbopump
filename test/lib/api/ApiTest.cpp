@@ -2,8 +2,8 @@
 #include "unittest.h"
 
 #include "Api.h"
+#include "Drop.h"
 #include "Options.h"
-#include "ListKeys.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
@@ -24,7 +24,6 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	Turbopump::Options options;
 	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
-	Turbopump::ListKeys req;
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", std::unordered_map<std::string,std::string>());
 	assertFalse( !command );
 
@@ -32,7 +31,7 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "report(0,.membership/)", store._history.calls() );
+	assertEquals( "enumerate(1000)", store._history.calls() );
 }
 
 TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
@@ -46,20 +45,23 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	Turbopump::Options options;
 	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
-	Turbopump::ListKeys params;
-	params.all = true;
-	params.deleted = true;
+	locator._mine = false;
+	store._reads["bomba"] = "yep";
+
+	Turbopump::Drop params;
+	params.copies = 2;
+	params.name = "bomba";
 	msgpack::sbuffer sbuf;
 	msgpack::pack(&sbuf, params);
 
-	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::ListKeys::_ID, sbuf.data(), sbuf.size());
+	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::Drop::_ID, sbuf.data(), sbuf.size());
 	assertFalse( !command );
 
 	NullByteStream stream;
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "report(1,)", store._history.calls() );
+	assertEquals( "read(bomba,)|remove(bomba)", store._history.calls() );
 }
 
 TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
@@ -73,18 +75,21 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 	Turbopump::Options options;
 	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
-	std::unordered_map<std::string,std::string> params;
-	params["all"] = "1";
-	params["deleted"] = "1";
+	locator._mine = false;
+	store._reads["bomba"] = "yep";
 
-	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", params);
+	std::unordered_map<std::string,std::string> params;
+	params["copies"] = "5";
+	params["name"] = "bomba";
+
+	std::unique_ptr<Turbopump::Command> command = api.command("drop", params);
 	assertFalse( !command );
 
 	NullByteStream stream;
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "report(1,)", store._history.calls() );
+	assertEquals( "read(bomba,)|remove(bomba)", store._history.calls() );
 }
 
 TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
@@ -98,8 +103,12 @@ TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
 	Turbopump::Options options;
 	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
 
-	Turbopump::ListKeys req;
-	req.deleted = true;
+	locator._mine = false;
+	store._reads["bomba"] = "yep";
+
+	Turbopump::Drop req;
+	req.copies = 2;
+	req.name = "bomba";
 	std::unique_ptr<Turbopump::Command> command = api.command(req);
 	assertFalse( !command );
 
@@ -107,5 +116,5 @@ TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "report(1,.membership/)", store._history.calls() );
+	assertEquals( "read(bomba,)|remove(bomba)", store._history.calls() );
 }

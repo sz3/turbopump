@@ -7,6 +7,7 @@
 #include "storage/readstream.h"
 
 #include "mock/MockStore.h"
+#include "mock/MockStoreWriter.h"
 #include "util/CallHistory.h"
 #include <string>
 using std::string;
@@ -33,6 +34,8 @@ TEST_CASE( "WriteCommandTest/testDefault", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "readme";
 	{
 		auto callback = [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.mirror, ins.copies, "["+ins.version+"]", ins.isComplete); };
 		TestableWriteCommand command(store, callback);
@@ -56,6 +59,8 @@ TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "readme";
 	{
 		auto callback = [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.mirror, ins.copies, "{"+ins.version+"}", ins.source, ins.isComplete); };
 		TestableWriteCommand command(store, callback);
@@ -83,6 +88,8 @@ TEST_CASE( "WriteCommandTest/testDestructorNoCommit", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "readme";
 	{
 		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name); });
 		command._instructions.name = "foobar.txt";
@@ -96,6 +103,8 @@ TEST_CASE( "WriteCommandTest/testFlush", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 
 	TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.offset, "["+ins.version+"]"); });
 	command._instructions.name = "foobar.txt";
@@ -123,6 +132,8 @@ TEST_CASE( "WriteCommandTest/testFlush.VersionSpecified", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 
 	TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name, ins.offset, "["+ins.version+"]"); });
 	command._instructions.name = "foobar.txt";
@@ -142,6 +153,8 @@ TEST_CASE( "WriteCommandTest/testFlush.NoCallback", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 
 	TestableWriteCommand command(store);
 	command._instructions.name = "foobar.txt";
@@ -160,6 +173,8 @@ TEST_CASE( "WriteCommandTest/testBadName", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 	{
 		WriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name); });
 
@@ -174,6 +189,8 @@ TEST_CASE( "WriteCommandTest/testZeroByteWrite", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 	{
 		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream&){ _history.call("onCommit", ins.name); });
 		command._instructions.name = "foobar.txt";
@@ -192,6 +209,8 @@ TEST_CASE( "WriteCommandTest/testBigWrite", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 	{
 		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream& reader){ _history.call("onCommit", ins.name, ins.offset, reader.size(), ins.isComplete); });
 		command._instructions.name = "bigfile.txt";
@@ -212,6 +231,8 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Exact", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 	{
 		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream& reader){ _history.call("onCommit", ins.name, reader.size(), ins.isComplete); });
 		command._instructions.name = "bigfile.txt";
@@ -233,6 +254,8 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Split", "[unit]" )
 {
 	_history.clear();
 	MockStore store;
+	store._writer = new MockStoreWriter();
+	store._writer->_reader = "1234567";
 	{
 		TestableWriteCommand command(store, [&](WriteInstructions& ins, readstream& reader){ _history.call("onCommit", ins.name, ins.offset, reader.size(), ins.isComplete); });
 		command._instructions.name = "bigfile.txt";
@@ -245,7 +268,7 @@ TEST_CASE( "WriteCommandTest/testBigWrite.Split", "[unit]" )
 		assertTrue( command.finished() );
 		assertEquals( 200, command.status() );
 	}
-	assertEquals( "0123456789abcde", store._history.calls() );
+	assertEquals( "write(bigfile.txt,,0)", store._history.calls() );
 	//assertEquals( 66000, dataStore._store["bigfile.txt"].size() );
 	assertEquals( "onCommit(bigfile.txt,0,65536,0)|onCommit(bigfile.txt,65536,66000,1)", _history.calls() );
 }

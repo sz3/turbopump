@@ -23,8 +23,10 @@ bool AddPeerCommand::run(const char*, unsigned)
 
 	std::unique_ptr<Turbopump::Command> cmd(_api.command(req));
 	if( !cmd->run(params.ip.data(), params.ip.size()) )
-		return false;
-	return cmd->run(); // commit
+		return setStatus(cmd->status());
+
+	cmd->run(); // commit
+	return setStatus(cmd->status());
 }
 
 Turbopump::Request* AddPeerCommand::request()

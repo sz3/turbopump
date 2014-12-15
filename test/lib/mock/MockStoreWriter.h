@@ -6,6 +6,8 @@
 class MockStoreWriter : public IWriter
 {
 public:
+	MockStoreWriter();
+
 	bool good() const;
 	unsigned long long position() const;
 
@@ -19,5 +21,5 @@ public:
 
 public:
 	unsigned long long _position = 0;
-	IReader* _reader = NULL;
+	std::string _reader;
 };

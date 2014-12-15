@@ -9,14 +9,13 @@ TEST_CASE( "AddPeerCommandTest/testAdd", "[unit]" )
 {
 	DummyTurbopumpApi api;
 	api.store._writer = new MockStoreWriter();
+	api.store._writer->_reader = "readme";
 	AddPeerCommand command(api);
 
 	command.params.uid = "fooid";
 	command.params.ip = "localhost:9001";
 
-	assertTrue( command.run() );
-	assertEquals( "Writer::setOffset(0)|"
-				  "Writer::write(localhost:9001)|"
-				  "commit(.membership/fooid,{1,fooid:1},0)", api.store._history.calls() );
-	assertEquals( "", MockStoreWriter().calls() );
+	assertMsg( command.run(), command.status().str() );
+	assertEquals( "write(.membership/fooid,1,fooid:1,0)", api.store._history.calls() );
+	assertEquals( "write(localhost:9001)|flush()|reader()|close()", MockStoreWriter().calls() );
 }
