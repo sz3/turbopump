@@ -7,6 +7,7 @@
 using std::deque;
 
 VectorClock::VectorClock()
+	: bounded_version_vector<std::string,10>()
 {
 }
 
