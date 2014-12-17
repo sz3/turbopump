@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <attr/attributes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -70,6 +71,17 @@ bool FileReader::good() const
 unsigned long long FileReader::size() const
 {
 	return file_size(_fd);
+}
+
+std::string FileReader::attribute(const char* key) const
+{
+	int buflen = 200;
+	std::string value;
+	value.resize(buflen);
+	if (::attr_getf(_fd, key, &value[0], &buflen, 0) != 0)
+		return "";
+	value.resize(buflen);
+	return value;
 }
 
 bool FileReader::setPosition(unsigned long long pos)

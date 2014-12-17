@@ -12,6 +12,7 @@ public:
 
 	bool good() const;
 	unsigned long long size() const;
+	std::string attribute(const char* key) const;
 
 	bool setPosition(unsigned long long offset);
 	int stream(IByteStream& sink);

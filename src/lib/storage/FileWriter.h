@@ -12,6 +12,7 @@ public:
 
 	bool good() const;
 	unsigned long long position() const;
+	bool setAttribute(const char* key, const std::string& value);
 
 	int write(const char* buffer, unsigned length);
 	bool flush();

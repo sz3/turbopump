@@ -9,7 +9,7 @@
 class MockStore : public IStore
 {
 public:
-	writestream write(const std::string& name, const std::string& version="", unsigned long long offset=0);
+	writestream write(const std::string& name, const std::string& version="", unsigned short copies=3, unsigned long long offset=0);
 	readstream read(const std::string& name, const std::string& version="") const;
 	std::vector<readstream> readAll(const std::string& name) const;
 

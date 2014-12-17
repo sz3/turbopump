@@ -35,6 +35,7 @@ namespace {
 
 TEST_CASE( "StoreBenchmarkTest/testFileStore", "[unit]" )
 {
+	MyMemberId("increment");
 	DirectoryCleaner cleaner;
 
 	int trials = 50;

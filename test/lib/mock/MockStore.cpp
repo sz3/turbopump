@@ -7,7 +7,7 @@
 using std::map;
 using std::string;
 
-writestream MockStore::write(const std::string& name, const std::string& version, unsigned long long offset)
+writestream MockStore::write(const std::string& name, const std::string& version, unsigned short copies, unsigned long long offset)
 {
 	_history.call("write", name, version, offset);
 	KeyMetadata md;

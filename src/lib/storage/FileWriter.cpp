@@ -4,6 +4,7 @@
 #include "FileReader.h"
 #include <fcntl.h>
 #include <unistd.h>
+#include <attr/attributes.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -32,6 +33,11 @@ bool FileWriter::good() const
 unsigned long long FileWriter::position() const
 {
 	return ::lseek64(_fd, 0, SEEK_CUR);
+}
+
+bool FileWriter::setAttribute(const char* key, const std::string& value)
+{
+	return ::attr_setf(_fd, key, value.data(), value.size(), 0) == 0;
 }
 
 int FileWriter::write(const char* buffer, unsigned length)

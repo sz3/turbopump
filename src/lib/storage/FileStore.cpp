@@ -43,6 +43,25 @@ namespace {
 
 		return entries;
 	}
+
+	void mdFromString(KeyMetadata& md, const std::string& str)
+	{
+		if (str.empty())
+			return;
+		md.totalCopies = (unsigned char)str[0];
+		md.supercede = (str[1] == '1');
+	}
+
+	std::string mdToString(const KeyMetadata& md)
+	{
+		std::string res;
+		res += (unsigned char)md.totalCopies;
+		if (md.supercede)
+			res += "1";
+		else
+			res += "0";
+		return res;
+	}
 }
 
 FileStore::FileStore(const std::string& homedir)
@@ -76,7 +95,7 @@ VectorClock FileStore::mergedVersion(const std::string& name) const
 	return version;
 }
 
-writestream FileStore::write(const std::string& name, const std::string& version, unsigned long long offset)
+writestream FileStore::write(const std::string& name, const std::string& version, unsigned short copies, unsigned long long offset)
 {
 	// just version it at the outset! Why not?
 	KeyMetadata md;
@@ -86,10 +105,15 @@ writestream FileStore::write(const std::string& name, const std::string& version
 		md.version = mergedVersion(name);
 		md.version.increment(MyMemberId());
 	}
+	md.totalCopies = copies;
 
 	string tempname(filepath(name, md.version.toString()) + "~");
 	boost::filesystem::create_directories(dirpath(name));
-	return writestream(new FileWriter(tempname), md, std::bind(&FileStore::onWriteComplete, this, name, _1));
+
+	FileWriter* writer = new FileWriter(tempname);
+	if (writer->good())
+		writer->setAttribute("user.md", mdToString(md));
+	return writestream(writer, md, std::bind(&FileStore::onWriteComplete, this, name, _1));
 }
 
 readstream FileStore::read(const std::string& name, const std::string& version) const
@@ -99,12 +123,11 @@ readstream FileStore::read(const std::string& name, const std::string& version) 
 	if (md.version.empty())
 		md.version = mergedVersion(name);
 
-	// set md.totalCopies based on name. Not doing per file metadata! (except where the file system supports it...)
-	if (name.find(MEMBERSHIP_FILE_PREFIX) == 0)
-		md.totalCopies = 0;
-
 	string filename(filepath(name, md.version.toString()));
-	return readstream(new FileReader(filename), md);
+	FileReader* reader = new FileReader(filename);
+	if (reader->good())
+		mdFromString(md, reader->attribute("user.md"));
+	return readstream(reader, md);
 }
 
 std::vector<readstream> FileStore::readAll(const std::string& name) const

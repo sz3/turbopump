@@ -22,6 +22,7 @@ include_directories(
 add_library(storage STATIC ${SOURCES})
 
 target_link_libraries(storage
+	attr
 	boost_filesystem
 	boost_system
 )

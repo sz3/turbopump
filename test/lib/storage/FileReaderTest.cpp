@@ -2,6 +2,8 @@
 #include "unittest.h"
 
 #include "FileReader.h"
+
+#include "FileWriter.h"
 #include "common/KeyMetadata.h"
 
 #include "file/File.h"
@@ -35,4 +37,16 @@ TEST_CASE( "FileReaderTest/testSeek", "[unit]" )
 	StringByteStream sink;
 	assertEquals( 4, reader.stream(sink) );
 	assertEquals( "5678", sink.writeBuffer() );
+}
+
+TEST_CASE( "FileReaderTest/testAttributes", "[unit]" )
+{
+	UseTempDirectory temp;
+	FileWriter writer("myfile");
+	assertTrue( writer.setAttribute("user.md", "ha! ha! ha!") );
+	assertTrue( writer.close() );
+
+	FileReader reader("myfile");
+	assertEquals( "ha! ha! ha!", reader.attribute("user.md") );
+	assertEquals( "", reader.attribute("nobodyhome") );
 }

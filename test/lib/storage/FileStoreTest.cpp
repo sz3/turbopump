@@ -199,6 +199,24 @@ TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 	assertEquals( 6, readers[1].size() );
 }
 
+TEST_CASE( "FileStoreTest/testReadWriteVariantCopies", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	for (int i = 0; i < 15; ++i)
+	{
+		writestream writer = store.write("myfile", "", i);
+		writer.write("foo", 3);
+		writer.close();
+
+		readstream reader = store.read("myfile");
+		assertEquals(i, reader.mirrors());
+	}
+}
+
 TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 {
 	MyMemberId("increment");
