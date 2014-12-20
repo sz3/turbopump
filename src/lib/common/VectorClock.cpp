@@ -35,12 +35,15 @@ namespace {
 	{
 		std::string clockStr;
 		instream >> clockStr;
+		if (!instream)
+			return instream;
 
-		std::replace(clockStr.begin(), clockStr.end(), ':', ' ');
-		std::istringstream iss(clockStr);
-		iss >> clock.key;
-		iss >> clock.count;
-
+		size_t pos = clockStr.find(':');
+		if (pos != std::string::npos && (pos+1) != std::string::npos)
+		{
+			clock.key = clockStr.substr(0, pos);
+			clock.count = std::stoul(clockStr.substr(pos+1));
+		}
 		return instream;
 	}
 
@@ -52,6 +55,8 @@ namespace {
 		{
 			VectorClock::clock cl;
 			instream >> cl;
+			if (!instream)
+				break;
 			clocks.push_back(cl);
 		}
 		return instream;

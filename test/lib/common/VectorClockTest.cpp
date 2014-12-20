@@ -32,6 +32,37 @@ TEST_CASE( "VectorClockTest/testFromString", "[unit]" )
 	assertEquals( 3, clocks[2].count );
 }
 
+TEST_CASE( "VectorClockTest/testFromString.Bad", "[unit]" )
+{
+	VectorClock version;
+	assertTrue( version.fromString("2,:1,1:3085869652") );
+
+	std::deque<VectorClock::clock> clocks = version.clocks();
+	assertEquals( 2, clocks.size() );
+	assertEquals( "", clocks[0].key );
+	assertEquals( 1, clocks[0].count );
+	assertEquals( "1", clocks[1].key );
+	assertEquals( 3085869652, clocks[1].count );
+}
+
+TEST_CASE( "VectorClockTest/testAssignMerge", "[unit]" )
+{
+	VectorClock version;
+	version.increment("foo");
+	version.increment("foo");
+	version.increment("bar");
+
+	VectorClock another;
+	assertEquals( "0", another.toString() );
+	another = version;
+	assertEquals( "2,bar:1,foo:2", another.toString() );
+
+	VectorClock onemore;
+	assertEquals( "0", onemore.toString() );
+	onemore.merge(version);
+	assertEquals( "2,bar:1,foo:2", onemore.toString() );
+}
+
 TEST_CASE( "VectorClockTest/testSerialize", "[unit]" )
 {
 	VectorClock version;
