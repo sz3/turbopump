@@ -6,8 +6,9 @@
 class StringReader : public IReader
 {
 public:
-	StringReader(const std::string& data)
+	StringReader(const std::string& data, unsigned chunkSize=0)
 		: _data(data)
+		, _chunkSize(chunkSize)
 	{}
 
 	bool good() const
@@ -27,11 +28,13 @@ public:
 
 	int stream(IByteStream& sink)
 	{
-		int res = sink.write(_data.data(), _data.size());
-		_data.clear();
+		unsigned chunk = std::min(_chunkSize, _data.size());
+		int res = sink.write(_data.data(), chunk);
+		_data = _data.substr(chunk);
 		return res;
 	}
 
 protected:
 	std::string _data;
+	unsigned _chunkSize;
 };

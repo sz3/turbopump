@@ -161,17 +161,12 @@ TEST_CASE( "MembershipTest/testSyncToDataStore", "[unit]" )
 	Membership membership(_myfile, "localhost:1337");
 	membership.add("fooid");
 	membership.addIp("1.2.3.4", "fooid");
-	membership.add("barid");
-	membership.addIp("ip2", "barid");
-	membership.add("rabid");
-	membership.addIp("ip3", "rabid");
 
 	MockStore store;
+	store._writer = new MockStoreWriter();
 	membership.syncToDataStore(store);
 
-	assertEquals( "Writer::write(ip2)|commit(.membership/barid,{0},0)"
-				  "|Writer::write(1.2.3.4)|commit(.membership/fooid,{0},0)"
-				  "|Writer::write(ip3)|commit(.membership/rabid,{0},0)", store._history.calls() );
-	//assertEquals( "1.2.3.4", store._store[".membership/fooid"] );
+	assertEquals( "write(.membership/fooid,,0)", store._history.calls() );
+	assertEquals( "write(1.2.3.4)|close()", MockStoreWriter::calls() );
 }
 
