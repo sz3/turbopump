@@ -118,6 +118,7 @@ TEST_CASE( "ConcurrentCommandCenterTest/testCommand", "[unit]" )
 TEST_CASE( "ConcurrentCommandCenterTest/testRun.Multipacket", "[unit]" )
 {
 	DummyTurbopumpApi api;
+	api.store._writer = new MockStoreWriter();
 	SimpleExecutor executor;
 	TestableConcurrentCommandCenter center(api, executor);
 
@@ -127,10 +128,11 @@ TEST_CASE( "ConcurrentCommandCenterTest/testRun.Multipacket", "[unit]" )
 	center.run(peer, _packer.package(35, "ignored") + _packer.package(33, "woohoo"));
 
 	assertEquals( 1, center._runners.size() );
-	assertEquals( "", api.store._history.calls() );
+	assertEquals( "write(foo,,0)", api.store._history.calls() );
 
 	center.run(peer, _packer.package(33, "")); // flush
-	assertEquals( "0123456789byteswoohoo", api.store._history.calls() );
+	assertEquals( "write(foo,,0)", api.store._history.calls() );
+	assertEquals( "write(0123456789)|write(bytes)|write(woohoo)|flush()|reader()|close()", MockStoreWriter::calls() );
 
 	assertEquals( 1, center._runners.size() );
 }
