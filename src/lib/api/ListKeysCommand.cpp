@@ -16,10 +16,19 @@ ListKeysCommand::ListKeysCommand(const IStore& store)
 
 bool ListKeysCommand::print_key(const std::string& report) const
 {
-	if (!params.all && report.find(MEMBERSHIP_FILE_PREFIX) != 0)
+	if (!params.all && report.find(MEMBERSHIP_FILE_PREFIX) == 0)
 		return true;
-	if (!params.deleted && report.find("|deleted:") != string::npos)
-		return true;
+	if (!params.deleted)
+	{
+		size_t first_clock = report.find('|');
+		if (first_clock == string::npos)
+			return true;
+		first_clock = report.find(',', first_clock);
+		if (first_clock == string::npos)
+			return true;
+		if (report.find(",deleted:", first_clock) == first_clock)
+			return true;
+	}
 
 	string data = report + "\n";
 	_stream->write(data.data(), data.size());
