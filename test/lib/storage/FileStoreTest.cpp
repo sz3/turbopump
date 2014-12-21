@@ -19,7 +19,7 @@ using std::string;
 using std::vector;
 
 namespace {
-	string _test_dir = "/tmp/turbo_fs_test";
+	string _test_dir = "turbo_fs_test";
 
 	class DirectoryCleaner
 	{
@@ -56,8 +56,8 @@ TEST_CASE( "FileStoreTest/testPaths", "[unit]" )
 	DirectoryCleaner cleaner;
 
 	TestableFileStore store(_test_dir);
-	assertEquals( "/tmp/turbo_fs_test/myfile",  store.dirpath("myfile") );
-	assertEquals( "/tmp/turbo_fs_test/myfile/v1",  store.filepath("myfile", "v1") );
+	assertEquals( "turbo_fs_test/myfile",  store.dirpath("myfile") );
+	assertEquals( "turbo_fs_test/myfile/v1",  store.filepath("myfile", "v1") );
 }
 
 TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
@@ -225,7 +225,7 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	FileStore store(_test_dir);
 	write_file(store, "foo", "0123456789");
 	write_file(store, "bar", "abcde");
-	write_file(store, "oof", "lmno");
+	write_file(store, "woo/hoo", "lmno");
 
 	std::vector<string> files;
 	auto fun = [&files] (const std::string& name) { files.push_back(name); return true; };
@@ -234,6 +234,6 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	std::sort(files.begin(), files.end());
 	assertEquals( "bar => 5|1,increment:1\n"
 				  "foo => 10|1,increment:1\n"
-				  "oof => 4|1,increment:1", turbo::str::join(files, '\n') );
+				  "woo/hoo => 4|1,increment:1", turbo::str::join(files, '\n') );
 }
 

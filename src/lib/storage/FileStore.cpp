@@ -203,18 +203,30 @@ bool FileStore::purgeObsolete(const std::string& name, const VectorClock& master
 void FileStore::enumerate(const std::function<bool(const std::string&)> callback, unsigned limit) const
 {
 	int i = 0;
-	boost::filesystem::directory_iterator end;
-	for (boost::filesystem::directory_iterator it(_homedir); it != end; ++it)
+	boost::filesystem::recursive_directory_iterator end;
+	boost::filesystem::directory_iterator dend;
+	for (boost::filesystem::recursive_directory_iterator it(_homedir); it != end; ++it)
 	{
 		boost::filesystem::path pa = it->path();
-		string report = pa.filename().string() + " =>";
+		if ( !boost::filesystem::is_directory(pa) )
+			continue;
 
-		for (boost::filesystem::directory_iterator version_it(pa); version_it != end; ++version_it)
+		string report;
+		for (boost::filesystem::directory_iterator version_it(pa); version_it != dend; ++version_it)
 		{
 			boost::filesystem::path vpath = version_it->path();
-			report += " " + StringUtil::str(boost::filesystem::file_size(vpath)) + "|" + vpath.filename().string();
+			if ( !boost::filesystem::is_directory(vpath) )
+				report += " " + StringUtil::str(boost::filesystem::file_size(vpath)) + "|" + vpath.filename().string();
 		}
+		if (report.empty())
+			continue;
 
+		string filename = pa.string();
+		if (filename.find(_homedir) != string::npos)
+			filename = filename.substr(_homedir.size()+1);
+		else
+			filename = pa.filename().string();
+		report = filename + " =>" + report;
 		callback(report);
 		if (++i >= limit)
 			break;
