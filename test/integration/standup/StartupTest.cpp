@@ -105,20 +105,21 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	}
 
 	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
-	string expected = "(one0)=>11|1,two:1\n"
-	                  "(one1)=>11|1,two:1\n"
-	                  "(one2)=>11|1,two:1\n"
-	                  "(one3)=>11|1,two:1\n"
-	                  "(one4)=>11|1,two:1\n"
-	                  "(two0)=>11|1,two:1\n"
-	                  "(two1)=>11|1,two:1\n"
-	                  "(two2)=>11|1,two:1\n"
-	                  "(two3)=>11|1,two:1\n"
-	                  "(two4)=>11|1,two:1";
+	string expected = "one0 => 11|1,two:1\n"
+	                  "one1 => 11|1,two:1\n"
+	                  "one2 => 11|1,two:1\n"
+	                  "one3 => 11|1,two:1\n"
+	                  "one4 => 11|1,two:1\n"
+	                  "two0 => 11|1,two:1\n"
+	                  "two1 => 11|1,two:1\n"
+	                  "two2 => 11|1,two:1\n"
+	                  "two3 => 11|1,two:1\n"
+	                  "two4 => 11|1,two:1";
 
 	wait_for(5, response + " != " + expected, [&]()
 	{
 		response = workerTwo.local_list();
+		std::cout << response << std::endl;
 		return expected == response;
 	});
 
@@ -214,12 +215,12 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	}
 
 	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
-	string expected = "(0)=>7|1,two:1\n"
-	                  "(1)=>7|1,two:1\n"
-	                  "(2)=>7|1,two:1\n"
-	                  "(3)=>7|1,two:1\n"
-	                  "(4)=>7|1,two:1\n"
-					  "(primer)=>20|1,two:1";
+	string expected = "0 => 7|1,two:1\n"
+	                  "1 => 7|1,two:1\n"
+	                  "2 => 7|1,two:1\n"
+	                  "3 => 7|1,two:1\n"
+	                  "4 => 7|1,two:1\n"
+	                  "primer => 20|1,two:1";
 
 	string response;
 	wait_for(5, response + " != " + expected, [&]()
@@ -265,11 +266,11 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
 	}
 
-	string expected = "(0)=>66560|1,two:1";
+	string expected = "0 => 66560|1,two:1";
 	string response = workerOne.local_list();
 	assertEquals(expected, response);
 
-	expected = "(0)=>66560|1,two:1";
+	expected = "0 => 66560|1,two:1";
 	wait_for(5, response + " != " + expected, [&]()
 	{
 		response = workerTwo.local_list();

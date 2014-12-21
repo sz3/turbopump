@@ -76,7 +76,8 @@ std::string TurboRunner::local_list(std::string params) const
 	if (files.empty())
 		return "";
 	std::sort(files.begin(), files.end());
-	return turbo::str::join(files, '\n');
+	// blank line will be first.
+	return turbo::str::join(++files.begin(), files.end(), '\n');
 }
 
 bool TurboRunner::waitForRunning(unsigned seconds) const
