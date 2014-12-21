@@ -178,11 +178,10 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	readstream reader(new StringReader("0123456789abcdeABCDEturtle"), KeyMetadata());
+	readstream reader(new StringReader("0123456789abcdeABCDEturtle", 10), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
-	writer->_capacity = 10;
 	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);
@@ -201,11 +200,10 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 	WriteSupervisor client(packer, server);
 
 	// input
-	readstream reader(new StringReader("0123456789abcdeABCDE"), KeyMetadata());
+	readstream reader(new StringReader("0123456789abcdeABCDE", 10), KeyMetadata());
 
 	// output
 	MockSocketWriter* writer = new MockSocketWriter();
-	writer->_capacity = 10;
 	server._sock.reset(writer);
 
 	WriteInstructions params("file","v1",2,3);

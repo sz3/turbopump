@@ -28,7 +28,12 @@ public:
 
 	int stream(IByteStream& sink)
 	{
-		unsigned chunk = std::min(_chunkSize, _data.size());
+		unsigned chunk = _data.size();
+		if (chunk == 0)
+			return 0;
+
+		if (_chunkSize != 0 && _chunkSize < chunk)
+			chunk = _chunkSize;
 		int res = sink.write(_data.data(), chunk);
 		_data = _data.substr(chunk);
 		return res;
