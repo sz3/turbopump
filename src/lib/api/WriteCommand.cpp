@@ -83,8 +83,7 @@ bool WriteCommand::run(const char* buff, unsigned size)
 			_finished = true;
 			return setStatus(400);
 		}
-		_writer = _store.write(_instructions.name, _instructions.version, _instructions.offset);
-		// _instructions.copies ??
+		_writer = _store.write(_instructions.name, _instructions.version, _instructions.copies, _instructions.offset);
 	}
 
 	if (buff == NULL || size == 0)
