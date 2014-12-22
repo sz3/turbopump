@@ -25,4 +25,5 @@ protected:
 
 protected:
 	int _fd;
+	std::string _filename;
 };

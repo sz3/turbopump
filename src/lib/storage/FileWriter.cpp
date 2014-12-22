@@ -10,6 +10,7 @@
 
 FileWriter::FileWriter(const std::string& filename)
 	: _fd(-1)
+	, _filename(filename)
 {
 	open(filename);
 }
@@ -21,7 +22,7 @@ FileWriter::~FileWriter()
 
 bool FileWriter::open(const std::string& filename)
 {
-	_fd = ::open(filename.c_str(), O_RDWR | O_CREAT | O_NOATIME, S_IRWXU);
+	_fd = ::open(filename.c_str(), O_WRONLY | O_CREAT | O_NOATIME, S_IRWXU);
 	return good();
 }
 
@@ -63,7 +64,7 @@ bool FileWriter::close()
 
 IReader* FileWriter::reader() const
 {
-	// TODO: rather than ::dup() and return a new Reader each time, I'd like to do it once.
-	return new FileReader(::dup(_fd));
+	// TODO: would like to do this once, or at the very least not need to save the _filename...
+	return new FileReader(_filename);
 }
 
