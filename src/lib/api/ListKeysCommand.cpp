@@ -26,7 +26,7 @@ bool ListKeysCommand::print_key(const std::string& report) const
 		first_clock = report.find(',', first_clock);
 		if (first_clock == string::npos)
 			return true;
-		if (report.find(",deleted:", first_clock) == first_clock)
+		if (report.find(",delete:", first_clock) == first_clock)
 			return true;
 	}
 

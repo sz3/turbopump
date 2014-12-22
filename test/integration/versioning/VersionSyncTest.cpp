@@ -20,7 +20,7 @@ TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
 	response = cluster[2].write(filename, "second", "version=1,bar:1");
 
 	// wait for propagation
-	string expected = "(conflict)=>5|1,foo:1 6|1,bar:1";
+	string expected = "conflict => 5|1,foo:1 6|1,bar:1";
 	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list();
@@ -28,7 +28,7 @@ TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
 	});
 
 	// same keys stored in a different order
-	expected = "(conflict)=>6|1,bar:1 5|1,foo:1";
+	expected = "conflict => 6|1,bar:1 5|1,foo:1";
 	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();

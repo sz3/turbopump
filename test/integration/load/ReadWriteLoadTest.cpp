@@ -62,7 +62,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 		std::cout << "write " << i <<  " connection close at " << elapsed.micros() << "us" << std::endl;
 
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
-		fileList.push_back("(" + name + ")=>" + StringUtil::str(name.size()) + "|1,1:1");
+		fileList.push_back(name + " => " + StringUtil::str(name.size()) + "|1,1:1");
 	}
 	std::cout << "did 300 writes in " << elapsed.millis() << "ms" << std::endl;
 

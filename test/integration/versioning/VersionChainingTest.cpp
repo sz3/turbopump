@@ -20,14 +20,14 @@ TEST_CASE( "VersionChainingTest/testCreateAndFixConflict", "[integration]" )
 	response = cluster[2].write(filename, "second", "version=1,bar:1");
 
 	// check for both versions
-	string expected = "(conflict)=>5|1,foo:1 6|1,bar:1";
+	string expected = "conflict => 5|1,foo:1 6|1,bar:1";
 	assertEquals( expected, cluster[1].local_list() );
 	assertEquals( expected, cluster[2].local_list() );
 
 	// fix it
 	response = cluster[1].write(filename, "thereIfixedit");
 
-	expected = "(conflict)=>13|3,1:1,foo:1,bar:1";
+	expected = "conflict => 13|3,1:1,foo:1,bar:1";
 	assertEquals( expected, cluster[1].local_list() );
 	assertEquals( expected, cluster[2].local_list() );
 }

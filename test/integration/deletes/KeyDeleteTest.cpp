@@ -17,7 +17,7 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	string response = cluster[1].write("deleteMe", "hello");
 
 	// wait for file
-	string expected = "(deleteMe)=>5|1,1:1";
+	string expected = "deleteMe => 5|1,1:1";
 	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list();
@@ -43,7 +43,7 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 		return expected == response;
 	});
 
-	expected = "(deleteMe)=>9|2,delete:1,1:1";
+	expected = "deleteMe => 9|2,delete:1,1:1";
 	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[1].local_list("deleted=1");
