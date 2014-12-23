@@ -10,9 +10,6 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC -std=c++11")
 	# -ftime-report
 endif()
-if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
-endif()
 
 set (TURBOLIB ${turboproj_SOURCE_DIR}/../turbolib)
 
@@ -32,8 +29,6 @@ set (PROJECTS
    test/lib/api
    src/lib/common
    test/lib/common
-   src/lib/data_store
-   test/lib/data_store
    src/lib/deskew
    test/lib/deskew
    src/lib/hashing

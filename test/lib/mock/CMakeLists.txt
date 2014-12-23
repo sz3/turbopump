@@ -7,8 +7,6 @@ set(SOURCES
 	MockCommand.h
 	MockConsistentHashRing.cpp
 	MockConsistentHashRing.h
-	MockDataStore.cpp
-	MockDataStore.h
 	MockDigestIndexer.cpp
 	MockDigestIndexer.h
 	MockDigestTree.cpp
