@@ -72,9 +72,9 @@ TEST_CASE( "DigestTreeTest/testUpdateExistingKey", "[unit]" )
 	assertEquals( (hash1 xor 0x1234), top.hash );
 
 	// update existing key
-	hash1 = hash1 xor 0x5678;
 	tree.update("one", 0x5678);
 	top = tree.top();
+	hash1 = hash1 xor 0x5678 xor 0x1234;
 	assertEquals( hash1, top.hash );
 
 	unsigned long long hash2 = Hash("two").integer();
@@ -82,9 +82,9 @@ TEST_CASE( "DigestTreeTest/testUpdateExistingKey", "[unit]" )
 	top = tree.top();
 	assertEquals( (hash1 xor hash2 xor 0x4321), top.hash );
 
-	hash2 = hash2 xor 0x8765;
 	tree.update("two", 0x8765);
 	top = tree.top();
+	hash2 = hash2 xor 0x8765 xor 0x4321;
 	assertEquals( (hash1 xor hash2), top.hash );
 }
 
