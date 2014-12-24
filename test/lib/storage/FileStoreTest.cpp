@@ -217,6 +217,25 @@ TEST_CASE( "FileStoreTest/testReadWriteVariantCopies", "[unit]" )
 	}
 }
 
+TEST_CASE( "FileStoreTest/testExists", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	VectorClock version;
+	version.increment("woop");
+	assertFalse( store.exists("foo", version.toString()) );
+	write_file(store, "foo", "0123456789", version.toString());
+	assertTrue( store.exists("foo", version.toString()) );
+
+	assertFalse( store.exists("woo/hoo", version.toString()) );
+	write_file(store, "woo/hoo", "lmno", version.toString());
+	assertTrue( store.exists("woo/hoo", version.toString()) );
+}
+
+
 TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 {
 	MyMemberId("increment");
