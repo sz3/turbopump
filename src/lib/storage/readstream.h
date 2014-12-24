@@ -67,16 +67,9 @@ inline unsigned long long readstream::size() const
 	return _reader->size();
 }
 
-// used by the merkle/digest tree to determine if we have this file or not.
-// this will hopefully be a cryptographic hash of the file contents.
-// at the very least, it should include a crc.
-// But for now... stir the version and size together into a 64 bit long.
 inline unsigned long long readstream::digest() const
 {
-	// WEIRD: this is actually xor'd with the digest of the thing we're replacing.
-	//  see WriteCommand and Callbacks.
-	std::string dig = version() + StringUtil::str(size());
-	return Hash(dig).integer();
+	return _md.digest;
 }
 
 inline unsigned short readstream::mirrors() const

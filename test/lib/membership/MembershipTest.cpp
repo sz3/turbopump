@@ -167,6 +167,6 @@ TEST_CASE( "MembershipTest/testSyncToDataStore", "[unit]" )
 	membership.syncToDataStore(store);
 
 	assertEquals( "write(.membership/fooid,,0)", store._history.calls() );
-	assertEquals( "write(1.2.3.4)|close()", MockStoreWriter::calls() );
+	assertEquals( "write(1.2.3.4)|flush()|close()|reader()", MockStoreWriter::calls() );
 }
 

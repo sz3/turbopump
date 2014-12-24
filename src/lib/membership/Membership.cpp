@@ -197,7 +197,7 @@ void Membership::syncToDataStore(IStore& store) const
 		writestream writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid);
 		string data = peer.address();
 		writer.write(data.data(), data.size());
-		writer.close();
+		writer.commit(true);
 	};
 	forEachPeer(fun);
 }

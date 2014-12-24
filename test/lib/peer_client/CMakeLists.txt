@@ -28,6 +28,7 @@ target_link_libraries(peer_client_test
 
 	api
 	common
+	hashing
 	membership
 	mock
 	peer_server

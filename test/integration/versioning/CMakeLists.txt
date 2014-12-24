@@ -23,6 +23,7 @@ add_test(integration_versioning_test integration_versioning_test)
 target_link_libraries(integration_versioning_test
 -Wl,--start-group
 	common
+	hashing
 	membership
 	integration
 

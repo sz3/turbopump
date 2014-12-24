@@ -36,9 +36,7 @@ bool WriteCommand::finished() const
 
 bool WriteCommand::flush()
 {
-	if ( !_writer.flush() )
-		return false;
-	readstream reader = _writer.reader();
+	readstream reader = _writer.commit(_instructions.isComplete);
 	if (!reader)
 		return false;
 
@@ -48,7 +46,7 @@ bool WriteCommand::flush()
 		_onCommit(_instructions, reader);
 
 	// TODO: vvvvvvvvvvvvv
-	//_instructions.digest = reader.digest();
+	_instructions.digest = reader.digest();
 	_instructions.offset = _writer.position();
 	_bytesSinceLastFlush = 0;
 	return true;
@@ -61,7 +59,6 @@ bool WriteCommand::commit()
 	if ( !flush() )
 		return setStatus(500);
 
-	_writer.close();
 	_instructions.outstream.reset();
 	return setStatus(200);
 }

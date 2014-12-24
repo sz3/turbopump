@@ -16,5 +16,5 @@ TEST_CASE( "AddPeerCommandTest/testAdd", "[unit]" )
 
 	assertMsg( command.run(), command.status().str() );
 	assertEquals( "write(.membership/fooid,1,fooid:1,0)", api.store._history.calls() );
-	assertEquals( "write(localhost:9001)|flush()|reader()|close()", MockStoreWriter::calls() );
+	assertEquals( "write(localhost:9001)|flush()|close()|reader()", MockStoreWriter::calls() );
 }

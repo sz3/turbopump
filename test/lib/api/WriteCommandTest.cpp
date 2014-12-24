@@ -51,7 +51,7 @@ TEST_CASE( "WriteCommandTest/testDefault", "[unit]" )
 	}
 	assertEquals( "write(foobar.txt,,0)", store._history.calls() );
 	//assertEquals( "Writer::setOffset(0)|Writer::write(0123456789)|Writer::write(abcde)|commit(foobar.txt,{0},3)", dataStore._history.calls() );
-	assertEquals( "write(0123456789)|write(abcde)|flush()|reader()|close()", MockStoreWriter::calls() );
+	assertEquals( "write(0123456789)|write(abcde)|flush()|close()|reader()", MockStoreWriter::calls() );
 	assertEquals( "onCommit(foobar.txt,0,3,[1,mock:1],15,1)", _history.calls() );
 }
 
@@ -80,7 +80,7 @@ TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )
 		assertEquals( 200, command.status() );
 	}
 	assertEquals( "write(foobar.txt,1,v1:1,20)", store._history.calls() );
-	assertEquals( "write(0123456789)|flush()|reader()|close()", MockStoreWriter::calls() );
+	assertEquals( "write(0123456789)|flush()|close()|reader()", MockStoreWriter::calls() );
 	assertEquals( "onCommit(foobar.txt,3,5,{1,v1:1},someguy,1)", _history.calls() );
 }
 

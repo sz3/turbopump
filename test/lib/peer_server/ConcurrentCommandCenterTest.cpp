@@ -132,7 +132,7 @@ TEST_CASE( "ConcurrentCommandCenterTest/testRun.Multipacket", "[unit]" )
 
 	center.run(peer, _packer.package(33, "")); // flush
 	assertEquals( "write(foo,,0)", api.store._history.calls() );
-	assertEquals( "write(0123456789)|write(bytes)|write(woohoo)|flush()|reader()|close()", MockStoreWriter::calls() );
+	assertEquals( "write(0123456789)|write(bytes)|write(woohoo)|flush()|close()|reader()", MockStoreWriter::calls() );
 
 	assertEquals( 1, center._runners.size() );
 }

@@ -22,6 +22,7 @@ add_test(dynamic_membership_test dynamic_membership_test)
 target_link_libraries(dynamic_membership_test
 -Wl,--start-group
 	common
+	hashing
 	integration
 	membership
 

@@ -47,7 +47,7 @@ namespace {
 		writestream writer = store.write(name, version);
 		assert( writer.good() );
 		writer.write(contents.data(), contents.size());
-		writer.close();
+		writer.commit(true);
 	}
 }
 
@@ -84,7 +84,7 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 	assertFalse( reader.good() );
 
 	// close/commit, and all is well.
-	assertTrue( writer.close() );
+	assertTrue( writer.commit(true) );
 
 	versions = store.versions("myfile");
 	assertEquals( "1,increment:1", turbo::str::join(versions) );
@@ -210,7 +210,7 @@ TEST_CASE( "FileStoreTest/testReadWriteVariantCopies", "[unit]" )
 	{
 		writestream writer = store.write("myfile", "", i);
 		writer.write("foo", 3);
-		writer.close();
+		writer.commit(true);
 
 		readstream reader = store.read("myfile");
 		assertEquals(i, reader.mirrors());

@@ -25,6 +25,7 @@ target_link_libraries(membership_test
 -Wl,--start-group
 	membership
 	common
+	hashing
 	mock
 
 	file

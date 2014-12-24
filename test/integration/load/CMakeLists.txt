@@ -22,6 +22,7 @@ add_test(load_test load_test)
 target_link_libraries(load_test
 -Wl,--start-group
 	common
+	hashing
 	membership
 	integration
 

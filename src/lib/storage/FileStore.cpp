@@ -177,25 +177,40 @@ bool FileStore::remove(const std::string& name)
 	return true;
 }
 
-bool FileStore::onWriteComplete(const std::string& name, const KeyMetadata& md)
+bool FileStore::onWriteComplete(const std::string& name, KeyMetadata& md)
 {
 	string filename(filepath(name, md.version.toString()));
 	string tempname = filename + "~";
 	if ( !File::rename(tempname, filename) )
 		return false;
 
-	return purgeObsolete(name, md.version);
+	return purgeObsolete(name, md);
 }
 
-bool FileStore::purgeObsolete(const std::string& name, const VectorClock& master)
+bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 {
-	std::vector<std::string> vs(versions(name));
-	for (const std::string& v : vs)
+	// TODO: this doesn't work with concurrent writes yet. Will lead to weird merkle sync problems.
+	std::vector<std::string> all(versions(name));
+	std::vector<std::string> toDelete;
+	for (const std::string& v : all)
 	{
 		VectorClock version;
 		version.fromString(v);
-		if (version < master)
-			File::remove(filepath(name, version.toString()));
+		if (version < master.version)
+			toDelete.push_back(version.toString());
+	}
+	// TODO: optimize:
+	// if all.size() == deleted.size() + 1
+	//   shortcut digest computation (nothing to do)
+	// else
+	//   do what's below == compute writestream::digest() for each (name,vstr) and xor it into master.digest
+
+	// then delete them
+	for (const std::string& vstr : toDelete)
+	{
+		string path = filepath(name, vstr);
+		master.digest ^= writestream::digest(vstr, File::size(path));
+		File::remove(path);
 	}
 	return true;
 }

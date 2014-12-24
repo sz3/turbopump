@@ -28,8 +28,8 @@ protected:
 	std::string filepath(const std::string& name, const std::string& version) const;
 	VectorClock mergedVersion(const std::string& filename) const;
 
-	bool onWriteComplete(const std::string& name, const KeyMetadata& md);
-	bool purgeObsolete(const std::string& name, const VectorClock& master);
+	bool onWriteComplete(const std::string& name, KeyMetadata& md);
+	bool purgeObsolete(const std::string& name, KeyMetadata& master);
 
 protected:
 	std::string _homedir;

@@ -49,7 +49,7 @@ TEST_CASE( "StoreBenchmarkTest/testFileStore", "[unit]" )
 		stopwatch t;
 		writestream stream = store.write( StringUtil::str(i) );
 		stream.write("0123456789", 10);
-		stream.close();
+		stream.commit(true);
 
 		long long micros = t.micros();
 		writeMicros += micros;
@@ -61,7 +61,7 @@ TEST_CASE( "StoreBenchmarkTest/testFileStore", "[unit]" )
 		stopwatch t;
 		writestream stream = store.write( StringUtil::str(i) );
 		stream.write("0123456789", 10);
-		stream.close();
+		stream.commit(true);
 
 		long long micros = t.micros();
 		overwriteMicros += micros;
