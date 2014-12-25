@@ -105,6 +105,8 @@ writestream FileStore::write(const std::string& name, const std::string& version
 		md.version = mergedVersion(name);
 		md.version.increment(MyMemberId());
 	}
+	else if ( exists(name, version) )
+		return writestream();
 	md.totalCopies = copies;
 
 	string tempname(filepath(name, md.version.toString()) + "~");
@@ -141,7 +143,8 @@ std::vector<readstream> FileStore::readAll(const std::string& name) const
 
 bool FileStore::exists(const std::string& name, const std::string& version) const
 {
-	return File::exists(filepath(name, version));
+	std::vector<string> all(versions(name, true));
+	return std::find(all.begin(), all.end(), version) != all.end();
 }
 
 std::vector<std::string> FileStore::versions(const std::string& name, bool inprogress/*=false*/) const

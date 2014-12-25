@@ -50,9 +50,27 @@ TEST_CASE( "WriteCommandTest/testDefault", "[unit]" )
 		assertEquals( 200, command.status() );
 	}
 	assertEquals( "write(foobar.txt,,0)", store._history.calls() );
-	//assertEquals( "Writer::setOffset(0)|Writer::write(0123456789)|Writer::write(abcde)|commit(foobar.txt,{0},3)", dataStore._history.calls() );
 	assertEquals( "write(0123456789)|write(abcde)|flush()|close()|reader()", MockStoreWriter::calls() );
 	assertEquals( "onCommit(foobar.txt,0,3,[1,mock:1],15,1)", _history.calls() );
+}
+
+TEST_CASE( "WriteCommandTest/testBadWriter", "[unit]" )
+{
+	_history.clear();
+	MockStore store;
+	store._writer = NULL;
+	{
+		auto callback = [&](WriteInstructions& ins, readstream& stream){ _history.call("onCommit", ins.name); };
+		TestableWriteCommand command(store, callback);
+		command._instructions.name = "foobar.txt";
+
+		assertFalse( command.run("0123456789", 10) );
+		assertEquals( "500", command.status().str() );
+		assertEquals( "", _history.calls() );
+	}
+	assertEquals( "write(foobar.txt,,0)", store._history.calls() );
+	assertEquals( "", MockStoreWriter::calls() );
+	assertEquals( "", _history.calls() );
 }
 
 TEST_CASE( "WriteCommandTest/testExtraParams", "[unit]" )

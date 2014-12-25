@@ -94,6 +94,43 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 	assertEquals( 10, reader.size() );
 }
 
+TEST_CASE( "FileStoreTest/testWrite.RejectInprogress", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	VectorClock version;
+	version.increment("jordy");
+	version.increment("randall");
+	writestream writer = store.write("myfile", version.toString());
+	assertTrue( writer.good() );
+
+	writestream other = store.write("myfile", version.toString());
+	assertFalse( other.good() );
+}
+
+TEST_CASE( "FileStoreTest/testWrite.RejectExisting", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	VectorClock version;
+	version.increment("jordy");
+	version.increment("randall");
+	{
+		writestream writer = store.write("myfile", version.toString());
+		assertTrue( writer.good() );
+		writer.commit(true);
+	}
+
+	writestream writer = store.write("myfile", version.toString());
+	assertFalse( writer.good() );
+}
+
 TEST_CASE( "FileStoreTest/testOverwrite", "[unit]" )
 {
 	MyMemberId("increment");
@@ -234,7 +271,6 @@ TEST_CASE( "FileStoreTest/testExists", "[unit]" )
 	write_file(store, "woo/hoo", "lmno", version.toString());
 	assertTrue( store.exists("woo/hoo", version.toString()) );
 }
-
 
 TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 {

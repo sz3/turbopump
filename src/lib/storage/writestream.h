@@ -14,6 +14,8 @@ class writestream
 public:
 	writestream();
 	writestream(IWriter* writer, const KeyMetadata& md, std::function<bool(KeyMetadata&)> onClose = NULL);
+
+	operator bool() const;
 	bool good() const;
 	unsigned long long position() const;
 
@@ -39,6 +41,11 @@ inline writestream::writestream(IWriter* writer, const KeyMetadata& md, std::fun
 	, _md(md)
 	, _onClose(onClose)
 {
+}
+
+inline writestream::operator bool() const
+{
+	return good();
 }
 
 inline bool writestream::good() const

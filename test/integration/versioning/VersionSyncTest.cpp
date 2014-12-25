@@ -27,8 +27,6 @@ TEST_CASE( "VersionSyncTest/testVersionsPropagate", "[integration]" )
 		return expected == response;
 	});
 
-	// same keys stored in a different order
-	expected = "conflict => 6|1,bar:1 5|1,foo:1";
 	wait_for(10, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();
