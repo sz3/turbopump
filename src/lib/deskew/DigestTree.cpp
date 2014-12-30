@@ -3,6 +3,8 @@
 
 #include "common/MerklePoint.h"
 #include "hashing/Hash.h"
+#include <bitset>
+#include <iomanip>
 using namespace std::placeholders;
 
 const DigestTree& DigestTree::null()
@@ -83,15 +85,20 @@ void DigestTree::forEachInRange(const std::function<bool(unsigned long long, uns
 	_tree.enumerate(fun, first, last);
 }
 
-namespace {
-	// for print()
-	std::string printable(const std::tuple<unsigned long long, std::string>& fileData)
-	{
-		return std::get<1>(fileData);
-	}
-}
-
 void DigestTree::print(int keywidth) const
 {
-	_tree.print(std::bind(&printable, _1), keywidth);
+	auto printer = [=] (unsigned long long key, unsigned long long hash, const std::string& name) {
+		unsigned char* keybytes = (unsigned char*)&key;
+		std::cout << std::setfill(' ') << std::setw(keywidth) << name << ": ";
+		for (int i = 0; i < sizeof(key); ++i)
+		{
+			if (i != 0)
+				std::cout << " | ";
+			std::cout << std::bitset<4>(keybytes[i] >> 4).to_string() << " ";
+			std::cout << std::bitset<4>(keybytes[i] & 0xF).to_string();
+		}
+		std::cout << std::endl;
+		return true;
+	};
+	_tree.enumerate(printer, 0, ~0ULL);
 }
