@@ -114,10 +114,10 @@ void DigestIndexer::splitSection(const string& where)
 		}
 	}
 
-	auto adder = [&newTree] (unsigned long long hash, const std::string& file) { newTree.add(file, hash); return true; };
+	auto adder = [&newTree] (unsigned long long key, unsigned long long hash, const std::string& file) { newTree.add(file, hash); return true; };
 	sourceTree.forEachInRange(adder, first, last);
 
-	auto remover = [&sourceTree] (unsigned long long hash, const std::string& file) { sourceTree.remove(file); return true; };
+	auto remover = [&sourceTree] (unsigned long long key, unsigned long long hash, const std::string& file) { sourceTree.remove(file); return true; };
 	newTree.forEachInRange(remover, 0, ~0ULL);
 
 	prune(next);
@@ -137,7 +137,7 @@ void DigestIndexer::cannibalizeSection(const string& where)
 	DigestTree& dyingTree = it->second;
 	DigestTree& refugeeTree = next->second;
 
-	auto fun = [&refugeeTree] (unsigned long long hash, const std::string& file) { refugeeTree.add(file, hash); return true; };
+	auto fun = [&refugeeTree] (unsigned long long, unsigned long long hash, const std::string& file) { refugeeTree.add(file, hash); return true; };
 	dyingTree.forEachInRange(fun, 0, ~0ULL);
 
 	_unwanted.erase(dyingTree.id().id);

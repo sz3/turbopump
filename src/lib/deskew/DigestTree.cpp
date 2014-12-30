@@ -27,10 +27,10 @@ void DigestTree::update(const std::string& key, unsigned long long value)
 	// also, just improve the merkle_tree api in general... it works, now make the code less horrifying.
 
 	unsigned long long keyhash = Hash(key).integer();
-	merkle_tree<unsigned long long, unsigned long long, std::string>::pair* ptr = _tree.find(keyhash);
-	if (ptr != NULL)
+	merkle_tree<unsigned long long, unsigned long long, std::string>::pair pair = _tree.find(keyhash);
+	if (pair)
 	{
-		value ^= std::get<0>(ptr->second);
+		value ^= std::get<0>(pair.second());
 		_tree.remove(keyhash);
 	}
 	else
@@ -72,13 +72,13 @@ std::deque<MerklePoint> DigestTree::diff(const MerklePoint& point) const
 std::deque<std::string> DigestTree::enumerate(unsigned long long first, unsigned long long last, unsigned limit) const
 {
 	std::deque<std::string> files;
-	auto fun = [&,limit] (unsigned long long hash, const std::string& file) { files.push_back(file); first = hash; return files.size() < limit; };
+	auto fun = [&,limit] (unsigned long long, unsigned long long hash, const std::string& file) { files.push_back(file); first = hash; return files.size() < limit; };
 
 	forEachInRange(fun, first, last);
 	return files;
 }
 
-void DigestTree::forEachInRange(const std::function<bool(unsigned long long, const std::string&)>& fun, unsigned long long first, unsigned long long last) const
+void DigestTree::forEachInRange(const std::function<bool(unsigned long long, unsigned long long, const std::string&)>& fun, unsigned long long first, unsigned long long last) const
 {
 	_tree.enumerate(fun, first, last);
 }

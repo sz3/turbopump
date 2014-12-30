@@ -22,7 +22,7 @@ public:
 	MerklePoint top() const;
 	std::deque<MerklePoint> diff(const MerklePoint& point) const;
 	std::deque<std::string> enumerate(unsigned long long first, unsigned long long last, unsigned limit=50) const;
-	void forEachInRange(const std::function<bool(unsigned long long, const std::string&)>& fun, unsigned long long first, unsigned long long last) const;
+	void forEachInRange(const std::function<bool(unsigned long long, unsigned long long, const std::string&)>& fun, unsigned long long first, unsigned long long last) const;
 
 	void print(int keywidth=0) const; // for testing!
 
