@@ -2,6 +2,7 @@
 #include "unittest.h"
 
 #include "MerklePoint.h"
+using turbo::merkle_location;
 
 TEST_CASE( "MerklePointTest/testToString", "[unit]" )
 {

@@ -2,8 +2,9 @@
 #include "unittest.h"
 
 #include "KeyRange.h"
-#include "data_structures/merkle_location.h"
+#include "merkle_tree/merkle_location.h"
 #include "serialize/StringUtil.h"
+using turbo::merkle_location;
 
 // big endian!!!
 

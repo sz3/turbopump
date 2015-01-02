@@ -3,7 +3,7 @@
 
 #include "IDigestKeys.h"
 #include "TreeId.h"
-#include "data_structures/merkle_tree.h"
+#include "merkle_tree/merkle_tree.h"
 
 class DigestTree : public IDigestKeys
 {
@@ -29,5 +29,5 @@ public:
 protected:
 	TreeId _id;
 	// sorted as big endian (because merkle_tree does char-wise comparisons.) Just FYI!
-	merkle_tree<unsigned long long, unsigned long long, std::string> _tree;
+	turbo::merkle_tree<unsigned long long, unsigned long long, std::string> _tree;
 };

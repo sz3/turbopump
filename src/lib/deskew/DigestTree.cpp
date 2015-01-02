@@ -6,6 +6,7 @@
 #include <bitset>
 #include <iomanip>
 using namespace std::placeholders;
+using turbo::merkle_tree;
 
 const DigestTree& DigestTree::null()
 {

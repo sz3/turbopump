@@ -3,6 +3,7 @@
 
 #include <endian.h>
 #include <iostream>
+using turbo::merkle_location;
 
 KeyRange::KeyRange(const merkle_location<unsigned long long>& location)
 {
