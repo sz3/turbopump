@@ -6,7 +6,7 @@
 // http://docs.openstack.org/developer/swift/ring.html
 
 #include "IConsistentHashRing.h"
-#include "data_structures/circular_map.h"
+#include "consistent_hashing/circular_map.h"
 
 class ConsistentHashRing : public IConsistentHashRing
 {
