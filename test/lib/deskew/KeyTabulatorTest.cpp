@@ -7,7 +7,7 @@
 #include "KeyRange.h"
 #include "TreeId.h"
 #include "mock/MockLocateKeys.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include <deque>
 #include <string>
@@ -137,7 +137,7 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	locator._locations.push_back("2");
 	for (int i = 1; i <= 9; ++i)
 	{
-		string name = StringUtil::str(i);
+		string name = turbo::str::str(i);
 		index.update(name, 0, 1);
 		index.update(name+name, 0, 2);
 		index.update(name+name+name, 0, 3);

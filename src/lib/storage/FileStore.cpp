@@ -12,7 +12,7 @@
 #include "hashing/Hash.h"
 
 #include "file/File.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include <cstring>
 #include <functional>
 #include <iostream>
@@ -234,7 +234,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&)> callback
 		{
 			boost::filesystem::path vpath = version_it->path();
 			if ( !boost::filesystem::is_directory(vpath) )
-				report += " " + StringUtil::str(boost::filesystem::file_size(vpath)) + "|" + vpath.filename().string();
+				report += " " + turbo::str::str(boost::filesystem::file_size(vpath)) + "|" + vpath.filename().string();
 		}
 		if (report.empty())
 			continue;

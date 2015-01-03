@@ -4,7 +4,7 @@
 
 #include "command_line/CommandLine.h"
 #include "http/HttpResponse.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
 
@@ -13,6 +13,7 @@
 #include <vector>
 using std::string;
 using std::vector;
+using turbo::str::str;
 
 namespace {
 	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopump/turbopump";
@@ -20,9 +21,9 @@ namespace {
 
 TurboRunner::TurboRunner(short port, string programFlags)
 	: _port(port)
-	, _dataChannel("/tmp/turbo" + StringUtil::str(port))
+	, _dataChannel("/tmp/turbo" + str(port))
 	, _programFlags(programFlags)
-	, _workingDir(StringUtil::str(port))
+	, _workingDir(str(port))
 {
 	boost::filesystem::create_directory(_workingDir);
 	createMemberFile(_port);
@@ -46,7 +47,7 @@ string TurboRunner::dataChannel() const
 
 void TurboRunner::start()
 {
-	string command = ("cd " + _workingDir + " && " + exePath + " -p " + StringUtil::str(_port) + " -d " + _dataChannel + " " + _programFlags + " &");
+	string command = ("cd " + _workingDir + " && " + exePath + " -p " + str(_port) + " -d " + _dataChannel + " " + _programFlags + " &");
 	int res = system(command.c_str());
 }
 
@@ -65,14 +66,14 @@ std::string TurboRunner::query(std::string action, std::string params) const
 std::string TurboRunner::post(std::string action, std::string params, std::string body) const
 {
 	string response = CommandLine::run("echo 'POST /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n"
-	       "content-length:" + StringUtil::str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel());
+		   "content-length:" + str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel());
 	return HttpResponse().parse(response).status().str();
 }
 
 std::string TurboRunner::local_list(std::string params) const
 {
 	string body = query("list-keys", params);
-	vector<string> files = StringUtil::split(body, '\n');
+	vector<string> files = turbo::str::split(body, '\n');
 	if (files.empty())
 		return "";
 	std::sort(files.begin(), files.end());
@@ -97,7 +98,7 @@ bool TurboRunner::waitForRunning(unsigned seconds) const
 std::string TurboRunner::headerForWrite(std::string name, unsigned contentLength, std::string params/*=""*/)
 {
 	return "POST /write?name=" + name + (params.empty()? "" : "&" + params) + " HTTP/1.1\r\n"
-			"content-length:" + StringUtil::str(contentLength) + "\r\n\r\n";
+			"content-length:" + str(contentLength) + "\r\n\r\n";
 }
 
 std::string TurboRunner::headerForRead(std::string name, std::string params/*=""*/)
@@ -119,8 +120,8 @@ void TurboRunner::createMemberFile(short firstPort, int firstUid, int members)
 		firstUid = firstPort;
 	for (int i = 0; i < members; ++i)
 	{
-		string uid = StringUtil::str(firstUid+i);
-		string port = StringUtil::str(firstPort+i);
+		string uid = str(firstUid+i);
+		string port = str(firstPort+i);
 		membership.add(uid);
 		membership.addIp("127.0.0.1:" + port, uid);
 	}

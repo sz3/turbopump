@@ -12,7 +12,7 @@
 #include "storage/IStore.h"
 #include "storage/readstream.h"
 
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include <deque>
 #include <vector>
@@ -60,7 +60,7 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files = tree.enumerate(first, last);
 
-	_logger.logDebug( "pushing " + StringUtil::str(files.size()) + " keys to peer " + peer.uid + ": " + turbo::str::join(files) );
+	_logger.logDebug( "pushing " + turbo::str::str(files.size()) + " keys to peer " + peer.uid + ": " + turbo::str::join(files) );
 	for (const string& file : files)
 	{
 		std::vector<readstream> readers = _store.readAll(file);

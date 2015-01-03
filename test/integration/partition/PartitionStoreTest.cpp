@@ -5,12 +5,13 @@
 #include "hashing/Hash.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
-#include "serialize/StringUtil.h"
-#include "serialize/str_join.h"
 
+#include "serialize/str.h"
+#include "serialize/str_join.h"
 #include <vector>
 using std::string;
 using std::vector;
+using turbo::str::str;
 
 namespace {
 	string hashStr(string id)
@@ -42,7 +43,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 	// setting copies=3 here, so we get 3 "proper" copies of the file instead of 2.
 	for (unsigned i = 1; i <= 6; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		response = cluster[1].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
@@ -107,7 +108,7 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	// write 5 files, all with different replication...
 	for (unsigned i = 1; i <= 5; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		response = cluster[1].write(num, "hello!"+num, "copies="+num);
 		assertEquals( "200", response );
 	}

@@ -3,7 +3,6 @@
 
 #include "KeyRange.h"
 #include "merkle_tree/merkle_location.h"
-#include "serialize/StringUtil.h"
 using turbo::merkle_location;
 
 // big endian!!!

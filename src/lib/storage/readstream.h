@@ -6,7 +6,7 @@
 #include "hashing/Hash.h"
 
 #include "file/File.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "socket/IByteStream.h"
 #include <memory>
 #include <string>

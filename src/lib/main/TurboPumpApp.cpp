@@ -5,6 +5,7 @@
 #include "user_server/UserPacketHandler.h"
 
 #include "http/HttpByteStream.h"
+#include "serialize/str.h"
 #include "socket/FileByteStream.h"
 #include "socket/socket_address.h"
 #include <functional>
@@ -24,7 +25,7 @@ TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& st
 	, _writeSupervisor(_packer, _peerServer)
 	, _membership("turbo_members.txt", socket_address("127.0.0.1", port).toString())
 	, _keyLocator(_ring, _membership)
-	, _fileStore(StringUtil::str(port) + "/store")
+	, _fileStore(turbo::str::str(port) + "/store")
 	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
 	, _peerCenter(_api, _peerExecutor)
 	, _peerPacketHandler(_membership, _peerCenter, _logger)

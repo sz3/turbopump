@@ -6,7 +6,7 @@
 #include "integration/TurboRunner.h"
 
 #include "http/HttpResponse.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
 #include "time/wait_for.h"
@@ -18,6 +18,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 using std::string;
+using turbo::str::str;
 using turbo::stopwatch;
 
 namespace {
@@ -50,7 +51,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 		std::cout << "write " << i <<  " connection open at " << elapsed.micros() << "us" << std::endl;
 
-		string name = StringUtil::str(i);
+		string name = str(i);
 		string packet = cluster[1].headerForWrite(name, name.size()) + name;
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
 		std::cout << "write " << i <<  " bytes sent at " << elapsed.micros() << "us" << std::endl;
@@ -62,7 +63,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 		std::cout << "write " << i <<  " connection close at " << elapsed.micros() << "us" << std::endl;
 
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
-		fileList.push_back(name + " => " + StringUtil::str(name.size()) + "|1,1:1");
+		fileList.push_back(name + " => " + str(name.size()) + "|1,1:1");
 	}
 	std::cout << "did 300 writes in " << elapsed.millis() << "ms" << std::endl;
 
@@ -96,7 +97,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Solo", "[integration]" )
 	stopwatch elapsed;
 	{
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
-		timingData.push_back("opened write socket at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("opened write socket at " + str(elapsed.micros()) + "us");
 
 		string packet = TurboRunner::headerForWrite("bigfile", bufsize);
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
@@ -104,11 +105,11 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Solo", "[integration]" )
 		for (unsigned c = 0; c < bufsize; ++c)
 			buffer[c] = 48+(c>>10);
 		bytesWrit = write(socket_fd, buffer, bufsize);
-		timingData.push_back("wrote all bytes at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("wrote all bytes at " + str(elapsed.micros()) + "us");
 
 		size_t bytesRead = read(socket_fd, readBuff, 100);
 		close(socket_fd);
-		timingData.push_back("write returned at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("write returned at " + str(elapsed.micros()) + "us");
 
 		assertEquals(bufsize, bytesWrit);
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
@@ -117,7 +118,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Solo", "[integration]" )
 	string expectedContents = string(buffer, bufsize);
 	string actualContents = cluster[1].query("read", "name=bigfile");
 	assertEquals( expectedContents, actualContents );
-	timingData.push_back("finished read at " + StringUtil::str(elapsed.micros()) + "us");
+	timingData.push_back("finished read at " + str(elapsed.micros()) + "us");
 
 	for (std::vector<string>::const_iterator it = timingData.begin(); it != timingData.end(); ++it)
 		std::cout << *it << std::endl;
@@ -139,7 +140,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
 	stopwatch elapsed;
 	{
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
-		timingData.push_back("opened write socket at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("opened write socket at " + str(elapsed.micros()) + "us");
 
 		string packet = TurboRunner::headerForWrite("bigfile", bufsize);
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
@@ -147,11 +148,11 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
 		for (unsigned c = 0; c < bufsize; ++c)
 			buffer[c] = 48+(c>>10);
 		bytesWrit = write(socket_fd, buffer, bufsize);
-		timingData.push_back("wrote all bytes at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("wrote all bytes at " + str(elapsed.micros()) + "us");
 
 		size_t bytesRead = read(socket_fd, readBuff, 100);
 		close(socket_fd);
-		timingData.push_back("write returned at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("write returned at " + str(elapsed.micros()) + "us");
 
 		assertEquals(bufsize, bytesWrit);
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
@@ -163,7 +164,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
 
 	{
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
-		timingData.push_back("opened read socket at " + StringUtil::str(elapsed.micros()) + "us");
+		timingData.push_back("opened read socket at " + str(elapsed.micros()) + "us");
 
 		string packet = TurboRunner::headerForRead("bigfile");
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
@@ -180,13 +181,13 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
 		assertEquals(65631, totalBytes);
 	}
 
-	timingData.push_back("finished read 1 at " + StringUtil::str(elapsed.micros()) + "us");
+	timingData.push_back("finished read 1 at " + str(elapsed.micros()) + "us");
 	string actualContents = resp.body();
 	assertEquals( expectedContents, actualContents );
 
 	actualContents = cluster[1].query("read", "name=bigfile");
 	assertEquals( expectedContents, actualContents );
-	timingData.push_back("finished read 2 at " + StringUtil::str(elapsed.micros()) + "us");
+	timingData.push_back("finished read 2 at " + str(elapsed.micros()) + "us");
 
 	stopwatch t;
 	while (t.millis() < 10000)
@@ -195,7 +196,7 @@ TEST_CASE( "ReadWriteLoadTest/testBigWrite.Duo", "[integration]" )
 		if (!actualContents.empty())
 			break;
 	}
-	timingData.push_back("finished read 3 at " + StringUtil::str(elapsed.millis()) + "ms");
+	timingData.push_back("finished read 3 at " + str(elapsed.millis()) + "ms");
 	assertEquals( expectedContents, actualContents );
 
 	for (std::vector<string>::const_iterator it = timingData.begin(); it != timingData.end(); ++it)
@@ -214,7 +215,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 	{
 		int socket_fd = openStreamSocket(cluster[1].dataChannel());
 
-		string name = StringUtil::str(i);
+		string name = str(i);
 		string packet = cluster[1].headerForWrite(name, bufsize);
 		size_t bytesWrit = write(socket_fd, packet.data(), packet.size());
 
@@ -231,10 +232,10 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 
 	std::vector<string> results;
 	stopwatch t;
-	wait_for(30, StringUtil::str(results.size()) + " != 90", [&]()
+	wait_for(30, str(results.size()) + " != 90", [&]()
 	{
 		string response = cluster[2].local_list();
-		results = StringUtil::split(response, '\n');
+		results = turbo::str::split(response, '\n');
 		return results.size() == 90;
 	});
 

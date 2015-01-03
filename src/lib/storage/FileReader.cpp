@@ -3,7 +3,6 @@
 #include "hashing/Hash.h"
 
 #include "file/File.h"
-#include "serialize/StringUtil.h"
 #include "socket/IByteStream.h"
 #include <iostream>
 

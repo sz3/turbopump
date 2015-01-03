@@ -5,7 +5,7 @@
 #include "hashing/Hash.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/wait_for.h"
 
@@ -13,6 +13,7 @@
 #include <vector>
 using std::string;
 using std::vector;
+using turbo::str::str;
 
 namespace {
 	string hashStr(string id)
@@ -45,7 +46,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 	// setting copies=3 here, in case we decide to change the defaults at any point...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		response = cluster[i].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
@@ -125,7 +126,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	// setting copies=3 here, in case we decide to change the defaults at any point...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		response = cluster[1].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
@@ -207,7 +208,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	// setting copies=i here, so we get a different merkle tree per write...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		response = cluster[i].write(num, "hello!"+num, "copies="+num);
 		assertEquals( "200", response );
 	}

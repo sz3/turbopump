@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "Peer.h"
 
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "socket/socket_address.h"
 #include <atomic>
@@ -45,12 +45,12 @@ string Peer::toString() const
 
 bool Peer::fromString(const string& serial)
 {
-	vector<string> splits = StringUtil::split(serial, ' ');
+	vector<string> splits = turbo::str::split(serial, ' ');
 	if (splits.size() < 2)
 		return false;
 
 	uid = splits[0];
 	if (splits[1] != "none")
-		ips = StringUtil::split(splits[1], '|');
+		ips = turbo::str::split(splits[1], '|');
 	return true;
 }

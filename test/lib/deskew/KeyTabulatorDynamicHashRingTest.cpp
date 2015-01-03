@@ -12,10 +12,11 @@
 
 #include "membership/Peer.h"
 #include "mock/MockMembership.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 using std::string;
 using std::vector;
+using turbo::str::str;
 
 // grow and shrink the hash ring and merkle index, verifying things stay sane
 TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
@@ -27,7 +28,7 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 	ConsistentHashRing ring;
 	for (unsigned i = 1; i <= 5; ++i)
 	{
-		string worker = StringUtil::str(i);
+		string worker = str(i);
 		ring.insert(worker, worker);
 		std::cout << worker << " = " << Hash(worker).base64() << std::endl;
 	}
@@ -37,7 +38,7 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 	KeyTabulator index(locator);
 	for (unsigned i = 50; i > 0; --i)
 	{
-		string file = StringUtil::str(i);
+		string file = str(i);
 		baseLine.update(file, 0);
 		index.update(file, 0);
 	}
@@ -74,7 +75,7 @@ TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 	// verify that everything ends up as it started
 	for (unsigned i = 1; i <= 5; ++i)
 	{
-		string worker = StringUtil::str(i);
+		string worker = str(i);
 		assertEquals( turbo::str::join(baseLine.find(Hash(worker).base64()).enumerate(0, ~0ULL)),
 					  turbo::str::join(index.find(Hash(worker).base64()).enumerate(0, ~0ULL)) );
 	}

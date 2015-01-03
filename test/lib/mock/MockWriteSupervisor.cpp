@@ -6,7 +6,7 @@
 #include "peer_server/ConnectionWriteStream.h"
 #include "storage/readstream.h"
 
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 
 MockWriteSupervisor::MockWriteSupervisor()
 	: _storeFails(false)
@@ -29,6 +29,6 @@ std::shared_ptr<ConnectionWriteStream> MockWriteSupervisor::open(const Peer& pee
 
 bool MockWriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents)
 {
-	_history.call("store", write.name + "|" + write.version + "|" + StringUtil::str(write.isComplete), contents.size());
+	_history.call("store", write.name + "|" + write.version + "|" + turbo::str::str(write.isComplete), contents.size());
 	return true;
 }

@@ -8,7 +8,7 @@
 #include "storage/IStore.h"
 #include "storage/writestream.h"
 
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "socket/socket_address.h"
 #include "util/Random.h"
 #include <algorithm>
@@ -17,6 +17,7 @@ using std::map;
 using std::shared_ptr;
 using std::string;
 using std::unordered_map;
+using turbo::str::split;
 using namespace std::placeholders;
 
 // membership will eventually consist of:
@@ -56,7 +57,7 @@ void Membership::loadLine(const std::string& line)
 			if (*it != _myip)
 			{
 				_ips[*it] = mem;
-				std::vector<string> splits = StringUtil::split(*it, ':');
+				std::vector<string> splits = split(*it, ':');
 				if (!splits.empty())
 					_ips[splits.front()] = mem;
 			}
@@ -128,7 +129,7 @@ bool Membership::addSelf()
 	if (!!_self)
 		return false;
 
-	std::vector<string> splits = StringUtil::split(_myip, ':');
+	std::vector<string> splits = split(_myip, ':');
 	if (splits.empty())
 		return false;
 

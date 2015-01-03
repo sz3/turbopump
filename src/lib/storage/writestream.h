@@ -5,7 +5,7 @@
 #include "readstream.h"
 
 #include "common/KeyMetadata.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include <functional>
 #include <memory>
 
@@ -88,6 +88,6 @@ inline unsigned long long writestream::digest(const std::string& version, unsign
 {
 	// NOTE: this is meant to be xor'd with the digest of the thing we're replacing... which might be an older version of this version.
 	//  see WriteCommand, Callbacks, and DigestTree.
-	std::string dig = version + StringUtil::str(size);
+	std::string dig = version + turbo::str::str(size);
 	return Hash(dig).integer();
 }

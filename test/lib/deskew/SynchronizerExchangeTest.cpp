@@ -14,7 +14,7 @@
 #include "mock/MockMembership.h"
 #include "peer_client/IMessageSender.h"
 
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 using std::deque;
 using std::string;
@@ -165,7 +165,7 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 
 	for (int i = 0; i < 100; ++i)
 	{
-		string id = StringUtil::str(i);
+		string id = turbo::str::str(i);
 		indexOne.update(id, 0);
 	}
 

@@ -12,7 +12,8 @@
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
 
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
+using turbo::str::str;
 
 namespace {
 	MerklePoint whatsThePoint(unsigned key, unsigned short keybits=0)
@@ -93,7 +94,7 @@ TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
 	assertEquals( "empty()", index._tree._history.calls() );
 	assertEquals( "locations(oak=,2)", ring._history.calls() );
 	assertEquals( "randomPeerFromList()|self()", membership._history.calls() );
-	assertEquals( ("pushKeyRange(dude,oak,2,0," + StringUtil::str(~0ULL) + ",me)"), corrector._history.calls() );
+	assertEquals( ("pushKeyRange(dude,oak,2,0," + str(~0ULL) + ",me)"), corrector._history.calls() );
 }
 
 TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
@@ -111,7 +112,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OtherSideEmpty", "default" )
 
 	assertEquals( "find(oak,4)", index._history.calls() );
 	assertEquals( "empty()", index._tree._history.calls() );
-	assertEquals( ("pushKeyRange(fooid,oak,4,0," + StringUtil::str(~0ULL) + ",)"), corrector._history.calls() );
+	assertEquals( ("pushKeyRange(fooid,oak,4,0," + str(~0ULL) + ",)"), corrector._history.calls() );
 	assertEquals( "", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
@@ -133,7 +134,7 @@ TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( ("requestKeyRange(fooid,oak,0," + StringUtil::str(~0ULL) + ")"), messenger._history.calls() );
+	assertEquals( ("requestKeyRange(fooid,oak,0," + str(~0ULL) + ")"), messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 

@@ -5,7 +5,7 @@
 #include "membership/Membership.h"
 
 #include "command_line/CommandLine.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/wait_for.h"
 #include <algorithm>
@@ -102,12 +102,12 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	string response;
 	for (unsigned i = 0; i < 50; ++i)
 	{
-		string name = StringUtil::str(i);
+		string name = turbo::str::str(i);
 		string contents = "hello" + name;
 		response = one.write(name, contents, "copies=3");
 		assertEquals( "200", response );
 
-		fileList.push_back(name + " => " + StringUtil::str(contents.size()) + "|1,9001:1");
+		fileList.push_back(name + " => " + turbo::str::str(contents.size()) + "|1,9001:1");
 	}
 
 	std::sort(fileList.begin(), fileList.end());

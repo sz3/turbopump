@@ -6,7 +6,7 @@
 #include "main/TurboPumpApp.h"
 
 #include "command_line/CommandLine.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
 #include "time/wait_for.h"
@@ -24,6 +24,7 @@
 using std::shared_ptr;
 using std::string;
 using turbo::stopwatch;
+using turbo::str::str;
 
 class IntegratedTurboRunner : public TurboRunner
 {
@@ -93,13 +94,13 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 
 	for (unsigned i = 0; i < 5; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		response = workerOne.write("one" + num, "one hello " + num);
 		assertEquals( "200", response );
 	}
 	for (unsigned i = 0; i < 5; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		response = workerTwo.write("two" + num, "two hello " + num);
 		assertEquals( "200", response );
 	}
@@ -177,7 +178,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	// the callbacks will be chaotic, but as long as all our map allocations are done, we should be fine
 	std::map<string,Checkpoint> checkpoints;
 	for (unsigned i = 0; i < numFiles; ++i)
-		checkpoints[StringUtil::str(i)];
+		checkpoints[str(i)];
 
 	opts.when_local_write_finishes = opts.when_mirror_write_finishes = [&checkpoints] (WriteInstructions& params, readstream&)
 	{
@@ -197,7 +198,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	char readBuff[100];
 	for (unsigned i = 0; i < numFiles; ++i)
 	{
-		string num = StringUtil::str(i);
+		string num = str(i);
 		checkpoints[num].reset();
 
 		string data = "hello " + num;

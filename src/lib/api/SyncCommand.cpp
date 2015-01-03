@@ -2,6 +2,7 @@
 #include "SyncCommand.h"
 
 #include "deskew/ISynchronize.h"
+#include "serialize/str.h"
 #include <string>
 using std::string;
 
@@ -15,7 +16,7 @@ bool SyncCommand::run(const char* buff, unsigned size)
 	if (size == 0)
 		return false;
 
-	std::vector<string> points = StringUtil::split(string(buff,size), '|');
+	std::vector<string> points = turbo::str::split(string(buff,size), '|');
 	for (unsigned i = 0; i < points.size(); ++i)
 	{
 		MerklePoint point;

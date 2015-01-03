@@ -4,7 +4,6 @@
 #include "command_line/CommandLine.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
-#include "serialize/StringUtil.h"
 #include "time/wait_for.h"
 using std::string;
 

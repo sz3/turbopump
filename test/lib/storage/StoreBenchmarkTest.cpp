@@ -6,7 +6,7 @@
 #include "readstream.h"
 #include "writestream.h"
 #include "common/MyMemberId.h"
-#include "serialize/StringUtil.h"
+#include "serialize/str.h"
 #include "socket/NullByteStream.h"
 #include "time/stopwatch.h"
 
@@ -17,6 +17,7 @@
 using std::string;
 using std::vector;
 using turbo::stopwatch;
+using turbo::str::str;
 
 namespace {
 	string _test_dir = "/run/shm/turbo_fs_test";
@@ -47,7 +48,7 @@ TEST_CASE( "StoreBenchmarkTest/testFileStore", "[unit]" )
 	for (int i = 0; i < trials; ++i)
 	{
 		stopwatch t;
-		writestream stream = store.write( StringUtil::str(i) );
+		writestream stream = store.write( str(i) );
 		stream.write("0123456789", 10);
 		stream.commit(true);
 
@@ -59,7 +60,7 @@ TEST_CASE( "StoreBenchmarkTest/testFileStore", "[unit]" )
 	for (int i = 0; i < trials; ++i)
 	{
 		stopwatch t;
-		writestream stream = store.write( StringUtil::str(i) );
+		writestream stream = store.write( str(i) );
 		stream.write("0123456789", 10);
 		stream.commit(true);
 
@@ -72,7 +73,7 @@ TEST_CASE( "StoreBenchmarkTest/testFileStore", "[unit]" )
 	for (int i = 0; i < trials; ++i)
 	{
 		stopwatch t;
-		readstream reader = store.read( StringUtil::str(i) );
+		readstream reader = store.read( str(i) );
 		int bytes = reader.stream(output);
 
 		long long micros = t.micros();
