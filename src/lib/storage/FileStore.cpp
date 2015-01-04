@@ -218,7 +218,7 @@ bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 	return true;
 }
 
-void FileStore::enumerate(const std::function<bool(const std::string&)> callback, unsigned limit) const
+void FileStore::enumerate(const std::function<bool(const std::string&, unsigned long long, const std::string&)> callback, unsigned limit) const
 {
 	int i = 0;
 	boost::filesystem::recursive_directory_iterator end;
@@ -229,12 +229,18 @@ void FileStore::enumerate(const std::function<bool(const std::string&)> callback
 		if ( !boost::filesystem::is_directory(pa) )
 			continue;
 
+		unsigned long long digest = 0;
 		string report;
 		for (boost::filesystem::directory_iterator version_it(pa); version_it != dend; ++version_it)
 		{
 			boost::filesystem::path vpath = version_it->path();
 			if ( !boost::filesystem::is_directory(vpath) )
-				report += " " + turbo::str::str(boost::filesystem::file_size(vpath)) + "|" + vpath.filename().string();
+			{
+				string vstr = vpath.filename().string();
+				unsigned long long size = boost::filesystem::file_size(vpath);
+				digest ^= writestream::digest(vstr, size);
+				report += " " + turbo::str::str(size) + "|" + vstr;
+			}
 		}
 		if (report.empty())
 			continue;
@@ -244,8 +250,9 @@ void FileStore::enumerate(const std::function<bool(const std::string&)> callback
 			filename = filename.substr(_homedir.size()+1);
 		else
 			filename = pa.filename().string();
-		report = filename + " =>" + report;
-		callback(report);
+
+		// middle param == digest of file
+		callback(filename, digest, report);
 		if (++i >= limit)
 			break;
 	}

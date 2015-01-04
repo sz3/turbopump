@@ -7,10 +7,10 @@
 #include "writestream.h"
 #include "common/MyMemberId.h"
 #include "file/File.h"
-#include "serialize/str_join.h"
 
 #include <boost/filesystem.hpp>
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -42,14 +42,22 @@ namespace {
 		using FileStore::filepath;
 	};
 
-	void write_file(FileStore& store, const std::string& name, const std::string& contents, const std::string& version="")
+	unsigned long long write_file(FileStore& store, const std::string& name, const std::string& contents, const std::string& version="")
 	{
 		writestream writer = store.write(name, version);
 		assert( writer.good() );
 		writer.write(contents.data(), contents.size());
-		writer.commit(true);
+		return writer.commit(true).digest();
+	}
+
+	template <class T1, class T2>
+	std::ostream& operator<<(std::ostream& outstream, const std::pair<T1,T2>& pear)
+	{
+		outstream << pear.first << "=" << pear.second;
+		return outstream;
 	}
 }
+#include "serialize/str_join.h"
 
 TEST_CASE( "FileStoreTest/testPaths", "[unit]" )
 {
@@ -278,17 +286,25 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
-	write_file(store, "foo", "0123456789");
-	write_file(store, "bar", "abcde");
-	write_file(store, "woo/hoo", "lmno");
+	std::map<string, unsigned long long> digests;
+
+	digests["foo"] = write_file(store, "foo", "0123456789");
+	digests["bar"] = write_file(store, "bar", "abcde");
+	digests["woo/hoo"] = write_file(store, "woo/hoo", "lmno");
 
 	std::vector<string> files;
-	auto fun = [&files] (const std::string& name) { files.push_back(name); return true; };
+	std::map<string, unsigned long long> actualDigests;
+	auto fun = [&files, &actualDigests] (const std::string& name, unsigned long long digest, const std::string& summary)
+	{
+		files.push_back(name + " =>" + summary);
+		actualDigests[name] = digest;
+		return true;
+	};
 	store.enumerate(fun, 100);
 
 	std::sort(files.begin(), files.end());
 	assertEquals( "bar => 5|1,increment:1\n"
 				  "foo => 10|1,increment:1\n"
 				  "woo/hoo => 4|1,increment:1", turbo::str::join(files, '\n') );
+	assertEquals( turbo::str::join(digests), turbo::str::join(actualDigests) );
 }
-

@@ -14,9 +14,9 @@ ListKeysCommand::ListKeysCommand(const IStore& store)
 {
 }
 
-bool ListKeysCommand::print_key(const std::string& report) const
+bool ListKeysCommand::print_key(const std::string& name, unsigned long long hash, const std::string& report) const
 {
-	if (!params.all && report.find(MEMBERSHIP_FILE_PREFIX) == 0)
+	if (!params.all && name.find(MEMBERSHIP_FILE_PREFIX) == 0)
 		return true;
 	if (!params.deleted)
 	{
@@ -30,7 +30,7 @@ bool ListKeysCommand::print_key(const std::string& report) const
 			return true;
 	}
 
-	string data = report + "\n";
+	string data = name + " =>" + report + "\n";
 	_stream->write(data.data(), data.size());
 	return true;
 }
@@ -40,7 +40,7 @@ bool ListKeysCommand::run(const char*, unsigned)
 	if (!_stream)
 		return false;
 
-	_store.enumerate(std::bind(&ListKeysCommand::print_key, this, _1), 1000);
+	_store.enumerate(std::bind(&ListKeysCommand::print_key, this, _1, _2, _3), 1000);
 	return true;
 }
 

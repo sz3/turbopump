@@ -14,7 +14,7 @@ public:
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
-	bool print_key(const std::string& report) const;
+	bool print_key(const std::string& name, unsigned long long hash, const std::string& report) const;
 
 protected:
 	const IStore& _store;

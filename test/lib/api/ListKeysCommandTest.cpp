@@ -32,9 +32,9 @@ TEST_CASE( "ListKeysCommandTest/testPrint", "[unit]" )
 	ListKeysCommand command(store);
 	command.setWriter(&stream);
 
-	command.print_key("one => 11|1,two:1");
-	command.print_key("nuked => 11|2,delete:1,two:1");
-	command.print_key(".membership/peer => 11|1,two:1");
+	command.print_key("one", 1, " 11|1,two:1");
+	command.print_key("nuked", 2, " 11|2,delete:1,two:1");
+	command.print_key(".membership/peer", 3, " 11|1,two:1");
 
 	assertEquals( "one => 11|1,two:1\n", stream.writeBuffer() );
 }
@@ -47,9 +47,9 @@ TEST_CASE( "ListKeysCommandTest/testDeleted", "[unit]" )
 	command.setWriter(&stream);
 	command.params.deleted = true;
 
-	command.print_key("one => 11|1,two:1");
-	command.print_key("nuked => 11|2,delete:1,two:1");
-	command.print_key(".membership/peer => 11|1,two:1");
+	command.print_key("one", 1, " 11|1,two:1");
+	command.print_key("nuked", 2, " 11|2,delete:1,two:1");
+	command.print_key(".membership/peer", 3, " 11|1,two:1");
 
 	assertEquals( "one => 11|1,two:1\n"
 				  "nuked => 11|2,delete:1,two:1\n", stream.writeBuffer() );
@@ -63,9 +63,9 @@ TEST_CASE( "ListKeysCommandTest/testAll", "[unit]" )
 	command.setWriter(&stream);
 	command.params.all = true;
 
-	command.print_key("one => 11|1,two:1");
-	command.print_key("nuked => 11|2,delete:1,two:1");
-	command.print_key(".membership/peer => 11|1,two:1");
+	command.print_key("one", 1, " 11|1,two:1");
+	command.print_key("nuked", 2, " 11|2,delete:1,two:1");
+	command.print_key(".membership/peer", 3, " 11|1,two:1");
 
 	assertEquals( "one => 11|1,two:1\n"
 				  ".membership/peer => 11|1,two:1\n", stream.writeBuffer() );
