@@ -14,7 +14,7 @@ ListKeysCommand::ListKeysCommand(const IStore& store)
 {
 }
 
-bool ListKeysCommand::print_key(const std::string& name, unsigned long long hash, const std::string& report) const
+bool ListKeysCommand::print_key(const std::string& name, const KeyMetadata&, const std::string& report) const
 {
 	if (!params.all && name.find(MEMBERSHIP_FILE_PREFIX) == 0)
 		return true;

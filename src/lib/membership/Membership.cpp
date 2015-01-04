@@ -191,11 +191,11 @@ void Membership::forEachPeer(std::function<void(const Peer&)> fun) const
 
 void Membership::syncToDataStore(IStore& store) const
 {
-	// TODO: this doesn't address the KeyTabulator!!
-	// crap is gonna be weird as a result.
 	auto fun = [&store] (const Peer& peer)
 	{
-		writestream writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid);
+		VectorClock version;
+		version.increment(peer.uid);
+		writestream writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid, version.toString(), 0);
 		string data = peer.address();
 		writer.write(data.data(), data.size());
 		writer.commit(true);

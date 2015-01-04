@@ -21,7 +21,7 @@ public:
 	std::vector<std::string> versions(const std::string& name, bool inprogress=false) const;
 	bool remove(const std::string& name);
 
-	void enumerate(const std::function<bool(const std::string&, unsigned long long, const std::string&)> callback, unsigned limit) const;
+	void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned limit) const;
 
 protected:
 	std::string dirpath(const std::string& name) const;

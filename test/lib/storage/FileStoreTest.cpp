@@ -294,10 +294,10 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 
 	std::vector<string> files;
 	std::map<string, unsigned long long> actualDigests;
-	auto fun = [&files, &actualDigests] (const std::string& name, unsigned long long digest, const std::string& summary)
+	auto fun = [&files, &actualDigests] (const std::string& name, const KeyMetadata& md, const std::string& summary)
 	{
 		files.push_back(name + " =>" + summary);
-		actualDigests[name] = digest;
+		actualDigests[name] = md.digest;
 		return true;
 	};
 	store.enumerate(fun, 100);
@@ -307,4 +307,77 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 				  "foo => 10|1,increment:1\n"
 				  "woo/hoo => 4|1,increment:1", turbo::str::join(files, '\n') );
 	assertEquals( turbo::str::join(digests), turbo::str::join(actualDigests) );
+}
+
+TEST_CASE( "FileStoreTest/testEnumerate.Detail", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+	readstream reader;
+	{
+		writestream writer = store.write("foo/foo/foo", "", 5);
+		writer.write("01234567", 8);
+		reader = writer.commit(true);
+	}
+
+	string actualName;
+	KeyMetadata actualMd;
+	string actualSummary;
+	auto fun = [&] (const std::string& name, const KeyMetadata& md, const std::string& summary)
+	{
+		actualName = name;
+		actualMd = md;
+		actualSummary = summary;
+		return true;
+	};
+	store.enumerate(fun, 100);
+
+	assertEquals( "foo/foo/foo", actualName );
+	assertEquals( " 8|1,increment:1", actualSummary );
+	assertEquals( reader.digest(), actualMd.digest );
+	assertEquals( 5, actualMd.totalCopies );
+}
+
+TEST_CASE( "FileStoreTest/testEnumerate.Conflict", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+	readstream readerOne;
+	{
+		VectorClock version;
+		version.increment("one");
+		writestream writer = store.write("foo", version.toString(), 0);
+		writer.write("01234567", 8);
+		readerOne = writer.commit(true);
+	}
+
+	readstream readerTwo;
+	{
+		VectorClock version;
+		version.increment("two");
+		writestream writer = store.write("foo", version.toString(), 0);
+		writer.write("abcdef", 6);
+		readerTwo = writer.commit(true);
+	}
+
+	string actualName;
+	KeyMetadata actualMd;
+	string actualSummary;
+	auto fun = [&] (const std::string& name, const KeyMetadata& md, const std::string& summary)
+	{
+		actualName = name;
+		actualMd = md;
+		actualSummary = summary;
+		return true;
+	};
+	store.enumerate(fun, 100);
+
+	assertEquals( "foo", actualName );
+	assertEquals( " 6|1,two:1 8|1,one:1", actualSummary );
+	assertEquals( (readerOne.digest() xor readerTwo.digest()), actualMd.digest );
+	assertEquals( 0, actualMd.totalCopies );
 }

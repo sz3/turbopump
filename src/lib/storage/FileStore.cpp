@@ -44,12 +44,13 @@ namespace {
 		return entries;
 	}
 
-	void mdFromString(KeyMetadata& md, const std::string& str)
+	bool mdFromString(KeyMetadata& md, const std::string& str)
 	{
 		if (str.empty())
-			return;
+			return false;
 		md.totalCopies = (unsigned char)str[0];
 		md.supercede = (str[1] == '1');
+		return true;
 	}
 
 	std::string mdToString(const KeyMetadata& md)
@@ -218,7 +219,7 @@ bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 	return true;
 }
 
-void FileStore::enumerate(const std::function<bool(const std::string&, unsigned long long, const std::string&)> callback, unsigned limit) const
+void FileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned limit) const
 {
 	int i = 0;
 	boost::filesystem::recursive_directory_iterator end;
@@ -229,7 +230,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&, unsigned 
 		if ( !boost::filesystem::is_directory(pa) )
 			continue;
 
-		unsigned long long digest = 0;
+		KeyMetadata md;
 		string report;
 		for (boost::filesystem::directory_iterator version_it(pa); version_it != dend; ++version_it)
 		{
@@ -238,7 +239,13 @@ void FileStore::enumerate(const std::function<bool(const std::string&, unsigned 
 			{
 				string vstr = vpath.filename().string();
 				unsigned long long size = boost::filesystem::file_size(vpath);
-				digest ^= writestream::digest(vstr, size);
+				if (report.empty())
+				{
+					FileReader reader(vpath.string());
+					if ( reader.good() )
+						mdFromString(md, reader.attribute("user.md"));
+				}
+				md.digest ^= writestream::digest(vstr, size);
 				report += " " + turbo::str::str(size) + "|" + vstr;
 			}
 		}
@@ -251,8 +258,8 @@ void FileStore::enumerate(const std::function<bool(const std::string&, unsigned 
 		else
 			filename = pa.filename().string();
 
-		// middle param == digest of file
-		callback(filename, digest, report);
+		// middle param == metadata. Version is nonsense, of course.
+		callback(filename, md, report);
 		if (++i >= limit)
 			break;
 	}

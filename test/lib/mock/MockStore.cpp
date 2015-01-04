@@ -67,7 +67,7 @@ bool MockStore::remove(const std::string& name)
 	return true;
 }
 
-void MockStore::enumerate(const std::function<bool(const std::string&, unsigned long long, const std::string&)> callback, unsigned limit) const
+void MockStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned limit) const
 {
 	_history.call("enumerate", limit);
 }

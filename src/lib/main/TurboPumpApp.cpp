@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "TurboPumpApp.h"
 
+#include "common/KeyMetadata.h"
 #include "membership/Peer.h"
 #include "user_server/UserPacketHandler.h"
 
@@ -52,6 +53,17 @@ void TurboPumpApp::run()
 		ConsistentHashRing& ring(_ring);
 		auto fun = [&ring] (const Peer& peer) { ring.insert(peer.uid, peer.uid); };
 		_membership.forEachPeer(fun);
+	}
+
+	if (_callbacks.active_sync)
+	{
+		KeyTabulator& keyTabulator(_keyTabulator);
+		auto fun = [&keyTabulator] (const std::string& name, const KeyMetadata& md, const std::string&)
+		{
+			keyTabulator.update(name, md.digest, md.totalCopies);
+			return true;
+		};
+		_fileStore.enumerate(fun, ~0UL);
 	}
 
 	// servers
