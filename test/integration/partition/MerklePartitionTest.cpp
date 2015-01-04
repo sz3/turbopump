@@ -108,18 +108,21 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
-	string response = cluster[1].query("membership");
-	assertEquals( "1 127.0.0.1:9001\n"
-				  "2 127.0.0.1:9002\n"
-				  "3 127.0.0.1:9003\n"
-				  "4 127.0.0.1:9004\n"
-				  "5 127.0.0.1:9005\n"
-				  "6 127.0.0.1:9006", response );
+	for (int i = 1; i <= 6; ++i)
+	{
+		string response = cluster[1].query("membership");
+		assertEquals( "1 127.0.0.1:9001\n"
+					  "2 127.0.0.1:9002\n"
+					  "3 127.0.0.1:9003\n"
+					  "4 127.0.0.1:9004\n"
+					  "5 127.0.0.1:9005\n"
+					  "6 127.0.0.1:9006", response );
+	}
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
 	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
-	response = cluster[1].query("ring");
+	string response = cluster[1].query("ring");
 	assertEquals(turbo::str::join(expected), response);
 
 	// write ONLY to worker 1.

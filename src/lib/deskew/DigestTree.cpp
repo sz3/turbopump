@@ -27,7 +27,6 @@ const TreeId& DigestTree::id() const
 void DigestTree::update(const std::string& key, unsigned long long value)
 {
 	// TODO: update merkle_tree::insert (or create alternate method) to allow updates to existing values!
-	// also, just improve the merkle_tree api in general... it works, now make the code less horrifying.
 
 	unsigned long long keyhash = Hash(key).integer();
 	merkle_tree<unsigned long long, unsigned long long, std::string>::pair pair = _tree.find(keyhash);
