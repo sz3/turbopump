@@ -96,7 +96,9 @@ const IDigestKeys& KeyTabulator::unwantedTree() const
 		++start;
 		--elems;
 	}
-	map_type::const_iterator it = Random::select(_forest.begin(), _forest.end(), elems);
+	if (start == _forest.end())
+		return DigestTree::null();
+	map_type::const_iterator it = Random::select(start, _forest.end(), elems);
 	return it->second->unwantedTree();
 }
 

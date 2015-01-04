@@ -47,7 +47,8 @@ bool WriteCommand::flush()
 
 	// TODO: vvvvvvvvvvvvv
 	_instructions.digest = reader.digest();
-	_instructions.offset = _writer.position();
+	if (_writer.good())
+		_instructions.offset = _writer.position();
 	_bytesSinceLastFlush = 0;
 	return true;
 }
