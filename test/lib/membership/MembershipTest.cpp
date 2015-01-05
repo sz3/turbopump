@@ -5,6 +5,7 @@
 
 #include "Peer.h"
 #include "common/turbopump_defaults.h"
+#include "common/VectorClock.h"
 #include "file/FileRemover.h"
 #include "mock/MockStore.h"
 #include "serialize/str_join.h"
@@ -166,7 +167,9 @@ TEST_CASE( "MembershipTest/testSyncToDataStore", "[unit]" )
 	store._writer = new MockStoreWriter();
 	membership.syncToDataStore(store);
 
-	assertEquals( "write(.membership/fooid,,0)", store._history.calls() );
+	VectorClock version;
+	version.increment("fooid");
+	assertEquals( "write(.membership/fooid," + version.toString() + ",0)", store._history.calls() );
 	assertEquals( "write(1.2.3.4)|flush()|close()|reader()", MockStoreWriter::calls() );
 }
 

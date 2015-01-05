@@ -145,7 +145,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 			   "6 => 7|1,1:1" == response;
 	});
 
-	wait_for(40, response, [&]()
+	wait_for(60, response, [&]()
 	{
 		response = cluster[2].local_list();
 		return "2 => 7|1,1:1\n"
@@ -161,7 +161,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 			   "5 => 7|1,1:1" == response;
 	});
 
-	wait_for(20, response, [&]()
+	wait_for(40, response, [&]()
 	{
 		response = cluster[4].local_list();
 		return "1 => 7|1,1:1\n"
@@ -169,7 +169,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 			   "5 => 7|1,1:1" == response;
 	});
 
-	wait_for(20, response, [&]()
+	wait_for(40, response, [&]()
 	{
 		response = cluster[5].local_list();
 		return "1 => 7|1,1:1\n"
@@ -177,7 +177,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 			   "6 => 7|1,1:1" == response;
 	});
 
-	wait_for(20, response, [&]()
+	wait_for(40, response, [&]()
 	{
 		response = cluster[6].local_list();
 		return "2 => 7|1,1:1\n"
