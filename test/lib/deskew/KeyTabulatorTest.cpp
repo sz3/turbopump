@@ -129,6 +129,74 @@ TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted.Exclude", "[unit]" )
 	}
 }
 
+TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted.0", "[unit]" )
+{
+	MockLocateKeys locator;
+	KeyTabulator index(locator);
+
+	locator._locations.push_back("fooid");
+	locator._mine = false;
+	index.update("wanted1", 0, 0);
+
+	{
+		const IDigestKeys& tree = index.randomTree();
+		assertFalse( tree.empty() );
+		assertEquals( "", tree.id().id );
+		assertEquals( 0, tree.id().mirrors );
+	}
+
+
+	{
+		const IDigestKeys& tree = index.unwantedTree();
+		assertTrue( tree.empty() );
+		assertEquals( "", tree.id().id );
+	}
+}
+
+TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted.0_1", "[unit]" )
+{
+	MockLocateKeys locator;
+	KeyTabulator index(locator);
+
+	locator._locations.push_back("fooid");
+	locator._mine = false;
+	index.update("wanted1", 0, 0);
+	index.update("unwanted1", 0, 1);
+
+	{
+		const IDigestKeys& tree = index.randomTree();
+		assertFalse( tree.empty() );
+		assertEquals( "", tree.id().id );
+		assertEquals( 0, tree.id().mirrors );
+	}
+
+
+	{
+		const IDigestKeys& tree = index.unwantedTree();
+		assertFalse( tree.empty() );
+		assertEquals( "fooid", tree.id().id );
+		assertEquals( 1, tree.id().mirrors );
+	}
+}
+
+TEST_CASE( "KeyTabulatorTest/testUnwanted.0_3", "[unit]" )
+{
+	MockLocateKeys locator;
+	KeyTabulator index(locator);
+
+	locator._locations.push_back("fooid");
+	locator._mine = false;
+	index.update("wanted1", 0, 0);
+	index.update("unwanted1", 0, 3);
+
+	{
+		const IDigestKeys& tree = index.unwantedTree();
+		assertFalse( tree.empty() );
+		assertEquals( "fooid", tree.id().id );
+		assertEquals( 3, tree.id().mirrors );
+	}
+}
+
 TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 {
 	MockLocateKeys locator;
