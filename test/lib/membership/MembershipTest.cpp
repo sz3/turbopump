@@ -173,3 +173,20 @@ TEST_CASE( "MembershipTest/testSyncToDataStore", "[unit]" )
 	assertEquals( "write(1.2.3.4)|flush()|close()|reader()", MockStoreWriter::calls() );
 }
 
+
+TEST_CASE( "MembershipTest/testSyncToDataStore.empty", "[unit]" )
+{
+	FileRemover remover(_myfile);
+	Membership membership(_myfile, "localhost:1337");
+	membership.add("fooid");
+	membership.addIp("1.2.3.4", "fooid");
+
+	MockStore store;
+	membership.syncToDataStore(store);
+
+	VectorClock version;
+	version.increment("fooid");
+	assertEquals( "write(.membership/fooid," + version.toString() + ",0)", store._history.calls() );
+	assertEquals( "", MockStoreWriter::calls() );
+}
+

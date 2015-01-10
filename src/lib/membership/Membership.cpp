@@ -196,9 +196,12 @@ void Membership::syncToDataStore(IStore& store) const
 		VectorClock version;
 		version.increment(peer.uid);
 		writestream writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid, version.toString(), 0);
-		string data = peer.address();
-		writer.write(data.data(), data.size());
-		writer.commit(true);
+		if (writer)
+		{
+			string data = peer.address();
+			writer.write(data.data(), data.size());
+			writer.commit(true);
+		}
 	};
 	forEachPeer(fun);
 }
