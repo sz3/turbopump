@@ -13,12 +13,13 @@ public:
 	std::string dataChannel() const;
 
 	void start();
-	void stop();
+	bool stop(unsigned retries=0);
 
 	std::string query(std::string action, std::string params="") const;
 	std::string post(std::string action, std::string params="", std::string body="") const;
 	std::string local_list(std::string params="") const;
 	bool waitForRunning(unsigned seconds=5) const;
+	bool waitForState(std::string state, unsigned seconds=5) const;
 
 	std::string write(std::string name, std::string data, std::string params="");
 	static std::string headerForWrite(std::string name, unsigned contentLength, std::string params="");

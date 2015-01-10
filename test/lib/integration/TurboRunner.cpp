@@ -48,13 +48,22 @@ string TurboRunner::dataChannel() const
 void TurboRunner::start()
 {
 	string command = ("cd " + _workingDir + " && " + exePath + " -p " + str(_port) + " -d " + _dataChannel + " " + _programFlags + " &");
+	//std::cout << " starting " << command << std::endl;
 	int res = system(command.c_str());
 }
 
-void TurboRunner::stop()
+bool TurboRunner::stop(unsigned retries)
 {
 	string command = "kill `ps faux | grep 'turbopump ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
-	int res = system(command.c_str());
+	for (unsigned i = 0; i < retries; ++i)
+	{
+		int res = system(command.c_str());
+		if (res == 0)
+			return true;
+		//std::cout << "stop " << i << " (" << command << ") returned " << res << std::endl;
+		CommandLine::run("sleep 1");
+	}
+	return false;
 }
 
 std::string TurboRunner::query(std::string action, std::string params) const
@@ -83,15 +92,20 @@ std::string TurboRunner::local_list(std::string params) const
 
 bool TurboRunner::waitForRunning(unsigned seconds) const
 {
+	return waitForState("running", seconds);
+}
+
+bool TurboRunner::waitForState(std::string state, unsigned seconds) const
+{
 	turbo::stopwatch t;
 	while (t.millis() < seconds*1000)
 	{
 		string response = query("status");
-		if (response == "running")
+		if (response == state)
 			return true;
-		std::cout << response << std::endl;
 		CommandLine::run("sleep 0.25");
 	}
+	std::cout << "waitForState '" << state << "' failed after " << seconds << "s" << std::endl;
 	return false;
 }
 

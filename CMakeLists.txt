@@ -50,8 +50,9 @@ set (PROJECTS
    test/integration/standup
    test/integration/versioning
    test/integration/deletes
-   test/integration/dynamic_membership
    test/integration/load
+   test/integration/persistence
+   test/integration/dynamic_membership
    test/integration/partition
 
    test/lib/integration
