@@ -186,6 +186,42 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	});
 }
 
+TEST_CASE( "MerklePartitionTest/testDualSync", "[integration-udp]" )
+{
+	TurboCluster cluster(3, "--udp --no-write-chaining");
+	cluster.start();
+	assertMsg( cluster.waitForRunning(), cluster.lastError() );
+
+	// write files to running worker
+	string response = cluster[1].write("foo", "hello!", "copies=0");
+	assertEquals( "200", response );
+
+	response = cluster[1].write("bar", "bar?", "copies=3");
+	assertEquals( "200", response );
+
+	// wait for files to propagate
+	wait_for(5, response, [&]()
+	{
+		response = cluster[1].local_list();
+		return "bar => 4|1,1:1\n"
+			   "foo => 6|1,1:1" == response;
+	});
+
+	wait_for(60, response, [&]()
+	{
+		response = cluster[2].local_list();
+		return "bar => 4|1,1:1\n"
+			   "foo => 6|1,1:1" == response;
+	});
+
+	wait_for(60, response, [&]()
+	{
+		response = cluster[3].local_list();
+		return "bar => 4|1,1:1\n"
+			   "foo => 6|1,1:1" == response;
+	});
+}
+
 
 TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 {

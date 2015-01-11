@@ -37,7 +37,7 @@ TEST_CASE( "RestartTest/testSync", "[integration-udp]" )
 			   "foo => 6|1,1:1" == response;
 	});
 
-	wait_for(60, response, [&]()
+	wait_for(20, response, [&]()
 	{
 		response = cluster[2].local_list();
 		return "bar => 4|1,1:1" == response;
