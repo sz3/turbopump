@@ -219,6 +219,27 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey", "default" )
 	assertEquals( "", membership._history.calls() );
 }
 
+TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey.Almost", "default" )
+{
+	MockConsistentHashRing ring;
+	MockMembership membership;
+	MockKeyTabulator index;
+	MockMessageSender messenger;
+	MockSkewCorrector corrector;
+	MockLogger logger;
+
+	index._tree._diff.push_back( whatsThePoint(64) );
+
+	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
+	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(64, 5));
+
+	assertEquals( "find(oak,3)", index._history.calls() );
+	assertEquals( "diff(64 5 640)", index._tree._history.calls() );
+	assertEquals( "", corrector._history.calls() );
+	assertEquals( "requestKeyRange(fooid,oak,64,18446744073709551431)", messenger._history.calls() );
+	assertEquals( "", membership._history.calls() );
+}
+
 TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 {
 	MockConsistentHashRing ring;

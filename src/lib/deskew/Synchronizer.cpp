@@ -87,6 +87,9 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 	if (diffs.empty())
 		return;
 
+	/*_logger.logDebug("diff count for " + MerklePointSerializer::toString(point) + ": " + turbo::str::str(diffs.size()));
+	for (const MerklePoint& diff : diffs)
+		_logger.logDebug(MerklePointSerializer::toString(diff));*/
 	if (diffs.size() == 1)
 	{
 		MerklePoint& diff = diffs.front();
@@ -103,19 +106,18 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 		 *     c) we have conflicting values for the same key
 		 */
 
-
 		if (diff == MerklePoint::null())
 			_messenger.requestKeyRange(peer, treeid, 0, ~0ULL);
 		else if (diff.location.keybits == 64)
 		{
 			// if keys are equal, we need to heal
-			if (diff.location.key == point.location.key)
+			if (diff.location == point.location)
 			{
 				// send healKey packet to trigger complement check
 				_messenger.requestHealKey(peer, treeid, diff.location.key);
 				_corrector.healKey(peer, treeid, diff.location.key);
 			}
-			else // if keys are not, we don't have the branch
+			else // we're missing a branch. This will try to send us one too many keys (the one already at diff.location) but the duplicate write will be rejected... so who cares?
 			{
 				KeyRange range(point.location);
 				_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
