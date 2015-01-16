@@ -7,6 +7,8 @@
 #include "writestream.h"
 #include "common/MyMemberId.h"
 #include "file/File.h"
+#include "serialize/str.h"
+#include "serialize/str_join.h"
 
 #include <boost/filesystem.hpp>
 #include <algorithm>
@@ -17,6 +19,7 @@
 using std::shared_ptr;
 using std::string;
 using std::vector;
+using namespace turbo::str;
 
 namespace {
 	string _test_dir = "turbo_fs_test";
@@ -377,7 +380,7 @@ TEST_CASE( "FileStoreTest/testEnumerate.Conflict", "[unit]" )
 	store.enumerate(fun, 100);
 
 	assertEquals( "foo", actualName );
-	assertEquals( " 6|1,two:1 8|1,one:1", actualSummary );
+	assertEquals( "6|1,two:1 8|1,one:1", join(sort(split(actualSummary, ' ', true)), ' ') );
 	assertEquals( (readerOne.digest() xor readerTwo.digest()), actualMd.digest );
 	assertEquals( 0, actualMd.totalCopies );
 }
