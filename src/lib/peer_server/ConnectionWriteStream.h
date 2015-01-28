@@ -16,6 +16,8 @@ public:
 	int write(const char* buffer, unsigned length);
 	bool flush();
 
+	ISocketWriter* writer() const;
+
 protected:
 	std::shared_ptr<ISocketWriter> _writer;
 	bool _blocking;

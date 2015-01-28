@@ -46,3 +46,8 @@ std::string MultiplexedSocketWriter::target() const
 {
 	return _writer->target();
 }
+
+int MultiplexedSocketWriter::handle() const
+{
+	return _writer->handle();
+}

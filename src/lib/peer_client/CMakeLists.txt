@@ -3,11 +3,14 @@ cmake_minimum_required(VERSION 2.6)
 set(SOURCES
 	IMessagePacker.h
 	IMessageSender.h
+	IPartialTransfers.h
 	ISuperviseWrites.h
 	MessagePacker.cpp
 	MessagePacker.h
 	MessageSender.cpp
 	MessageSender.h
+	PartialTransfers.cpp
+	PartialTransfers.h
 	WriteSupervisor.cpp
 	WriteSupervisor.h
 )

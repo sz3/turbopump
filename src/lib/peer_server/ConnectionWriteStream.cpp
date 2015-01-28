@@ -26,3 +26,8 @@ bool ConnectionWriteStream::flush()
 {
 	return _writer->flush(_blocking);
 }
+
+ISocketWriter* ConnectionWriteStream::writer() const
+{
+	return _writer.get();
+}

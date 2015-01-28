@@ -19,6 +19,7 @@ public:
 
 	socket_address endpoint() const;
 	std::string target() const;
+	int handle() const;
 
 protected:
 	unsigned char _muxid;

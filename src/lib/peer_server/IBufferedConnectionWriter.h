@@ -14,4 +14,5 @@ public:
 	virtual bool close() = 0;
 
 	virtual std::string target() const = 0;
+	virtual int handle() const = 0;
 };

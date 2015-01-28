@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "WriteSupervisor.h"
 
+#include "IPartialTransfers.h"
 #include "api/WriteInstructions.h"
 #include "membership/Peer.h"
 #include "peer_client/IMessagePacker.h"
@@ -25,9 +26,11 @@ namespace {
 	}
 }
 
-WriteSupervisor::WriteSupervisor(const IMessagePacker& packer, ISocketServer& server)
+WriteSupervisor::WriteSupervisor(const IMessagePacker& packer, IPartialTransfers& transfers, ISocketServer& server, const IStore& store)
 	: _packer(packer)
+	, _transfers(transfers)
 	, _server(server)
+	, _store(store)
 {
 }
 
@@ -56,6 +59,11 @@ std::shared_ptr<ConnectionWriteStream> WriteSupervisor::open(const Peer& peer, c
 	return conn;
 }
 
+// only write on as WriteAction callback until we hit our initial failure.
+// from that point on, the cleanup (PartialTransfers) will take over ownership of the connectionwritestream
+// there is a race condition where we don't finish writing the file before partialtransfers finishes his work,
+// but that should (hopefully) be rare.
+// TODO: find some way to defer back to the WriteAction thread for that corner case.
 bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents)
 {
 	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
@@ -89,6 +97,11 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 
 		// here, we load PartialTransfers with the WriteInstructions and maybe reader. (we might make him go get it out of the DataStore...)
 		std::cout << "write of " << write.name << " blew up after " << bytesWrit << " bytes" << std::endl;
+		WriteInstructions rewrite(write);
+		rewrite.isComplete = true;
+		rewrite.offset = bytesWrit;
+		_transfers.add( *conn.writer(), std::bind(&WriteSupervisor::resume, this, rewrite) );
+		// schedule again
 		return false;
 	}
 
@@ -98,4 +111,15 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 		conn.flush();
 	}
 	return true;
+}
+
+// perhaps rely on readstream to determine completeness rather than isComplete flag?
+// that way we wouldn't have to guess...
+bool WriteSupervisor::resume(const WriteInstructions& write)
+{
+	readstream reader = _store.read(write.name, write.version);
+	if (!reader)
+		return true; // we're done.
+
+	return store(*write.outstream, write, reader);
 }

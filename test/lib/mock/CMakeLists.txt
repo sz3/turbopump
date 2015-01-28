@@ -23,6 +23,7 @@ set(SOURCES
 	MockMessageSender.h
 	MockMirrorToPeer.cpp
 	MockMirrorToPeer.h
+	MockPartialTransfers.h
 	MockPeerCommandCenter.cpp
 	MockPeerCommandCenter.h
 	MockProcessState.cpp

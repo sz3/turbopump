@@ -57,6 +57,7 @@ namespace {
 
 		socket_address endpoint() const { return socket_address(); }
 		string target() const { return "special"; }
+		int handle() const { return 3; }
 
 	public:
 		mutable int _blockingWriters;

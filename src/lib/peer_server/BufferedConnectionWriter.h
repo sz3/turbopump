@@ -21,6 +21,7 @@ public:
 	bool close();
 
 	std::string target() const;
+	int handle() const;
 
 protected:
 	void pushBytes(unsigned char virtid, const char* buff, unsigned length);
@@ -169,4 +170,10 @@ template <typename Socket>
 std::string BufferedConnectionWriter<Socket>::target() const
 {
 	return _sock.target();
+}
+
+template <typename Socket>
+int BufferedConnectionWriter<Socket>::handle() const
+{
+	return _sock.handle();
 }

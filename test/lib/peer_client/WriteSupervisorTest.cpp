@@ -6,7 +6,9 @@
 #include "api/WriteInstructions.h"
 #include "common/KeyMetadata.h"
 #include "membership/Peer.h"
+#include "mock/MockPartialTransfers.h"
 #include "mock/MockRequestPacker.h"
+#include "mock/MockStore.h"
 #include "peer_server/ConnectionWriteStream.h"
 #include "storage/readstream.h"
 #include "storage/StringReader.h"
@@ -36,8 +38,10 @@ namespace {
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 {
 	MockRequestPacker packer;
+	MockPartialTransfers transfers;
 	MockSocketServer server;
-	WriteSupervisor client(packer, server);
+	MockStore store;
+	WriteSupervisor client(packer, transfers, server, store);
 
 	// input
 	readstream reader(new StringReader("contents"), KeyMetadata());
@@ -68,8 +72,10 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 {
 	MockRequestPacker packer;
+	MockPartialTransfers transfers;
 	MockSocketServer server;
-	WriteSupervisor client(packer, server);
+	MockStore store;
+	WriteSupervisor client(packer, transfers, server, store);
 
 	// input
 	readstream reader(new StringReader("contents"), KeyMetadata());
@@ -98,8 +104,10 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 {
 	MockRequestPacker packer;
+	MockPartialTransfers transfers;
 	MockSocketServer server;
-	WriteSupervisor client(packer, server);
+	MockStore store;
+	WriteSupervisor client(packer, transfers, server, store);
 
 	// input
 	readstream reader(new StringReader("contents"), KeyMetadata());
@@ -130,8 +138,10 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 {
 	MockRequestPacker packer;
+	MockPartialTransfers transfers;
 	MockSocketServer server;
-	WriteSupervisor client(packer, server);
+	MockStore store;
+	WriteSupervisor client(packer, transfers, server, store);
 
 	// input
 	readstream reader(new StringReader("contents"), KeyMetadata());
@@ -151,8 +161,10 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 {
 	MockRequestPacker packer;
+	MockPartialTransfers transfers;
 	MockSocketServer server;
-	WriteSupervisor client(packer, server);
+	MockStore store;
+	WriteSupervisor client(packer, transfers, server, store);
 
 	// input
 	readstream reader(new StringReader("contents"), KeyMetadata());
@@ -174,8 +186,10 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 {
 	MockRequestPacker packer;
+	MockPartialTransfers transfers;
 	MockSocketServer server;
-	WriteSupervisor client(packer, server);
+	MockStore store;
+	WriteSupervisor client(packer, transfers, server, store);
 
 	// input
 	readstream reader(new StringReader("0123456789abcdeABCDEturtle", 10), KeyMetadata());
@@ -196,8 +210,10 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 {
 	MockRequestPacker packer;
+	MockPartialTransfers transfers;
 	MockSocketServer server;
-	WriteSupervisor client(packer, server);
+	MockStore store;
+	WriteSupervisor client(packer, transfers, server, store);
 
 	// input
 	readstream reader(new StringReader("0123456789abcdeABCDE", 10), KeyMetadata());

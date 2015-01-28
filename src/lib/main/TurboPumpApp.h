@@ -16,6 +16,7 @@
 #include "membership/Membership.h"
 #include "peer_client/MessagePacker.h"
 #include "peer_client/MessageSender.h"
+#include "peer_client/PartialTransfers.h"
 #include "peer_client/WriteSupervisor.h"
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
@@ -56,6 +57,7 @@ protected:
 	// thread scheduling and helpers
 	MessagePacker _packer;
 	MessageSender _messenger;
+	PartialTransfers _partialTransfers;
 	WriteSupervisor _writeSupervisor;
 	SchedulerThread _scheduler;
 
@@ -65,8 +67,10 @@ protected:
 	LocateKeys _keyLocator;
 	FileStore _fileStore;
 
-	// servers!
+	// external server!
 	LocalStreamSocketServer _localServer;
+
+	// internal server!
 	MultiThreadedExecutor _peerExecutor;
 	//SimpleExecutor _peerExecutor;
 	ConcurrentCommandCenter _peerCenter;

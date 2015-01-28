@@ -58,6 +58,9 @@ inline unsigned long long writestream::position() const
 	return _writer->position();
 }
 
+// perhaps we hold onto + maintain an offset, and pass it along on every _writer->write() call?
+// underlying writer would handle seek()-y behavior (obviously, he could be smart about it an not seek if he doesn't need to)
+// would allow us to handle out of order writes transparently.
 inline int writestream::write(const char* buffer, unsigned length)
 {
 	return _writer->write(buffer, length);
