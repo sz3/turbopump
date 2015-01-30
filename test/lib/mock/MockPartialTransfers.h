@@ -11,6 +11,7 @@ public:
 	void add(ISocketWriter& writer, const std::function<bool()>& fun)
 	{
 		_history.call("add", writer.target());
+		_capturedFun = fun;
 	}
 
 	bool run(ISocketWriter& writer)
@@ -21,4 +22,6 @@ public:
 
 public:
 	CallHistory _history;
+
+	std::function<bool()> _capturedFun;
 };

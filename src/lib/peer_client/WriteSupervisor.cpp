@@ -92,11 +92,6 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 
 	if (wrote == -1)
 	{
-		// TODO: event trigger on socket underneath BufferedConnectionWriter. Only is triggered if work is pending...
-		//   when trigger goes, we look in PartialTransfers for work to do involving said peer.
-
-		// here, we load PartialTransfers with the WriteInstructions and maybe reader. (we might make him go get it out of the DataStore...)
-		std::cout << "write of " << write.name << " blew up after " << bytesWrit << " bytes" << std::endl;
 		WriteInstructions rewrite(write);
 		rewrite.isComplete = true;
 		rewrite.offset = bytesWrit;

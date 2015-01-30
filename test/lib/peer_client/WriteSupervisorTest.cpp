@@ -232,3 +232,108 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 				  "|send(0123456789)|send(abcdeABCDE)|send()|flush(true)", writer->_history.calls() );
 }
 
+namespace {
+	class TestableWriteSupervisor : public WriteSupervisor
+	{
+	public:
+		using WriteSupervisor::WriteSupervisor;
+		using WriteSupervisor::resume;
+	};
+
+	class BadReader : public IReader
+	{
+	public:
+		bool good() const
+		{
+			return true;
+		}
+
+		unsigned long long size() const
+		{
+			return 10;
+		}
+
+		bool setPosition(unsigned long long offset)
+		{
+			_history.call("setPosition", offset);
+			return 0;
+		}
+
+		int stream(IByteStream& sink)
+		{
+			_history.call("stream");
+			_bytes += 5;
+			if (_bytes >= 10)
+				return -1; // one "good" write, then... kaboom!
+			return _bytes;
+		}
+
+	public:
+		CallHistory _history;
+		int _bytes = 0;
+	};
+}
+
+TEST_CASE( "WriteSupervisorTest/testRewrite", "[unit]" )
+{
+	MockRequestPacker packer;
+	MockPartialTransfers transfers;
+	MockSocketServer server;
+	MockStore store;
+	store._reads["file"] = "contents";
+	TestableWriteSupervisor client(packer, transfers, server, store);
+
+	// output
+	MockSocketWriter* writer = new MockSocketWriter();
+	server._sock.reset(writer);
+
+	WriteInstructions params("file","v1",2,3);
+	params.isComplete = true;
+	params.outstream.reset(new ConnectionWriteStream(server._sock, false));
+	assertTrue( client.resume(params) );
+
+	assertEquals( "try_send(contents)|try_send()|flush(false)", writer->_history.calls() );
+	assertEquals( "", server._history.calls() );
+	assertEquals( "", packer._history.calls() );
+}
+
+TEST_CASE( "WriteSupervisorTest/testWrite.ScheduleRewrite", "[unit]" )
+{
+	MockRequestPacker packer;
+	MockPartialTransfers transfers;
+	MockSocketServer server;
+	MockStore store;
+	TestableWriteSupervisor client(packer, transfers, server, store);
+
+	// input
+	BadReader* meReader = new BadReader();
+	readstream reader(meReader, KeyMetadata());
+
+	// output
+	MockSocketWriter* writer = new MockSocketWriter();
+	server._sock.reset(writer);
+
+	WriteInstructions params("file","v1",2,3);
+	params.isComplete = true;
+	params.outstream.reset(new ConnectionWriteStream(server._sock, false));
+	assertFalse( client.store(*params.outstream, params, reader) );
+
+	assertEquals( "target()", writer->_history.calls() );
+	assertEquals( "stream()|stream()", meReader->_history.calls() );
+	assertEquals( "add()", transfers._history.calls() );
+
+	writer->_history.clear();
+	meReader->_history.clear();
+	transfers._history.clear();
+
+	// fire the transfers callback. Should be a WriteInstructions::resume()
+	store._reads["file"] = "contents";
+	transfers._capturedFun();
+
+	assertEquals( "try_send(contents)|try_send()|flush(false)", writer->_history.calls() );
+	assertEquals( "", meReader->_history.calls() );
+	assertEquals( "", transfers._history.calls() );
+	assertEquals( "", server._history.calls() );
+	assertEquals( "", packer._history.calls() );
+}
+
