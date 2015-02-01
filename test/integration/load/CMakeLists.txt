@@ -4,6 +4,7 @@ project(load_test)
 
 set (SOURCES
 	test.cpp
+	BigFileTest.cpp
 	ReadWriteLoadTest.cpp
 )
 
@@ -25,11 +26,13 @@ target_link_libraries(load_test
 	hashing
 	membership
 	integration
+	storage
 
 	command_line
 	file
 	http
 	serialize
+	socket
 -Wl,--end-group
 
 	boost_filesystem
