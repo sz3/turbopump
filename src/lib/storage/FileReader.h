@@ -6,8 +6,9 @@
 class FileReader : public IReader
 {
 public:
-	FileReader(int fd);
+	FileReader(int fd = -1);
 	FileReader(const std::string& filename, unsigned long long offset=0);
+	bool open(const std::string& filename, unsigned long long offset=0);
 	~FileReader();
 
 	bool good() const;
@@ -18,7 +19,6 @@ public:
 	int stream(IByteStream& sink);
 
 protected:
-	bool open(const std::string& filename, unsigned long long offset);
 	void close();
 
 protected:

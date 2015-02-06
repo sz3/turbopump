@@ -13,16 +13,15 @@ class PartialTransfers : public IPartialTransfers
 public:
 	PartialTransfers(ISocketServer& server);
 
-	void add(ISocketWriter& writer, const std::function<bool()>& fun);
-	bool run(ISocketWriter& writer);
+	void add(int id, const std::function<bool()>& fun);
+	bool run(int id);
 
 protected:
-	bool empty(uintptr_t id) const;
-	bool empty_unlocked(uintptr_t id) const;
+	bool empty(int id) const;
 
 protected:
 	ISocketServer& _server;
 
 	mutable std::mutex _mutex;
-	std::map< uintptr_t, std::deque<std::function<bool()>> > _transfers;
+	std::map< int, std::deque<std::function<bool()>> > _transfers;
 };

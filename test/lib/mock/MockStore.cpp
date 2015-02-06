@@ -20,7 +20,7 @@ writestream MockStore::write(const std::string& name, const std::string& version
 	return writestream(writer, md);
 }
 
-readstream MockStore::read(const std::string& name, const std::string& version) const
+readstream MockStore::read(const std::string& name, const std::string& version, bool inprogress) const
 {
 	_history.call("read", name, version);
 	KeyMetadata md;

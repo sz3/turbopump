@@ -2,13 +2,12 @@
 #pragma once
 
 #include <functional>
-class ISocketWriter;
 
 class IPartialTransfers
 {
 public:
 	virtual ~IPartialTransfers() {}
 
-	virtual void add(ISocketWriter& writer, const std::function<bool()>& fun) = 0;
-	virtual bool run(ISocketWriter& writer) = 0;
+	virtual void add(int id, const std::function<bool()>& fun) = 0;
+	virtual bool run(int id) = 0;
 };

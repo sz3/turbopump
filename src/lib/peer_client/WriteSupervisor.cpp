@@ -11,8 +11,8 @@
 #include "storage/readstream.h"
 
 #include "socket/ISocketServer.h"
+#include "socket/ISocketWriter.h"
 #include "socket/socket_address.h"
-#include <iostream>
 #include <memory>
 using std::string;
 using std::shared_ptr;
@@ -64,12 +64,13 @@ std::shared_ptr<ConnectionWriteStream> WriteSupervisor::open(const Peer& peer, c
 // there is a race condition where we don't finish writing the file before partialtransfers finishes his work,
 // but that should (hopefully) be rare.
 // TODO: find some way to defer back to the WriteAction thread for that corner case.
-bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents)
+bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents, bool background)
 {
-	// TODO: we can expect this read loop to fail at some point when EnsureDelivery is false.
-	//  introduce PartialTransfers object (inside BufferedConnectionWriter?) to hold onto readstreams
-	//  and our transfer progress (bytesWrit)
-	//
+	// we can expect this read loop to fail at some point when EnsureDelivery is false.
+	//  when it does, transfer control shifts to the background/cleanup thread.
+	//  if we're not on it, bail out.
+	if (conn.background() and !background)
+		return false;
 
 	// need effective way to handle failed mirror_write() calls.
 	//  have PartialTransfers hold send buffers?
@@ -90,12 +91,14 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 	while ((wrote = contents.stream(conn)) > 0)
 		bytesWrit += wrote;
 
-	if (wrote == -1)
+	if (wrote == -1 || conn.full())
 	{
+		conn.setBackground(true);
+
 		WriteInstructions rewrite(write);
 		rewrite.isComplete = true;
-		rewrite.offset = bytesWrit;
-		_transfers.add( *conn.writer(), std::bind(&WriteSupervisor::resume, this, rewrite) );
+		rewrite.offset += bytesWrit;
+		_transfers.add( conn.writer()->handle(), std::bind(&WriteSupervisor::resume, this, rewrite) );
 		// schedule again
 		return false;
 	}
@@ -112,9 +115,10 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 // that way we wouldn't have to guess...
 bool WriteSupervisor::resume(const WriteInstructions& write)
 {
-	readstream reader = _store.read(write.name, write.version);
+	// read won't work if the write is in progress...
+	readstream reader = _store.read(write.name, write.version, false);
 	if (!reader)
 		return true; // we're done.
 
-	return store(*write.outstream, write, reader);
+	return store(*write.outstream, write, reader, true);
 }

@@ -13,7 +13,7 @@ public:
 	bool store(const Peer& peer, const WriteInstructions& write, readstream& contents);
 
 	std::shared_ptr<ConnectionWriteStream> open(const Peer& peer, const WriteInstructions& write, bool blocking);
-	bool store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents);
+	bool store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents, bool background);
 
 public:
 	CallHistory _history;

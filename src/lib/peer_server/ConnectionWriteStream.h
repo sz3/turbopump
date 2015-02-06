@@ -16,9 +16,16 @@ public:
 	int write(const char* buffer, unsigned length);
 	bool flush();
 
+	bool full() const;
+	void setBackground(bool background);
+	bool background() const;
+
 	ISocketWriter* writer() const;
 
 protected:
 	std::shared_ptr<ISocketWriter> _writer;
 	bool _blocking;
+
+	bool _full;
+	bool _background;
 };

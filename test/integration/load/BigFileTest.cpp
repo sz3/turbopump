@@ -35,7 +35,7 @@ namespace {
 
 TEST_CASE( "BigFileTest/testWrite", "disk" )
 {
-	TurboCluster cluster(2, "--clone");
+	TurboCluster cluster(3, "--clone");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
@@ -65,9 +65,14 @@ TEST_CASE( "BigFileTest/testWrite", "disk" )
 	assertEquals( expected, cluster[1].local_list() );
 
 	string response;
-	wait_for(5, expected + " != " + response, [&]()
+	wait_for(8, expected + " != " + response, [&]()
 	{
 		response = cluster[2].local_list();
+		return expected == response;
+	});
+	wait_for(8, expected + " != " + response, [&]()
+	{
+		response = cluster[3].local_list();
 		return expected == response;
 	});
 }

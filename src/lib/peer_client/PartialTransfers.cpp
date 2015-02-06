@@ -9,16 +9,16 @@ PartialTransfers::PartialTransfers(ISocketServer& server)
 {
 }
 
-void PartialTransfers::add(ISocketWriter& writer, const std::function<bool()>& fun)
+void PartialTransfers::add(int id, const std::function<bool()>& fun)
 {
 	{
 		mutex_lock lock(_mutex);
-		_transfers[reinterpret_cast<uintptr_t>(&writer)].push_back(fun);
+		_transfers[id].push_back(fun);
 	}
-	_server.waitForWriter(writer);
+	_server.waitForWriter(id);
 }
 
-bool PartialTransfers::empty(uintptr_t id) const
+bool PartialTransfers::empty(int id) const
 {
 	mutex_lock lock(_mutex);
 	auto it = _transfers.find(id);
@@ -27,10 +27,8 @@ bool PartialTransfers::empty(uintptr_t id) const
 
 // true == done (for now)
 // false == more work to do
-bool PartialTransfers::run(ISocketWriter& writer)
+bool PartialTransfers::run(int id)
 {
-	// mutex plz
-	uintptr_t id = reinterpret_cast<uintptr_t>(&writer);
 	while ( !empty(id) )
 	{
 		std::function<bool()> fun;

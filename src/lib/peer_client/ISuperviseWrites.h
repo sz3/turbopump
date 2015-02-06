@@ -15,5 +15,5 @@ public:
 	virtual bool store(const Peer& peer, const WriteInstructions& write, readstream& contents) = 0;
 
 	virtual std::shared_ptr<ConnectionWriteStream> open(const Peer& peer, const WriteInstructions& write, bool blocking) = 0;
-	virtual bool store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents) = 0;
+	virtual bool store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents, bool background=false) = 0;
 };

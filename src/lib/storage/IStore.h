@@ -18,7 +18,7 @@ public:
 	virtual ~IStore() {}
 
 	virtual writestream write(const std::string& name, const std::string& version="", unsigned short copies=DEFAULT_MIRRORS, unsigned long long offset=0) = 0;
-	virtual readstream read(const std::string& name, const std::string& version="") const = 0;
+	virtual readstream read(const std::string& name, const std::string& version="", bool inprogress=false) const = 0;
 	virtual std::vector<readstream> readAll(const std::string& name) const = 0;
 
 	virtual bool exists(const std::string& name, const std::string& version) const = 0;

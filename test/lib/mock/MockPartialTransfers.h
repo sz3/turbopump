@@ -2,21 +2,20 @@
 #pragma once
 
 #include "peer_client/IPartialTransfers.h"
-#include "socket/ISocketWriter.h"
 #include "util/CallHistory.h"
 
 class MockPartialTransfers : public IPartialTransfers
 {
 public:
-	void add(ISocketWriter& writer, const std::function<bool()>& fun)
+	void add(int id, const std::function<bool()>& fun)
 	{
-		_history.call("add", writer.target());
+		_history.call("add", id);
 		_capturedFun = fun;
 	}
 
-	bool run(ISocketWriter& writer)
+	bool run(int id)
 	{
-		_history.call("run", writer.target());
+		_history.call("run", id);
 		return true;
 	}
 

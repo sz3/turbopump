@@ -3,7 +3,6 @@
 
 #include "PartialTransfers.h"
 #include "socket/MockSocketServer.h"
-#include "socket/MockSocketWriter.h"
 #include <functional>
 
 namespace {
@@ -39,13 +38,11 @@ TEST_CASE( "PartialTransfersTest/testBasic", "[unit]" )
 	TestablePartialTransfers transfers(server);
 
 	TestHelper helperOne;
-	MockSocketWriter one;
-	one._endpoint = socket_address("1.2.3.4");
-	transfers.add(one, helperOne.fun());
+	transfers.add(42, helperOne.fun());
 	assertEquals(1, transfers._transfers.size());
-	assertEquals("waitForWriter(1.2.3.4:0)", server._history.calls());
+	assertEquals("waitForWriter(42)", server._history.calls());
 
-	assertTrue( transfers.run(one) );
+	assertTrue( transfers.run(42) );
 	assertEquals( "callback()", helperOne._history.calls() );
 	assertEquals(0, transfers._transfers.size());
 }
@@ -56,17 +53,15 @@ TEST_CASE( "PartialTransfersTest/testChain", "[unit]" )
 	TestablePartialTransfers transfers(server);
 
 	TestHelper helperOne;
-	MockSocketWriter one;
-	one._endpoint = socket_address("1.2.3.4");
-	transfers.add(one, helperOne.fun());
+	transfers.add(42, helperOne.fun());
 	assertEquals(1, transfers._transfers.size());
 
 	TestHelper helperTwo;
-	transfers.add(one, helperTwo.fun());
+	transfers.add(42, helperTwo.fun());
 	assertEquals(1, transfers._transfers.size());
-	assertEquals("waitForWriter(1.2.3.4:0)|waitForWriter(1.2.3.4:0)", server._history.calls());
+	assertEquals("waitForWriter(42)|waitForWriter(42)", server._history.calls());
 
-	assertTrue( transfers.run(one) );
+	assertTrue( transfers.run(42) );
 	assertEquals( "callback()", helperOne._history.calls() );
 	assertEquals( "callback()", helperTwo._history.calls() );
 	assertEquals(0, transfers._transfers.size());
@@ -77,9 +72,7 @@ TEST_CASE( "PartialTransfersTest/testRun.NothingToDo", "[unit]" )
 	MockSocketServer server;
 	TestablePartialTransfers transfers(server);
 
-	MockSocketWriter one;
-	one._endpoint = socket_address("1.2.3.4");
-	assertTrue( transfers.run(one) );
+	assertTrue( transfers.run(42) );
 }
 
 TEST_CASE( "PartialTransfersTest/testRun.FunctionFails", "[unit]" )
@@ -87,18 +80,16 @@ TEST_CASE( "PartialTransfersTest/testRun.FunctionFails", "[unit]" )
 	MockSocketServer server;
 	TestablePartialTransfers transfers(server);
 
-	MockSocketWriter one;
-	one._endpoint = socket_address("1.2.3.4");
-	transfers.add(one, [](){ return false; });
+	transfers.add(42, [](){ return false; });
 
 	TestHelper doesntRunAtFirst;
-	transfers.add(one, doesntRunAtFirst.fun());
-	assertFalse( transfers.run(one) );
+	transfers.add(42, doesntRunAtFirst.fun());
+	assertFalse( transfers.run(42) );
 
 	assertEquals( "", doesntRunAtFirst._history.calls() );
 	assertEquals( 1, transfers._transfers.size() );
 
-	assertTrue( transfers.run(one) );
+	assertTrue( transfers.run(42) );
 	assertEquals( "callback()", doesntRunAtFirst._history.calls() );
 	assertEquals( 0, transfers._transfers.size() );
 }
@@ -109,21 +100,18 @@ TEST_CASE( "PartialTransfersTest/testRun.ManyFunctionsFail", "[unit]" )
 	MockSocketServer server;
 	TestablePartialTransfers transfers(server);
 
-	MockSocketWriter one;
-	one._endpoint = socket_address("1.2.3.4");
-
 	for (int i = 0; i < 100; ++i)
-		transfers.add(one, [](){ return false; });
+		transfers.add(42, [](){ return false; });
 
 	TestHelper doesntRunAtFirst;
-	transfers.add(one, doesntRunAtFirst.fun());
+	transfers.add(42, doesntRunAtFirst.fun());
 	for (int i = 0; i < 100; ++i)
-		assertFalse( transfers.run(one) );
+		assertFalse( transfers.run(42) );
 
 	assertEquals( "", doesntRunAtFirst._history.calls() );
 	assertEquals( 1, transfers._transfers.size() );
 
-	assertTrue( transfers.run(one) );
+	assertTrue( transfers.run(42) );
 	assertEquals( "callback()", doesntRunAtFirst._history.calls() );
 	assertEquals( 0, transfers._transfers.size() );
 }

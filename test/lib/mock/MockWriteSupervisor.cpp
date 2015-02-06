@@ -27,8 +27,8 @@ std::shared_ptr<ConnectionWriteStream> MockWriteSupervisor::open(const Peer& pee
 	return std::shared_ptr<ConnectionWriteStream>( new ConnectionWriteStream(_writer, blocking) );
 }
 
-bool MockWriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents)
+bool MockWriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions& write, readstream& contents, bool background)
 {
-	_history.call("store", write.name + "|" + write.version + "|" + turbo::str::str(write.isComplete), contents.size());
+	_history.call("store", write.name + "|" + write.version + "|" + turbo::str::str(write.isComplete), contents.size(), background);
 	return true;
 }

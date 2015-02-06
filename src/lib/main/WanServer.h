@@ -9,13 +9,13 @@ class IMembership;
 class WanServer : public ISocketServer
 {
 public:
-	WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket, std::function<bool(ISocketWriter&)> onWriteReady, const IMembership& membership);
+	WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket, std::function<bool(int)> onWriteReady, const IMembership& membership);
 
 	bool start();
 	bool stop();
 
 	std::shared_ptr<ISocketWriter> getWriter(const socket_address& endpoint);
-	void waitForWriter(const ISocketWriter& writer);
+	void waitForWriter(int id);
 
 	std::string lastError() const;
 

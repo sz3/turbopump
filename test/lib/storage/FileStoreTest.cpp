@@ -208,6 +208,30 @@ TEST_CASE( "FileStoreTest/testReadCantDecide", "[unit]" )
 	assertEquals( 4, reader.size() );
 }
 
+TEST_CASE( "FileStoreTest/testReadInprogress", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	writestream writer = store.write("myfile");
+	assertTrue( writer.good() );
+
+	string bytes = "0123456789";
+	assertEquals( 10, writer.write(bytes.data(), bytes.size()) );
+
+	// default, only read finished versions
+	readstream reader = store.read("myfile");
+	assertFalse( reader );
+
+	// but how about an inprogress one?
+	reader = store.read("myfile", "", true);
+	assertTrue( reader );
+	assertEquals( "1,increment:1", reader.version() );
+	assertEquals( 10, reader.size() );
+}
+
 TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 {
 	MyMemberId("increment");

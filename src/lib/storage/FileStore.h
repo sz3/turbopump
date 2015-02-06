@@ -14,7 +14,7 @@ public:
 	FileStore(const std::string& homedir);
 
 	writestream write(const std::string& name, const std::string& version="", unsigned short copies=DEFAULT_MIRRORS, unsigned long long offset=0);
-	readstream read(const std::string& name, const std::string& version="") const;
+	readstream read(const std::string& name, const std::string& version="", bool inprogress=false) const;
 	std::vector<readstream> readAll(const std::string& name) const;
 
 	bool exists(const std::string& name, const std::string& version) const;

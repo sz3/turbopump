@@ -119,7 +119,7 @@ writestream FileStore::write(const std::string& name, const std::string& version
 	return writestream(writer, md, std::bind(&FileStore::onWriteComplete, this, name, _1));
 }
 
-readstream FileStore::read(const std::string& name, const std::string& version) const
+readstream FileStore::read(const std::string& name, const std::string& version, bool inprogress/*=false*/) const
 {
 	KeyMetadata md;
 	md.version.fromString(version);
@@ -127,7 +127,12 @@ readstream FileStore::read(const std::string& name, const std::string& version) 
 		md.version = mergedVersion(name);
 
 	string filename(filepath(name, md.version.toString()));
-	FileReader* reader = new FileReader(filename);
+	FileReader* reader = new FileReader();
+	if (inprogress)
+		reader->open(filename + "~");
+	if (!reader->good())
+		reader->open(filename);
+
 	if (reader->good())
 		mdFromString(md, reader->attribute("user.md"));
 	return readstream(reader, md);

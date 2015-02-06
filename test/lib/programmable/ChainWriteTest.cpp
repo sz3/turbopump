@@ -33,7 +33,7 @@ TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 
 	assertFalse( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
-	assertEquals( "open(peerid,file,1)|store(file|v1|false,8)", supervisor._history.calls() );
+	assertEquals( "open(peerid,file,1)|store(file|v1|false,8,0)", supervisor._history.calls() );
 }
 
 TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
@@ -98,14 +98,14 @@ TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 
 	assertFalse( !params.outstream );
 	assertEquals( "chooseMirror(file)", MockMirrorToPeer::calls() );
-	assertEquals( "open(peerid,file,0)|store(file|v1|false,8)", supervisor._history.calls() );
+	assertEquals( "open(peerid,file,0)|store(file|v1|false,8,0)", supervisor._history.calls() );
 
 	supervisor._history.clear();
 
 	contents = readstream( new StringReader("contents"), KeyMetadata() );
 	assertTrue( command.run(params, contents) );
 	assertEquals( "", MockMirrorToPeer::calls() );
-	assertEquals( "store(file|v1|false,8)", supervisor._history.calls() );
+	assertEquals( "store(file|v1|false,8,0)", supervisor._history.calls() );
 
 	supervisor._history.clear();
 
@@ -113,5 +113,5 @@ TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 	params.isComplete = true;
 	assertTrue( command.run(params, contents) );
 	assertEquals( "", MockMirrorToPeer::calls() );
-	assertEquals( "store(file|v1|true,8)", supervisor._history.calls() );
+	assertEquals( "store(file|v1|true,8,0)", supervisor._history.calls() );
 }
