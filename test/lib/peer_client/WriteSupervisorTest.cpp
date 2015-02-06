@@ -264,7 +264,7 @@ namespace {
 			_history.call("stream");
 			_bytes += 5;
 			if (_bytes >= 10)
-				return _failureMode; // end after two writes
+				return 0; // end after two writes
 			sink.write("01234", 5);
 			return _bytes;
 		}
@@ -272,7 +272,6 @@ namespace {
 	public:
 		CallHistory _history;
 		int _bytes = 0;
-		int _failureMode = 0;
 	};
 }
 
@@ -299,52 +298,6 @@ TEST_CASE( "WriteSupervisorTest/testRewrite", "[unit]" )
 	assertEquals( "", packer._history.calls() );
 }
 
-TEST_CASE( "WriteSupervisorTest/testWrite.ScheduleRewrite.BadRead", "[unit]" )
-{
-	MockRequestPacker packer;
-	MockPartialTransfers transfers;
-	MockSocketServer server;
-	MockStore store;
-	TestableWriteSupervisor client(packer, transfers, server, store);
-
-	// input
-	BadReader* meReader = new BadReader();
-	meReader->_failureMode = -1;
-	readstream reader(meReader, KeyMetadata());
-
-	// output
-	MockSocketWriter* writer = new MockSocketWriter();
-	server._sock.reset(writer);
-
-	WriteInstructions params("file","v1",2,3);
-	params.isComplete = true;
-	params.outstream.reset(new ConnectionWriteStream(server._sock, false));
-	assertFalse( client.store(*params.outstream, params, reader) );
-
-	assertFalse( params.outstream->full() );
-	assertTrue( params.outstream->background() );
-	assertEquals( "try_send(01234)|handle()", writer->_history.calls() );
-	assertEquals( "stream()|stream()", meReader->_history.calls() );
-	assertEquals( "add(3)", transfers._history.calls() );
-
-	writer->_history.clear();
-	meReader->_history.clear();
-	transfers._history.clear();
-	writer->_trySendError = false;
-
-	// fire the transfers callback. Should be a WriteInstructions::resume()
-	store._reads["file"] = "contents";
-	transfers._capturedFun();
-
-	assertEquals( "try_send(contents)|try_send()|flush(false)", writer->_history.calls() );
-	assertEquals( "read(file,v1)", store._history.calls() );
-	assertEquals( "", meReader->_history.calls() );
-	assertEquals( "", transfers._history.calls() );
-	assertEquals( "", server._history.calls() );
-	assertEquals( "", packer._history.calls() );
-}
-
-
 TEST_CASE( "WriteSupervisorTest/testWrite.ScheduleRewrite.BadWrite", "[unit]" )
 {
 	MockRequestPacker packer;
@@ -355,7 +308,6 @@ TEST_CASE( "WriteSupervisorTest/testWrite.ScheduleRewrite.BadWrite", "[unit]" )
 
 	// input
 	BadReader* meReader = new BadReader();
-	meReader->_failureMode = 0;
 	readstream reader(meReader, KeyMetadata());
 
 	// output

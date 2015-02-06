@@ -91,7 +91,7 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 	while ((wrote = contents.stream(conn)) > 0)
 		bytesWrit += wrote;
 
-	if (wrote == -1 || conn.full())
+	if (conn.full())
 	{
 		conn.setBackground(true);
 
