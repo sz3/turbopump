@@ -33,9 +33,11 @@ namespace {
 	}
 }
 
-TEST_CASE( "BigFileTest/testWrite", "disk" )
+TEST_CASE( "BigFileTest/testDiskWrite", "disk" )
 {
-	TurboCluster cluster(3, "--clone");
+	// in theory and in practice, the overhead to read from disk will be slow enough to trip some race conditions (buffers not being ready, etc)
+	// hope is to catch them.
+	TurboCluster cluster(3, "--no-active-sync");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 

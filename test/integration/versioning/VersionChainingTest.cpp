@@ -37,6 +37,10 @@ TEST_CASE( "VersionChainingTest/testCreateAndFixConflict", "[integration]" )
 
 	expected = "conflict => 13|3,1:1,foo:1,bar:1";
 	assertEquals( expected, cluster[1].local_list() );
-	assertEquals( expected, cluster[2].local_list() );
+	wait_for(2, expected + " != " + response, [&]()
+	{
+		response = cluster[2].local_list();
+		return expected == response;
+	});
 }
 

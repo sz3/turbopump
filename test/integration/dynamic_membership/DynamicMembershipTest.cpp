@@ -134,7 +134,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 
 	// keys should propagate to two
 	expected = turbo::str::join(fileList, '\n');
-	wait_for(30, expected + " != " + response, [&]()
+	wait_for(60, expected + " != " + response, [&]()
 	{
 		response = two.local_list();
 		return expected == response;
