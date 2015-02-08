@@ -106,6 +106,8 @@ std::shared_ptr<ISocketWriter> MultiplexedSocketPool<Socket>::find_or_add(const 
 		add(sock, res); // TODO: this is... bad?
 		return res;
 	}
+	// leave at 0. This is automatically called each time the server does a successful read(),
+	// so let's not auto-increment the actionId...
 	return std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(0, it->second));
 }
 

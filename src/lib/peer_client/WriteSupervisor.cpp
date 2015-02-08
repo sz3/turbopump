@@ -115,8 +115,8 @@ bool WriteSupervisor::store(ConnectionWriteStream& conn, const WriteInstructions
 // that way we wouldn't have to guess...
 bool WriteSupervisor::resume(const WriteInstructions& write)
 {
-	// read won't work if the write is in progress...
-	readstream reader = _store.read(write.name, write.version, false);
+	// read(,,true) == attempt to read inprogress writes as well.
+	readstream reader = _store.read(write.name, write.version, true);
 	if (!reader)
 		return true; // we're done.
 

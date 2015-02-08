@@ -78,8 +78,13 @@ std::unique_ptr<Command> Api::command(int id, const char* buff, unsigned size) c
 	if (!!operation)
 	{
 		msgpack::unpacked msg;
-		msgpack::unpack(&msg, buff, size);
-		msg.get().convert(operation->request());
+		try {
+			msgpack::unpack(&msg, buff, size);
+			msg.get().convert(operation->request());
+		} catch (...) {
+			// msgpack::unpack_error, msgpack::type_error, std::bad_cast ...
+			return NULL;
+		}
 	}
 	return operation;
 }

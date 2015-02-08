@@ -5,7 +5,6 @@
 #include "serialize/str_join.h"
 #include "socket/socket_address.h"
 #include <atomic>
-#include <iostream>
 using std::string;
 using std::vector;
 
@@ -32,7 +31,10 @@ std::string Peer::address() const
 // does atomic_increment on in-memory value
 unsigned char Peer::nextActionId() const
 {
-	return _actionId++;
+	auto res = ++_actionId;
+	if (res == 0)
+		res = ++_actionId;
+	return res;
 }
 
 string Peer::toString() const

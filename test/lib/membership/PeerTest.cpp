@@ -33,11 +33,11 @@ TEST_CASE( "PeerTest/testSerializationNoIps", "default" )
 TEST_CASE( "PeerTest/testActionId", "default" )
 {
 	Peer one("one");
-	assertEquals( 0, one.nextActionId() );
 	assertEquals( 1, one.nextActionId() );
 	assertEquals( 2, one.nextActionId() );
 
-	for (unsigned char i = 3; i != 1; ++i)
+	for (unsigned char i = 3; i != 0; ++i)
 		assertEquals( i, one.nextActionId() );
+	assertEquals( 1, one.nextActionId() );
 }
 

@@ -99,7 +99,7 @@ TEST_CASE( "MultiplexedSocketPoolTest/testFind", "[unit]" )
 	assertTrue( !!writer );
 	assertEquals( 5, writer->send("hello", 5) );
 
-	std::string expected = "send(" + std::string{0,6,0} + "hello)";
+	std::string expected = "send(" + std::string{0,6,1} + "hello)";
 	assertEquals( expected, sock.history().calls() );
 }
 

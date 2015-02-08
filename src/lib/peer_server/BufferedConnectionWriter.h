@@ -56,7 +56,7 @@ void BufferedConnectionWriter<Socket>::pushBytes(unsigned char virtid, const cha
 {
 	unsigned short netlen = htons(length+1);
 	_buffer.append( (const char*)&netlen, 2 );
-	_buffer += virtid;
+	_buffer.append( (const char*)&virtid, 1 );
 	_buffer.append(buff, length);
 }
 

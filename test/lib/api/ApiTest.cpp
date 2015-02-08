@@ -64,6 +64,49 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	assertEquals( "read(bomba,)|remove(bomba)", store._history.calls() );
 }
 
+TEST_CASE( "ApiTest/testDeserializeFromBinary.BadId", "[unit]" )
+{
+	MockSkewCorrector corrector;
+	MockLocateKeys locator;
+	MockMessageSender messenger;
+	MockStatusReporter reporter;
+	MockStore store;
+	MockSynchronize sync;
+	Turbopump::Options options;
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+
+	locator._mine = false;
+	store._reads["bomba"] = "yep";
+
+	Turbopump::Drop params;
+	params.copies = 2;
+	params.name = "bomba";
+	msgpack::sbuffer sbuf;
+	msgpack::pack(&sbuf, params);
+
+	std::unique_ptr<Turbopump::Command> command = api.command(250, sbuf.data(), sbuf.size());
+	assertTrue( !command );
+}
+
+TEST_CASE( "ApiTest/testDeserializeFromBinary.DeserializeGarbage", "[unit]" )
+{
+	MockSkewCorrector corrector;
+	MockLocateKeys locator;
+	MockMessageSender messenger;
+	MockStatusReporter reporter;
+	MockStore store;
+	MockSynchronize sync;
+	Turbopump::Options options;
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+
+	locator._mine = false;
+	store._reads["bomba"] = "yep";
+
+	std::string garbage = "012345678hehehehe";
+	std::unique_ptr<Turbopump::Command> command = api.command(Turbopump::Drop::_ID, garbage.data(), garbage.size());
+	assertTrue( !command );
+}
+
 TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 {
 	MockSkewCorrector corrector;
