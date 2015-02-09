@@ -2,6 +2,7 @@
 #pragma once
 
 #include "membership/IMembership.h"
+#include "membership/Peer.h"
 #include "util/CallHistory.h"
 #include <map>
 

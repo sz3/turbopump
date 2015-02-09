@@ -29,6 +29,7 @@ std::string Peer::address() const
 }
 
 // does atomic_increment on in-memory value
+// marked const for stupid reasons
 unsigned char Peer::nextActionId() const
 {
 	auto res = ++_actionId;

@@ -6,12 +6,12 @@
 #include "socket/UdpServer.h"
 #include "udt_socket/UdtServer.h"
 
-WanServer::WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket, std::function<bool(int)> onWriteReady, const IMembership& membership)
+WanServer::WanServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket, std::function<bool(int)> onWriteReady)
 {
 	if (opts.udt)
-		_server.reset(new UdtServer(addr, onPacket, onWriteReady, new MultiplexedSocketPool<udt_socket>(membership)));
+		_server.reset(new UdtServer(addr, onPacket, onWriteReady, new MultiplexedSocketPool<udt_socket>()));
 	else
-		_server.reset(new UdpServer(addr, onPacket, new MultiplexedSocketPool<udp_socket>(membership)));
+		_server.reset(new UdpServer(addr, onPacket, new MultiplexedSocketPool<udp_socket>()));
 }
 
 bool WanServer::start()

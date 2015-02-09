@@ -23,5 +23,5 @@ public:
 	std::vector<std::string> ips;
 
 protected:
-	mutable std::atomic<unsigned char> _actionId; // should go away
+	mutable std::atomic<unsigned char> _actionId; // TODO: this is not a good place for this.
 };

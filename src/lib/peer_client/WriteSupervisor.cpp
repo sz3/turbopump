@@ -52,6 +52,7 @@ std::shared_ptr<ConnectionWriteStream> WriteSupervisor::open(const Peer& peer, c
 	if (!writer)
 		return NULL;
 
+	writer->set_muxid(peer.nextActionId());
 	shared_ptr<ConnectionWriteStream> conn(new ConnectionWriteStream(writer, blocking));
 
 	std::string buff(reqHeader(_packer, write));

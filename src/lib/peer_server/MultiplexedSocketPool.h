@@ -3,8 +3,6 @@
 
 #include "BufferedConnectionWriter.h"
 #include "MultiplexedSocketWriter.h"
-#include "membership/IMembership.h"
-#include "membership/Peer.h"
 #include "socket/ISocketPool.h"
 #include "socket/SocketWriter.h"
 #include "socket/socket_address.h"
@@ -18,8 +16,6 @@ protected:
 	using map_type = tbb::concurrent_unordered_map<std::string,std::shared_ptr<BufferedConnectionWriter<Socket>>>; // concurrent_hash_map?
 
 public:
-	MultiplexedSocketPool(const IMembership& membership);
-
 	bool add(const Socket& sock);
 	bool add(const Socket& sock, std::shared_ptr<ISocketWriter>& writer);
 
@@ -35,14 +31,7 @@ protected:
 
 protected:
 	map_type _connections;
-	const IMembership& _membership;
 };
-
-template <typename Socket>
-MultiplexedSocketPool<Socket>::MultiplexedSocketPool(const IMembership& membership)
-	: _membership(membership)
-{
-}
 
 template <typename Socket>
 bool MultiplexedSocketPool<Socket>::add(const Socket& sock)
@@ -54,10 +43,6 @@ bool MultiplexedSocketPool<Socket>::add(const Socket& sock)
 template <typename Socket>
 bool MultiplexedSocketPool<Socket>::add(const Socket& sock, std::shared_ptr<ISocketWriter>& writer)
 {
-	std::shared_ptr<Peer> peer = _membership.lookupIp(sock.target());
-	if (!peer)
-		return false;
-
 	bool isnew = false;
 	std::pair< typename map_type::iterator, bool> pear = _connections.insert( {sock.endpoint().toString(), NULL} );
 	if (!pear.first->second)
@@ -66,7 +51,7 @@ bool MultiplexedSocketPool<Socket>::add(const Socket& sock, std::shared_ptr<ISoc
 		isnew = true;
 	}
 	// increment here
-	writer = std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(peer->nextActionId(), pear.first->second));
+	writer = std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(pear.first->second));
 	return isnew;
 }
 
@@ -85,15 +70,11 @@ typename MultiplexedSocketPool<Socket>::map_type::iterator MultiplexedSocketPool
 template <typename Socket>
 std::shared_ptr<ISocketWriter> MultiplexedSocketPool<Socket>::find(const socket_address& addr) const
 {
-	std::shared_ptr<Peer> peer = _membership.lookupIp(addr.toString());
-	if (!peer)
-		return NULL;
-
 	typename map_type::const_iterator it = _connections_find(addr);
 	if (it == _connections.end())
 		return NULL;
 	// increment here
-	return std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(peer->nextActionId(), it->second));
+	return std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(it->second));
 }
 
 template <typename Socket>
@@ -106,9 +87,7 @@ std::shared_ptr<ISocketWriter> MultiplexedSocketPool<Socket>::find_or_add(const 
 		add(sock, res); // TODO: this is... bad?
 		return res;
 	}
-	// leave at 0. This is automatically called each time the server does a successful read(),
-	// so let's not auto-increment the actionId...
-	return std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(0, it->second));
+	return std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(it->second));
 }
 
 template <typename Socket>

@@ -4,8 +4,8 @@
 #include "IBufferedConnectionWriter.h"
 #include "socket/socket_address.h"
 
-MultiplexedSocketWriter::MultiplexedSocketWriter(unsigned char muxid, const std::shared_ptr<IBufferedConnectionWriter>& writer)
-	: _muxid(muxid)
+MultiplexedSocketWriter::MultiplexedSocketWriter(const std::shared_ptr<IBufferedConnectionWriter>& writer)
+	: _muxid(0)
 	, _writer(writer)
 {
 }
@@ -50,4 +50,9 @@ std::string MultiplexedSocketWriter::target() const
 int MultiplexedSocketWriter::handle() const
 {
 	return _writer->handle();
+}
+
+void MultiplexedSocketWriter::set_muxid(unsigned char id)
+{
+	_muxid = id;
 }

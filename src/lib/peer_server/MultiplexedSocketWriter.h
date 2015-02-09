@@ -8,7 +8,7 @@ class IBufferedConnectionWriter;
 class MultiplexedSocketWriter : public ISocketWriter
 {
 public:
-	MultiplexedSocketWriter(unsigned char muxid, const std::shared_ptr<IBufferedConnectionWriter>& writer);
+	MultiplexedSocketWriter(const std::shared_ptr<IBufferedConnectionWriter>& writer);
 
 	int try_send(const char* buffer, unsigned size);
 	int send(const char* buffer, unsigned size);
@@ -20,6 +20,8 @@ public:
 	socket_address endpoint() const;
 	std::string target() const;
 	int handle() const;
+
+	void set_muxid(unsigned char id);
 
 protected:
 	unsigned char _muxid;

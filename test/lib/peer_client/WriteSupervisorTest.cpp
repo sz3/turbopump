@@ -56,7 +56,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore", "[unit]" )
 	assertFalse( ((TestableConnectionWriteStream&)*conn)._blocking );
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "try_send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
+	assertEquals( "set_muxid(1)|try_send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
@@ -89,7 +89,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.LastPacketEmpty", "[unit]" )
 	assertFalse( !conn );
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "try_send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
+	assertEquals( "set_muxid(1)|try_send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
@@ -122,7 +122,7 @@ TEST_CASE( "WriteSupervisorTest/testOpenAndStore.Blocking", "[unit]" )
 	assertTrue( ((TestableConnectionWriteStream&)*conn)._blocking );
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
+	assertEquals( "set_muxid(1)|send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})", writer->_history.calls() );
 
 	writer->_history.clear();
 	assertTrue( client.store(*conn, params, reader) );
@@ -155,7 +155,7 @@ TEST_CASE( "WriteSupervisorTest/testDefault", "[unit]" )
 
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})|send(contents)", writer->_history.calls() );
+	assertEquals( "set_muxid(1)|send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})|send(contents)", writer->_history.calls() );
 }
 
 TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
@@ -179,7 +179,7 @@ TEST_CASE( "WriteSupervisorTest/testWithSource", "[unit]" )
 
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source=dude version=v1})"
+	assertEquals( "set_muxid(1)|send({100 copies=3 mirror=2 name=file offset=0 source=dude version=v1})"
 				  "|send(contents)", writer->_history.calls() );
 }
 
@@ -203,7 +203,7 @@ TEST_CASE( "WriteSupervisorTest/testMultipleBuffers", "[unit]" )
 
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})"
+	assertEquals( "set_muxid(1)|send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})"
 				  "|send(0123456789)|send(abcdeABCDE)|send(turtle)", writer->_history.calls() );
 }
 
@@ -228,7 +228,7 @@ TEST_CASE( "WriteSupervisorTest/testNeedsFinPacket", "[unit]" )
 
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(100)", packer._history.calls() );
-	assertEquals( "send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})"
+	assertEquals( "set_muxid(1)|send({100 copies=3 mirror=2 name=file offset=0 source= version=v1})"
 				  "|send(0123456789)|send(abcdeABCDE)|send()|flush(true)", writer->_history.calls() );
 }
 
