@@ -8,7 +8,6 @@
 #include "common/MyMemberId.h"
 #include "file/File.h"
 #include "serialize/str.h"
-#include "serialize/str_join.h"
 
 #include <boost/filesystem.hpp>
 #include <algorithm>
