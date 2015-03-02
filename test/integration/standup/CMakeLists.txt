@@ -33,6 +33,7 @@ target_link_libraries(standup_test
 	peer_server
 	programmable
 	storage
+	turbopump
 	user_server
 
 	command_line

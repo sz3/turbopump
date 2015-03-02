@@ -29,9 +29,9 @@ using turbo::str::str;
 class IntegratedTurboRunner : public TurboRunner
 {
 public:
-	IntegratedTurboRunner(const Turbopump::Options& opts, short port)
-		: TurboRunner(port)
-		, _app(opts, dataChannel(), port)
+	IntegratedTurboRunner(const Turbopump::Options& opts)
+		: TurboRunner(opts.internal_port)
+		, _app(opts, dataChannel())
 		, _thread(std::bind(&TurboPumpApp::run, &_app))
 	{
 		::signal(SIGPIPE, SIG_IGN);
@@ -82,8 +82,10 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	opts.write_chaining = false;
 	opts.partition_keys = false;
 
-	IntegratedTurboRunner workerOne(opts, 9001);
-	IntegratedTurboRunner workerTwo(opts, 9002);
+	opts.internal_port = 9001;
+	IntegratedTurboRunner workerOne(opts);
+	opts.internal_port = 9002;
+	IntegratedTurboRunner workerTwo(opts);
 
 	workerOne.waitForRunning();
 	workerTwo.waitForRunning();
@@ -185,8 +187,10 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 		checkpoints[params.name].add();
 	};
 
-	IntegratedTurboRunner workerOne(opts, 9001);
-	IntegratedTurboRunner workerTwo(opts, 9002);
+	opts.internal_port = 9001;
+	IntegratedTurboRunner workerOne(opts);
+	opts.internal_port = 9002;
+	IntegratedTurboRunner workerTwo(opts);
 
 	workerOne.waitForRunning();
 	workerTwo.waitForRunning();
@@ -244,8 +248,10 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 	opts.write_chaining = true;
 	opts.partition_keys = false;
 
-	IntegratedTurboRunner workerOne(opts, 9001);
-	IntegratedTurboRunner workerTwo(opts, 9002);
+	opts.internal_port = 9001;
+	IntegratedTurboRunner workerOne(opts);
+	opts.internal_port = 9002;
+	IntegratedTurboRunner workerTwo(opts);
 
 	workerOne.waitForRunning();
 	workerTwo.waitForRunning();

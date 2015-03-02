@@ -8,7 +8,7 @@
 #include <vector>
 using std::string;
 
-UserPacketHandler::UserPacketHandler(IHttpByteStream& stream, Turbopump::Api& api)
+UserPacketHandler::UserPacketHandler(IHttpByteStream& stream, const Turbopump::Api& api)
 	: _stream(stream)
 	, _api(api)
 {

@@ -49,16 +49,14 @@ int main(int argc, const char** argv)
 	if ((og = opt.get("--dataChannel")) != NULL)
 		og->getString(turbopath);
 
-	short port;
+	Turbopump::Options options;
 	if ((og = opt.get("--port")) != NULL)
 	{
 		unsigned long temp;
 		og->getULong(temp);
-		port = temp;
+		options.internal_port = temp;
 	}
 
-	std::cout << turbopath << ":" << port << std::endl;
-	Turbopump::Options options;
 	if (opt.isSet("--clone"))
 		options.partition_keys = false;
 	if (opt.isSet("--no-write-chaining"))
@@ -68,7 +66,8 @@ int main(int argc, const char** argv)
 	if (opt.isSet("--udp"))
 		options.udt = false;
 
-	_app.reset( new TurboPumpApp(options, turbopath, port) );
+	std::cout << turbopath << ":" << options.internal_port << std::endl;
+	_app.reset( new TurboPumpApp(options, turbopath) );
 
 	::signal(SIGINT, &onShutdown);
 	::signal(SIGPIPE, SIG_IGN); // may use SO_NOSIGPIPE and/or MSG_NOSIGNAL instead...

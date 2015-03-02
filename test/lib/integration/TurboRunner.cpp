@@ -16,7 +16,7 @@ using std::vector;
 using turbo::str::str;
 
 namespace {
-	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopump/turbopump";
+	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopumpd/turbopumpd";
 }
 
 TurboRunner::TurboRunner(short port, string programFlags)
@@ -54,7 +54,7 @@ void TurboRunner::start()
 
 bool TurboRunner::stop(unsigned retries)
 {
-	string command = "kill `ps faux | grep 'turbopump ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
+	string command = "kill `ps faux | grep 'turbopumpd ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
 	for (unsigned i = 0; i < retries; ++i)
 	{
 		int res = system(command.c_str());

@@ -10,6 +10,8 @@ class readstream;
 namespace Turbopump {
 struct Options
 {
+	short internal_port = 9001;
+
 	bool partition_keys = true;
 	bool write_chaining = true;
 	bool active_sync = true;

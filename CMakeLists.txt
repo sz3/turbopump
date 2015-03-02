@@ -22,7 +22,7 @@ include_directories(
 add_subdirectory(${TURBOLIB} ${TURBOLIB})
 
 set (PROJECTS
-   src/exe/turbopump
+   src/exe/turbopumpd
    src/lib/main
 
    src/lib/api
@@ -44,6 +44,7 @@ set (PROJECTS
    test/lib/programmable
    src/lib/storage
    test/lib/storage
+   src/lib/turbopump
    src/lib/user_server
    test/lib/user_server
 

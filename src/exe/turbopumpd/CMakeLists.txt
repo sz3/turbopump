@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(turbopump)
+project(turbopumpd)
 
 set (SOURCES
 	main.cpp
 )
 
 add_executable (
-	turbopump
+	turbopumpd
 	${SOURCES}
 )
 
-target_link_libraries(turbopump
+target_link_libraries(turbopumpd
 -Wl,--start-group
 	api
 	common
@@ -24,6 +24,7 @@ target_link_libraries(turbopump
 	peer_server
 	programmable
 	storage
+	turbopump
 	user_server
 
 	event

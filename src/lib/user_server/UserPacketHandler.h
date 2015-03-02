@@ -10,7 +10,7 @@ class IHttpByteStream;
 class UserPacketHandler : public IUserPacketHandler
 {
 public:
-	UserPacketHandler(IHttpByteStream& stream, Turbopump::Api& api);
+	UserPacketHandler(IHttpByteStream& stream, const Turbopump::Api& api);
 
 	void run();
 	void sendResponse(StatusCode status);
@@ -19,6 +19,6 @@ public:
 
 protected:
 	IHttpByteStream& _stream;
-	Turbopump::Api& _api;
+	const Turbopump::Api& _api;
 };
 
