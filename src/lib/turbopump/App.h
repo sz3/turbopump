@@ -5,7 +5,6 @@
 #include "api/Api.h"
 #include "api/Options.h"
 #include "deskew/ThreadLockedKeyTabulator.h"
-#include "main/WanServer.h"
 #include "peer_client/MessagePacker.h"
 #include "peer_client/MessageSender.h"
 #include "peer_client/PartialTransfers.h"
@@ -13,6 +12,7 @@
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
 #include "programmable/Callbacks.h"
+#include "turbopump/WanServer.h"
 
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"

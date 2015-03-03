@@ -5,11 +5,16 @@ set(SOURCES
 	turbopump_defaults.h
 	DataBuffer.cpp
 	DataBuffer.h
+	IProcessState.h
+	IStatusReporter.h
 	KeyMetadata.h
 	MerklePoint.cpp
 	MerklePoint.h
 	MyMemberId.cpp
 	MyMemberId.h
+	ProcessState.cpp
+	ProcessState.h
+	StatusReporter.h
 	VectorClock.cpp
 	VectorClock.h
 )

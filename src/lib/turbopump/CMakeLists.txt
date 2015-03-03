@@ -4,6 +4,8 @@ set(SOURCES
 	App.h
 	App.cpp
 	Turbopump.h
+	WanServer.cpp
+	WanServer.h
 )
 
 include_directories(
