@@ -12,10 +12,10 @@
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
 #include "programmable/Callbacks.h"
-#include "turbopump/WanServer.h"
 
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
+#include "socket/ISocketServer.h"
 
 namespace Turbopump {
 
@@ -48,6 +48,9 @@ protected:
 	// internal comm helpers
 	MessagePacker _packer;
 
+	// internal comm server
+	std::unique_ptr<ISocketServer> _peerServer;
+
 	// internal comm client components
 	MessageSender _messenger;
 	PartialTransfers _partialTransfers;
@@ -58,8 +61,6 @@ protected:
 	MultiThreadedExecutor _peerExecutor;
 	ConcurrentCommandCenter _peerCenter;
 	PeerPacketHandler _peerPacketHandler;
-	WanServer _peerServer;
-
 };
 
 }//namespace

@@ -23,7 +23,6 @@ class IMessageSender;
 class ISuperviseWrites;
 
 namespace Turbopump {
-
 class Turbopump
 {
 public:
@@ -40,7 +39,7 @@ public:
 	{
 	}
 
-	void initialize(const Options& opts)
+	void preStart(const Options& opts)
 	{
 		// membership
 		if (membership.load())
@@ -57,7 +56,10 @@ public:
 			auto fun = [&chr] (const Peer& peer) { chr.insert(peer.uid, peer.uid); };
 			membership.forEachPeer(fun);
 		}
+	}
 
+	void postStart(const Options& opts)
+	{
 		if (opts.active_sync)
 		{
 			KeyTabulator& tabulator(keyTabulator);
@@ -92,5 +94,4 @@ public:
 	SkewCorrector corrector;
 	Synchronizer synchronizer;
 };
-
 }//namespace
