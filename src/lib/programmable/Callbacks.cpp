@@ -11,7 +11,6 @@
 #include "deskew/IKeyTabulator.h"
 #include "storage/readstream.h"
 
-#include "util/FunctionChainer.h"
 #include <deque>
 #include <functional>
 using std::bind;
@@ -78,42 +77,39 @@ void Callbacks::initialize(IConsistentHashRing& ring, ILocateKeys& locator, IMem
 
 	// on local write
 	{
-		FunctionChainer<WriteInstructions&, readstream&> chain(when_local_write_finishes);
 		if (active_sync)
-			chain.add( digestAddFunct(keyTabulator) );
+			when_local_write_finishes.add( digestAddFunct(keyTabulator) );
 
 		if (write_chaining)
 		{
 			if (partition_keys)
-				chain.add( writeChainFunct_partitionMode(locator, membership, writer, true) );
+				when_local_write_finishes.add( writeChainFunct_partitionMode(locator, membership, writer, true) );
 			else
-				chain.add( writeChainFunct_cloneMode(locator, membership, writer, true) );
+				when_local_write_finishes.add( writeChainFunct_cloneMode(locator, membership, writer, true) );
 		}
-		chain.add( membershipAddFunct(ring, membership, keyTabulator) );
+		when_local_write_finishes.add( membershipAddFunct(ring, membership, keyTabulator) );
 
-		when_local_write_finishes = chain.generate();
+		when_local_write_finishes.finalize();
 	}
 
 	// on mirror write
 	{
-		FunctionChainer<WriteInstructions&, readstream&> chain(when_mirror_write_finishes);
 		if (active_sync)
-			chain.add( digestAddFunct(keyTabulator) );
+			when_mirror_write_finishes.add( digestAddFunct(keyTabulator) );
 
 		if (write_chaining && partition_keys)
-			chain.add( writeChainFunct_partitionMode(locator, membership, writer, false) );
+			when_mirror_write_finishes.add( writeChainFunct_partitionMode(locator, membership, writer, false) );
 
-		chain.add( notifyWriteComplete(membership, messenger) );
-		chain.add( membershipAddFunct(ring, membership, keyTabulator) );
+		when_mirror_write_finishes.add( notifyWriteComplete(membership, messenger) );
+		when_mirror_write_finishes.add( membershipAddFunct(ring, membership, keyTabulator) );
 
-		when_mirror_write_finishes = chain.generate();
+		when_mirror_write_finishes.finalize();
 	}
 
 	// on drop
 	{
-		FunctionChainer<Turbopump::Drop> chain(when_drop_finishes);
 		if (active_sync)
-			chain.add( digestDelFunct(keyTabulator) );
-		when_drop_finishes = chain.generate();
+			when_drop_finishes.add( digestDelFunct(keyTabulator) );
+		when_drop_finishes.finalize();
 	}
 }

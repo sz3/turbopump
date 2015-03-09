@@ -51,16 +51,16 @@ Command* Api::command_impl(int id) const
 	{
 		case AddPeer::_ID: return new AddPeerCommand(*this);
 		case Delete::_ID: return new DeleteCommand(*this);
-		case Drop::_ID: return new DropCommand(_store, _locator, _options.when_drop_finishes);
+		case Drop::_ID: return new DropCommand(_store, _locator, _options.when_drop_finishes.fun());
 		case ListKeys::_ID: return new ListKeysCommand(_store);
 		case Read::_ID: return new ReadCommand(_store);
 		case Status::_ID: return new StatusCommand(_reporter);
 		case Status::_ID2: return new StatusCommand(_reporter, "membership");
 		case Status::_ID3: return new StatusCommand(_reporter, "ring");
-		case Write::_ID: return new WriteCommand(_store, _options.when_local_write_finishes);
-		case Write::_INTERNAL_ID: return new WriteCommand(_store, _options.when_mirror_write_finishes);
+		case Write::_ID: return new WriteCommand(_store, _options.when_local_write_finishes.fun());
+		case Write::_INTERNAL_ID: return new WriteCommand(_store, _options.when_mirror_write_finishes.fun());
 
-		case AckWrite::_ID: return new AckWriteCommand(_store, _locator, _options.when_drop_finishes);
+		case AckWrite::_ID: return new AckWriteCommand(_store, _locator, _options.when_drop_finishes.fun());
 		case DemandWrite::_ID: return new DemandWriteCommand(_corrector);
 		case HealKey::_ID: return new HealKeyCommand(_corrector);
 		case KeyRequest::_ID: return new KeyRequestCommand(_corrector);
