@@ -13,7 +13,7 @@ using std::string;
 
 TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 {
-	TurboRunner one(9001, "--udp");
+	TurboRunner one(9001, "--udp --sync-interval 250");
 	one.start();
 	assertTrue( one.waitForRunning() );
 
@@ -94,7 +94,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 
 TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 {
-	TurboRunner one(9001, "--udp");
+	TurboRunner one(9001, "--udp --sync-interval 250");
 	one.start();
 	assertTrue( one.waitForRunning() );
 

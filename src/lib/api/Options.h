@@ -17,6 +17,9 @@ struct Options
 	bool active_sync = true;
 	bool udt = true;
 
+	unsigned sync_interval_ms = 2000;
+	unsigned offload_interval_ms = 5000;
+
 	turbo::function_chain<WriteInstructions&, readstream&> when_local_write_finishes;
 	turbo::function_chain<WriteInstructions&, readstream&> when_mirror_write_finishes;
 	turbo::function_chain<const Turbopump::Drop&>          when_drop_finishes;

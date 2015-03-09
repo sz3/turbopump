@@ -60,8 +60,8 @@ bool App::run()
 
 	_turbopump.postStart(_opts);
 
-	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_turbopump.synchronizer), 2000);
-	_scheduler.schedulePeriodic(std::bind(&Synchronizer::offloadUnwantedKeys, &_turbopump.synchronizer), 5000);
+	_scheduler.schedulePeriodic(std::bind(&Synchronizer::pingRandomPeer, &_turbopump.synchronizer), _opts.sync_interval_ms);
+	_scheduler.schedulePeriodic(std::bind(&Synchronizer::offloadUnwantedKeys, &_turbopump.synchronizer), _opts.offload_interval_ms);
 
 	_turbopump.state.running();
 	_shutdown.wait();

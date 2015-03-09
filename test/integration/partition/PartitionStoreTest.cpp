@@ -87,7 +87,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 
 TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 {
-	TurboCluster cluster(6, "--udp");
+	TurboCluster cluster(6, "--udp --sync-interval 250");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 

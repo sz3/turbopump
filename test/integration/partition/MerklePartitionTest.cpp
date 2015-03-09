@@ -24,7 +24,7 @@ namespace {
 
 TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 {
-	TurboCluster cluster(6, "--udp --no-write-chaining");
+	TurboCluster cluster(6, "--udp --no-write-chaining --sync-interval 250");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
@@ -104,7 +104,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 {
-	TurboCluster cluster(6, "--udp --no-write-chaining");
+	TurboCluster cluster(6, "--udp --no-write-chaining --sync-interval 250");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
@@ -188,7 +188,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 TEST_CASE( "MerklePartitionTest/testDualSync", "[integration-udp]" )
 {
-	TurboCluster cluster(3, "--udp --no-write-chaining");
+	TurboCluster cluster(3, "--udp --no-write-chaining --sync-interval 250");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
@@ -225,7 +225,7 @@ TEST_CASE( "MerklePartitionTest/testDualSync", "[integration-udp]" )
 
 TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 {
-	TurboCluster cluster(6, "--udp --no-write-chaining");
+	TurboCluster cluster(6, "--udp --no-write-chaining --sync-interval 250");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 

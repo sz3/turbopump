@@ -30,6 +30,9 @@ int main(int argc, const char** argv)
 	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-d", "--dataChannel");
 	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
+
+	opt.add("2000", false, 1, 0, "sync interval (ms)", "--sync-interval");
+
 	opt.add("", false, 0, 0, "TEST-ONLY: disable data forwarding", "--no-write-chaining");
 	opt.add("", false, 0, 0, "TEST-ONLY: disable query-response data sync between peers", "--no-active-sync");
 	opt.add("", false, 0, 0, "peer-to-peer communications use UDP instead of congestion-aware, reliable UDT", "--udp");
@@ -55,6 +58,13 @@ int main(int argc, const char** argv)
 		unsigned long temp;
 		og->getULong(temp);
 		options.internal_port = temp;
+	}
+
+	if ((og = opt.get("--sync-interval")) != NULL)
+	{
+		unsigned long temp;
+		og->getULong(temp);
+		options.sync_interval_ms = temp;
 	}
 
 	if (opt.isSet("--clone"))
