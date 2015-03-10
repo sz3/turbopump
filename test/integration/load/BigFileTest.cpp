@@ -16,7 +16,7 @@ using turbo::str::str;
 using turbo::stopwatch;
 
 namespace {
-	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopump/turbopump";
+	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopumpd/turbopumpd";
 
 	int openStreamSocket(string where)
 	{
@@ -42,6 +42,7 @@ TEST_CASE( "BigFileTest/testDiskWrite", "disk" )
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
 	FileReader reader(exePath);
+	assertTrue( reader.good() );
 	unsigned long long originalSize = reader.size();
 
 	const unsigned bufsize = 65536;
