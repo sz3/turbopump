@@ -13,7 +13,7 @@ template <typename Socket>
 class BufferedConnectionWriter : public IBufferedConnectionWriter
 {
 public:
-	BufferedConnectionWriter(const Socket& sock, unsigned packetsize=1450);
+	BufferedConnectionWriter(const Socket& sock, unsigned packetsize=1472);
 
 	unsigned capacity() const;
 	int write(unsigned char virtid, const char* buffer, unsigned length, bool blocking);
