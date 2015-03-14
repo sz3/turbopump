@@ -38,8 +38,8 @@ How to build
 
  - turbolib (github.com/sz3/turbolib) should be located adjacent to the
    turbopump code in the directory tree. That is:
-      /home/user/code/turbopump
-      /home/user/code/turbolib
+    * /home/user/code/turbopump
+    * /home/user/code/turbolib
 
    ... obviously, you could also modify CMakeLists.txt to do something else.
 
@@ -47,8 +47,8 @@ How to build
 
 From within the "turbopump" directory, run:
   > cmake .
-  > make
-  > make install
+  make
+  make install
 
 To run tests:
   > ctest
@@ -56,9 +56,9 @@ To run tests:
 
 How to run
 ===============================================================================
-./turbopump
+  > ./turbopump
 
-./turbopump -h
+  > ./turbopump -h
 ...for some help.
 
 
@@ -66,49 +66,49 @@ Now what?
 ===============================================================================
 The built "turbopump" executable has a few toggles for modes of operation:
 
- * UDP or UDT for transit. The default is _UDT_.
- - UDP mode does no flow control, cannot guarantee packet ordering, etc.
+* UDP or UDT for transit. The default is _UDT_.
+  - UDP mode does no flow control, cannot guarantee packet ordering, etc.
       In short, it is vanilla UDP. You can use it to saturate your local 
       network. Or for testing purposes. If your key name + contents that will 
       always be smaller than a single UDP frame (1472 bytes), and you can keep 
       a burst of packets from melting down your switches / routers, this may
       be semi-viable.
- - UDT is slightly slower, but does flow control, packet ordering, etc.
+  - UDT is slightly slower, but does flow control, packet ordering, etc.
       UDT is the default. It is is a user-space (D)ata (T)ransfer protocol 
       written atop UDP. In turbopump, it enables the transfer of large contents
       in a way that is reliable and non-destructive to the network.
 
- * Partition vs Clone
- - "Partition" mode
-   The default mode of operation is to partition nodes via consistent hashing.
-   That is, each write in the system sets a value `mirrors` for a key, and only
-   `mirrors` machines will receive a copy of the data.
- - "Clone" mode
-   There is a special value of `mirrors` that tells the system to distribute
-   a key to all machines: 0. "Clone" mode is a special flag that says to treat
-   *all* values of `mirrors` like this. Each member of the turbopump cluster
-   will mirror all key / value pairs in this mode.
+* Partition vs Clone
+  - _"Partition" mode._
+    The default mode of operation is to partition nodes via consistent hashing.
+    That is, each write in the system sets a value `mirrors` for a key, and
+    only `mirrors` machines will receive a copy of the data.
+  - _"Clone" mode._
+    There is a special value of `mirrors` that tells the system to distribute
+    a key to all machines: 0. "Clone" mode is a special flag that says to treat
+    *all* values of `mirrors` like this. Each member of the turbopump cluster
+    will mirror all key / value pairs in this mode.
 
- * File vs RAM vs ...
- - File
-   The current default is to store values as files on the filesystem.
-   However, turbopump does not currently deal well with high latency disk
-   drives -- its thread scheduling is naive -- so this is best considered a
-   beta feature. Right now, prefered operation is to use RAM, by way of ramfs.
-   e.g. on debian-based Linux distros, you might set your data directory to
-   `/run/shm/turbopump`.
- - RAM
-   A work in progress.
- - ...
-   The storage interface in turbopump is meant to be generic. That is, whether
-   *sophia* or *sqlite*, or another local database solution, the desire is that
-   turbopump should only need a thin wrapper to use a local database for its
-   local storage.
-   There are two notable requirements for these wrapper implementations:
-     1. We expect to store multiple versions of the same file at any given time
-     2. We expect to store some metadata for each file.
+* File vs RAM vs ...
+  - _File._
+    The current default is to store values as files on the filesystem.
+    However, turbopump does not currently deal well with high latency disk
+    drives -- its thread scheduling is naive -- so this is best considered a
+    beta feature. Right now, prefered operation is to use RAM, by way of ramfs.
+    e.g. on debian-based Linux distros, you might set your data directory to
+    `/run/shm/turbopump`.
+  - _RAM._
+    A work in progress.
+  - ...
+    The storage interface in turbopump is meant to be generic. That is, whether
+    *sophia* or *sqlite*, or another local database solution, the desire is that
+    turbopump should only need a thin wrapper to use a local database for its
+    local storage.
+    There are two notable requirements for these wrapper implementations:
+      1. We expect to store multiple versions of the same file at any given time
+      2. We expect to store some metadata for each file.
 
- * Membership
+* Membership
    Cluster membership is currently initialized through a clunky flat file. Each
    line in the file corresponds to a member. Membership is symmetric -- for a
    machine to join the cluster, it needs to add a member of the cluster to its
@@ -131,8 +131,11 @@ support them.
 HTTP/2 + a TCP server is on the TODO list. For now you can bust out netcat:
 
   > echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+
   > echo -e -n 'GET /list-keys HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+
   > echo -e -n 'POST /write?name=foo HTTP/1.1\r\ncontent-length:5\r\n\r\n012345' | nc -U /tmp/turbopump
+
   > echo -e -n 'GET /read?name=foo HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
 
 
