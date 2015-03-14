@@ -1,64 +1,173 @@
-# turbopump
+Turbopump - An aspiring low-latency, extensible, distributed key value store
 
-An aspiring low-latency, extensible, distributed key value store written in C++11. Currently in beta, i.e. stuff doesn't necessarily work yet.
+Overview
+===============================================================================
+Distributed key value stores are tremendously flexible tools for building a 
+wide variety of network applications. Mesh networks, file synchronization, 
+email, distributed computing, web servers, etc -- anything that requires a 
+predictable delegation of data distribution and / or processing seems well 
+suited for the eventually consistent, hash-partitioned topology that underlies 
+technologies like Amazon's Dynamo, or Riak.
 
-### Build dependencies
+However, specific implementations of distributed key value stores usually 
+restrict themselves to one particular use case. This project is an experiment.
+Its purpose is to see if a single, small code base can provide high 
+performance building blocks for many, seemingly unrelated kinds of distributed 
+applications.
 
-* linux (for now)
-* clang >= 3.4 or gcc >= 4.8* (YMMV. [modern gcc does not reliably compile multithreaded applications](https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1228201)) Other compilers are untested. Maybe they work! Maybe they don't!
-* cmake
+Written in C++11. Currently in beta: some stuff isn't implemented, and the rest
+probably isn't trustworthy yet.
 
-### Library dependencies
 
-* turbolib (see adjacent library)
-* UDT (libudt)
-* intel's TBB library (libtbb)
-* boost::filesystem -- used in integration tests
+How to build
+===============================================================================
+1. System dependencies
 
-### What works
+ - Linux
+ - clang >= 3.4 or gcc >= 4.8
+ - cmake
 
-* static and dynamic cluster membership. Online addition of peers. (removal is broken-ish)
-* RAM data store
-* local put/get of keys via HTTP over unix domain sockets
-* auto-versioned writes
-* deletes, kind of (no age-out yet)
-* cross-peer sync
-	* (allegedly) efficient synchronization of changes to data store based on a hierarchical merkle-tree-like summary data structure
+2. Library dependencies [apt-get install ...]
+
+ - libudt
+ - libtbb
+ - libattr
+ - libboostfilesystem
+
+3. git clone turbolib
+
+ - turbolib (github.com/sz3/turbolib) should be located adjacent to the
+   turbopump code in the directory tree. That is:
+      /home/user/code/turbopump
+      /home/user/code/turbolib
+
+   ... obviously, you could also modify CMakeLists.txt to do something else.
+
+4. Build commands
+
+From within the "turbopump" directory, run:
+  > cmake .
+  > make
+  > make install
+
+To run tests:
+  > ctest
+
+
+How to run
+===============================================================================
+./turbopump
+
+./turbopump -h
+...for some help.
+
+
+Now what?
+===============================================================================
+The built "turbopump" executable has a few toggles for modes of operation:
+
+ * UDP or UDT for transit. The default is _UDT_.
+ - UDP mode does no flow control, cannot guarantee packet ordering, etc.
+      In short, it is vanilla UDP. You can use it to saturate your local 
+      network. Or for testing purposes. If your key name + contents that will 
+      always be smaller than a single UDP frame (1472 bytes), and you can keep 
+      a burst of packets from melting down your switches / routers, this may
+      be semi-viable.
+ - UDT is slightly slower, but does flow control, packet ordering, etc.
+      UDT is the default. It is is a user-space (D)ata (T)ransfer protocol 
+      written atop UDP. In turbopump, it enables the transfer of large contents
+      in a way that is reliable and non-destructive to the network.
+
+ * Partition vs Clone
+ - "Partition" mode
+   The default mode of operation is to partition nodes via consistent hashing.
+   That is, each write in the system sets a value `mirrors` for a key, and only
+   `mirrors` machines will receive a copy of the data.
+ - "Clone" mode
+   There is a special value of `mirrors` that tells the system to distribute
+   a key to all machines: 0. "Clone" mode is a special flag that says to treat
+   *all* values of `mirrors` like this. Each member of the turbopump cluster
+   will mirror all key / value pairs in this mode.
+
+ * File vs RAM vs ...
+ - File
+   The current default is to store values as files on the filesystem.
+   However, turbopump does not currently deal well with high latency disk
+   drives -- its thread scheduling is naive -- so this is best considered a
+   beta feature. Right now, prefered operation is to use RAM, by way of ramfs.
+   e.g. on debian-based Linux distros, you might set your data directory to
+   `/run/shm/turbopump`.
+ - RAM
+   A work in progress.
+ - ...
+   The storage interface in turbopump is meant to be generic. That is, whether
+   *sophia* or *sqlite*, or another local database solution, the desire is that
+   turbopump should only need a thin wrapper to use a local database for its
+   local storage.
+   There are two notable requirements for these wrapper implementations:
+     1. We expect to store multiple versions of the same file at any given time
+     2. We expect to store some metadata for each file.
+
+ * Membership
+   Cluster membership is currently initialized through a clunky flat file. Each
+   line in the file corresponds to a member. Membership is symmetric -- for a
+   machine to join the cluster, it needs to add a member of the cluster to its
+   membership, *and* the cluster member in question needs to add the new
+   machine to its own membership.
+   While that is admittedly a bit clunky, the rest will happen auto-magically.
+   Members will readily share their member lists with other members, so the new
+   recruit will quickly be recognized by the entire group.
+
+
+Okay, great. How do I use it?
+===============================================================================
+This is where the immaturity of the project shines through! ¯\_(ツ)_/¯
+
+You can use HTTP(1) over unix domain sockets. This sounded like a much better 
+plan *before* I realized that libraries like libcurl hadn't decided on a URI
+scheme for talking to domain sockets over HTTP, meaning they don't really
+support them.
+
+HTTP/2 + a TCP server is on the TODO list. For now you can bust out netcat:
+
+  > echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+  > echo -e -n 'GET /list-keys HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+  > echo -e -n 'POST /write?name=foo HTTP/1.1\r\ncontent-length:5\r\n\r\n012345' | nc -U /tmp/turbopump
+  > echo -e -n 'GET /read?name=foo HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+
+
+TODO (╯°□°）╯
+===============================================================================
+* get RAM storage operational again.
+* TCP HTTP server
+* HTTP/2
+* encryption of socket layer via libsodium.
+* signed file writes. Only accept data changes if write is authenticated.
+  This is too complicated to describe in a todo. It will be cool though.
+* a "transient" mode, where keys are only kept until they have been
+  successfully propagated to the destination.
+* API for function callbacks on key execution. Hook for arbitrary code
+  execution via system()?
+* dynamic membership -- authenticated (signed) peer removal.
+* libnice NAT traversal. Maybe. UDT is in the way.
+* deleted key cleanup (age-out of deleted metadata)
+* directory indexing. Somewhat intertwined with deleted key cleanup
+* windows support...?
+
+
+TODONE ᕕ(ᐛ)ᕗ
+===============================================================================
+* versioned (vector clock'd) writes
+* key distribution/partitioning
+* cross-peer key sync
 * basic function callbacks on write completion
-* inter-box UDP communication for small writes.
-	* No reliability, nor congestion control. YMMV.
-* inter-box UDT communication. (default)
-	* No ability to reuse bound socket for outgoing connection -> :(
-	* may cause NAT issues going forward
-* partitioning! Mode to distribute keys to only their rightful place, rather than "everywhere".
-	* also supports a simpler "clone" mode, where every peer duplicates the entire data store.
+* UDP, UDT internal communication
+* domain socket (HTTP) command server
 * basic load/latency testing
 	* concurrent writes
 	* large writes
 	* cross-peer sync
 
-### What's planned
 
-* encryption of socket layer via libsodium.
-* a "transient" mode, where keys are only kept until they have been successfully propagated to the destination.
-* API for function callbacks on key execution. Hook for arbitrary code execution via system()?
-* dynamic membership -- authenticated (signed) peer removal.
-* libnice NAT traversal
-
-### What about...? (TODO)
-
-* deleted key cleanup (age-out of deleted metadata)
-* append/mutate of given version
-* windows support...
-
-### Q&A
-
-Q. I am a possible wizard who somehow got this built and running. How do I store and retrieve files?
-
-A. The API is still in flux, but you can use HTTP over unix domain sockets. For example:
-
-* echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
-* echo -e -n 'GET /list-keys HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
-* echo -e -n 'POST /write?name=foo HTTP/1.1\r\ncontent-length:5\r\n\r\n012345' | nc -U /tmp/turbopump
-* echo -e -n 'GET /read?name=foo HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+These are some of the things that key-value stores do.
 
