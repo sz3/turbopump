@@ -15,6 +15,7 @@ add_library(turbopump STATIC ${SOURCES})
 target_link_libraries(turbopump
 -Wl,--start-group
 	api
+	callbacks
 	common
 	deskew
 	hashing
@@ -22,7 +23,6 @@ target_link_libraries(turbopump
 	membership
 	peer_client
 	peer_server
-	programmable
 	storage
 
 	event

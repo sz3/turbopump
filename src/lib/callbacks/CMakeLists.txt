@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	BuildCallbacks.cpp
+	BuildCallbacks.h
+
 	AddPeer.cpp
 	AddPeer.h
-	Callbacks.cpp
-	Callbacks.h
 	ChainWrite.h
 	MirrorToPeer.cpp
 	MirrorToPeer.h
@@ -18,6 +19,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(programmable STATIC ${SOURCES})
+add_library(callbacks STATIC ${SOURCES})
 
 

@@ -30,7 +30,6 @@ target_link_libraries(user_server_test
 	hashing
 	membership
 	mock
-	programmable
 
 	http
 	serialize

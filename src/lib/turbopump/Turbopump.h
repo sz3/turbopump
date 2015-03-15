@@ -13,7 +13,6 @@
 #include "logging/StderrLogger.h"
 #include "membership/Membership.h"
 #include "membership/Peer.h"
-#include "programmable/Callbacks.h"
 #include "storage/FileStore.h"
 
 #include "socket/socket_address.h"

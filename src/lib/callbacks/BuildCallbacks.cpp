@@ -1,5 +1,5 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "Callbacks.h"
+#include "BuildCallbacks.h"
 
 #include "AddPeer.h"
 #include "ChainWrite.h"
@@ -10,6 +10,7 @@
 #include "api/Drop.h"
 #include "deskew/IKeyTabulator.h"
 #include "storage/readstream.h"
+#include "turbopump/Turbopump.h"
 
 #include <deque>
 #include <functional>
@@ -65,51 +66,50 @@ namespace
 	}
 }
 
-Callbacks::Callbacks(const Turbopump::Options& opts)
-	: Turbopump::Options(opts)
+BuildCallbacks::BuildCallbacks(Turbopump::Options& opts)
+	: _opts(opts)
 {
 }
 
-void Callbacks::initialize(IConsistentHashRing& ring, ILocateKeys& locator, IMembership& membership, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer)
+void BuildCallbacks::build(Turbopump::Turbopump& turbopump, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer)
 {
-	// TODO: devise a proper callback strategy for configurable default callbacks + user defined ones.
-	//  yes, I know this is basically: "TODO: figure out how to land on moon"
-
 	// on local write
 	{
-		if (active_sync)
-			when_local_write_finishes.add( digestAddFunct(keyTabulator) );
+		if (_opts.active_sync)
+			_opts.when_local_write_finishes.add( digestAddFunct(keyTabulator) );
 
-		if (write_chaining)
+		if (_opts.write_chaining)
 		{
-			if (partition_keys)
-				when_local_write_finishes.add( writeChainFunct_partitionMode(locator, membership, writer, true) );
+			if (_opts.partition_keys)
+				_opts.when_local_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, writer, true) );
 			else
-				when_local_write_finishes.add( writeChainFunct_cloneMode(locator, membership, writer, true) );
+				_opts.when_local_write_finishes.add( writeChainFunct_cloneMode(turbopump.keyLocator, turbopump.membership, writer, true) );
 		}
-		when_local_write_finishes.add( membershipAddFunct(ring, membership, keyTabulator) );
-
-		when_local_write_finishes.finalize();
+		_opts.when_local_write_finishes.add( membershipAddFunct(turbopump.ring, turbopump.membership, keyTabulator) );
 	}
 
 	// on mirror write
 	{
-		if (active_sync)
-			when_mirror_write_finishes.add( digestAddFunct(keyTabulator) );
+		if (_opts.active_sync)
+			_opts.when_mirror_write_finishes.add( digestAddFunct(keyTabulator) );
 
-		if (write_chaining && partition_keys)
-			when_mirror_write_finishes.add( writeChainFunct_partitionMode(locator, membership, writer, false) );
+		if (_opts.write_chaining && _opts.partition_keys)
+			_opts.when_mirror_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, writer, false) );
 
-		when_mirror_write_finishes.add( notifyWriteComplete(membership, messenger) );
-		when_mirror_write_finishes.add( membershipAddFunct(ring, membership, keyTabulator) );
-
-		when_mirror_write_finishes.finalize();
+		_opts.when_mirror_write_finishes.add( notifyWriteComplete(turbopump.membership, messenger) );
+		_opts.when_mirror_write_finishes.add( membershipAddFunct(turbopump.ring,turbopump. membership, keyTabulator) );
 	}
 
 	// on drop
 	{
-		if (active_sync)
-			when_drop_finishes.add( digestDelFunct(keyTabulator) );
-		when_drop_finishes.finalize();
+		if (_opts.active_sync)
+			_opts.when_drop_finishes.add( digestDelFunct(keyTabulator) );
 	}
+
+	if (_opts.build_callbacks)
+		_opts.build_callbacks(_opts, turbopump);
+
+	_opts.when_local_write_finishes.finalize();
+	_opts.when_mirror_write_finishes.finalize();
+	_opts.when_drop_finishes.finalize();
 }

@@ -27,6 +27,8 @@ set (PROJECTS
 
    src/lib/api
    test/lib/api
+   src/lib/callbacks
+   test/lib/callbacks
    src/lib/common
    test/lib/common
    src/lib/deskew
@@ -40,8 +42,6 @@ set (PROJECTS
    test/lib/peer_client
    src/lib/peer_server
    test/lib/peer_server
-   src/lib/programmable
-   test/lib/programmable
    src/lib/storage
    test/lib/storage
    src/lib/turbopump

@@ -11,14 +11,12 @@
 #include "peer_client/WriteSupervisor.h"
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
-#include "programmable/Callbacks.h"
 
 #include "event/SchedulerThread.h"
 #include "event/MultiThreadedExecutor.h"
 #include "socket/ISocketServer.h"
 
 namespace Turbopump {
-
 class App
 {
 public:
@@ -33,8 +31,8 @@ protected:
 	// shutdown flag
 	Event _shutdown;
 
-	// augmented options (this is weird, and needs to be cleaned up)
-	Callbacks _opts;
+	// options
+	Options _opts;
 
 	// core app logic
 	Turbopump _turbopump;
@@ -62,5 +60,4 @@ protected:
 	ConcurrentCommandCenter _peerCenter;
 	PeerPacketHandler _peerPacketHandler;
 };
-
 }//namespace

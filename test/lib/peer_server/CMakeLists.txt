@@ -35,7 +35,6 @@ target_link_libraries(peer_server_test
 	membership
 	mock
 	peer_client
-	programmable
 
 	event
 	serialize

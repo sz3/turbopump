@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(programmable_test)
+project(callbacks_test)
 
 set (SOURCES
 	test.cpp
@@ -14,19 +14,19 @@ set (SOURCES
 include_directories(
 	${turbolib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
-	${turboproj_SOURCE_DIR}/src/lib/programmable
+	${turboproj_SOURCE_DIR}/src/lib/callbacks
 )
 
 add_executable (
-	programmable_test
+	callbacks_test
 	${SOURCES}
 )
 
-add_test(programmable_test programmable_test)
+add_test(callbacks_test callbacks_test)
 
-target_link_libraries(programmable_test
+target_link_libraries(callbacks_test
 -Wl,--start-group
-	programmable
+	callbacks
 
 	common
 	hashing

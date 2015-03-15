@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "App.h"
 
+#include "callbacks/BuildCallbacks.h"
 #include "peer_server/MultiplexedSocketPool.h"
 
 #include "socket/socket_address.h"
@@ -24,11 +25,10 @@ namespace {
 }
 
 namespace Turbopump {
-
 App::App(const Options& opts)
 	: _opts(opts)
 	, _turbopump(_opts, _messenger, _writeSupervisor)
-	, _peerServer(peerServer(_opts, socket_address("127.0.0.1", opts.internal_port), std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3), std::bind(&PartialTransfers::run, &_partialTransfers, _1)))
+	, _peerServer(peerServer(opts, socket_address("127.0.0.1", opts.internal_port), std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3), std::bind(&PartialTransfers::run, &_partialTransfers, _1)))
 	, _messenger(_packer, *_peerServer)
 	, _partialTransfers(*_peerServer)
 	, _writeSupervisor(_packer, _partialTransfers, *_peerServer, _turbopump.store)
@@ -36,7 +36,7 @@ App::App(const Options& opts)
 	, _peerPacketHandler(_turbopump.membership, _peerCenter, _turbopump.logger)
 	, _threadLockedKeyTabulator(_turbopump.keyTabulator, _scheduler)
 {
-	_opts.initialize(_turbopump.ring, _turbopump.keyLocator, _turbopump.membership, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
+	BuildCallbacks(_opts).build(_turbopump, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
 }
 
 bool App::run()
