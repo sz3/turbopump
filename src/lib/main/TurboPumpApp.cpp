@@ -5,29 +5,44 @@
 
 #include "http/HttpByteStream.h"
 #include "socket/FileByteStream.h"
+#include "socket/StreamSocketAcceptorServer.h"
+#include "socket/local_stream_socket.h"
 #include "socket/socket_address.h"
+#include "socket/tcp_socket.h"
 #include <functional>
 #include <iostream>
 
 using namespace std::placeholders;
 
-TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const std::string& streamSocket)
+namespace {
+	// could be in a separate compilation unit. Point is: it's a factory method.
+	ISocketServer* localServer(const Turbopump::Options& opts, const socket_address& addr, const std::function<void(int)>& onConnect, unsigned threads)
+	{
+		if (addr.port() == 0)
+			return new StreamSocketAcceptorServer<local_stream_socket>(addr, onConnect, threads);
+		else
+			return new StreamSocketAcceptorServer<tcp_socket>(addr, onConnect, threads);
+	}
+
+}
+
+TurboPumpApp::TurboPumpApp(const Turbopump::Options& opts, const socket_address& controlAddr)
 	: Turbopump::App(opts)
-	, _localServer(socket_address(streamSocket), std::bind(&TurboPumpApp::onClientConnect, this, _1), 2)
+	, _localServer(localServer(opts, controlAddr, std::bind(&TurboPumpApp::onClientConnect, this, _1), 2))
 {
 }
 
 void TurboPumpApp::run()
 {
-	if (!_localServer.start())
+	if (!_localServer->start())
 	{
-		std::cerr << "failed to start local socket server. Abort." << std::endl;
+		std::cerr << "failed to start local server. Abort. " << _localServer->lastError() << std::endl;
 		::exit(-1);
 	}
 
 	Turbopump::App::run();
 
-	_localServer.stop();
+	_localServer->stop();
 }
 
 // TODO: split into server class.

@@ -4,18 +4,17 @@
 #include "api/Options.h"
 #include "turbopump/App.h"
 
-#include "socket/LocalStreamSocketServer.h"
-#include <string>
+#include "socket/ISocketServer.h"
 
 class TurboPumpApp : public Turbopump::App
 {
 public:
-	TurboPumpApp(const Turbopump::Options& opts, const std::string& streamSocket);
+	TurboPumpApp(const Turbopump::Options& opts, const socket_address& controlAddr);
 
 	void run();
 
 	void onClientConnect(int fd);
 
 protected:
-	LocalStreamSocketServer _localServer;
+	std::unique_ptr<ISocketServer> _localServer;
 };

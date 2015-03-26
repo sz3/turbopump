@@ -3,10 +3,14 @@
 #include "main/TurboPumpApp.h"
 
 #include "optionparser/ezOptionParser.hpp"
+#include "serialize/str.h"
 #include <memory>
 #include <string>
+#include <vector>
+
 #include <signal.h>
 using namespace ez;
+using namespace turbo;
 using std::string;
 
 namespace {
@@ -23,11 +27,13 @@ int main(int argc, const char** argv)
 {
 	ezOptionParser opt;
 	opt.overview = "A high performance distributed key value store. 'high performance' is a relative term.";
-	opt.syntax = "./turbopump --dothething";
-	opt.footer = "turbopump 0.01";
+	opt.syntax = "./turbopumpd --dothething";
+	opt.example = " turbopumpd -l localhost:9090 -p 9091 --clone\n"
+				  " turbopumpd -l :9000\n";
+	opt.footer = "\n***version 0.01";
 
 	opt.add("", false, 0, 0, "Display usage instructions.", "-h", "--help");
-	opt.add("/tmp/turbopump", false, 1, 0, "domain socket path", "-d", "--dataChannel");
+	opt.add("/tmp/turbopump", false, 1, 0, "local server. File path (domain socket), or tcp bind address.", "-l", "--local-addr");
 	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
 
@@ -48,9 +54,17 @@ int main(int argc, const char** argv)
 	}
 	OptionGroup* og;
 
-	string turbopath;
-	if ((og = opt.get("--dataChannel")) != NULL)
+	socket_address localAddr;
+	if ((og = opt.get("--local-addr")) != NULL)
+	{
+		string turbopath;
 		og->getString(turbopath);
+		std::vector<string> comps = str::split(turbopath, ':');
+		if (comps.size() == 1)
+			localAddr = socket_address(comps[0]);
+		else if (comps.size() == 2)
+			localAddr = socket_address(comps[0], std::stoi(comps[1]));
+	}
 
 	Turbopump::Options options;
 	if ((og = opt.get("--port")) != NULL)
@@ -76,8 +90,8 @@ int main(int argc, const char** argv)
 	if (opt.isSet("--udp"))
 		options.udt = false;
 
-	std::cout << turbopath << ":" << options.internal_port << std::endl;
-	_app.reset( new TurboPumpApp(options, turbopath) );
+	std::cout << localAddr.toString() << ":" << options.internal_port << std::endl;
+	_app.reset( new TurboPumpApp(options, localAddr) );
 
 	::signal(SIGINT, &onShutdown);
 	::signal(SIGPIPE, SIG_IGN); // may use SO_NOSIGPIPE and/or MSG_NOSIGNAL instead...

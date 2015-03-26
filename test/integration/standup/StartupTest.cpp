@@ -31,7 +31,7 @@ class IntegratedTurboRunner : public TurboRunner
 public:
 	IntegratedTurboRunner(const Turbopump::Options& opts)
 		: TurboRunner(opts.internal_port)
-		, _app(opts, dataChannel())
+		, _app(opts, socket_address(dataChannel()))
 		, _thread(std::bind(&TurboPumpApp::run, &_app))
 	{
 		::signal(SIGPIPE, SIG_IGN);

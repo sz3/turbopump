@@ -56,15 +56,15 @@ To run tests:
 
 How to run
 ===============================================================================
-  > ./turbopump
+  > ./turbopumpd
 
-  > ./turbopump -h
+  > ./turbopumpd -h
 ...for some help.
 
 
 Now what?
 ===============================================================================
-The built "turbopump" executable has a few toggles for modes of operation:
+The built "turbopumpd" executable has a few toggles for modes of operation:
 
 * UDP or UDT for transit. The default is _UDT_.
   - UDP mode does no flow control, cannot guarantee packet ordering, etc.
@@ -142,7 +142,6 @@ HTTP/2 + a TCP server is on the TODO list. For now you can bust out netcat:
 TODO (╯°□°）╯
 ===============================================================================
 * get RAM storage operational again.
-* TCP HTTP server
 * HTTP/2
 * encryption of socket layer via libsodium.
 * signed file writes. Only accept data changes if write is authenticated.
@@ -165,7 +164,7 @@ TODONE ᕕ(ᐛ)ᕗ
 * cross-peer key sync
 * basic function callbacks on write completion
 * UDP, UDT internal communication
-* domain socket (HTTP) command server
+* simple domain socket or TCP (HTTP) command server
 * basic load/latency testing
 	* concurrent writes
 	* large writes

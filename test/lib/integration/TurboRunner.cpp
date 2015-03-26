@@ -47,7 +47,7 @@ string TurboRunner::dataChannel() const
 
 void TurboRunner::start()
 {
-	string command = ("cd " + _workingDir + " && " + exePath + " -p " + str(_port) + " -d " + _dataChannel + " " + _programFlags + " &");
+	string command = ("cd " + _workingDir + " && " + exePath + " -p " + str(_port) + " -l " + _dataChannel + " " + _programFlags + " &");
 	//std::cout << " starting " << command << std::endl;
 	int res = system(command.c_str());
 }
