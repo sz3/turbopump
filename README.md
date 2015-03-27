@@ -109,21 +109,24 @@ The built "turbopumpd" executable has a few toggles for modes of operation:
       2. We expect to store some metadata for each file.
 
 * Membership
-   Cluster membership is currently initialized through a clunky flat file. Each
-   line in the file corresponds to a member. Membership is symmetric -- for a
-   machine to join the cluster, it needs to add a member of the cluster to its
-   membership, *and* the cluster member in question needs to add the new
-   machine to its own membership.
-   While that is admittedly a bit clunky, the rest will happen auto-magically.
-   Members will readily share their member lists with other members, so the new
-   recruit will quickly be recognized by the entire group.
-
+  - Cluster membership is currently initialized through a flat file. Each
+    line in the file corresponds to a member. Membership is symmetric -- for a
+    machine to join the cluster, it needs to add a member of the cluster to its
+    membership, *and* the cluster member in question needs to add the new
+    machine to its own membership.
+  - While that is admittedly a bit clunky, the rest will happen auto-magically.
+    Members will readily share their member lists with other members, so the new
+    recruit will quickly be recognized by the entire group.
+ 
 
 Okay, great. How do I use it?
 ===============================================================================
 You can use HTTP(1) over TCP or unix domain sockets. By default, turbopump runs
-a TCP server on port 8084. However, the API is not very mature and likely to
-change. :|
+a TCP server on port 8084. It is not exactly a super robust server, so please
+don't put it on the public internet (by default it binds to INADDR_LOOPBACK).
+Also, the API is not very mature and guaranteed to change. :|
+
+With all that said!
 
   > curl localhost:8084/status
 
