@@ -4,6 +4,7 @@
 
 #include "optionparser/ezOptionParser.hpp"
 #include "serialize/str.h"
+#include "serialize/str_join.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -20,21 +21,28 @@ namespace {
 	{
 		_app->shutdown();
 	}
-}
 
+	std::string examples()
+	{
+		std::vector<string> ex = {
+			"./turbopumpd -l /tmp/turbopump -p 9001 --clone",
+			"./turbopumpd -l :8084"
+		};
+		return str::join(ex, '\n');
+	}
+}
 
 int main(int argc, const char** argv)
 {
 	ezOptionParser opt;
 	opt.overview = "A high performance distributed key value store. 'high performance' is a relative term.";
 	opt.syntax = "./turbopumpd --dothething";
-	opt.example = " turbopumpd -l localhost:9090 -p 9091 --clone\n"
-				  " turbopumpd -l :9000\n";
-	opt.footer = "\n***version 0.01";
+	opt.example = examples();
+	opt.footer = "\n\n***version 0.01";
 
 	opt.add("", false, 0, 0, "Display usage instructions.", "-h", "--help");
-	opt.add("/tmp/turbopump", false, 1, 0, "local server. File path (domain socket), or tcp bind address.", "-l", "--local-addr");
-	opt.add("9001", false, 1, 0, "udp port", "-p", "--port");
+	opt.add("localhost:8084", false, 1, 0, "local server. File path (domain socket), or tcp bind address.", "-l", "--local-addr");
+	opt.add("8085", false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
 
 	opt.add("2000", false, 1, 0, "sync interval (ms)", "--sync-interval");

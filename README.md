@@ -123,20 +123,18 @@ Okay, great. How do I use it?
 ===============================================================================
 This is where the immaturity of the project shines through! ¯\_(ツ)_/¯
 
-You can use HTTP(1) over unix domain sockets. This sounded like a much better 
-plan *before* I realized that libraries like libcurl hadn't decided on a URI
-scheme for talking to domain sockets over HTTP, meaning they don't really
-support them.
+You can use HTTP(1) over TCP or unix domain sockets. By default, turbopump runs
+TCP on port 8084.
 
-HTTP/2 + a TCP server is on the TODO list. For now you can bust out netcat:
+  > curl localhost:8084/status;
+    echo "bytes" | curl -d @- localhost:8084/write?name=foo;
+    curl localhost:8084/read?name=foo;
+    curl localhost:8084/list-keys;
+
+To try out the domain socket functionality (`./turbopump -l /tmp/turbopump`),
+you can use netcat:
 
   > echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
-
-  > echo -e -n 'GET /list-keys HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
-
-  > echo -e -n 'POST /write?name=foo HTTP/1.1\r\ncontent-length:5\r\n\r\n012345' | nc -U /tmp/turbopump
-
-  > echo -e -n 'GET /read?name=foo HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
 
 
 TODO (╯°□°）╯
