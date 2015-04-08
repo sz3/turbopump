@@ -31,6 +31,11 @@ Hash::Hash(const string& input)
 {
 }
 
+Hash& Hash::fromHash(const string& hash)
+{
+	_hash = hash;
+}
+
 Hash& Hash::fromBase64(const string& encoded)
 {
 	_hash = base64::decode(encoded);
@@ -39,7 +44,12 @@ Hash& Hash::fromBase64(const string& encoded)
 
 std::string Hash::base64() const
 {
-	return base64::encode((const unsigned char*)_hash.data(), _hash.size());
+	return base64::encode(_hash);
+}
+
+const std::string& Hash::str() const
+{
+	return _hash;
 }
 
 unsigned long long Hash::integer() const

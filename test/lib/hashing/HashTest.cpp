@@ -17,6 +17,9 @@ TEST_CASE( "HashTest/testCompute", "[unit]" )
 	string res1 = Hash("foo").base64();
 	string res2 = Hash("foo").base64();
 	assertEquals( res1, res2 );
+
+	string hashed = Hash("foo").str();
+	assertEquals( Hash().fromHash(hashed).str(), hashed );
 }
 
 TEST_CASE( "HashTest/testToFromBase64", "[unit]" )

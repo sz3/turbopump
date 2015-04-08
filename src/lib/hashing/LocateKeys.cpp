@@ -40,7 +40,7 @@ bool LocateKeys::keyIsMine(const string& name, unsigned limit) const
 
 bool LocateKeys::sectionIsMine(const string& id, unsigned limit) const
 {
-	vector<string> locs = _ring.locations(Hash().fromBase64(id), limit);
+	vector<string> locs = _ring.locations(Hash().fromHash(id), limit);
 	if (locs.empty())
 		return true; // special case
 	return containsSelf(locs);

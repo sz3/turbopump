@@ -32,7 +32,7 @@ Synchronizer::Synchronizer(const IConsistentHashRing& ring, const IMembership& m
 void Synchronizer::pingRandomPeer()
 {
 	const IDigestKeys& tree = _index.randomTree();
-	std::vector<string> locations = _ring.locations(Hash().fromBase64(tree.id().id), tree.id().mirrors);
+	std::vector<string> locations = _ring.locations(Hash().fromHash(tree.id().id), tree.id().mirrors);
 
 	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
 	if (!peer)
@@ -48,7 +48,7 @@ void Synchronizer::offloadUnwantedKeys()
 	if (tree.empty())
 		return;
 
-	std::vector<string> locations = _ring.locations(Hash().fromBase64(tree.id().id), tree.id().mirrors);
+	std::vector<string> locations = _ring.locations(Hash().fromHash(tree.id().id), tree.id().mirrors);
 	if (locations.empty())
 		return;
 

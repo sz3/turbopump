@@ -221,22 +221,22 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	index.splitSection("555");
 
 	deque<string> files = index.find("2", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "777 111", turbo::str::join(files) );
+	assertEquals( "888 777 111", turbo::str::join(files) );
 
 	files = index.find("555", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "888 999 222 666 333 444 555", turbo::str::join(files) );
+	assertEquals( "999 222 666 333 444 555", turbo::str::join(files) );
 
 	files = index.find("2", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "77 22", turbo::str::join(files) );
+	assertEquals( "55 33 77 22", turbo::str::join(files) );
 
 	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "55 33 99 88 66 44 11", turbo::str::join(files) );
+	assertEquals( "99 88 66 44 11", turbo::str::join(files) );
 
 	files = index.find("2", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "3", turbo::str::join(files) );
+	assertEquals( "2 6 9 8 1 3", turbo::str::join(files) );
 
 	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "2 6 9 8 1 7 5 4", turbo::str::join(files) );
+	assertEquals( "7 5 4", turbo::str::join(files) );
 
 
 	locator._locations[0] = "44";
@@ -246,19 +246,28 @@ TEST_CASE( "KeyTabulatorTest/testReorganizeSections", "[unit]" )
 	assertEquals( "333 444 555", turbo::str::join(files) );
 
 	files = index.find("44", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "888 999 222 666", turbo::str::join(files) );
+	assertEquals( "999 222 666", turbo::str::join(files) );
+
+	files = index.find("2", 3).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "888 777 111", turbo::str::join(files) );
 
 	files = index.find("555", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
 	assertEquals( "11", turbo::str::join(files) );
 
 	files = index.find("44", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "55 33 99 88 66 44", turbo::str::join(files) );
+	assertEquals( "99 88 66 44", turbo::str::join(files) );
+
+	files = index.find("2", 2).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "55 33 77 22", turbo::str::join(files) );
 
 	files = index.find("555", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "8 1 7 5 4", turbo::str::join(files) );
+	assertEquals( "5 4", turbo::str::join(files) );
 
 	files = index.find("44", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
-	assertEquals( "2 6 9", turbo::str::join(files) );
+	assertEquals( "7", turbo::str::join(files) );
+
+	files = index.find("2", 1).enumerate(0, 0xFFFFFFFFFFFFFFFFULL);
+	assertEquals( "2 6 9 8 1 3", turbo::str::join(files) );
 
 
 	/*locator._locations[0] = "2";

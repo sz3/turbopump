@@ -109,7 +109,7 @@ void DigestIndexer::splitSection(const string& where)
 		if (sourceTree.id().id < section)
 		{
 			// would be nice to encapsulate this endianness nonsense somewhere.
-			first = htobe64(Hash().fromBase64(sourceTree.id().id).integer());
+			first = htobe64(Hash().fromHash(sourceTree.id().id).integer());
 			first = be64toh(++first);
 		}
 	}

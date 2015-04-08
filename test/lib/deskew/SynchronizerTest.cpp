@@ -42,7 +42,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomPeer", "default" )
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.pingRandomPeer();
 
-	assertEquals( "locations(oak=,2)", ring._history.calls() );
+	assertEquals( "locations(Pq3f,2)", ring._history.calls() );
 	assertEquals( "randomPeer()", membership._history.calls() );
 	assertEquals( "digestPing(dude,oak,5 5 50)", messenger._history.calls() );
 	assertEquals( "randomTree()", index._history.calls() );
@@ -66,7 +66,7 @@ TEST_CASE( "SynchronizerTest/testPingRandomHashRingLoc", "default" )
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.pingRandomPeer();
 
-	assertEquals( "locations(oak=,2)", ring._history.calls() );
+	assertEquals( "locations(Pq3f,2)", ring._history.calls() );
 	assertEquals( "randomPeerFromList()", membership._history.calls() );
 	assertEquals( "digestPing(dude,oak,5 5 50)", messenger._history.calls() );
 	assertEquals( "randomTree()", index._history.calls() );
@@ -92,7 +92,7 @@ TEST_CASE( "SynchronizerTest/testOffloadUnwantedKeys", "default" )
 
 	assertEquals( "unwantedTree()", index._history.calls() );
 	assertEquals( "empty()", index._tree._history.calls() );
-	assertEquals( "locations(oak=,2)", ring._history.calls() );
+	assertEquals( "locations(Pq3f,2)", ring._history.calls() );
 	assertEquals( "randomPeerFromList()|self()", membership._history.calls() );
 	assertEquals( ("pushKeyRange(dude,oak,2,0," + str(~0ULL) + ",me)"), corrector._history.calls() );
 }

@@ -19,13 +19,13 @@ TEST_CASE( "ConsistentHashRingTest/testInsert", "[unit]" )
 {
 	TestableConsistentHashRing ring;
 	assertTrue( ring.insert("one", "1") );
-	assertEquals( "1", ring._ring[Hash("one").base64()] );
+	assertEquals( "1", ring._ring[Hash("one").str()] );
 
 	assertTrue( ring.insert("two", "2") );
-	assertEquals( "2", ring._ring[Hash("two").base64()] );
+	assertEquals( "2", ring._ring[Hash("two").str()] );
 
 	assertTrue( ring.insert("foo", "bar") );
-	assertEquals( "bar", ring._ring[Hash("foo").base64()] );
+	assertEquals( "bar", ring._ring[Hash("foo").str()] );
 
 	assertEquals( 3, ring._ring.size() );
 }
@@ -35,19 +35,19 @@ TEST_CASE( "ConsistentHashRingTest/testErase", "[unit]" )
 	TestableConsistentHashRing ring;
 	assertFalse( ring.erase("nothing") );
 
-	ring._ring[Hash("one").base64()] = "one";
-	ring._ring[Hash("two").base64()] = "two";
-	ring._ring[Hash("three").base64()] = "three";
+	ring._ring[Hash("one").str()] = "one";
+	ring._ring[Hash("two").str()] = "two";
+	ring._ring[Hash("three").str()] = "three";
 	assertEquals( 3, ring._ring.size() );
 
 	assertTrue( ring.erase("one") );
 	assertEquals( 2, ring._ring.size() );
-	assertTrue( ring._ring.find(Hash("one").base64()) == ring._ring.end() );
+	assertTrue( ring._ring.find(Hash("one").str()) == ring._ring.end() );
 	assertFalse( ring.erase("one") );
 
 	assertTrue( ring.erase("three") );
 	assertEquals( 1, ring._ring.size() );
-	assertEquals( "two", ring._ring[Hash("two").base64()] );
+	assertEquals( "two", ring._ring[Hash("two").str()] );
 
 	assertTrue( ring.erase("two") );
 	assertEquals( 0, ring._ring.size() );
@@ -94,9 +94,9 @@ TEST_CASE( "ConsistentHashRingTest/testNodeId", "[unit]" )
 	ring.insert("three", "three");
 	assertEquals( 3, ring._ring.size() );
 
-	assertEquals( Hash("one").base64(), ring.nodeId("one") );
-	assertEquals( Hash("two").base64(), ring.nodeId("two") );
-	assertEquals( Hash("three").base64(), ring.nodeId("three") );
-	assertEquals( Hash("two").base64(), ring.nodeId("foo") );
+	assertEquals( Hash("one").str(), ring.nodeId("one") );
+	assertEquals( Hash("two").str(), ring.nodeId("two") );
+	assertEquals( Hash("three").str(), ring.nodeId("three") );
+	assertEquals( Hash("two").str(), ring.nodeId("foo") );
 }
 
