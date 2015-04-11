@@ -8,8 +8,8 @@ using std::string;
 TEST_CASE( "HashTest/testDefault", "[unit]" )
 {
 	// TIGER192
-	assertEquals("9DpzPnBWW8TmR/iPy5EsWZE0NXb8qrjm", Hash("hello").base64());
-	assertEquals("rV6C0JQN3uRbtyX8tbCQ7KwKXG+kw8Os", Hash("world").base64());
+	assertEquals("BFpzRnDYYAVmT1iRy7GsY_G2PZbAqrjm", Hash("hello").base64());
+	assertEquals("rX8E2LSP5uTbtyZAtbES9MwMZI0kwAQs", Hash("world").base64());
 }
 
 TEST_CASE( "HashTest/testCompute", "[unit]" )
