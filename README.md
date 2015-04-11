@@ -122,19 +122,19 @@ The built "turbopumpd" executable has a few toggles for modes of operation:
 Okay, great. How do I use it?
 ===============================================================================
 You can use HTTP(1) over TCP or unix domain sockets. By default, turbopump runs
-a TCP server on port 8084. It is not exactly a super robust server, so please
+a TCP server on port 1592. It is not exactly a super robust server, so please
 don't put it on the public internet (by default it binds to INADDR_LOOPBACK).
 Also, the API is not very mature and guaranteed to change. :|
 
 With all that said!
 
-  > curl localhost:8084/status
+  > curl localhost:1592/status
 
-  > echo "bytes" | curl -d @- localhost:8084/write?name=foo
+  > echo "bytes" | curl -d @- localhost:1592/write?name=foo
 
-  > curl localhost:8084/read?name=foo
+  > curl localhost:1592/read?name=foo
 
-  > curl localhost:8084/list-keys
+  > curl localhost:1592/list-keys
 
 To try out the domain socket functionality (`./turbopump -l /tmp/turbopump`),
 you can use netcat:
