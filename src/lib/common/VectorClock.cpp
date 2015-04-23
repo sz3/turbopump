@@ -1,25 +1,34 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "VectorClock.h"
 
+#include "WallClock.h"
+#include "serialize/base64.h"
+#include "serialize/str.h"
+
 #include <algorithm>
 #include <deque>
 #include <sstream>
 using std::deque;
+using namespace turbo;
+
+using base_class = vector_clock::bounded_time_vector<std::string,10>;
 
 VectorClock::VectorClock()
-	: bounded_version_vector<std::string,10>()
+	: base_class()
 {
 }
 
 VectorClock::VectorClock(const std::deque<VectorClock::clock>& clocks)
-	: bounded_version_vector<std::string,10>(clocks)
+	: base_class(clocks)
 {
 }
 
 namespace {
 	std::ostream& operator<<(std::ostream& outstream, const VectorClock::clock& clock)
 	{
-		outstream << clock.key << ":" << clock.count;
+		outstream << clock.key << "." << base64::encode(clock.time);
+		if (clock.count != 0)
+			outstream << "." << clock.count;
 		return outstream;
 	}
 
@@ -38,11 +47,18 @@ namespace {
 		if (!instream)
 			return instream;
 
-		size_t pos = clockStr.find(':');
+		clock.time = 0;
+		clock.count = 0;
+
+		size_t pos = clockStr.find('.');
 		if (pos != std::string::npos && (pos+1) != std::string::npos)
 		{
 			clock.key = clockStr.substr(0, pos);
-			clock.count = std::stoul(clockStr.substr(pos+1));
+			size_t count_pos = clockStr.find('.', pos+1);
+
+			clock.time = base64::decode_as<uint64_t>(clockStr.substr(pos+1, count_pos));
+			if (count_pos != std::string::npos && (count_pos+1) != std::string::npos)
+				clock.count = std::stoul(clockStr.substr(count_pos+1));
 		}
 		return instream;
 	}
@@ -63,16 +79,21 @@ namespace {
 	}
 }
 
-bool VectorClock::isDeleted() const
+void VectorClock::increment(const std::string& key)
 {
-	if (empty())
-		return false;
-	return _clocks.front().key == "delete";
+	base_class::increment(key, WallClock::now());
 }
 
 void VectorClock::markDeleted()
 {
 	increment("delete");
+}
+
+bool VectorClock::isDeleted() const
+{
+	if (empty())
+		return false;
+	return _clocks.front().key == "delete";
 }
 
 std::string VectorClock::toString() const

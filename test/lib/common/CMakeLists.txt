@@ -24,7 +24,8 @@ add_executable (
 add_test(common_test common_test)
 
 target_link_libraries(common_test
-
 	common
+
+	serialize
 )
 

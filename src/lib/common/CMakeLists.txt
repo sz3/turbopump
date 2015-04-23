@@ -17,6 +17,8 @@ set(SOURCES
 	StatusReporter.h
 	VectorClock.cpp
 	VectorClock.h
+	WallClock.cpp
+	WallClock.h
 )
 
 include_directories(

@@ -6,6 +6,7 @@
 #include "readstream.h"
 #include "writestream.h"
 #include "common/MyMemberId.h"
+#include "common/WallClock.h"
 #include "file/File.h"
 #include "serialize/str.h"
 
@@ -73,6 +74,7 @@ TEST_CASE( "FileStoreTest/testPaths", "[unit]" )
 TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -88,18 +90,18 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 
 	// but if we ask for in progress writes, we should see it.
 	versions = store.versions("myfile", true);
-	assertEquals( "1,increment:1", turbo::str::join(versions) );
+	assertEquals( "1,increment.UNIXSECONDS=", turbo::str::join(versions) );
 
-	readstream reader = store.read("myfile", "1,increment:1");
+	readstream reader = store.read("myfile", "1,increment.UNIXSECONDS=");
 	assertFalse( reader.good() );
 
 	// close/commit, and all is well.
 	assertTrue( writer.commit(true) );
 
 	versions = store.versions("myfile");
-	assertEquals( "1,increment:1", turbo::str::join(versions) );
+	assertEquals( "1,increment.UNIXSECONDS=", turbo::str::join(versions) );
 
-	reader = store.read("myfile", "1,increment:1");
+	reader = store.read("myfile", "1,increment.UNIXSECONDS=");
 	assertTrue( reader.good() );
 	assertEquals( 10, reader.size() );
 }
@@ -153,12 +155,13 @@ TEST_CASE( "FileStoreTest/testOverwrite", "[unit]" )
 	write_file(store, "myfile", "ha ha ha!");
 
 	vector<string> versions = store.versions("myfile");
-	assertEquals( "1,increment:3", turbo::str::join(versions) );
+	assertEquals( "1,increment.UNIXSECONDS=.2", turbo::str::join(versions) );
 }
 
 TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -167,7 +170,7 @@ TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
 	{
 		readstream reader = store.read("myfile");
 		assertTrue( reader.good() );
-		assertEquals( "1,increment:1", reader.version() );
+		assertEquals( "1,increment.UNIXSECONDS=", reader.version() );
 		assertEquals( 10, reader.size() );
 	}
 
@@ -175,7 +178,7 @@ TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
 	{
 		readstream reader = store.read("myfile");
 		assertTrue( reader );
-		assertEquals( "1,increment:2", reader.version() );
+		assertEquals( "1,increment.UNIXSECONDS=.1", reader.version() );
 		assertEquals( 6, reader.size() );
 	}
 }
@@ -183,6 +186,7 @@ TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
 TEST_CASE( "FileStoreTest/testReadCantDecide", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -203,13 +207,14 @@ TEST_CASE( "FileStoreTest/testReadCantDecide", "[unit]" )
 
 	reader = store.read("myfile");
 	assertTrue( reader );
-	assertEquals( "3,increment:1,foo:1,bar:1", reader.version() );
+	assertEquals( "3,increment.UNIXSECONDS=,foo.UNIXSECONDS=,bar.UNIXSECONDS=", reader.version() );
 	assertEquals( 4, reader.size() );
 }
 
 TEST_CASE( "FileStoreTest/testReadInprogress", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -227,13 +232,14 @@ TEST_CASE( "FileStoreTest/testReadInprogress", "[unit]" )
 	// but how about an inprogress one?
 	reader = store.read("myfile", "", true);
 	assertTrue( reader );
-	assertEquals( "1,increment:1", reader.version() );
+	assertEquals( "1,increment.UNIXSECONDS=", reader.version() );
 	assertEquals( 10, reader.size() );
 }
 
 TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -244,7 +250,7 @@ TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 	{
 		readstream reader = store.read("myfile");
 		assertTrue( reader.good() );
-		assertEquals( "1,foo:1", reader.version() );
+		assertEquals( "1,foo.UNIXSECONDS=", reader.version() );
 		assertEquals( 10, reader.size() );
 	}
 
@@ -254,7 +260,7 @@ TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 	{
 		readstream reader = store.read("myfile", v2.toString());
 		assertTrue( reader );
-		assertEquals( "1,bar:1", reader.version() );
+		assertEquals( "1,bar.UNIXSECONDS=", reader.version() );
 		assertEquals( 6, reader.size() );
 	}
 
@@ -262,11 +268,11 @@ TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 	assertEquals( 2, readers.size() );
 
 	assertTrue( readers[0] );
-	assertEquals( "1,foo:1", readers[0].version() );
+	assertEquals( "1,foo.UNIXSECONDS=", readers[0].version() );
 	assertEquals( 10, readers[0].size() );
 
 	assertTrue( readers[1] );
-	assertEquals( "1,bar:1", readers[1].version() );
+	assertEquals( "1,bar.UNIXSECONDS=", readers[1].version() );
 	assertEquals( 6, readers[1].size() );
 }
 
@@ -291,6 +297,7 @@ TEST_CASE( "FileStoreTest/testReadWriteVariantCopies", "[unit]" )
 TEST_CASE( "FileStoreTest/testExists", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -309,6 +316,7 @@ TEST_CASE( "FileStoreTest/testExists", "[unit]" )
 TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -329,15 +337,16 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	store.enumerate(fun, 100);
 
 	std::sort(files.begin(), files.end());
-	assertEquals( "bar => 5|1,increment:1\n"
-				  "foo => 10|1,increment:1\n"
-				  "woo/hoo => 4|1,increment:1", turbo::str::join(files, '\n') );
+	assertEquals( "bar => 5|1,increment.UNIXSECONDS=\n"
+				  "foo => 10|1,increment.UNIXSECONDS=\n"
+				  "woo/hoo => 4|1,increment.UNIXSECONDS=", turbo::str::join(files, '\n') );
 	assertEquals( turbo::str::join(digests), turbo::str::join(actualDigests) );
 }
 
 TEST_CASE( "FileStoreTest/testEnumerate.Detail", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -361,7 +370,7 @@ TEST_CASE( "FileStoreTest/testEnumerate.Detail", "[unit]" )
 	store.enumerate(fun, 100);
 
 	assertEquals( "foo/foo/foo", actualName );
-	assertEquals( " 8|1,increment:1", actualSummary );
+	assertEquals( " 8|1,increment.UNIXSECONDS=", actualSummary );
 	assertEquals( reader.digest(), actualMd.digest );
 	assertEquals( 5, actualMd.totalCopies );
 }
@@ -369,6 +378,7 @@ TEST_CASE( "FileStoreTest/testEnumerate.Detail", "[unit]" )
 TEST_CASE( "FileStoreTest/testEnumerate.Conflict", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -403,7 +413,7 @@ TEST_CASE( "FileStoreTest/testEnumerate.Conflict", "[unit]" )
 	store.enumerate(fun, 100);
 
 	assertEquals( "foo", actualName );
-	assertEquals( "6|1,two:1 8|1,one:1", join(sort(split(actualSummary, ' ', true)), ' ') );
+	assertEquals( "6|1,two.UNIXSECONDS= 8|1,one.UNIXSECONDS=", join(sort(split(actualSummary, ' ', true)), ' ') );
 	assertEquals( (readerOne.digest() xor readerTwo.digest()), actualMd.digest );
 	assertEquals( 0, actualMd.totalCopies );
 }
