@@ -330,7 +330,7 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	std::map<string, unsigned long long> actualDigests;
 	auto fun = [&files, &actualDigests] (const std::string& name, const KeyMetadata& md, const std::string& summary)
 	{
-		files.push_back(name + " =>" + summary);
+		files.push_back(name + " => " + summary);
 		actualDigests[name] = md.digest;
 		return true;
 	};
@@ -370,7 +370,7 @@ TEST_CASE( "FileStoreTest/testEnumerate.Detail", "[unit]" )
 	store.enumerate(fun, 100);
 
 	assertEquals( "foo/foo/foo", actualName );
-	assertEquals( " 8|1,increment.UNIXSECONDS=", actualSummary );
+	assertEquals( "8|1,increment.UNIXSECONDS=", actualSummary );
 	assertEquals( reader.digest(), actualMd.digest );
 	assertEquals( 5, actualMd.totalCopies );
 }

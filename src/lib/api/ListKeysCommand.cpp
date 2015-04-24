@@ -26,11 +26,11 @@ bool ListKeysCommand::print_key(const std::string& name, const KeyMetadata&, con
 		first_clock = report.find(',', first_clock);
 		if (first_clock == string::npos)
 			return true;
-		if (report.find(",delete:", first_clock) == first_clock)
+		if (report.find(",delete.", first_clock) == first_clock)
 			return true;
 	}
 
-	string data = name + " =>" + report + "\n";
+	string data = "\"" + name + R"(":")" + report + "\",\n";
 	_stream->write(data.data(), data.size());
 	return true;
 }
@@ -40,7 +40,9 @@ bool ListKeysCommand::run(const char*, unsigned)
 	if (!_stream)
 		return false;
 
+	_stream->write("{\n", 2);
 	_store.enumerate(std::bind(&ListKeysCommand::print_key, this, _1, _2, _3), 1000);
+	_stream->write("}", 1);
 	return true;
 }
 

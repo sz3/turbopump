@@ -13,6 +13,7 @@
 
 #include "file/File.h"
 #include "serialize/str.h"
+#include "serialize/str_join.h"
 #include <cstring>
 #include <functional>
 #include <iostream>
@@ -236,7 +237,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&, const Key
 			continue;
 
 		KeyMetadata md;
-		string report;
+		std::vector<string> report;
 		for (boost::filesystem::directory_iterator version_it(pa); version_it != dend; ++version_it)
 		{
 			boost::filesystem::path vpath = version_it->path();
@@ -251,7 +252,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&, const Key
 						mdFromString(md, reader.attribute("user.md"));
 				}
 				md.digest ^= writestream::digest(vstr, size);
-				report += " " + turbo::str::str(size) + "|" + vstr;
+				report.push_back(turbo::str::str(size) + "|" + vstr);
 			}
 		}
 		if (report.empty())
@@ -263,8 +264,8 @@ void FileStore::enumerate(const std::function<bool(const std::string&, const Key
 		else
 			filename = pa.filename().string();
 
-		// middle param == metadata. Version is nonsense, of course.
-		callback(filename, md, report);
+		// middle param == metadata. Version is nonsense until we decide how to handle multiples...
+		callback(filename, md, turbo::str::join(report));
 		if (++i >= limit)
 			break;
 	}
