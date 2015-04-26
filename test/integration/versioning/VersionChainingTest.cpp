@@ -40,8 +40,10 @@ TEST_CASE( "VersionChainingTest/testCreateAndFixConflict", "[integration]" )
 	// fix it
 	response = cluster[1].write(filename, "thereIfixedit");
 
-	expected = fmt::format("conflict => 13:3,1.{0},foo.{0},bar.{0}",
-						   "[^. ]+");
+	// "foo", "bar", clocks are ordered semi-arbitrarily...
+	// otherwise would be "conflict => 13:3,1.{0},foo.{0},bar.{0}",
+	expected = fmt::format("conflict => 13:3,1.{0}{1},bar.{0}{1}",
+						   "[^. ]+", "(?:,foo.[^. ]+)?");
 	assertMatch( expected, cluster[1].local_list() );
 	wait_for_match(2, expected, [&]()
 	{
