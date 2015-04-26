@@ -12,8 +12,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 using std::string;
-using turbo::str::str;
-using turbo::stopwatch;
+using namespace turbo;
 
 namespace {
 	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopumpd/turbopumpd";
@@ -64,19 +63,16 @@ TEST_CASE( "BigFileTest/testDiskWrite", "disk" )
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
 	}
 
-	string expected = "bigfile => " + str(originalSize) + "|1,1:1";
-	assertEquals( expected, cluster[1].local_list() );
+	string expected = "bigfile => " + str::str(originalSize) + ":1,1.[^. ]+";
+	assertMatch( expected, cluster[1].local_list() );
 
-	string response;
-	wait_for(8, expected + " != " + response, [&]()
+	string response = wait_for_match(8, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return expected == response;
+		return cluster[2].local_list();
 	});
-	wait_for(8, expected + " != " + response, [&]()
+	wait_for_equal(8, response, [&]()
 	{
-		response = cluster[3].local_list();
-		return expected == response;
+		return cluster[3].local_list();
 	});
 }
 

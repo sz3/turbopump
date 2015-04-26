@@ -19,6 +19,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_set>
 
 #include <boost/filesystem.hpp>
 #include "dirent.h"
@@ -201,13 +202,16 @@ bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 {
 	// TODO: this doesn't work with concurrent writes yet. Will lead to weird merkle sync problems.
 	std::vector<std::string> all(versions(name));
-	std::vector<std::string> toDelete;
+	std::unordered_set<std::string> toDelete;
 	for (const std::string& v : all)
 	{
 		VectorClock version;
 		version.fromString(v);
-		if (version < master.version)
-			toDelete.push_back(version.toString());
+		VectorClock::COMPARE res = version.compare(master.version);
+		if (res == VectorClock::LESS_THAN)
+			toDelete.insert(version.toString());
+		else if (res == VectorClock::GREATER_THAN)
+			toDelete.insert(master.version.toString());
 	}
 	// TODO: optimize:
 	// if all.size() == deleted.size() + 1
@@ -237,7 +241,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&, const Key
 			continue;
 
 		KeyMetadata md;
-		std::vector<string> report;
+		std::set<string> report;
 		for (boost::filesystem::directory_iterator version_it(pa); version_it != dend; ++version_it)
 		{
 			boost::filesystem::path vpath = version_it->path();
@@ -252,7 +256,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&, const Key
 						mdFromString(md, reader.attribute("user.md"));
 				}
 				md.digest ^= writestream::digest(vstr, size);
-				report.push_back(turbo::str::str(size) + ":" + vstr);
+				report.insert(turbo::str::str(size) + ":" + vstr);
 			}
 		}
 		if (report.empty())

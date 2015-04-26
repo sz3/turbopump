@@ -86,11 +86,11 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 
 	// won't be in the right place while the write is in progress.
 	vector<string> versions = store.versions("myfile");
-	assertEquals( "", turbo::str::join(versions) );
+	assertEquals( "", join(versions) );
 
 	// but if we ask for in progress writes, we should see it.
 	versions = store.versions("myfile", true);
-	assertEquals( "1,increment.UNIXSECONDS=", turbo::str::join(versions) );
+	assertEquals( "1,increment.UNIXSECONDS=", join(versions) );
 
 	readstream reader = store.read("myfile", "1,increment.UNIXSECONDS=");
 	assertFalse( reader.good() );
@@ -99,7 +99,7 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 	assertTrue( writer.commit(true) );
 
 	versions = store.versions("myfile");
-	assertEquals( "1,increment.UNIXSECONDS=", turbo::str::join(versions) );
+	assertEquals( "1,increment.UNIXSECONDS=", join(versions) );
 
 	reader = store.read("myfile", "1,increment.UNIXSECONDS=");
 	assertTrue( reader.good() );
@@ -146,6 +146,7 @@ TEST_CASE( "FileStoreTest/testWrite.RejectExisting", "[unit]" )
 TEST_CASE( "FileStoreTest/testOverwrite", "[unit]" )
 {
 	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
 	DirectoryCleaner cleaner;
 
 	FileStore store(_test_dir);
@@ -155,7 +156,60 @@ TEST_CASE( "FileStoreTest/testOverwrite", "[unit]" )
 	write_file(store, "myfile", "ha ha ha!");
 
 	vector<string> versions = store.versions("myfile");
-	assertEquals( "1,increment.UNIXSECONDS=.2", turbo::str::join(versions) );
+	assertEquals( "1,increment.UNIXSECONDS=.2", join(versions) );
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER+8);
+	VectorClock vnew;
+	vnew.increment("increment");
+	write_file(store, "myfile", "one more write", vnew.toString());
+
+	assertEquals( "1,increment.WNIXSECONDS=", join(store.versions("myfile")) );
+}
+
+TEST_CASE( "FileStoreTest/testOverwrite.TimeLapse", "[unit]" )
+{
+	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	write_file(store, "myfile", "0123456789");
+
+	vector<string> versions = store.versions("myfile");
+	assertEquals( "1,increment.UNIXSECONDS=", join(versions) );
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER-8);
+	write_file(store, "myfile", "time can't go backwards...");
+
+	// so we just do increment the secondary count...
+	assertEquals( "1,increment.UNIXSECONDS=.1", join(store.versions("myfile")) );
+
+	VectorClock vnew;
+	vnew.fromString(versions.front());
+	vnew.increment("increment");
+}
+
+TEST_CASE( "FileStoreTest/testUnderwrite", "[unit]" )
+{
+	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	write_file(store, "myfile", "0123456789");
+
+	vector<string> versions = store.versions("myfile");
+	assertEquals( "1,increment.UNIXSECONDS=", join(versions) );
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER-8);
+	VectorClock vnew;
+	vnew.increment("increment");
+	write_file(store, "myfile", "ignore me :(", vnew.toString());
+
+	assertEquals( "1,increment.UNIXSECONDS=", join(store.versions("myfile")) );
+
 }
 
 TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
@@ -339,8 +393,8 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	std::sort(files.begin(), files.end());
 	assertEquals( "bar => 5:1,increment.UNIXSECONDS=\n"
 				  "foo => 10:1,increment.UNIXSECONDS=\n"
-				  "woo/hoo => 4:1,increment.UNIXSECONDS=", turbo::str::join(files, '\n') );
-	assertEquals( turbo::str::join(digests), turbo::str::join(actualDigests) );
+				  "woo/hoo => 4:1,increment.UNIXSECONDS=", join(files, '\n') );
+	assertEquals( join(digests), join(actualDigests) );
 }
 
 TEST_CASE( "FileStoreTest/testEnumerate.Detail", "[unit]" )

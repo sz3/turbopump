@@ -10,6 +10,7 @@
 #include "time/wait_for.h"
 #include <algorithm>
 using std::string;
+using namespace turbo;
 
 TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 {
@@ -18,23 +19,19 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	assertTrue( one.waitForRunning() );
 
 	std::vector<string> fileList;
-	fileList.push_back(".membership/9001 => 14|1,9001:1");
+	fileList.push_back(".membership/9001 => 14:1,9001.[^. ]+");
 
-	string expected = turbo::str::join(fileList, '\n');
-	string response;
-	wait_for(5, expected + " != " + response, [&]()
+	string expected = str::join(fileList, '\n');
+	wait_for_match(5, expected, [&]()
 	{
-		response = one.local_list("all=1");
-		return expected == response;
+		return one.local_list("all=1");
 	});
-
-	std::cerr << "starting worker two" << std::endl;
 
 	TurboRunner two(9002, "--udp");
 	two.start();
 	assertTrue( two.waitForRunning() );
 
-	response = one.post("add-peer", "uid=9002&ip=127.0.0.1:9002");
+	string response = one.post("add-peer", "uid=9002&ip=127.0.0.1:9002");
 	assertEquals( "200", response );
 	response = one.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
@@ -47,15 +44,12 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 				  "9002 127.0.0.1:9002", response );
 
 	// test for member keys
-	fileList.push_back(".membership/9002 => 14|1,9002:1");
-	expected = turbo::str::join(fileList, '\n');
-	wait_for(20, expected + " != " + response, [&]()
+	fileList.push_back(".membership/9002 => 14:1,9002.[^. ]+");
+	expected = str::join(fileList, '\n');
+	wait_for_match(20, expected, [&]()
 	{
-		response = two.local_list("all=1");
-		return expected == response;
+		return two.local_list("all=1");
 	});
-
-	std::cerr << "starting worker three" << std::endl;
 
 	TurboRunner three(9003, "--udp");
 	three.start();
@@ -71,24 +65,21 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	// tell 3 to join
 	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
-	wait_for(30, expectedMembers + " != " + response, [&]()
+	wait_for_equal(30, expectedMembers, [&]()
 	{
-		response = three.query("membership");
-		return expectedMembers == response;
+		return three.query("membership");
 	});
-	wait_for(30, expectedMembers + " != " + response, [&]()
+	wait_for_equal(30, expectedMembers, [&]()
 	{
-		response = two.query("membership");
-		return expectedMembers == response;
+		return two.query("membership");
 	});
 
 	// test for member keys
-	fileList.push_back(".membership/9003 => 14|1,9003:1");
-	expected = turbo::str::join(fileList, '\n');
-	wait_for(100, expected + " != " + response, [&]()
+	fileList.push_back(".membership/9003 => 14:1,9003.[^. ]+");
+	expected = str::join(fileList, '\n');
+	wait_for_match(100, expected, [&]()
 	{
-		response = three.local_list("all=1");
-		return expected == response;
+		return three.local_list("all=1");
 	});
 }
 
@@ -102,20 +93,19 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	string response;
 	for (unsigned i = 0; i < 50; ++i)
 	{
-		string name = turbo::str::str(i);
+		string name = str::str(i);
 		string contents = "hello" + name;
 		response = one.write(name, contents, "copies=3");
 		assertEquals( "200", response );
 
-		fileList.push_back(name + " => " + turbo::str::str(contents.size()) + "|1,9001:1");
+		fileList.push_back(name + " => " + str::str(contents.size()) + ":1,9001.[^. ]+");
 	}
 
 	std::sort(fileList.begin(), fileList.end());
-	string expected = turbo::str::join(fileList, '\n');
-	wait_for(5, expected + " != " + response, [&]()
+	string expected = str::join(fileList, '\n');
+	wait_for_match(5, expected, [&]()
 	{
-		response = one.local_list();
-		return expected == response;
+		return one.local_list();
 	});
 
 	TurboRunner two(9002, "--udp");
@@ -133,11 +123,10 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 				  "9002 127.0.0.1:9002", response );
 
 	// keys should propagate to two
-	expected = turbo::str::join(fileList, '\n');
-	wait_for(60, expected + " != " + response, [&]()
+	expected = str::join(fileList, '\n');
+	wait_for_match(60, expected, [&]()
 	{
-		response = two.local_list();
-		return expected == response;
+		return two.local_list();
 	});
 
 	TurboRunner three(9003, "--udp");
@@ -154,23 +143,20 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	// tell 3 to join
 	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
-	wait_for(60, expectedMembers + " != " + response, [&]()
+	wait_for_equal(60, expectedMembers, [&]()
 	{
-		response = three.query("membership");
-		return expectedMembers == response;
+		return three.query("membership");
 	});
-	wait_for(60, expectedMembers + " != " + response, [&]()
+	wait_for_equal(60, expectedMembers, [&]()
 	{
-		response = two.query("membership");
-		return expectedMembers == response;
+		return two.query("membership");
 	});
 
 	// and keys should propagate to three
-	expected = turbo::str::join(fileList, '\n');
-	wait_for(100, expected + " != " + response, [&]()
+	expected = str::join(fileList, '\n');
+	wait_for_match(100, expected, [&]()
 	{
-		response = three.local_list();
-		return expected == response;
+		return three.local_list();
 	});
 }
 

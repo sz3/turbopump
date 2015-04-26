@@ -61,6 +61,10 @@ TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 		assertEquals( "enumerate(1000)", store._history.calls() );
 		assertEquals( "HTTP/1.1 200 Success\r\n"
 					  "transfer-encoding: chunked\r\n\r\n"
+					  "2\r\n"
+					  "{\n\r\n"
+					  "1\r\n"
+					  "}\r\n"
 					  "0\r\n\r\n", stream.writeBuffer() );
 		assertEquals( "", stream.readBuffer() );
 	}

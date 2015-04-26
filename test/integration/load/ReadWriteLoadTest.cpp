@@ -18,8 +18,10 @@
 #include <sys/un.h>
 #include <unistd.h>
 using std::string;
-using turbo::str::str;
 using turbo::stopwatch;
+using turbo::wait_for_equal;
+using turbo::wait_for_match;
+using namespace turbo::str;
 
 namespace {
 	int openStreamSocket(string where)
@@ -63,18 +65,15 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 		std::cout << "write " << i <<  " connection close at " << elapsed.micros() << "us" << std::endl;
 
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
-		fileList.push_back(name + " => " + str(name.size()) + "|1,1:1");
+		fileList.push_back(name + " => " + str(name.size()) + ":1,1.[^. ]+");
 	}
 	std::cout << "did 300 writes in " << elapsed.millis() << "ms" << std::endl;
 
 	std::sort(fileList.begin(), fileList.end());
-	string expected = turbo::str::join(fileList, '\n');
-	string response;
-	stopwatch t;
-	wait_for(30, expected + " != " + response, [&]()
+	string expected = join(fileList, '\n');
+	wait_for_match(30, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return expected == response;
+		return cluster[2].local_list();
 	});
 
 	// check contents of each file?
@@ -235,7 +234,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 	wait_for(30, str(results.size()) + " != 90", [&]()
 	{
 		string response = cluster[2].local_list();
-		results = turbo::str::split(response, '\n');
+		results = split(response, '\n');
 		return results.size() == 90;
 	});
 
@@ -245,7 +244,7 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 		if (it->find("65536") == string::npos)
 			badResults.push_back(*it);
 	}
-	assertEquals( "", turbo::str::join(badResults, '\n') );
+	assertEquals( "", join(badResults, '\n') );
 
 	// if we got this far, we would then check the contents of each file
 }
