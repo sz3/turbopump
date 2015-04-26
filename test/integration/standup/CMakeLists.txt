@@ -27,6 +27,7 @@ target_link_libraries(standup_test
 	turbopump
 	user_server
 
+	format
 	http
 
 	boost_filesystem

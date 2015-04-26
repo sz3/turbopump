@@ -337,9 +337,9 @@ TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 	store.enumerate(fun, 100);
 
 	std::sort(files.begin(), files.end());
-	assertEquals( "bar => 5|1,increment.UNIXSECONDS=\n"
-				  "foo => 10|1,increment.UNIXSECONDS=\n"
-				  "woo/hoo => 4|1,increment.UNIXSECONDS=", turbo::str::join(files, '\n') );
+	assertEquals( "bar => 5:1,increment.UNIXSECONDS=\n"
+				  "foo => 10:1,increment.UNIXSECONDS=\n"
+				  "woo/hoo => 4:1,increment.UNIXSECONDS=", turbo::str::join(files, '\n') );
 	assertEquals( turbo::str::join(digests), turbo::str::join(actualDigests) );
 }
 
@@ -370,7 +370,7 @@ TEST_CASE( "FileStoreTest/testEnumerate.Detail", "[unit]" )
 	store.enumerate(fun, 100);
 
 	assertEquals( "foo/foo/foo", actualName );
-	assertEquals( "8|1,increment.UNIXSECONDS=", actualSummary );
+	assertEquals( "8:1,increment.UNIXSECONDS=", actualSummary );
 	assertEquals( reader.digest(), actualMd.digest );
 	assertEquals( 5, actualMd.totalCopies );
 }
@@ -413,7 +413,7 @@ TEST_CASE( "FileStoreTest/testEnumerate.Conflict", "[unit]" )
 	store.enumerate(fun, 100);
 
 	assertEquals( "foo", actualName );
-	assertEquals( "6|1,two.UNIXSECONDS= 8|1,one.UNIXSECONDS=", join(sort(split(actualSummary, ' ', true)), ' ') );
+	assertEquals( "6:1,two.UNIXSECONDS= 8:1,one.UNIXSECONDS=", join(sort(split(actualSummary, ' ', true)), ' ') );
 	assertEquals( (readerOne.digest() xor readerTwo.digest()), actualMd.digest );
 	assertEquals( 0, actualMd.totalCopies );
 }

@@ -252,7 +252,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&, const Key
 						mdFromString(md, reader.attribute("user.md"));
 				}
 				md.digest ^= writestream::digest(vstr, size);
-				report.push_back(turbo::str::str(size) + "|" + vstr);
+				report.push_back(turbo::str::str(size) + ":" + vstr);
 			}
 		}
 		if (report.empty())

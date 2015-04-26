@@ -89,7 +89,7 @@ std::string TurboRunner::post(std::string action, std::string params, std::strin
 std::string TurboRunner::local_list(std::string params) const
 {
 	map<string,string> list = list_keys(params);
-	return turbo::str::join(list);
+	return turbo::str::join(list, '\n');
 }
 
 std::map<std::string,std::string> TurboRunner::list_keys(std::string params) const

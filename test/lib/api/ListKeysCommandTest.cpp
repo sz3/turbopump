@@ -34,11 +34,11 @@ TEST_CASE( "ListKeysCommandTest/testPrint", "[unit]" )
 	ListKeysCommand command(store);
 	command.setWriter(&stream);
 
-	command.print_key("one", KeyMetadata(), "11|1,two.1");
-	command.print_key("nuked", KeyMetadata(), "11|2,delete.1,two.1");
-	command.print_key(".membership/peer", KeyMetadata(), "11|1,two.1");
+	command.print_key("one", KeyMetadata(), "11:1,two.1");
+	command.print_key("nuked", KeyMetadata(), "11:2,delete.1,two.1");
+	command.print_key(".membership/peer", KeyMetadata(), "11:1,two.1");
 
-	string expected = R"("one":"11|1,two.1",
+	string expected = R"("one":"11:1,two.1",
 )";
 	assertEquals( expected, stream.writeBuffer() );
 }
@@ -51,12 +51,12 @@ TEST_CASE( "ListKeysCommandTest/testDeleted", "[unit]" )
 	command.setWriter(&stream);
 	command.params.deleted = true;
 
-	command.print_key("one", KeyMetadata(), "11|1,two.1");
-	command.print_key("nuked", KeyMetadata(), "11|2,delete.1,two.1");
-	command.print_key(".membership/peer", KeyMetadata(), "11|1,two.1");
+	command.print_key("one", KeyMetadata(), "11:1,two.1");
+	command.print_key("nuked", KeyMetadata(), "11:2,delete.1,two.1");
+	command.print_key(".membership/peer", KeyMetadata(), "11:1,two.1");
 
-	string expected = R"("one":"11|1,two.1",
-"nuked":"11|2,delete.1,two.1",
+	string expected = R"("one":"11:1,two.1",
+"nuked":"11:2,delete.1,two.1",
 )";
 	assertEquals(expected, stream.writeBuffer() );
 }
@@ -69,12 +69,12 @@ TEST_CASE( "ListKeysCommandTest/testAll", "[unit]" )
 	command.setWriter(&stream);
 	command.params.all = true;
 
-	command.print_key("one", KeyMetadata(), "11|1,two.1");
-	command.print_key("nuked", KeyMetadata(), "11|2,delete.1,two.1");
-	command.print_key(".membership/peer", KeyMetadata(), "11|1,two.1");
+	command.print_key("one", KeyMetadata(), "11:1,two.1");
+	command.print_key("nuked", KeyMetadata(), "11:2,delete.1,two.1");
+	command.print_key(".membership/peer", KeyMetadata(), "11:1,two.1");
 
-	string expected = R"("one":"11|1,two.1",
-".membership/peer":"11|1,two.1",
+	string expected = R"("one":"11:1,two.1",
+".membership/peer":"11:1,two.1",
 )";
 	assertEquals( expected, stream.writeBuffer() );
 }

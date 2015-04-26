@@ -6,6 +6,7 @@
 #include "main/TurboPumpApp.h"
 
 #include "command_line/CommandLine.h"
+#include "cppformat/format.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
@@ -25,6 +26,8 @@ using std::shared_ptr;
 using std::string;
 using turbo::stopwatch;
 using turbo::str::str;
+using turbo::wait_for_equal;
+using turbo::wait_for_match;
 
 class IntegratedTurboRunner : public TurboRunner
 {
@@ -108,28 +111,28 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	}
 
 	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
-	string expected = "one0 => 11|1,two:1\n"
-	                  "one1 => 11|1,two:1\n"
-	                  "one2 => 11|1,two:1\n"
-	                  "one3 => 11|1,two:1\n"
-	                  "one4 => 11|1,two:1\n"
-	                  "two0 => 11|1,two:1\n"
-	                  "two1 => 11|1,two:1\n"
-	                  "two2 => 11|1,two:1\n"
-	                  "two3 => 11|1,two:1\n"
-	                  "two4 => 11|1,two:1";
+	string expected = fmt::format(
+		"one0 => 11:1,two.{0}\n"
+		"one1 => 11:1,two.{0}\n"
+		"one2 => 11:1,two.{0}\n"
+		"one3 => 11:1,two.{0}\n"
+		"one4 => 11:1,two.{0}\n"
+		"two0 => 11:1,two.{0}\n"
+		"two1 => 11:1,two.{0}\n"
+		"two2 => 11:1,two.{0}\n"
+		"two3 => 11:1,two.{0}\n"
+		"two4 => 11:1,two.{0}"
+		, "([^. ]+)"
+	);
 
-	wait_for(5, response + " != " + expected, [&]()
+	wait_for_match(5, expected, [&]()
 	{
-		response = workerTwo.local_list();
-		std::cout << response << std::endl;
-		return expected == response;
+		return workerTwo.local_list();
 	});
 
-	wait_for(5, response + " != " + expected, [&]()
+	wait_for_match(5, expected, [&]()
 	{
-		response = workerOne.local_list();
-		return expected == response;
+		return workerOne.local_list();
 	});
 }
 
@@ -220,18 +223,19 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	}
 
 	// we're running inside a single executable, and two initializes second. So, all writes will increment with member id "two".
-	string expected = "0 => 7|1,two:1\n"
-	                  "1 => 7|1,two:1\n"
-	                  "2 => 7|1,two:1\n"
-	                  "3 => 7|1,two:1\n"
-	                  "4 => 7|1,two:1\n"
-	                  "primer => 20|1,two:1";
+	string expected = fmt::format(
+		"0 => 7:1,two.{0}\n"
+		"1 => 7:1,two.{0}\n"
+		"2 => 7:1,two.{0}\n"
+		"3 => 7:1,two.{0}\n"
+		"4 => 7:1,two.{0}\n"
+		"primer => 20:1,two.{0}"
+		, "([^. ]+)"
+	);
 
-	string response;
-	wait_for(5, response + " != " + expected, [&]()
+	wait_for_match(5, expected, [&]()
 	{
-		response = workerTwo.local_list();
-		return expected == response;
+		return workerTwo.local_list();
 	});
 
 	for (std::map<string,Checkpoint>::const_iterator it = checkpoints.begin(); it != checkpoints.end(); ++it)
@@ -273,15 +277,14 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
 	}
 
-	string expected = "0 => 66560|1,two:1";
+	string expected = "0 => 66560:1,two.([^. ]+)";
 	string response = workerOne.local_list();
-	assertEquals(expected, response);
+	assertMatch(expected, response);
 
-	expected = "0 => 66560|1,two:1";
-	wait_for(5, response + " != " + expected, [&]()
+	expected = response;
+	wait_for_equal(5, expected, [&]()
 	{
-		response = workerTwo.local_list();
-		return expected == response;
+		return workerTwo.local_list();
 	});
 }
 

@@ -20,7 +20,7 @@ bool ListKeysCommand::print_key(const std::string& name, const KeyMetadata&, con
 		return true;
 	if (!params.deleted)
 	{
-		size_t first_clock = report.find('|');
+		size_t first_clock = report.find(':');
 		if (first_clock == string::npos)
 			return true;
 		first_clock = report.find(',', first_clock);
