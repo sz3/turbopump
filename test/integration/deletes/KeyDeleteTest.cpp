@@ -6,6 +6,8 @@
 #include "integration/TurboRunner.h"
 #include "time/wait_for.h"
 using std::string;
+using turbo::wait_for_equal;
+using turbo::wait_for_match;
 
 TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 {
@@ -16,41 +18,35 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	string response = cluster[1].write("deleteMe", "hello");
 
 	// wait for file
-	string expected = "deleteMe => 5|1,1:1";
-	wait_for(10, expected + " != " + response, [&]()
+	string expected = "deleteMe => 5\\|1,1.([^. ]+)";
+	string version = wait_for_match(10, expected, [&]()
 	{
-		response = cluster[1].local_list();
-		return expected == response;
+		return cluster[1].local_list();
 	});
-	wait_for(10, expected + " != " + response, [&]()
+	wait_for_match(10, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return expected == response;
+		return cluster[2].local_list();
 	});
 
 	// delete file
-	response = cluster[1].query("delete", "name=deleteMe&version=1,1:1");
+	response = cluster[1].query("delete", "name=deleteMe&version=1,1." + version);
 	expected = "";
-	wait_for(10, expected + " != " + response, [&]()
+	wait_for_equal(10, expected, [&]()
 	{
-		response = cluster[1].local_list();
-		return expected == response;
+		return cluster[1].local_list();
 	});
-	wait_for(10, expected + " != " + response, [&]()
+	wait_for_equal(10, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return expected == response;
+		return cluster[2].local_list();
 	});
 
-	expected = "deleteMe => 9|2,delete:1,1:1";
-	wait_for(10, expected + " != " + response, [&]()
+	expected = "deleteMe => 9|2,delete." + version + ",1." + version;
+	wait_for_equal(10, expected, [&]()
 	{
-		response = cluster[1].local_list("deleted=1");
-		return expected == response;
+		return cluster[1].local_list("deleted=1");
 	});
-	wait_for(10, expected + " != " + response, [&]()
+	wait_for_equal(10, expected, [&]()
 	{
-		response = cluster[2].local_list("deleted=1");
-		return expected == response;
+		return cluster[2].local_list("deleted=1");
 	});
 }

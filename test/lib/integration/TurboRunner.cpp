@@ -5,19 +5,26 @@
 #include "command_line/CommandLine.h"
 #include "http/HttpResponse.h"
 #include "serialize/str.h"
-#include "serialize/str_join.h"
 #include "time/stopwatch.h"
 
 #include "boost/filesystem.hpp"
 #include <iostream>
 #include <vector>
 using std::string;
+using std::map;
 using std::vector;
 using turbo::str::str;
 
 namespace {
 	string exePath = string(TURBOPUMP_PROJECT_ROOT) + "/build/src/exe/turbopumpd/turbopumpd";
+
+	std::ostream& operator<<(std::ostream& outstream, const std::pair<std::string,std::string>& val)
+	{
+		outstream << val.first << " => " << val.second;
+		return outstream;
+	}
 }
+#include "serialize/str_join.h"
 
 TurboRunner::TurboRunner(short port, string programFlags)
 	: _port(port)
@@ -81,13 +88,26 @@ std::string TurboRunner::post(std::string action, std::string params, std::strin
 
 std::string TurboRunner::local_list(std::string params) const
 {
+	map<string,string> list = list_keys(params);
+	return turbo::str::join(list);
+}
+
+std::map<std::string,std::string> TurboRunner::list_keys(std::string params) const
+{
 	string body = query("list-keys", params);
 	vector<string> files = turbo::str::split(body, '\n');
-	if (files.empty())
-		return "";
-	std::sort(files.begin(), files.end());
-	// blank line will be first.
-	return turbo::str::join(++files.begin(), files.end(), '\n');
+
+	map<string,string> list;
+	for (auto line : files)
+	{
+		vector<string> tokens = turbo::str::split(line, '"', true);
+		if (tokens.size() < 3)
+			continue;
+		string& name(tokens[0]);
+		string& info(tokens[2]);
+		list[name] = info;
+	}
+	return list;
 }
 
 bool TurboRunner::waitForRunning(unsigned seconds) const

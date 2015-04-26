@@ -26,7 +26,7 @@ VectorClock::VectorClock(const std::deque<VectorClock::clock>& clocks)
 namespace {
 	std::ostream& operator<<(std::ostream& outstream, const VectorClock::clock& clock)
 	{
-		outstream << clock.key << "." << base64::encode(clock.time);
+		outstream << clock.key << "." << base64::encode_bin(clock.time);
 		if (clock.count != 0)
 			outstream << "." << clock.count;
 		return outstream;

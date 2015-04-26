@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
+#include <map>
 #include <string>
 
 class TurboRunner
@@ -17,7 +18,9 @@ public:
 
 	std::string query(std::string action, std::string params="") const;
 	std::string post(std::string action, std::string params="", std::string body="") const;
-	std::string local_list(std::string params="") const;
+	std::string local_list(std::string params="") const; // old
+	std::map<std::string,std::string> list_keys(std::string params="") const;
+
 	bool waitForRunning(unsigned seconds=5) const;
 	bool waitForState(std::string state, unsigned seconds=5) const;
 
