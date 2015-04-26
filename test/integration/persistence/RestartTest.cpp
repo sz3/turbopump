@@ -3,8 +3,11 @@
 
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
+
+#include "cppformat/format.h"
 #include "time/wait_for.h"
 using std::string;
+using namespace turbo;
 
 TEST_CASE( "RestartTest/testSync", "[integration-udp]" )
 {
@@ -30,23 +33,27 @@ TEST_CASE( "RestartTest/testSync", "[integration-udp]" )
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
 	// wait for files to propagate
-	wait_for(5, response, [&]()
+	string expected = fmt::format(
+		"bar => 4:1,1.{0}\n"
+		"foo => 6:1,1.{0}"
+		, "[^. ]+"
+	);
+	response = wait_for_match(5, expected, [&]()
 	{
-		response = cluster[1].local_list();
-		return "bar => 4|1,1:1\n"
-			   "foo => 6|1,1:1" == response;
+		return cluster[1].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	wait_for_equal(20, response, [&]()
 	{
-		response = cluster[2].local_list();
-		return "bar => 4|1,1:1" == response;
+		return cluster[3].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	expected = fmt::format(
+		"bar => 4:1,1.{0}"
+		, "[^. ]+"
+	);
+	wait_for_match(20, expected, [&]()
 	{
-		response = cluster[3].local_list();
-		return "bar => 4|1,1:1\n"
-			   "foo => 6|1,1:1" == response;
+		return cluster[2].local_list();
 	});
 }

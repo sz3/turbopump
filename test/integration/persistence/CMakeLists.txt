@@ -28,6 +28,7 @@ target_link_libraries(integration_persistence_test
 
 	command_line
 	file
+	format
 	http
 	serialize
 -Wl,--end-group

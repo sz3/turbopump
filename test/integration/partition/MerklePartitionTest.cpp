@@ -5,6 +5,8 @@
 #include "hashing/Hash.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
+
+#include "cppformat/format.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/wait_for.h"
@@ -13,7 +15,7 @@
 #include <vector>
 using std::string;
 using std::vector;
-using turbo::str::str;
+using namespace turbo;
 
 namespace {
 	string hashStr(string id)
@@ -38,67 +40,85 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
-	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
+	vector<string> ring{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(turbo::str::join(expected), response);
+	assertEquals(str::join(ring), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
 	// setting copies=3 here, in case we decide to change the defaults at any point...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
-		string num = str(i);
+		string num = str::str(i);
 		response = cluster[i].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
 
 	// wait for files to propagate
 	// again, 2,6,1,5,4,3
-	wait_for(60, response, [&]()
+	string expected = fmt::format(
+		"1 => 7:1,1.{0}\n"
+		"2 => 7:1,2.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(60, expected, [&]()
 	{
-		response = cluster[1].local_list();
-		return "1 => 7|1,1:1\n"
-			   "2 => 7|1,2:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[1].local_list();
 	});
 
-	wait_for(40, response, [&]()
+	expected = fmt::format(
+		"2 => 7:1,2.{0}\n"
+		"3 => 7:1,3.{0}\n"
+		"4 => 7:1,4.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(40, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return "2 => 7|1,2:1\n"
-			   "3 => 7|1,3:1\n"
-			   "4 => 7|1,4:1" == response;
+		return cluster[2].local_list();
 	});
 
-	wait_for(40, response, [&]()
+	expected = fmt::format(
+		"3 => 7:1,3.{0}\n"
+		"4 => 7:1,4.{0}\n"
+		"5 => 7:1,5.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(40, expected, [&]()
 	{
-		response = cluster[3].local_list();
-		return "3 => 7|1,3:1\n"
-			   "4 => 7|1,4:1\n"
-			   "5 => 7|1,5:1" == response;
+		return cluster[3].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	expected = fmt::format(
+		"1 => 7:1,1.{0}\n"
+		"4 => 7:1,4.{0}\n"
+		"5 => 7:1,5.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(20, expected, [&]()
 	{
-		response = cluster[4].local_list();
-		return "1 => 7|1,1:1\n"
-			   "4 => 7|1,4:1\n"
-			   "5 => 7|1,5:1" == response;
+		return cluster[4].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	expected = fmt::format(
+		"1 => 7:1,1.{0}\n"
+		"5 => 7:1,5.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(20, expected, [&]()
 	{
-		response = cluster[5].local_list();
-		return "1 => 7|1,1:1\n"
-			   "5 => 7|1,5:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[5].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	expected = fmt::format(
+		"2 => 7:1,2.{0}\n"
+		"3 => 7:1,3.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(20, expected, [&]()
 	{
-		response = cluster[6].local_list();
-		return "2 => 7|1,2:1\n"
-			   "3 => 7|1,3:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[6].local_list();
 	});
 }
 
@@ -121,15 +141,15 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
-	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
+	vector<string> ring{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	string response = cluster[1].query("ring");
-	assertEquals(turbo::str::join(expected), response);
+	assertEquals(str::join(ring), response);
 
 	// write ONLY to worker 1.
 	// setting copies=3 here, in case we decide to change the defaults at any point...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
-		string num = str(i);
+		string num = str::str(i);
 		response = cluster[1].write(num, "hello!"+num, "copies=3");
 		assertEquals( "200", response );
 	}
@@ -137,52 +157,70 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 	// wait for files to propagate
 	// again, 2,6,1,5,4,3
 	// runner1 should drop the files he's not responsible for
-	wait_for(70, response, [&]()
+	string expected = fmt::format(
+		"1 => 7:1,1.{0}\n"
+		"2 => 7:1,1.{0}\n"
+		"6 => 7:1,1.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(70, expected, [&]()
 	{
-		response = cluster[1].local_list();
-		return "1 => 7|1,1:1\n"
-			   "2 => 7|1,1:1\n"
-			   "6 => 7|1,1:1" == response;
+		return cluster[1].local_list();
 	});
 
-	wait_for(60, response, [&]()
+	expected = fmt::format(
+		"2 => 7:1,1.{0}\n"
+		"3 => 7:1,1.{0}\n"
+		"4 => 7:1,1.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(60, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return "2 => 7|1,1:1\n"
-			   "3 => 7|1,1:1\n"
-			   "4 => 7|1,1:1" == response;
+		return cluster[2].local_list();
 	});
 
-	wait_for(40, response, [&]()
+	expected = fmt::format(
+		"3 => 7:1,1.{0}\n"
+		"4 => 7:1,1.{0}\n"
+		"5 => 7:1,1.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(40, expected, [&]()
 	{
-		response = cluster[3].local_list();
-		return "3 => 7|1,1:1\n"
-			   "4 => 7|1,1:1\n"
-			   "5 => 7|1,1:1" == response;
+		return cluster[3].local_list();
 	});
 
-	wait_for(40, response, [&]()
+	expected = fmt::format(
+		"1 => 7:1,1.{0}\n"
+		"4 => 7:1,1.{0}\n"
+		"5 => 7:1,1.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(40, expected, [&]()
 	{
-		response = cluster[4].local_list();
-		return "1 => 7|1,1:1\n"
-			   "4 => 7|1,1:1\n"
-			   "5 => 7|1,1:1" == response;
+		return cluster[4].local_list();
 	});
 
-	wait_for(40, response, [&]()
+	expected = fmt::format(
+		"1 => 7:1,1.{0}\n"
+		"5 => 7:1,1.{0}\n"
+		"6 => 7:1,1.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(40, expected, [&]()
 	{
-		response = cluster[5].local_list();
-		return "1 => 7|1,1:1\n"
-			   "5 => 7|1,1:1\n"
-			   "6 => 7|1,1:1" == response;
+		return cluster[5].local_list();
 	});
 
-	wait_for(40, response, [&]()
+	expected = fmt::format(
+		"2 => 7:1,1.{0}\n"
+		"3 => 7:1,1.{0}\n"
+		"6 => 7:1,1.{0}"
+		, "([^. ]+)"
+	);
+	wait_for_match(40, expected, [&]()
 	{
-		response = cluster[6].local_list();
-		return "2 => 7|1,1:1\n"
-			   "3 => 7|1,1:1\n"
-			   "6 => 7|1,1:1" == response;
+		return cluster[6].local_list();
 	});
 }
 
@@ -200,25 +238,24 @@ TEST_CASE( "MerklePartitionTest/testDualSync", "[integration-udp]" )
 	assertEquals( "200", response );
 
 	// wait for files to propagate
-	wait_for(5, response, [&]()
+	string expected = fmt::format(
+		"bar => 4:1,1.{0}\n"
+		"foo => 6:1,1.{0}"
+		, "[^. ]+"
+	);
+	expected = wait_for_match(5, expected, [&]()
 	{
-		response = cluster[1].local_list();
-		return "bar => 4|1,1:1\n"
-			   "foo => 6|1,1:1" == response;
+		return cluster[1].local_list();
 	});
 
-	wait_for(60, response, [&]()
+	wait_for_equal(60, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return "bar => 4|1,1:1\n"
-			   "foo => 6|1,1:1" == response;
+		return cluster[2].local_list();
 	});
 
-	wait_for(60, response, [&]()
+	wait_for_equal(60, expected, [&]()
 	{
-		response = cluster[3].local_list();
-		return "bar => 4|1,1:1\n"
-			   "foo => 6|1,1:1" == response;
+		return cluster[3].local_list();
 	});
 }
 
@@ -239,69 +276,87 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
-	vector<string> expected{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
+	vector<string> ring{hashStr("2"), hashStr("6"), hashStr("1"), hashStr("5"), hashStr("4"), hashStr("3")};
 	response = cluster[1].query("ring");
-	assertEquals(turbo::str::join(expected), response);
+	assertEquals(str::join(ring), response);
 
 	// write each file to its primary location. Rely on healing to synchronize everything else.
 	// setting copies=i here, so we get a different merkle tree per write...
 	for (unsigned i = 1; i <= 6; ++i)
 	{
-		string num = str(i);
+		string num = str::str(i);
 		response = cluster[i].write(num, "hello!"+num, "copies="+num);
 		assertEquals( "200", response );
 	}
 
 	// wait for files to propagate
 	// again, 2,6,1,5,4,3
-	wait_for(60, response, [&]()
+	string expected = fmt::format(
+		"1 => 7:1,1.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "[^. ]+"
+	);
+	wait_for_match(60, expected, [&]()
 	{
-		response = cluster[1].local_list();
-		return "1 => 7|1,1:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[1].local_list();
 	});
 
-	wait_for(60, response, [&]()
+	expected = fmt::format(
+		"2 => 7:1,2.{0}\n"
+		"3 => 7:1,3.{0}\n"
+		"4 => 7:1,4.{0}\n"
+		"5 => 7:1,5.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "[^. ]+"
+	);
+	wait_for_match(60, expected, [&]()
 	{
-		response = cluster[2].local_list();
-		return "2 => 7|1,2:1\n"
-			   "3 => 7|1,3:1\n"
-			   "4 => 7|1,4:1\n"
-			   "5 => 7|1,5:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[2].local_list();
 	});
 
-	wait_for(40, response, [&]()
+	expected = fmt::format(
+		"3 => 7:1,3.{0}\n"
+		"4 => 7:1,4.{0}\n"
+		"5 => 7:1,5.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "[^. ]+"
+	);
+	wait_for_match(40, expected, [&]()
 	{
-		response = cluster[3].local_list();
-		return "3 => 7|1,3:1\n"
-			   "4 => 7|1,4:1\n"
-			   "5 => 7|1,5:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[3].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	expected = fmt::format(
+		"4 => 7:1,4.{0}\n"
+		"5 => 7:1,5.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "[^. ]+"
+	);
+	wait_for_match(20, expected, [&]()
 	{
-		response = cluster[4].local_list();
-		return "4 => 7|1,4:1\n"
-			   "5 => 7|1,5:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[4].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	expected = fmt::format(
+		"5 => 7:1,5.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "[^. ]+"
+	);
+	wait_for_match(20, expected, [&]()
 	{
-		response = cluster[5].local_list();
-		return "5 => 7|1,5:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[5].local_list();
 	});
 
-	wait_for(20, response, [&]()
+	expected = fmt::format(
+		"2 => 7:1,2.{0}\n"
+		"3 => 7:1,3.{0}\n"
+		"4 => 7:1,4.{0}\n"
+		"5 => 7:1,5.{0}\n"
+		"6 => 7:1,6.{0}"
+		, "[^. ]+"
+	);
+	wait_for_match(20, expected, [&]()
 	{
-		response = cluster[6].local_list();
-		return "2 => 7|1,2:1\n"
-			   "3 => 7|1,3:1\n"
-			   "4 => 7|1,4:1\n"
-			   "5 => 7|1,5:1\n"
-			   "6 => 7|1,6:1" == response;
+		return cluster[6].local_list();
 	});
 }

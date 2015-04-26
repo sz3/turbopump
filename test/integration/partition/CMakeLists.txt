@@ -29,6 +29,7 @@ target_link_libraries(integration_partition_test
 
 	command_line
 	file
+	format
 	http
 	serialize
 -Wl,--end-group
