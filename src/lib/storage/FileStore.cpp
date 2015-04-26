@@ -184,8 +184,9 @@ std::vector<std::string> FileStore::versions(const std::string& name, bool inpro
 
 bool FileStore::remove(const std::string& name)
 {
-	boost::filesystem::remove_all(dirpath(name));
-	return true;
+	boost::system::error_code ec;
+	boost::filesystem::remove_all(dirpath(name), ec);
+	return versions(name, true).empty();
 }
 
 bool FileStore::onWriteComplete(const std::string& name, KeyMetadata& md)

@@ -367,6 +367,29 @@ TEST_CASE( "FileStoreTest/testExists", "[unit]" )
 	assertTrue( store.exists("woo/hoo", version.toString()) );
 }
 
+TEST_CASE( "FileStoreTest/testRemove", "[unit]" )
+{
+	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	write_file(store, "myfile", "0123456789");
+	{
+		readstream reader = store.read("myfile");
+		assertTrue( reader.good() );
+	}
+
+	assertTrue( store.remove("nothing") );
+
+	assertTrue( store.remove("myfile") );
+	{
+		readstream reader = store.read("myfile");
+		assertFalse( reader.good() );
+	}
+}
+
 TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )
 {
 	MyMemberId("increment");
