@@ -230,9 +230,9 @@ bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 	return true;
 }
 
-void FileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned limit) const
+void FileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const
 {
-	int i = 0;
+	unsigned long long i = 0;
 	boost::filesystem::recursive_directory_iterator end;
 	boost::filesystem::directory_iterator dend;
 	for (boost::filesystem::recursive_directory_iterator it(_homedir); it != end; ++it)

@@ -34,6 +34,7 @@ Hash::Hash(const string& input)
 Hash& Hash::fromHash(const string& hash)
 {
 	_hash = hash;
+	return *this;
 }
 
 Hash& Hash::fromBase64(const string& encoded)

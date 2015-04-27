@@ -67,7 +67,7 @@ public:
 				tabulator.update(name, md.digest, md.totalCopies);
 				return true;
 			};
-			store.enumerate(fun, ~0UL);
+			store.enumerate(fun, ~0ULL);
 		}
 	}
 

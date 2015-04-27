@@ -17,6 +17,7 @@ class IStore
 public:
 	virtual ~IStore() {}
 
+	// virtual writestream amend(const std::string& name, const std::string& version="", unsigned long long offset=0) = 0;
 	virtual writestream write(const std::string& name, const std::string& version="", unsigned short copies=DEFAULT_MIRRORS, unsigned long long offset=0) = 0;
 	virtual readstream read(const std::string& name, const std::string& version="", bool inprogress=false) const = 0;
 	virtual std::vector<readstream> readAll(const std::string& name) const = 0;
@@ -25,5 +26,5 @@ public:
 	virtual std::vector<std::string> versions(const std::string& name, bool inprogress=false) const = 0;
 	virtual bool remove(const std::string& name) = 0;
 
-	virtual void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned limit) const = 0;
+	virtual void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const = 0;
 };
