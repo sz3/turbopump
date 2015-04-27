@@ -8,7 +8,9 @@
 #include "time/stopwatch.h"
 
 #include "boost/filesystem.hpp"
+#include <chrono>
 #include <iostream>
+#include <thread>
 #include <vector>
 using std::string;
 using std::map;
@@ -68,7 +70,7 @@ bool TurboRunner::stop(unsigned retries)
 		if (res == 0)
 			return true;
 		//std::cout << "stop " << i << " (" << command << ") returned " << res << std::endl;
-		CommandLine::run("sleep 1");
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 	return false;
 }
@@ -123,7 +125,7 @@ bool TurboRunner::waitForState(std::string state, unsigned seconds) const
 		string response = query("status");
 		if (response == state)
 			return true;
-		CommandLine::run("sleep 0.25");
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
 	}
 	std::cout << "waitForState '" << state << "' failed after " << seconds << "s" << std::endl;
 	return false;

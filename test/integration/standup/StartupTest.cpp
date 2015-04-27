@@ -5,13 +5,13 @@
 #include "integration/TurboRunner.h"
 #include "main/TurboPumpApp.h"
 
-#include "command_line/CommandLine.h"
 #include "cppformat/format.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
 #include "time/wait_for.h"
 #include <array>
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -200,7 +200,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 	// test stuff!
 	workerOne.write("primer", "priming the wan pump");
-	CommandLine::run("sleep 0.2");
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
 	char readBuff[100];
 	for (unsigned i = 0; i < numFiles; ++i)

@@ -11,7 +11,7 @@ using namespace turbo;
 
 TEST_CASE( "RestartTest/testSync", "[integration-udp]" )
 {
-	TurboCluster cluster(3, "--udp --no-write-chaining");
+	TurboCluster cluster(3, "--udp --no-write-chaining --sync-interval 250");
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 

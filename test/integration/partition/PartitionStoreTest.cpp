@@ -50,10 +50,6 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 		assertEquals( "200", response );
 	}
 
-	// wait for files to propagate
-	// TODO: don't
-	CommandLine::run("sleep 0.5");
-
 	// again, 2,6,1,5,4,3
 	string expected = fmt::format(
 		"2 => 7:1,1.{0}\n"
@@ -132,10 +128,6 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 		response = cluster[1].write(num, "hello!"+num, "copies="+num);
 		assertEquals( "200", response );
 	}
-
-	// wait for files to propagate
-	// TODO: don't
-	CommandLine::run("sleep 0.5");
 
 	// again, 2,6,1,5,4,3
 	// that is:

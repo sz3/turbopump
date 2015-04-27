@@ -20,12 +20,13 @@ add_executable (
 add_test(standup_test standup_test)
 
 target_link_libraries(standup_test
-
+-Wl,--start-group
 	command_line
 	integration
 	main
 	turbopump
 	user_server
+-Wl,--end-group
 
 	format
 	http
