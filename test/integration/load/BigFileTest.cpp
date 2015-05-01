@@ -63,7 +63,7 @@ TEST_CASE( "BigFileTest/testDiskWrite", "disk" )
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
 	}
 
-	string expected = "bigfile => " + str::str(originalSize) + ":1,1.[^. ]+";
+	string expected = "bigfile => " + str::str(originalSize) + ":1,1.[^\\. ]+";
 	assertMatch( expected, cluster[1].local_list() );
 
 	string response = wait_for_match(8, expected, [&]()

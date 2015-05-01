@@ -65,7 +65,7 @@ TEST_CASE( "ReadWriteLoadTest/testSmallWrites", "[integration]" )
 		std::cout << "write " << i <<  " connection close at " << elapsed.micros() << "us" << std::endl;
 
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
-		fileList.push_back(name + " => " + str(name.size()) + ":1,1.[^. ]+");
+		fileList.push_back(name + " => " + str(name.size()) + ":1,1\\.[^\\. ]+");
 	}
 	std::cout << "did 300 writes in " << elapsed.millis() << "ms" << std::endl;
 
@@ -231,11 +231,12 @@ TEST_CASE( "ReadWriteLoadTest/testManyBigWrites", "[integration]" )
 
 	std::vector<string> results;
 	stopwatch t;
-	wait_for(30, str(results.size()) + " != 90", [&]()
+	unsigned expected = 90;
+	wait_for_equal(30, expected, [&]()
 	{
 		string response = cluster[2].local_list();
 		results = split(response, '\n');
-		return results.size() == 90;
+		return results.size();
 	});
 
 	std::vector<string> badResults;

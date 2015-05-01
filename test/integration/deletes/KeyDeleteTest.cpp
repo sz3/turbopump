@@ -18,7 +18,7 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	string response = cluster[1].write("deleteMe", "hello");
 
 	// wait for file
-	string expected = "deleteMe => 5:1,1.([^. ]+)";
+	string expected = "deleteMe => 5:1,1.([^\\. ]+)";
 	string version = wait_for_match(10, expected, [&]()
 	{
 		return cluster[1].local_list();

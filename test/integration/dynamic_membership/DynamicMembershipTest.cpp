@@ -19,7 +19,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	assertTrue( one.waitForRunning() );
 
 	std::vector<string> fileList;
-	fileList.push_back(".membership/9001 => 14:1,9001.[^. ]+");
+	fileList.push_back(".membership/9001 => 14:1,9001.[^\\. ]+");
 
 	string expected = str::join(fileList, '\n');
 	wait_for_match(5, expected, [&]()
@@ -44,7 +44,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 				  "9002 127.0.0.1:9002", response );
 
 	// test for member keys
-	fileList.push_back(".membership/9002 => 14:1,9002.[^. ]+");
+	fileList.push_back(".membership/9002 => 14:1,9002.[^\\. ]+");
 	expected = str::join(fileList, '\n');
 	wait_for_match(20, expected, [&]()
 	{
@@ -75,7 +75,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	});
 
 	// test for member keys
-	fileList.push_back(".membership/9003 => 14:1,9003.[^. ]+");
+	fileList.push_back(".membership/9003 => 14:1,9003.[^\\. ]+");
 	expected = str::join(fileList, '\n');
 	wait_for_match(100, expected, [&]()
 	{
@@ -98,7 +98,7 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 		response = one.write(name, contents, "copies=3");
 		assertEquals( "200", response );
 
-		fileList.push_back(name + " => " + str::str(contents.size()) + ":1,9001.[^. ]+");
+		fileList.push_back(name + " => " + str::str(contents.size()) + ":1,9001.[^\\. ]+");
 	}
 
 	std::sort(fileList.begin(), fileList.end());

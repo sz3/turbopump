@@ -122,7 +122,7 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 		"two2 => 11:1,two.{0}\n"
 		"two3 => 11:1,two.{0}\n"
 		"two4 => 11:1,two.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 
 	wait_for_match(5, expected, [&]()
@@ -230,7 +230,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 		"3 => 7:1,two.{0}\n"
 		"4 => 7:1,two.{0}\n"
 		"primer => 20:1,two.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 
 	wait_for_match(5, expected, [&]()
@@ -277,7 +277,7 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 		assertStringContains( "200 Success", string(readBuff, bytesRead) );
 	}
 
-	string expected = "0 => 66560:1,two.([^. ]+)";
+	string expected = "0 => 66560:1,two.([^\\. ]+)";
 	string response = workerOne.local_list();
 	assertMatch(expected, response);
 

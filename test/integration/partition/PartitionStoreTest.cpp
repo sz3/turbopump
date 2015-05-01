@@ -55,7 +55,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 		"2 => 7:1,1.{0}\n"
 		"3 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[2].local_list());
 
@@ -63,7 +63,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 		"3 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[3].local_list());
 
@@ -71,7 +71,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[4].local_list());
 
@@ -79,7 +79,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}\n"
 		"6 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[5].local_list());
 
@@ -87,7 +87,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 		"2 => 7:1,1.{0}\n"
 		"3 => 7:1,1.{0}\n"
 		"6 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[6].local_list());
 
@@ -96,7 +96,7 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"2 => 7:1,1.{0}\n"
 		"6 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[1].local_list());
 }
@@ -142,7 +142,7 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 		"3 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[2].local_list());
 
@@ -150,20 +150,20 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 		"3 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[3].local_list());
 
 	expected = fmt::format(
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[4].local_list());
 
 	expected = fmt::format(
 		"5 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[5].local_list());
 
@@ -172,14 +172,14 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 		"3 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[6].local_list());
 
 	// runner1 should drop the files he's not responsible for
 	expected = fmt::format(
 		"1 => 7:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	assertMatch(expected, cluster[1].local_list());
 }

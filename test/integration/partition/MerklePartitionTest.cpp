@@ -59,7 +59,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"2 => 7:1,2.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(60, expected, [&]()
 	{
@@ -70,7 +70,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 		"2 => 7:1,2.{0}\n"
 		"3 => 7:1,3.{0}\n"
 		"4 => 7:1,4.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(40, expected, [&]()
 	{
@@ -81,7 +81,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 		"3 => 7:1,3.{0}\n"
 		"4 => 7:1,4.{0}\n"
 		"5 => 7:1,5.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(40, expected, [&]()
 	{
@@ -92,7 +92,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"4 => 7:1,4.{0}\n"
 		"5 => 7:1,5.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(20, expected, [&]()
 	{
@@ -103,7 +103,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"5 => 7:1,5.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(20, expected, [&]()
 	{
@@ -114,7 +114,7 @@ TEST_CASE( "MerklePartitionTest/testSync", "[integration-udp]" )
 		"2 => 7:1,2.{0}\n"
 		"3 => 7:1,3.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(20, expected, [&]()
 	{
@@ -161,7 +161,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"2 => 7:1,1.{0}\n"
 		"6 => 7:1,1.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(70, expected, [&]()
 	{
@@ -172,7 +172,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 		"2 => 7:1,1.{0}\n"
 		"3 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(60, expected, [&]()
 	{
@@ -183,7 +183,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 		"3 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(40, expected, [&]()
 	{
@@ -194,7 +194,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"4 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(40, expected, [&]()
 	{
@@ -205,7 +205,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 		"1 => 7:1,1.{0}\n"
 		"5 => 7:1,1.{0}\n"
 		"6 => 7:1,1.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(40, expected, [&]()
 	{
@@ -216,7 +216,7 @@ TEST_CASE( "MerklePartitionTest/testRedistribute", "[integration-udp]" )
 		"2 => 7:1,1.{0}\n"
 		"3 => 7:1,1.{0}\n"
 		"6 => 7:1,1.{0}"
-		, "([^. ]+)"
+		, "([^\\. ]+)"
 	);
 	wait_for_match(40, expected, [&]()
 	{
@@ -241,7 +241,7 @@ TEST_CASE( "MerklePartitionTest/testDualSync", "[integration-udp]" )
 	string expected = fmt::format(
 		"bar => 4:1,1.{0}\n"
 		"foo => 6:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	expected = wait_for_match(5, expected, [&]()
 	{
@@ -294,7 +294,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	string expected = fmt::format(
 		"1 => 7:1,1.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	wait_for_match(60, expected, [&]()
 	{
@@ -307,7 +307,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 		"4 => 7:1,4.{0}\n"
 		"5 => 7:1,5.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	wait_for_match(60, expected, [&]()
 	{
@@ -319,7 +319,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 		"4 => 7:1,4.{0}\n"
 		"5 => 7:1,5.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	wait_for_match(40, expected, [&]()
 	{
@@ -330,7 +330,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 		"4 => 7:1,4.{0}\n"
 		"5 => 7:1,5.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	wait_for_match(20, expected, [&]()
 	{
@@ -340,7 +340,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 	expected = fmt::format(
 		"5 => 7:1,5.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	wait_for_match(20, expected, [&]()
 	{
@@ -353,7 +353,7 @@ TEST_CASE( "MerklePartitionTest/testSyncMultipleTrees", "[integration-udp]" )
 		"4 => 7:1,4.{0}\n"
 		"5 => 7:1,5.{0}\n"
 		"6 => 7:1,6.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	wait_for_match(20, expected, [&]()
 	{

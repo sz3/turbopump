@@ -36,7 +36,7 @@ TEST_CASE( "RestartTest/testSync", "[integration-udp]" )
 	string expected = fmt::format(
 		"bar => 4:1,1.{0}\n"
 		"foo => 6:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	response = wait_for_match(5, expected, [&]()
 	{
@@ -50,7 +50,7 @@ TEST_CASE( "RestartTest/testSync", "[integration-udp]" )
 
 	expected = fmt::format(
 		"bar => 4:1,1.{0}"
-		, "[^. ]+"
+		, "[^\\. ]+"
 	);
 	wait_for_match(20, expected, [&]()
 	{
