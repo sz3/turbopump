@@ -28,19 +28,19 @@ set(SOURCES
 	MockPeerCommandCenter.h
 	MockProcessState.cpp
 	MockProcessState.h
+	MockRequestPacker.cpp
+	MockRequestPacker.h
+	MockScheduler.cpp
+	MockScheduler.h
+	MockSkewCorrector.cpp
+	MockSkewCorrector.h
+	MockStatusReporter.h
 	MockStore.cpp
 	MockStore.h
 	MockStoreReader.cpp
 	MockStoreReader.h
 	MockStoreWriter.cpp
 	MockStoreWriter.h
-	MockRequestPacker.cpp
-	MockRequestPacker.h
-	MockSchedulerThread.cpp
-	MockSchedulerThread.h
-	MockSkewCorrector.cpp
-	MockSkewCorrector.h
-	MockStatusReporter.h
 	MockSynchronize.cpp
 	MockSynchronize.h
 	MockUserPacketHandler.cpp

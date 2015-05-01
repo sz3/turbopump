@@ -1,9 +1,9 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "ThreadLockedKeyTabulator.h"
 
-#include "event/ISchedulerThread.h"
+#include "concurrent/IScheduler.h"
 
-ThreadLockedKeyTabulator::ThreadLockedKeyTabulator(IKeyTabulator& index, ISchedulerThread& scheduler)
+ThreadLockedKeyTabulator::ThreadLockedKeyTabulator(IKeyTabulator& index, IScheduler& scheduler)
 	: _index(index)
 	, _scheduler(scheduler)
 {

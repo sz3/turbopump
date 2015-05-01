@@ -36,7 +36,6 @@ target_link_libraries(peer_server_test
 	mock
 	peer_client
 
-	event
 	serialize
 	socket
 -Wl,--end-group

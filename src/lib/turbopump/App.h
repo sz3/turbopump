@@ -4,6 +4,7 @@
 #include "Turbopump.h"
 #include "api/Api.h"
 #include "api/Options.h"
+#include "concurrent/DeadlineScheduler.h"
 #include "deskew/ThreadLockedKeyTabulator.h"
 #include "peer_client/MessagePacker.h"
 #include "peer_client/MessageSender.h"
@@ -12,8 +13,8 @@
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
 
-#include "event/SchedulerThread.h"
-#include "event/MultiThreadedExecutor.h"
+#include "concurrent/ThreadPoolExecutor.h"
+#include "mutex/monitor.h"
 #include "socket/ISocketServer.h"
 
 namespace Turbopump {
@@ -29,7 +30,7 @@ public:
 
 protected:
 	// shutdown flag
-	Event _shutdown;
+	turbo::monitor _shutdown;
 
 	// options
 	Options _opts;
@@ -38,7 +39,7 @@ protected:
 	Turbopump _turbopump;
 
 	// background thread
-	SchedulerThread _scheduler;
+	DeadlineScheduler _scheduler;
 
 	// sync
 	ThreadLockedKeyTabulator _threadLockedKeyTabulator;
@@ -56,7 +57,7 @@ protected:
 
 	// internal comm server components
 	// including threads
-	MultiThreadedExecutor _peerExecutor;
+	ThreadPoolExecutor _peerExecutor;
 	ConcurrentCommandCenter _peerCenter;
 	PeerPacketHandler _peerPacketHandler;
 };

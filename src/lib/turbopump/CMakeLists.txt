@@ -25,7 +25,6 @@ target_link_libraries(turbopump
 	peer_server
 	storage
 
-	event
 	file
 	serialize
 	socket

@@ -5,7 +5,7 @@
 #include "api/Api.h"
 #include "membership/Peer.h"
 
-#include "event/IExecutor.h"
+#include "concurrent/IExecutor.h"
 using std::string;
 
 ConcurrentCommandCenter::ConcurrentCommandCenter(Turbopump::Api& api, IExecutor& executor)

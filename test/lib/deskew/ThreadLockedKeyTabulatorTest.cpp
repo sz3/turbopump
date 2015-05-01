@@ -4,13 +4,13 @@
 #include "ThreadLockedKeyTabulator.h"
 
 #include "mock/MockKeyTabulator.h"
-#include "mock/MockSchedulerThread.h"
+#include "mock/MockScheduler.h"
 using std::string;
 
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testAdd", "[unit]" )
 {
 	MockKeyTabulator realIndex;
-	MockSchedulerThread scheduler;
+	MockScheduler scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.update("foo", 0, 2);
@@ -23,7 +23,7 @@ TEST_CASE( "ThreadLockedKeyTabulatorTest/testAdd", "[unit]" )
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testRemove", "[unit]" )
 {
 	MockKeyTabulator realIndex;
-	MockSchedulerThread scheduler;
+	MockScheduler scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.remove("foo", 2);
@@ -36,7 +36,7 @@ TEST_CASE( "ThreadLockedKeyTabulatorTest/testRemove", "[unit]" )
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testSplitSection", "[unit]" )
 {
 	MockKeyTabulator realIndex;
-	MockSchedulerThread scheduler;
+	MockScheduler scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.splitSection("foo");
@@ -49,7 +49,7 @@ TEST_CASE( "ThreadLockedKeyTabulatorTest/testSplitSection", "[unit]" )
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testCannibalizeSection", "[unit]" )
 {
 	MockKeyTabulator realIndex;
-	MockSchedulerThread scheduler;
+	MockScheduler scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.cannibalizeSection("foo");
@@ -62,7 +62,7 @@ TEST_CASE( "ThreadLockedKeyTabulatorTest/testCannibalizeSection", "[unit]" )
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testFind", "[unit]" )
 {
 	MockKeyTabulator realIndex;
-	MockSchedulerThread scheduler;
+	MockScheduler scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.find("foo", 2);
@@ -73,7 +73,7 @@ TEST_CASE( "ThreadLockedKeyTabulatorTest/testFind", "[unit]" )
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testRandomTree", "[unit]" )
 {
 	MockKeyTabulator realIndex;
-	MockSchedulerThread scheduler;
+	MockScheduler scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.randomTree();
@@ -84,7 +84,7 @@ TEST_CASE( "ThreadLockedKeyTabulatorTest/testRandomTree", "[unit]" )
 TEST_CASE( "ThreadLockedKeyTabulatorTest/testUnwantedTree", "[unit]" )
 {
 	MockKeyTabulator realIndex;
-	MockSchedulerThread scheduler;
+	MockScheduler scheduler;
 	ThreadLockedKeyTabulator index(realIndex, scheduler);
 
 	index.unwantedTree();

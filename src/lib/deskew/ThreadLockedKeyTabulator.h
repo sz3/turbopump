@@ -2,12 +2,12 @@
 #pragma once
 
 #include "IKeyTabulator.h"
-class ISchedulerThread;
+class IScheduler;
 
 class ThreadLockedKeyTabulator : public IKeyTabulator
 {
 public:
-	ThreadLockedKeyTabulator(IKeyTabulator& index, ISchedulerThread& scheduler);
+	ThreadLockedKeyTabulator(IKeyTabulator& index, IScheduler& scheduler);
 
 	void update(const std::string& key, unsigned long long value, unsigned mirrors);
 	void remove(const std::string& key, unsigned mirrors);
@@ -21,5 +21,5 @@ public:
 
 protected:
 	IKeyTabulator& _index;
-	ISchedulerThread& _scheduler;
+	IScheduler& _scheduler;
 };
