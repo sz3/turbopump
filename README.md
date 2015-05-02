@@ -48,7 +48,6 @@ How to build
 From within the "turbopump" directory, run:
   > cmake .
   make
-  make install
 
 To run tests:
   > ctest
