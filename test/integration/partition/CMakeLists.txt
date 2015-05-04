@@ -27,7 +27,6 @@ target_link_libraries(integration_partition_test
 	membership
 	integration
 
-	command_line
 	file
 	format
 	http

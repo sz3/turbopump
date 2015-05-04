@@ -2,9 +2,9 @@
 #include "TurboRunner.h"
 #include "membership/Membership.h"
 
-#include "command_line/CommandLine.h"
 #include "http/HttpResponse.h"
 #include "serialize/str.h"
+#include "system/popen.h"
 #include "time/stopwatch.h"
 
 #include "boost/filesystem.hpp"
@@ -77,14 +77,14 @@ bool TurboRunner::stop(unsigned retries)
 
 std::string TurboRunner::query(std::string action, std::string params) const
 {
-	string response = CommandLine::run("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -U " + dataChannel());
+	string response = turbo::popen("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -U " + dataChannel()).read();
 	return HttpResponse().parse(response).body();
 }
 
 std::string TurboRunner::post(std::string action, std::string params, std::string body) const
 {
-	string response = CommandLine::run("echo 'POST /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n"
-		   "content-length:" + str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel());
+	string response = turbo::popen("echo 'POST /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n"
+		   "content-length:" + str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel()).read();
 	return HttpResponse().parse(response).status().str();
 }
 
@@ -145,7 +145,7 @@ std::string TurboRunner::headerForRead(std::string name, std::string params/*=""
 std::string TurboRunner::write(std::string name, std::string data, std::string params/*=""*/)
 {
 	string req = headerForWrite(name, data.size(), params) + data;
-	string res = CommandLine::run("echo '" + req + "' | nc -U " + dataChannel());
+	string res = turbo::popen("echo '" + req + "' | nc -U " + dataChannel()).read();
 	return HttpResponse().parse(res).status().str();
 }
 

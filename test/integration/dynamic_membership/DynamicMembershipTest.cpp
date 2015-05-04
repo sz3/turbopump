@@ -4,7 +4,7 @@
 #include "integration/TurboRunner.h"
 #include "membership/Membership.h"
 
-#include "command_line/CommandLine.h"
+#include "system/popen.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/wait_for.h"

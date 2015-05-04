@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "command_line/CommandLine.h"
+#include "system/popen.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 #include "time/wait_for.h"

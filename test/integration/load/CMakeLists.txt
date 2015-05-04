@@ -28,7 +28,6 @@ target_link_libraries(load_test
 	integration
 	storage
 
-	command_line
 	file
 	http
 	serialize

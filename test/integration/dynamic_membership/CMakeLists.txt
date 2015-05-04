@@ -26,7 +26,6 @@ target_link_libraries(dynamic_membership_test
 	integration
 	membership
 
-	command_line
 	file
 	http
 	serialize

@@ -26,7 +26,6 @@ target_link_libraries(integration_deletes_test
 	membership
 	integration
 
-	command_line
 	file
 	http
 	serialize
