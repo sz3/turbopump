@@ -2,8 +2,8 @@
 #pragma once
 
 #include "IBufferedConnectionWriter.h"
-#include "mutex/conditional_lock_guard.h"
-#include "mutex/unlock_guard.h"
+#include "concurrent/conditional_lock_guard.h"
+#include "concurrent/unlock_guard.h"
 #include <memory>
 #include <mutex>
 #include <arpa/inet.h>

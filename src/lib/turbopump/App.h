@@ -13,8 +13,8 @@
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
 
+#include "concurrent/monitor.h"
 #include "concurrent/ThreadPoolExecutor.h"
-#include "mutex/monitor.h"
 #include "socket/ISocketServer.h"
 
 namespace Turbopump {
