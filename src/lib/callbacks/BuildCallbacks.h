@@ -3,18 +3,14 @@
 
 #include "api/Options.h"
 
-namespace Turbopump { class Turbopump; }
-
-class IKeyTabulator;
-class IMessageSender;
-class ISuperviseWrites;
+namespace Turbopump { class Interface; }
 
 class BuildCallbacks
 {
 public:
 	BuildCallbacks(Turbopump::Options& opts);
 
-	void build(Turbopump::Turbopump& turbopump, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer);
+	void build(const Turbopump::Interface& turbopump);
 
 protected:
 	Turbopump::Options& _opts;

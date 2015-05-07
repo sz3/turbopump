@@ -1,6 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "App.h"
 
+#include "Interface.h"
 #include "callbacks/BuildCallbacks.h"
 #include "peer_server/MultiplexedSocketPool.h"
 
@@ -36,7 +37,9 @@ App::App(const Options& opts)
 	, _peerPacketHandler(_turbopump.membership, _peerCenter, _turbopump.logger)
 	, _threadLockedKeyTabulator(_turbopump.keyTabulator, _scheduler)
 {
-	BuildCallbacks(_opts).build(_turbopump, _threadLockedKeyTabulator, _messenger, _writeSupervisor);
+	Interface iface{_turbopump.api, _turbopump.logger, _turbopump.store, _turbopump.membership, _turbopump.ring,
+		_turbopump.keyLocator, _threadLockedKeyTabulator, _turbopump.corrector, _turbopump.synchronizer, _messenger, _writeSupervisor};
+	BuildCallbacks(_opts).build(iface);
 }
 
 bool App::run()

@@ -10,7 +10,7 @@
 #include "api/Drop.h"
 #include "deskew/IKeyTabulator.h"
 #include "storage/readstream.h"
-#include "turbopump/Turbopump.h"
+#include "turbopump/Interface.h"
 
 #include <deque>
 #include <functional>
@@ -71,39 +71,39 @@ BuildCallbacks::BuildCallbacks(Turbopump::Options& opts)
 {
 }
 
-void BuildCallbacks::build(Turbopump::Turbopump& turbopump, IKeyTabulator& keyTabulator, IMessageSender& messenger, ISuperviseWrites& writer)
+void BuildCallbacks::build(const Turbopump::Interface& turbopump)
 {
 	// on local write
 	{
 		if (_opts.active_sync)
-			_opts.when_local_write_finishes.add( digestAddFunct(keyTabulator) );
+			_opts.when_local_write_finishes.add( digestAddFunct(turbopump.keyTabulator) );
 
 		if (_opts.write_chaining)
 		{
 			if (_opts.partition_keys)
-				_opts.when_local_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, writer, true) );
+				_opts.when_local_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
 			else
-				_opts.when_local_write_finishes.add( writeChainFunct_cloneMode(turbopump.keyLocator, turbopump.membership, writer, true) );
+				_opts.when_local_write_finishes.add( writeChainFunct_cloneMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
 		}
-		_opts.when_local_write_finishes.add( membershipAddFunct(turbopump.ring, turbopump.membership, keyTabulator) );
+		_opts.when_local_write_finishes.add( membershipAddFunct(turbopump.ring, turbopump.membership, turbopump.keyTabulator) );
 	}
 
 	// on mirror write
 	{
 		if (_opts.active_sync)
-			_opts.when_mirror_write_finishes.add( digestAddFunct(keyTabulator) );
+			_opts.when_mirror_write_finishes.add( digestAddFunct(turbopump.keyTabulator) );
 
 		if (_opts.write_chaining && _opts.partition_keys)
-			_opts.when_mirror_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, writer, false) );
+			_opts.when_mirror_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, false) );
 
-		_opts.when_mirror_write_finishes.add( notifyWriteComplete(turbopump.membership, messenger) );
-		_opts.when_mirror_write_finishes.add( membershipAddFunct(turbopump.ring,turbopump. membership, keyTabulator) );
+		_opts.when_mirror_write_finishes.add( notifyWriteComplete(turbopump.membership, turbopump.messenger) );
+		_opts.when_mirror_write_finishes.add( membershipAddFunct(turbopump.ring,turbopump. membership, turbopump.keyTabulator) );
 	}
 
 	// on drop
 	{
 		if (_opts.active_sync)
-			_opts.when_drop_finishes.add( digestDelFunct(keyTabulator) );
+			_opts.when_drop_finishes.add( digestDelFunct(turbopump.keyTabulator) );
 	}
 
 	if (_opts.build_callbacks)

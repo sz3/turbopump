@@ -3,7 +3,7 @@
 
 #include "util/function_chain.h"
 
-namespace Turbopump { class Drop; class Turbopump; }
+namespace Turbopump { class Drop; class Interface; }
 class WriteInstructions;
 class readstream;
 
@@ -24,7 +24,7 @@ struct Options
 	turbo::function_chain<WriteInstructions&, readstream&> when_mirror_write_finishes;
 	turbo::function_chain<const Drop&>                     when_drop_finishes;
 
-	std::function<void(Options&, const Turbopump&)> build_callbacks;
+	std::function<void(Options&, const Interface&)> build_callbacks;
 };
 }//namespace
 
