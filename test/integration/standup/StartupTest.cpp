@@ -5,7 +5,7 @@
 #include "integration/TurboRunner.h"
 #include "main/TurboPumpApp.h"
 
-#include "cppformat/format.h"
+#include "serialize/format.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"

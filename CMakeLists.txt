@@ -7,8 +7,8 @@ set(CMAKE_CXX_FLAGS "-DTURBOPUMP_PROJECT_ROOT=\\\"${turboproj_SOURCE_DIR}\\\"")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 	set(CMAKE_C_FLAGS "${CFLAGS} -Wall -std=c99")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fPIC -std=c++11")
-	# -ftime-report
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -fpic -std=c++11")
+	# -ftime-report -fno-rtti
 endif()
 
 set (TURBOLIB ${turboproj_SOURCE_DIR}/../turbolib)

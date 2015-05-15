@@ -6,7 +6,7 @@
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 
-#include "cppformat/format.h"
+#include "serialize/format.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/wait_for.h"

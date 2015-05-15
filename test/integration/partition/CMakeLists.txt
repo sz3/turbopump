@@ -28,7 +28,6 @@ target_link_libraries(integration_partition_test
 	integration
 
 	file
-	format
 	http
 	serialize
 -Wl,--end-group

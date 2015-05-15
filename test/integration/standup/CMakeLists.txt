@@ -27,7 +27,6 @@ target_link_libraries(standup_test
 	user_server
 -Wl,--end-group
 
-	format
 	http
 
 	boost_filesystem
