@@ -81,6 +81,26 @@ TEST_CASE( "UserCommandContextTest/testOnUrl.Fails", "[unit]" )
 	assertEquals( "", context._url );
 }
 
+TEST_CASE( "UserCommandContextTest/testOnUrl.TooBig", "[unit]" )
+{
+	MockUserPacketHandler handler;
+	TestableUserCommandContext context(handler);
+
+	string url;
+	url.resize(8191, 'a');
+	assertEquals( 0, context.onUrl(url.data(), url.size()) );
+	assertEquals( 8191, context._url.size() );
+
+	assertEquals( 0, context.status().integer() );
+
+	// now, for the kaboom
+	url = "bb";
+	assertEquals( 1, context.onUrl(url.data(), url.size()) );
+	assertEquals( 8191, context._url.size() );
+
+	assertEquals( 414, context.status().integer() );
+}
+
 TEST_CASE( "UserCommandContextTest/testOnBegin", "[unit]" )
 {
 	MockUserPacketHandler handler;

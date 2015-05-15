@@ -36,6 +36,12 @@ int UserCommandContext::onUrl(const char* data, size_t len)
 	// return 1 == bail out.
 	if (!_command)
 	{
+		if (_url.size() + len > 8192)
+		{
+			_status = StatusCode::RequestURITooLong;
+			return 1;
+		}
+
 		_url.append(string(data, len));
 		return 0;
 	}
