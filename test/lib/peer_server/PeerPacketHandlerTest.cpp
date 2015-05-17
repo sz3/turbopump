@@ -18,7 +18,7 @@ TEST_CASE( "PeerPacketHandlerTest/testOnPacket", "[unit]" )
 
 	MockSocketWriter writer;
 	writer._endpoint = socket_address("1.2.3.4", 5);
-	assertMsg( handler.onPacket(writer, "foobar", 6), logger._history.calls() );
+	handler.onPacket(writer, "foobar", 6);
 
 	assertEquals( "lookupIp(1.2.3.4)", membership._history.calls() );
 	assertEquals( "run(fooid,foobar)", center._history.calls() );
@@ -34,7 +34,7 @@ TEST_CASE( "PeerPacketHandlerTest/testOnPacket.BadPeer", "[unit]" )
 
 	MockSocketWriter writer;
 	writer._endpoint = socket_address("8.8.8.8", 12);
-	assertFalse( handler.onPacket(writer, "foobar", 6) );
+	handler.onPacket(writer, "foobar", 6);
 
 	assertEquals( "lookupIp(8.8.8.8)", membership._history.calls() );
 	assertEquals( "logWarn(rejecting packet from unknown host 8.8.8.8:12)", logger._history.calls() );
@@ -52,10 +52,9 @@ TEST_CASE( "PeerPacketHandlerTest/testOnPacket.Empty", "[unit]" )
 
 	MockSocketWriter writer;
 	writer._endpoint = socket_address("8.8.8.8", 12);
-	assertFalse( handler.onPacket(writer, NULL, 0) );
+	handler.onPacket(writer, NULL, 0);
 
 	assertEquals( "lookupIp(8.8.8.8)", membership._history.calls() );
 	assertEquals( "", logger._history.calls() );
 	assertEquals( "", center._history.calls() );
 }
-

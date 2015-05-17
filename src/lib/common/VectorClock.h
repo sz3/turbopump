@@ -2,6 +2,7 @@
 #pragma once
 
 #include "vector_clock/bounded_time_vector.h"
+#include <string>
 
 class VectorClock : public vector_clock::bounded_time_vector<std::string,10>
 {

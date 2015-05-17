@@ -41,7 +41,10 @@ bool ListKeysCommand::run(const char*, unsigned)
 		return false;
 
 	_stream->write("{\n", 2);
-	_store.enumerate(std::bind(&ListKeysCommand::print_key, this, _1, _2, _3), 1000);
+	auto fun = [this] (const std::string& name, const KeyMetadata& md, const std::string& report) {
+		return this->print_key(name, md, report);
+	};
+	_store.enumerate(fun, 1000);
 	_stream->write("}", 1);
 	return true;
 }

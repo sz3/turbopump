@@ -12,7 +12,7 @@ class PeerPacketHandler
 public:
 	PeerPacketHandler(const IMembership& membership, IPeerCommandCenter& center, ILog& logger);
 
-	bool onPacket(ISocketWriter& writer, const char* buff, unsigned size);
+	void onPacket(ISocketWriter& writer, const char* buff, unsigned size);
 
 protected:
 	const IMembership& _membership;

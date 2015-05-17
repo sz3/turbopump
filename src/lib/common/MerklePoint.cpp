@@ -17,5 +17,5 @@ bool MerklePointSerializer::fromString(MerklePoint& point, const std::string& st
 	iss >> point.location.key;
 	iss >> point.location.keybits;
 	iss >> point.hash;
-	return iss;
+	return iss.good();
 }

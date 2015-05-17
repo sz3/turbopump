@@ -50,19 +50,28 @@ namespace
 	std::function<void(WriteInstructions&, readstream&)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
 	{
 		std::shared_ptr<NotifyWriteComplete> cmd(new NotifyWriteComplete(membership, messenger));
-		return bind(&NotifyWriteComplete::run, cmd, _1, _2);
+		return [cmd] (WriteInstructions& params, readstream& contents)
+		{
+			cmd->run(params, contents);
+		};
 	}
 
 	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_cloneMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
 	{
 		std::shared_ptr< ChainWrite<RandomizedMirrorToPeer> > cmd(new ChainWrite<RandomizedMirrorToPeer>(locator, membership, writer, blocking));
-		return bind(&ChainWrite<RandomizedMirrorToPeer>::run, cmd, _1, _2);
+		return [cmd] (WriteInstructions& params, readstream& contents)
+		{
+			cmd->run(params, contents);
+		};
 	}
 
 	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_partitionMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
 	{
 		std::shared_ptr< ChainWrite<MirrorToPeer> > cmd(new ChainWrite<MirrorToPeer>(locator, membership, writer, blocking));
-		return bind(&ChainWrite<MirrorToPeer>::run, cmd, _1, _2);
+		return [cmd] (WriteInstructions& params, readstream& contents)
+		{
+			cmd->run(params, contents);
+		};
 	}
 }
 

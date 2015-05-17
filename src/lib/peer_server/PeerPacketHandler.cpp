@@ -15,20 +15,19 @@ PeerPacketHandler::PeerPacketHandler(const IMembership& membership, IPeerCommand
 {
 }
 
-bool PeerPacketHandler::onPacket(ISocketWriter& writer, const char* buff, unsigned size)
+void PeerPacketHandler::onPacket(ISocketWriter& writer, const char* buff, unsigned size)
 {
 	// is the message from a valid peer?
 	std::shared_ptr<Peer> peer = _membership.lookupIp(writer.target());
 	if (!peer)
 	{
 		_logger.logWarn("rejecting packet from unknown host " + writer.endpoint().toString());
-		return false;
+		return;
 	}
 
 	if (size == 0)
-		return false;
-	string buffer(buff, size); // decrypt here
+		return;
 
+	string buffer(buff, size); // decrypt here
 	_center.run(peer, buffer);
-	return true;
 }
