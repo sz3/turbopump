@@ -79,6 +79,8 @@ bool App::run()
 
 void App::shutdown()
 {
+	// callable by signal handlers.
+	// e.g. do not attempt to wait on mutexes.
 	_shutdown.notify_all();
 }
 
