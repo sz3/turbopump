@@ -1,9 +1,10 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
+#include "turbopumpd/app.h"
+
 #include "api/WriteInstructions.h"
 #include "integration/TurboRunner.h"
-#include "main/TurboPumpApp.h"
 
 #include "serialize/format.h"
 #include "serialize/str.h"
@@ -35,7 +36,7 @@ public:
 	IntegratedTurboRunner(const Turbopump::Options& opts)
 		: TurboRunner(opts.internal_port)
 		, _app(opts, socket_address(dataChannel()))
-		, _thread(std::bind(&TurboPumpApp::run, &_app))
+		, _thread(std::bind(&TurboApp::run, &_app))
 	{
 		::signal(SIGPIPE, SIG_IGN);
 	}
@@ -47,7 +48,7 @@ public:
 	}
 
 protected:
-	TurboPumpApp _app;
+	TurboApp _app;
 	std::thread _thread;
 };
 

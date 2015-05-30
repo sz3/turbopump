@@ -10,6 +10,7 @@ set (SOURCES
 include_directories(
 	${turbolib_SOURCE_DIR}/test
 	${turboproj_SOURCE_DIR}/test/lib
+	${turboproj_SOURCE_DIR}/src/exe
 )
 
 add_executable (
@@ -22,7 +23,6 @@ add_test(standup_test standup_test)
 target_link_libraries(standup_test
 -Wl,--start-group
 	integration
-	main
 	turbopump
 	user_server
 -Wl,--end-group

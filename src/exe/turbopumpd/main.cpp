@@ -1,6 +1,6 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
+#include "app.h"
 #include "api/Options.h"
-#include "main/TurboPumpApp.h"
 
 #include "optionparser/ezOptionParser.hpp"
 #include "serialize/str.h"
@@ -15,7 +15,7 @@ using namespace turbo;
 using std::string;
 
 namespace {
-	std::unique_ptr<TurboPumpApp> _app;
+	std::unique_ptr<TurboApp> _app;
 
 	void onShutdown(int sig)
 	{
@@ -99,7 +99,7 @@ int main(int argc, const char** argv)
 		options.udt = false;
 
 	std::cout << localAddr.toString() << ":" << options.internal_port << std::endl;
-	_app.reset( new TurboPumpApp(options, localAddr) );
+	_app.reset( new TurboApp(options, localAddr) );
 
 	::signal(SIGINT, &onShutdown);
 	::signal(SIGTERM, &onShutdown);

@@ -4,6 +4,8 @@ project(turbopumpd)
 
 set (SOURCES
 	main.cpp
+
+	app.h
 )
 
 add_executable (
@@ -13,7 +15,6 @@ add_executable (
 
 target_link_libraries(turbopumpd
 
-	main
 	turbopump
 	user_server
 

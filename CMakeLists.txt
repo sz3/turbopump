@@ -23,7 +23,6 @@ add_subdirectory(${TURBOLIB} ${TURBOLIB})
 
 set (PROJECTS
    src/exe/turbopumpd
-   src/lib/main
 
    src/lib/api
    test/lib/api
