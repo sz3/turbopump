@@ -11,7 +11,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(turbopump STATIC ${SOURCES})
+add_library(turbopump STATIC SHARED ${SOURCES})
 
 target_link_libraries(turbopump
 -Wl,--start-group

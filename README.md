@@ -24,7 +24,7 @@ How to build
 1. System dependencies
 
  - Linux
- - clang >= 3.4 or gcc >= 4.8
+ - clang >= 3.4 or gcc >= 4.9
  - cmake
 
 2. Library dependencies [apt-get install ...]
