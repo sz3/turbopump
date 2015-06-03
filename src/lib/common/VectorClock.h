@@ -10,8 +10,8 @@ public:
 	VectorClock();
 	VectorClock(const std::deque<VectorClock::clock>& clocks);
 
-	void increment(const std::string& key);
-	void markDeleted();
+	VectorClock& increment(const std::string& key);
+	VectorClock& markDeleted();
 	bool isDeleted() const;
 
 	std::string toString() const;

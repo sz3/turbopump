@@ -10,6 +10,7 @@ class Peer
 {
 public:
 	Peer(const std::string& uid);
+	Peer(const std::string& uid, const std::vector<std::string>& ips);
 	Peer(const Peer& peer);
 
 	std::string address() const;

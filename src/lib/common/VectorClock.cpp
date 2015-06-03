@@ -79,14 +79,16 @@ namespace {
 	}
 }
 
-void VectorClock::increment(const std::string& key)
+VectorClock& VectorClock::increment(const std::string& key)
 {
 	base_class::increment(key, WallClock::now());
+	return *this;
 }
 
-void VectorClock::markDeleted()
+VectorClock& VectorClock::markDeleted()
 {
 	increment("delete");
+	return *this;
 }
 
 bool VectorClock::isDeleted() const

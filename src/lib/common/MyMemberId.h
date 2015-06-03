@@ -7,6 +7,8 @@
 class MyMemberId
 {
 public:
+	static MyMemberId generate();
+
 	MyMemberId();
 	MyMemberId(const std::string& id);
 

@@ -14,6 +14,13 @@ Peer::Peer(const string& uid)
 {
 }
 
+Peer::Peer(const string& uid, const std::vector<std::string>& ips)
+	: uid(uid)
+	, ips(ips)
+	, _actionId(0)
+{
+}
+
 Peer::Peer(const Peer& peer)
 	: uid(peer.uid)
 	, ips(peer.ips)

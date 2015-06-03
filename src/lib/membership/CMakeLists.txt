@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
+	IKnowPeers.h
 	IMembership.h
+	KnownPeers.cpp
+	KnownPeers.h
 	Membership.cpp
 	Membership.h
 	Peer.cpp
