@@ -34,7 +34,8 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 				  "3 127.0.0.1:9003\n"
 				  "4 127.0.0.1:9004\n"
 				  "5 127.0.0.1:9005\n"
-				  "6 127.0.0.1:9006", response );
+				  "6 127.0.0.1:9006\n"
+				  , response );
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...
@@ -113,7 +114,8 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 				  "3 127.0.0.1:9003\n"
 				  "4 127.0.0.1:9004\n"
 				  "5 127.0.0.1:9005\n"
-				  "6 127.0.0.1:9006", response );
+				  "6 127.0.0.1:9006\n"
+				  , response );
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
 	// e.g. if the primary location is 2, the secondary is 6, the tertiary is 1...

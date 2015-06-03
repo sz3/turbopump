@@ -3,11 +3,12 @@
 
 #include "api/WriteInstructions.h"
 #include "hashing/ILocateKeys.h"
-#include "membership/IMembership.h"
+#include "membership/IKnowPeers.h"
 #include "membership/Peer.h"
 using std::shared_ptr;
+using std::string;
 
-MirrorToPeer::MirrorToPeer(const ILocateKeys& locator, const IMembership& membership)
+MirrorToPeer::MirrorToPeer(const ILocateKeys& locator, const IKnowPeers& membership)
 	: _locator(locator)
 	, _membership(membership)
 {
@@ -19,23 +20,24 @@ bool MirrorToPeer::chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>
 	if (next >= params.copies)
 		return false;
 
-	std::vector<std::string> locations = _locator.locations(params.name, params.copies);
+	std::vector<string> locations = _locator.locations(params.name, params.copies);
 	shared_ptr<Peer> self = _membership.self();
 	if (!self)
 		return false;
 
 	// the first write is the only one that might be out of order.
 	// also, it might be that the first guy (source) needs to drop the file once all copies are written.
+	// TODO: fix stupid loop bug (wasted effort) when the last location is the source...
 	if (params.mirror == 0)
 		params.source = self->uid;
 
 	for (; next < locations.size(); ++next)
 	{
-		if (locations[next] == params.source)
+		const string& loc = locations[next];
+		if (loc == params.source || loc == self->uid)
 			continue;
-		peer = _membership.lookup(locations[next]);
-		if (peer != self)
-			break;
+		peer = _membership.lookup(loc);
+		break;
 	}
 	if (!peer || peer == self || peer->uid == params.source)
 		return false;

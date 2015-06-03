@@ -2,7 +2,7 @@
 #pragma once
 
 class IConsistentHashRing;
-class IMembership;
+class IKnowPeers;
 class IKeyTabulator;
 class WriteInstructions;
 class readstream;
@@ -10,12 +10,12 @@ class readstream;
 class AddPeer
 {
 public:
-	AddPeer(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator);
+	AddPeer(IConsistentHashRing& ring, IKnowPeers& membership, IKeyTabulator& keyTabulator);
 
 	bool run(WriteInstructions& params, readstream& contents);
 
 protected:
 	IConsistentHashRing& _ring;
-	IMembership& _membership;
+	IKnowPeers& _membership;
 	IKeyTabulator& _keyTabulator;
 };

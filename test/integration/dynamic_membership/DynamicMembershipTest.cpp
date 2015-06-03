@@ -2,7 +2,6 @@
 #include "unittest.h"
 
 #include "integration/TurboRunner.h"
-#include "membership/Membership.h"
 
 #include "system/popen.h"
 #include "serialize/str.h"
@@ -35,13 +34,15 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	assertEquals( "200", response );
 	response = one.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
-				  "9002 127.0.0.1:9002", response );
+				  "9002 127.0.0.1:9002\n"
+				  , response );
 
 	response = two.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	assertEquals( "200", response );
 	response = two.query("membership");
-	assertEquals( "9001 127.0.0.1:9001\n"
-				  "9002 127.0.0.1:9002", response );
+	assertEquals( "9002 127.0.0.1:9002\n"
+				  "9001 127.0.0.1:9001\n"
+				  , response );
 
 	// test for member keys
 	fileList.push_back(".membership/9002 => 14:1,9002.[^\\. ]+");
@@ -58,17 +59,24 @@ TEST_CASE( "DynamicMembershipTest/testGrow", "[integration]" )
 	response = one.post("add-peer", "uid=9003&ip=127.0.0.1:9003");
 	string expectedMembers = "9001 127.0.0.1:9001\n"
 							 "9002 127.0.0.1:9002\n"
-							 "9003 127.0.0.1:9003";
+							 "9003 127.0.0.1:9003\n";
 	response = one.query("membership");
 	assertEquals( expectedMembers, response );
 
 	// tell 3 to join
 	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
+	expectedMembers = "9003 127.0.0.1:9003\n"
+					  "9001 127.0.0.1:9001\n"
+					  "9002 127.0.0.1:9002\n";
 	wait_for_equal(30, expectedMembers, [&]()
 	{
 		return three.query("membership");
 	});
+
+	expectedMembers = "9002 127.0.0.1:9002\n"
+					  "9001 127.0.0.1:9001\n"
+					  "9003 127.0.0.1:9003\n";
 	wait_for_equal(30, expectedMembers, [&]()
 	{
 		return two.query("membership");
@@ -115,12 +123,14 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	response = one.post("add-peer", "uid=9002&ip=127.0.0.1:9002");
 	response = one.query("membership");
 	assertEquals( "9001 127.0.0.1:9001\n"
-				  "9002 127.0.0.1:9002", response );
+				  "9002 127.0.0.1:9002\n"
+				  , response );
 
 	response = two.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	response = two.query("membership");
-	assertEquals( "9001 127.0.0.1:9001\n"
-				  "9002 127.0.0.1:9002", response );
+	assertEquals( "9002 127.0.0.1:9002\n"
+				  "9001 127.0.0.1:9001\n"
+				  , response );
 
 	// keys should propagate to two
 	expected = str::join(fileList, '\n');
@@ -136,17 +146,25 @@ TEST_CASE( "DynamicMembershipTest/testGrow.FilesSpread", "[integration]" )
 	response = one.post("add-peer", "uid=9003&ip=127.0.0.1:9003");
 	string expectedMembers = "9001 127.0.0.1:9001\n"
 							 "9002 127.0.0.1:9002\n"
-							 "9003 127.0.0.1:9003";
+							 "9003 127.0.0.1:9003\n";
 	response = one.query("membership");
 	assertEquals( expectedMembers, response );
 
 	// tell 3 to join
 	response = three.post("add-peer", "uid=9001&ip=127.0.0.1:9001");
 	// membership changes should propagate to all members
+
+	expectedMembers = "9003 127.0.0.1:9003\n"
+					  "9001 127.0.0.1:9001\n"
+					  "9002 127.0.0.1:9002\n";
 	wait_for_equal(60, expectedMembers, [&]()
 	{
 		return three.query("membership");
 	});
+
+	expectedMembers = "9002 127.0.0.1:9002\n"
+					  "9001 127.0.0.1:9001\n"
+					  "9003 127.0.0.1:9003\n";
 	wait_for_equal(60, expectedMembers, [&]()
 	{
 		return two.query("membership");

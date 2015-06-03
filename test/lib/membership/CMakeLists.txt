@@ -5,7 +5,6 @@ project(membership_test)
 set (SOURCES
 	test.cpp
 	KnownPeersTest.cpp
-	MembershipTest.cpp
 	PeerTest.cpp
 )
 

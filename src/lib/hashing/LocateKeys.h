@@ -3,12 +3,12 @@
 
 #include "ILocateKeys.h"
 class IConsistentHashRing;
-class IMembership;
+class IKnowPeers;
 
 class LocateKeys : public ILocateKeys
 {
 public:
-	LocateKeys(const IConsistentHashRing& ring, const IMembership& membership);
+	LocateKeys(const IConsistentHashRing& ring, const IKnowPeers& membership);
 
 	std::vector<std::string> locations(const std::string& name, unsigned limit) const;
 	std::string section(const std::string& name) const;
@@ -19,5 +19,5 @@ public:
 
 protected:
 	const IConsistentHashRing& _ring;
-	const IMembership& _membership;
+	const IKnowPeers& _membership;
 };

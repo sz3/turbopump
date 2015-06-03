@@ -22,7 +22,7 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(WriteInstructions&, readstream&)> membershipAddFunct(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
+	std::function<void(WriteInstructions&, readstream&)> membershipAddFunct(IConsistentHashRing& ring, IKnowPeers& membership, IKeyTabulator& keyTabulator)
 	{
 		return [&] (WriteInstructions& params, readstream& contents)
 		{
@@ -47,7 +47,7 @@ namespace
 		};
 	}
 
-	std::function<void(WriteInstructions&, readstream&)> notifyWriteComplete(const IMembership& membership, IMessageSender& messenger)
+	std::function<void(WriteInstructions&, readstream&)> notifyWriteComplete(const IKnowPeers& membership, IMessageSender& messenger)
 	{
 		std::shared_ptr<NotifyWriteComplete> cmd(new NotifyWriteComplete(membership, messenger));
 		return [cmd] (WriteInstructions& params, readstream& contents)
@@ -56,7 +56,7 @@ namespace
 		};
 	}
 
-	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_cloneMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
+	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_cloneMode(const ILocateKeys& locator, const IKnowPeers& membership, ISuperviseWrites& writer, bool blocking)
 	{
 		std::shared_ptr< ChainWrite<RandomizedMirrorToPeer> > cmd(new ChainWrite<RandomizedMirrorToPeer>(locator, membership, writer, blocking));
 		return [cmd] (WriteInstructions& params, readstream& contents)
@@ -65,7 +65,7 @@ namespace
 		};
 	}
 
-	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_partitionMode(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
+	std::function<void(WriteInstructions&, readstream&)> writeChainFunct_partitionMode(const ILocateKeys& locator, const IKnowPeers& membership, ISuperviseWrites& writer, bool blocking)
 	{
 		std::shared_ptr< ChainWrite<MirrorToPeer> > cmd(new ChainWrite<MirrorToPeer>(locator, membership, writer, blocking));
 		return [cmd] (WriteInstructions& params, readstream& contents)

@@ -5,7 +5,7 @@
 
 #include "api/WriteInstructions.h"
 #include "mock/MockLocateKeys.h"
-#include "mock/MockMembership.h"
+#include "mock/MockKnownPeers.h"
 #include "mock/MockMirrorToPeer.h"
 #include "mock/MockWriteSupervisor.h"
 #include "storage/readstream.h"
@@ -18,7 +18,7 @@ using std::string;
 TEST_CASE( "ChainWriteTest/testBasic", "[unit]" )
 {
 	MockLocateKeys locator;
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockWriteSupervisor supervisor;
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, true);
 
@@ -41,7 +41,7 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 	MockMirrorToPeer::failOnce();
 
 	MockLocateKeys locator;
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockWriteSupervisor supervisor;
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
@@ -62,7 +62,7 @@ TEST_CASE( "ChainWriteTest/testChooseMirrorFails", "[unit]" )
 TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 {
 	MockLocateKeys locator;
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockWriteSupervisor supervisor;
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 
@@ -83,7 +83,7 @@ TEST_CASE( "ChainWriteTest/testNoWriter", "[unit]" )
 TEST_CASE( "ChainWriteTest/testMultiplePackets", "[unit]" )
 {
 	MockLocateKeys locator;
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockWriteSupervisor supervisor;
 	ChainWrite<MockMirrorToPeer> command(locator, membership, supervisor, false);
 

@@ -11,7 +11,7 @@
 #include "hashing/LocateKeys.h"
 
 #include "membership/Peer.h"
-#include "mock/MockMembership.h"
+#include "mock/MockKnownPeers.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 using std::string;
@@ -21,7 +21,7 @@ using turbo::str::str;
 // grow and shrink the hash ring and merkle index, verifying things stay sane
 TEST_CASE( "KeyTabulatorDynamicHashRingTest/testShrinkGrow", "[integration]" )
 {
-	MockMembership membership;
+	MockKnownPeers membership;
 	membership._self->uid = "1";
 
 	// baseline: create 5 ranges

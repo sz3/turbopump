@@ -5,12 +5,12 @@
 
 #include "IProcessState.h"
 #include "hashing/IConsistentHashRing.h"
-#include "membership/IMembership.h"
+#include "membership/IKnowPeers.h"
 
 class StatusReporter : public IStatusReporter
 {
 public:
-	StatusReporter(const IConsistentHashRing& ring, const IMembership& membership, const IProcessState& state)
+	StatusReporter(const IConsistentHashRing& ring, const IKnowPeers& membership, const IProcessState& state)
 		: _ring(ring)
 		, _membership(membership)
 		, _state(state)
@@ -28,6 +28,6 @@ public:
 
 protected:
 	const IConsistentHashRing& _ring;
-	const IMembership& _membership;
+	const IKnowPeers& _membership;
 	const IProcessState& _state;
 };

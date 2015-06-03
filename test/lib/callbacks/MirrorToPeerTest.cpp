@@ -6,7 +6,7 @@
 #include "api/WriteInstructions.h"
 #include "membership/Peer.h"
 #include "mock/MockLocateKeys.h"
-#include "mock/MockMembership.h"
+#include "mock/MockKnownPeers.h"
 
 #include "util/CallHistory.h"
 #include <memory>
@@ -17,7 +17,7 @@ using std::string;
 TEST_CASE( "MirrorToPeerTest/testMirror_SelfIsNull", "[unit]" )
 {
 	MockLocateKeys locator;
-	MockMembership membership;
+	MockKnownPeers membership;
 	membership._self.reset();
 	MirrorToPeer command(locator, membership);
 
@@ -37,11 +37,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
@@ -61,11 +61,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfNotInList_EnsureDelivery", "[unit]" 
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
@@ -85,11 +85,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSource", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._self = membership.lookup("aaa");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
@@ -110,11 +110,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._self = membership.lookup("bbb");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
@@ -124,7 +124,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SkipSelf", "[unit]" )
 	assertTrue( command.chooseMirror(params, peer) );
 
 	assertEquals( "locations(file,3)", locator._history.calls() );
-	assertEquals( "self()|lookup(bbb)|lookup(ccc)", membership._history.calls() );
+	assertEquals( "self()|lookup(ccc)", membership._history.calls() );
 	assertEquals( "ccc", peer->uid );
 }
 
@@ -135,11 +135,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_SelfLaterInList", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._self = membership.lookup("ccc");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
@@ -160,11 +160,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_LaterIndex", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
@@ -184,11 +184,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Done", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 
@@ -207,11 +207,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._self = membership.lookup("ddd");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
@@ -221,7 +221,7 @@ TEST_CASE( "MirrorToPeerTest/testMirror_NoAcceptablePeers", "[unit]" )
 	assertFalse( command.chooseMirror(params, peer) );
 
 	assertEquals( "locations(file,4)", locator._history.calls() );
-	assertEquals( "self()|lookup(ddd)", membership._history.calls() );
+	assertEquals( "self()", membership._history.calls() );
 }
 
 TEST_CASE( "MirrorToPeerTest/testMirror_AlreadyHitSource", "[unit]" )
@@ -231,11 +231,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_AlreadyHitSource", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._self = membership.lookup("ddd");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
@@ -257,11 +257,11 @@ TEST_CASE( "MirrorToPeerTest/testMirror_Fin", "[unit]" )
 	locator._locations.push_back("bbb");
 	locator._locations.push_back("ccc");
 	locator._locations.push_back("ddd");
-	MockMembership membership;
-	membership.addIp("aaa", "aaa");
-	membership.addIp("bbb", "bbb");
-	membership.addIp("ccc", "ccc");
-	membership.addIp("ddd", "ddd");
+	MockKnownPeers membership;
+	membership.update("aaa");
+	membership.update("bbb");
+	membership.update("ccc");
+	membership.update("ddd");
 	membership._history.clear();
 	MirrorToPeer command(locator, membership);
 

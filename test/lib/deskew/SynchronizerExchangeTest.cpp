@@ -11,7 +11,7 @@
 #include "mock/MockConsistentHashRing.h"
 #include "mock/MockLocateKeys.h"
 #include "mock/MockLogger.h"
-#include "mock/MockMembership.h"
+#include "mock/MockKnownPeers.h"
 #include "peer_client/IMessageSender.h"
 
 #include "serialize/str.h"
@@ -100,7 +100,7 @@ namespace
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 {
 	MockConsistentHashRing ring;
-	MockMembership membership;
+	MockKnownPeers membership;
 
 	MockLocateKeys locator;
 	locator._locations.push_back("fooid");
@@ -160,7 +160,7 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange", "[integration]" )
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]" )
 {
 	MockConsistentHashRing ring;
-	MockMembership membership;
+	MockKnownPeers membership;
 
 	MockLocateKeys locator;
 	locator._locations.push_back("fooid");
@@ -226,7 +226,7 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case3", "[integration]" )
 {
 	MockConsistentHashRing ring;
-	MockMembership membership;
+	MockKnownPeers membership;
 
 	MockLocateKeys locator;
 	locator._locations.push_back("fooid");

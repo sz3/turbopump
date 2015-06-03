@@ -3,18 +3,18 @@
 
 #include <memory>
 class ILocateKeys;
-class IMembership;
+class IKnowPeers;
 class Peer;
 class WriteInstructions;
 
 class MirrorToPeer
 {
 public:
-	MirrorToPeer(const ILocateKeys& locator, const IMembership& membership);
+	MirrorToPeer(const ILocateKeys& locator, const IKnowPeers& membership);
 
 	bool chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>& peer);
 
 protected:
 	const ILocateKeys& _locator;
-	const IMembership& _membership;
+	const IKnowPeers& _membership;
 };

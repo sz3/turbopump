@@ -2,15 +2,15 @@
 #include "unittest.h"
 
 #include "PeerPacketHandler.h"
-#include "mock/MockMembership.h"
+#include "mock/MockKnownPeers.h"
 #include "mock/MockPeerCommandCenter.h"
 #include "mock/MockLogger.h"
 #include "socket/MockSocketWriter.h"
 
 TEST_CASE( "PeerPacketHandlerTest/testOnPacket", "[unit]" )
 {
-	MockMembership membership;
-	membership.addIp("1.2.3.4", "fooid");
+	MockKnownPeers membership;
+	membership.update("fooid", {"1.2.3.4:5"});
 	membership._history.clear();
 	MockPeerCommandCenter center;
 	MockLogger logger;
@@ -20,14 +20,14 @@ TEST_CASE( "PeerPacketHandlerTest/testOnPacket", "[unit]" )
 	writer._endpoint = socket_address("1.2.3.4", 5);
 	handler.onPacket(writer, "foobar", 6);
 
-	assertEquals( "lookupIp(1.2.3.4)", membership._history.calls() );
+	assertEquals( "lookupAddr(1.2.3.4:5)", membership._history.calls() );
 	assertEquals( "run(fooid,foobar)", center._history.calls() );
 	assertEquals( "", logger._history.calls() );
 }
 
 TEST_CASE( "PeerPacketHandlerTest/testOnPacket.BadPeer", "[unit]" )
 {
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockPeerCommandCenter center;
 	MockLogger logger;
 	PeerPacketHandler handler(membership, center, logger);
@@ -36,15 +36,15 @@ TEST_CASE( "PeerPacketHandlerTest/testOnPacket.BadPeer", "[unit]" )
 	writer._endpoint = socket_address("8.8.8.8", 12);
 	handler.onPacket(writer, "foobar", 6);
 
-	assertEquals( "lookupIp(8.8.8.8)", membership._history.calls() );
+	assertEquals( "lookupAddr(8.8.8.8:12)", membership._history.calls() );
 	assertEquals( "logWarn(rejecting packet from unknown host 8.8.8.8:12)", logger._history.calls() );
 	assertEquals( "", center._history.calls() );
 }
 
 TEST_CASE( "PeerPacketHandlerTest/testOnPacket.Empty", "[unit]" )
 {
-	MockMembership membership;
-	membership.addIp("8.8.8.8", "fooid");
+	MockKnownPeers membership;
+	membership.update("fooid", {"8.8.8.8:12"});
 	membership._history.clear();
 	MockPeerCommandCenter center;
 	MockLogger logger;
@@ -54,7 +54,7 @@ TEST_CASE( "PeerPacketHandlerTest/testOnPacket.Empty", "[unit]" )
 	writer._endpoint = socket_address("8.8.8.8", 12);
 	handler.onPacket(writer, NULL, 0);
 
-	assertEquals( "lookupIp(8.8.8.8)", membership._history.calls() );
+	assertEquals( "lookupAddr(8.8.8.8:12)", membership._history.calls() );
 	assertEquals( "", logger._history.calls() );
 	assertEquals( "", center._history.calls() );
 }

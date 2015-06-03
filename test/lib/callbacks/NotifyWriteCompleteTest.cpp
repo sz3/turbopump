@@ -6,7 +6,7 @@
 #include "api/WriteInstructions.h"
 #include "common/KeyMetadata.h"
 #include "membership/Peer.h"
-#include "mock/MockMembership.h"
+#include "mock/MockKnownPeers.h"
 #include "mock/MockMessageSender.h"
 #include "storage/readstream.h"
 #include "storage/StringReader.h"
@@ -16,7 +16,7 @@ using std::string;
 
 TEST_CASE( "NotifyWriteCompleteTest/testNotLastCopy", "[unit]" )
 {
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
@@ -30,7 +30,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testNotLastCopy", "[unit]" )
 
 TEST_CASE( "NotifyWriteCompleteTest/testNoExtraMirror", "[unit]" )
 {
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
@@ -44,7 +44,7 @@ TEST_CASE( "NotifyWriteCompleteTest/testNoExtraMirror", "[unit]" )
 
 TEST_CASE( "NotifyWriteCompleteTest/testExtraMirrorNotAMember", "[unit]" )
 {
-	MockMembership membership;
+	MockKnownPeers membership;
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);
 
@@ -59,8 +59,8 @@ TEST_CASE( "NotifyWriteCompleteTest/testExtraMirrorNotAMember", "[unit]" )
 
 TEST_CASE( "NotifyWriteCompleteTest/testDropExtraMirror", "[unit]" )
 {
-	MockMembership membership;
-	membership.addIp("peer", "peer");
+	MockKnownPeers membership;
+	membership.update("peer");
 	membership._history.clear();
 	MockMessageSender messenger;
 	NotifyWriteComplete command(membership, messenger);

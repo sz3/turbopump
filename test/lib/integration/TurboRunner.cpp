@@ -1,6 +1,6 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "TurboRunner.h"
-#include "membership/Membership.h"
+#include "membership/KnownPeers.h"
 
 #include "http/HttpResponse.h"
 #include "serialize/str.h"
@@ -151,15 +151,29 @@ std::string TurboRunner::write(std::string name, std::string data, std::string p
 
 void TurboRunner::createMemberFile(short firstPort, int firstUid, int members)
 {
-	Membership membership(_workingDir + "/turbo_members.txt", "localhost:" + _workingDir);
+	KnownPeers membership(_workingDir + "/turbo_members.txt");
 	if (firstUid <= 0)
 		firstUid = firstPort;
+
+	// find self...
+	string self;
 	for (int i = 0; i < members; ++i)
 	{
 		string uid = str(firstUid+i);
 		string port = str(firstPort+i);
-		membership.add(uid);
-		membership.addIp("127.0.0.1:" + port, uid);
+		if (port == _workingDir)
+			self = uid;
+	}
+	membership.update(self);
+
+	// add all members
+	for (int i = 0; i < members; ++i)
+	{
+		string uid = str(firstUid+i);
+		string port = str(firstPort+i);
+
+		vector<string> ips{"127.0.0.1:" + port};
+		membership.update(uid, ips);
 	}
 	membership.save();
 }

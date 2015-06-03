@@ -4,18 +4,18 @@
 #include <memory>
 class IPeerCommandCenter;
 class ILog;
-class IMembership;
+class IKnowPeers;
 class ISocketWriter;
 
 class PeerPacketHandler
 {
 public:
-	PeerPacketHandler(const IMembership& membership, IPeerCommandCenter& center, ILog& logger);
+	PeerPacketHandler(const IKnowPeers& membership, IPeerCommandCenter& center, ILog& logger);
 
 	void onPacket(ISocketWriter& writer, const char* buff, unsigned size);
 
 protected:
-	const IMembership& _membership;
+	const IKnowPeers& _membership;
 	IPeerCommandCenter& _center;
 	ILog& _logger;
 };

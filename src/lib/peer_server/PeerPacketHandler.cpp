@@ -3,12 +3,12 @@
 
 #include "IPeerCommandCenter.h"
 #include "logging/ILog.h"
-#include "membership/IMembership.h"
+#include "membership/IKnowPeers.h"
 #include "socket/ISocketWriter.h"
 #include "socket/socket_address.h"
 using std::string;
 
-PeerPacketHandler::PeerPacketHandler(const IMembership& membership, IPeerCommandCenter& center, ILog& logger)
+PeerPacketHandler::PeerPacketHandler(const IKnowPeers& membership, IPeerCommandCenter& center, ILog& logger)
 	: _membership(membership)
 	, _center(center)
 	, _logger(logger)
@@ -18,7 +18,7 @@ PeerPacketHandler::PeerPacketHandler(const IMembership& membership, IPeerCommand
 void PeerPacketHandler::onPacket(ISocketWriter& writer, const char* buff, unsigned size)
 {
 	// is the message from a valid peer?
-	std::shared_ptr<Peer> peer = _membership.lookupIp(writer.target());
+	std::shared_ptr<Peer> peer = _membership.lookupAddr(writer.endpoint());
 	if (!peer)
 	{
 		_logger.logWarn("rejecting packet from unknown host " + writer.endpoint().toString());

@@ -10,7 +10,7 @@ namespace {
 	CallHistory _history;
 }
 
-MockMirrorToPeer::MockMirrorToPeer(const ILocateKeys& locator, const IMembership& membership)
+MockMirrorToPeer::MockMirrorToPeer(const ILocateKeys& locator, const IKnowPeers& membership)
 {
 }
 

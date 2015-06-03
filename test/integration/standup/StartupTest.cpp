@@ -55,11 +55,9 @@ protected:
 namespace {
 	void createMemberFile()
 	{
-		Membership membership("turbo_members.txt", "localhost:1337");
-		membership.add("one");
-		membership.addIp("127.0.0.1:9001", "one");
-		membership.add("two");
-		membership.addIp("127.0.0.1:9002", "two");
+		KnownPeers membership("turbo_members.txt");
+		membership.update("one", {"127.0.0.1:9001"});
+		membership.update("two", {"127.0.0.1:9002"});
 		membership.save();
 	}
 
@@ -96,7 +94,8 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 
 	string response = workerOne.query("membership");
 	assertEquals( "one 127.0.0.1:9001\n"
-				  "two 127.0.0.1:9002", response );
+				  "two 127.0.0.1:9002\n"
+				  , response );
 
 	for (unsigned i = 0; i < 5; ++i)
 	{
@@ -245,7 +244,6 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 {
-	::signal(SIGPIPE, SIG_IGN);
 	createMemberFile();
 
 	Turbopump::Options opts;

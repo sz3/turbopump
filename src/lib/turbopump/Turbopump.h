@@ -12,7 +12,7 @@
 #include "hashing/ConsistentHashRing.h"
 #include "hashing/LocateKeys.h"
 #include "logging/StderrLogger.h"
-#include "membership/Membership.h"
+#include "membership/KnownPeers.h"
 #include "membership/Peer.h"
 #include "storage/FileStore.h"
 
@@ -33,7 +33,7 @@ public:
 		, keyLocator(ring, membership)
 		, keyTabulator(keyLocator)
 		, store(turbo::str::str(opts.internal_port) + "/store")
-		, membership("turbo_members.txt", socket_address("127.0.0.1", opts.internal_port).toString())
+		, membership("turbo_members.txt")
 		, corrector(keyTabulator, store, messenger, sender, logger)
 		, synchronizer(ring, membership, keyTabulator, messenger, corrector, logger)
 	{
@@ -45,10 +45,7 @@ public:
 		if (membership.load())
 			membership.syncToDataStore(store);
 		else
-		{
 			logger.logWarn("failed to load membership.");
-			membership.addSelf();
-		}
 
 		if (opts.partition_keys)
 		{
@@ -88,7 +85,7 @@ public:
 
 	// storage, membership
 	FileStore store;
-	Membership membership;
+	KnownPeers membership;
 
 	// sync, dependent on internal messaging
 	SkewCorrector corrector;

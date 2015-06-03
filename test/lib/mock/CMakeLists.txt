@@ -13,12 +13,12 @@ set(SOURCES
 	MockDigestTree.h
 	MockKeyTabulator.cpp
 	MockKeyTabulator.h
+	MockKnownPeers.cpp
+	MockKnownPeers.h
 	MockLocateKeys.cpp
 	MockLocateKeys.h
 	MockLogger.cpp
 	MockLogger.h
-	MockMembership.cpp
-	MockMembership.h
 	MockMessageSender.cpp
 	MockMessageSender.h
 	MockMirrorToPeer.cpp

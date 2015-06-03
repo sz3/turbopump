@@ -2,9 +2,9 @@
 #include "RandomizedMirrorToPeer.h"
 
 #include "api/WriteInstructions.h"
-#include "membership/IMembership.h"
+#include "membership/IKnowPeers.h"
 
-RandomizedMirrorToPeer::RandomizedMirrorToPeer(const ILocateKeys& locator, const IMembership& membership)
+RandomizedMirrorToPeer::RandomizedMirrorToPeer(const ILocateKeys& locator, const IKnowPeers& membership)
 	: _membership(membership)
 {
 }

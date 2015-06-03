@@ -5,13 +5,16 @@
 #include "common/turbopump_defaults.h"
 #include "deskew/IKeyTabulator.h"
 #include "hashing/IConsistentHashRing.h"
-#include "membership/IMembership.h"
+#include "membership/IKnowPeers.h"
+#include "membership/Peer.h"
 #include "storage/readstream.h"
 
 #include "socket/StringByteStream.h"
+#include <vector>
 using std::string;
+using std::vector;
 
-AddPeer::AddPeer(IConsistentHashRing& ring, IMembership& membership, IKeyTabulator& keyTabulator)
+AddPeer::AddPeer(IConsistentHashRing& ring, IKnowPeers& membership, IKeyTabulator& keyTabulator)
 	: _ring(ring)
 	, _membership(membership)
 	, _keyTabulator(keyTabulator)
@@ -28,8 +31,8 @@ bool AddPeer::run(WriteInstructions& params, readstream& contents)
 	contents.stream(stream);
 	string ip = stream.writeBuffer();
 
-	bool isNew = _membership.add(uid);
-	_membership.addIp(ip, uid);
+	vector<string> ips = {ip};
+	bool isNew = _membership.update(uid, ips);
 	if (!_membership.save())
 		return false;
 	if (!isNew)

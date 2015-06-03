@@ -5,7 +5,7 @@ namespace Turbopump { class Api; }
 class ILog;
 
 class IStore;
-class IMembership;
+class IKnowPeers;
 class IConsistentHashRing;
 class ILocateKeys;
 class IKeyTabulator;
@@ -23,7 +23,7 @@ public:
 	ILog& logger;
 
 	IStore& store;
-	IMembership& membership;
+	IKnowPeers& membership;
 	IConsistentHashRing& ring;
 	ILocateKeys& keyLocator;
 	IKeyTabulator& keyTabulator;

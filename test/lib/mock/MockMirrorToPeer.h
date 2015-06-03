@@ -3,14 +3,14 @@
 
 #include <memory>
 class ILocateKeys;
-class IMembership;
+class IKnowPeers;
 class Peer;
 class WriteInstructions;
 
 class MockMirrorToPeer
 {
 public:
-	MockMirrorToPeer(const ILocateKeys& locator, const IMembership& membership);
+	MockMirrorToPeer(const ILocateKeys& locator, const IKnowPeers& membership);
 
 	bool chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>& peer);
 

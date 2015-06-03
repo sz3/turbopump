@@ -4,14 +4,14 @@
 #include "api/WriteInstructions.h"
 #include "peer_client/ISuperviseWrites.h"
 class ILocateKeys;
-class IMembership;
+class IKnowPeers;
 class Peer;
 
 template <typename MirrorStrategy>
 class ChainWrite
 {
 public:
-	ChainWrite(const ILocateKeys& locator, const IMembership& membership, ISuperviseWrites& writer, bool blocking)
+	ChainWrite(const ILocateKeys& locator, const IKnowPeers& membership, ISuperviseWrites& writer, bool blocking)
 		: _locator(locator)
 		, _membership(membership)
 		, _writer(writer)
@@ -35,7 +35,7 @@ public:
 
 protected:
 	const ILocateKeys& _locator;
-	const IMembership& _membership;
+	const IKnowPeers& _membership;
 	ISuperviseWrites& _writer;
 	bool _blocking;
 };

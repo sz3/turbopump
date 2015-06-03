@@ -5,7 +5,7 @@
 #include "api/WriteInstructions.h"
 #include "membership/Peer.h"
 #include "mock/MockLocateKeys.h"
-#include "mock/MockMembership.h"
+#include "mock/MockKnownPeers.h"
 
 #include <memory>
 #include <string>
@@ -15,8 +15,8 @@ using std::string;
 TEST_CASE( "RandomizedMirrorToPeerTest/testSuccess", "[unit]" )
 {
 	MockLocateKeys locator;
-	MockMembership membership;
-	membership.addIp("1.2.3.4", "dude");
+	MockKnownPeers membership;
+	membership.update("dude", {"1.2.3.4"});
 	membership._history.clear();
 	RandomizedMirrorToPeer command(locator, membership);
 
@@ -32,8 +32,8 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testSuccess", "[unit]" )
 TEST_CASE( "RandomizedMirrorToPeerTest/testDone", "[unit]" )
 {
 	MockLocateKeys locator;
-	MockMembership membership;
-	membership.addIp("1.2.3.4", "dude");
+	MockKnownPeers membership;
+	membership.update("dude", {"1.2.3.4"});
 	membership._history.clear();
 	RandomizedMirrorToPeer command(locator, membership);
 
@@ -50,7 +50,7 @@ TEST_CASE( "RandomizedMirrorToPeerTest/testDone", "[unit]" )
 TEST_CASE( "RandomizedMirrorToPeerTest/testBadPeer", "[unit]" )
 {
 	MockLocateKeys locator;
-	MockMembership membership;
+	MockKnownPeers membership;
 	membership._history.clear();
 	RandomizedMirrorToPeer command(locator, membership);
 

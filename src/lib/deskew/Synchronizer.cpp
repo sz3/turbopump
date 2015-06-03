@@ -11,15 +11,17 @@
 #include "hashing/Hash.h"
 #include "hashing/IConsistentHashRing.h"
 #include "logging/ILog.h"
-#include "membership/IMembership.h"
+#include "membership/IKnowPeers.h"
 #include "membership/Peer.h"
 #include "peer_client/IMessageSender.h"
+
+#include "util/Random.h"
 #include <deque>
 #include <sstream>
 using std::shared_ptr;
 using std::string;
 
-Synchronizer::Synchronizer(const IConsistentHashRing& ring, const IMembership& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector, ILog& logger)
+Synchronizer::Synchronizer(const IConsistentHashRing& ring, const IKnowPeers& membership, const IKeyTabulator& index, IMessageSender& messenger, ICorrectSkew& corrector, ILog& logger)
 	: _ring(ring)
 	, _membership(membership)
 	, _index(index)
@@ -34,7 +36,7 @@ void Synchronizer::pingRandomPeer()
 	const IDigestKeys& tree = _index.randomTree();
 	std::vector<string> locations = _ring.locations(Hash().fromHash(tree.id().id), tree.id().mirrors);
 
-	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : _membership.randomPeerFromList(locations);
+	shared_ptr<Peer> peer = locations.empty()? _membership.randomPeer() : randomPeerFromList(locations);
 	if (!peer)
 		return;
 
@@ -52,7 +54,7 @@ void Synchronizer::offloadUnwantedKeys()
 	if (locations.empty())
 		return;
 
-	shared_ptr<Peer> peer = _membership.randomPeerFromList(locations);
+	shared_ptr<Peer> peer = randomPeerFromList(locations);
 	if (!peer)
 		return;
 	// TODO: some sort of exchange will be necessary here.
@@ -138,4 +140,18 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 		// respond!
 		_messenger.digestPing(peer, treeid, diffs);
 	}
+}
+
+shared_ptr<Peer> Synchronizer::randomPeerFromList(std::vector<string> locs) const
+{
+	while (!locs.empty())
+	{
+		std::vector<string>::iterator it = Random::select(locs.begin(), locs.end(), locs.size());
+		shared_ptr<Peer> peer = _membership.lookup(*it);
+		if (!!peer)
+			return peer;
+
+		locs.erase(it);
+	}
+	return NULL;
 }
