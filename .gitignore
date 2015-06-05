@@ -1,4 +1,5 @@
 /build
+/dist
 /CMakeFiles
 /Testing
 /CMakeCache.txt
