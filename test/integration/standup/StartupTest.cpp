@@ -6,11 +6,14 @@
 #include "api/WriteInstructions.h"
 #include "integration/TurboRunner.h"
 
+#include "file/UseTempDirectory.h"
 #include "serialize/format.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include "time/stopwatch.h"
 #include "time/wait_for.h"
+
+#include "boost/filesystem.hpp"
 #include <array>
 #include <chrono>
 #include <functional>
@@ -53,11 +56,20 @@ protected:
 };
 
 namespace {
-	void createMemberFile()
+	void createMemberFile(std::string self)
 	{
-		KnownPeers membership("turbo_members.txt");
-		membership.update("one", {"127.0.0.1:9001"});
-		membership.update("two", {"127.0.0.1:9002"});
+		boost::filesystem::create_directory(self);
+		KnownPeers membership(self + "/turbo_members.txt");
+		if (self == "one")
+		{
+			membership.update("one", {"127.0.0.1:9001"});
+			membership.update("two", {"127.0.0.1:9002"});
+		}
+		else
+		{
+			membership.update("two", {"127.0.0.1:9002"});
+			membership.update("one", {"127.0.0.1:9001"});
+		}
 		membership.save();
 	}
 
@@ -77,7 +89,7 @@ namespace {
 
 TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 {
-	createMemberFile();
+	UseTempDirectory tempdir;
 
 	Turbopump::Options opts;
 	opts.active_sync = true;
@@ -85,8 +97,13 @@ TEST_CASE( "StartupTest/testMerkleHealing", "[integration]" )
 	opts.partition_keys = false;
 
 	opts.internal_port = 9001;
+	opts.home_dir = "one";
+	createMemberFile("one");
 	IntegratedTurboRunner workerOne(opts);
+
 	opts.internal_port = 9002;
+	opts.home_dir = "two";
+	createMemberFile("two");
 	IntegratedTurboRunner workerTwo(opts);
 
 	workerOne.waitForRunning();
@@ -171,8 +188,8 @@ namespace
 
 TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 {
+	UseTempDirectory tempdir;
 	const unsigned numFiles = 5;
-	createMemberFile();
 
 	Turbopump::Options opts;
 	opts.active_sync = false;
@@ -191,8 +208,13 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 	};
 
 	opts.internal_port = 9001;
+	opts.home_dir = "one";
+	createMemberFile("one");
 	IntegratedTurboRunner workerOne(opts);
+
 	opts.internal_port = 9002;
+	opts.home_dir = "two";
+	createMemberFile("two");
 	IntegratedTurboRunner workerTwo(opts);
 
 	workerOne.waitForRunning();
@@ -244,7 +266,7 @@ TEST_CASE( "StartupTest/testWriteChaining", "[integration]" )
 
 TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 {
-	createMemberFile();
+	UseTempDirectory tempdir;
 
 	Turbopump::Options opts;
 	opts.active_sync = false;
@@ -252,8 +274,13 @@ TEST_CASE( "StartupTest/testWriteBigFile", "[integration]" )
 	opts.partition_keys = false;
 
 	opts.internal_port = 9001;
+	opts.home_dir = "one";
+	createMemberFile("one");
 	IntegratedTurboRunner workerOne(opts);
+
 	opts.internal_port = 9002;
+	opts.home_dir = "two";
+	createMemberFile("two");
 	IntegratedTurboRunner workerTwo(opts);
 
 	workerOne.waitForRunning();

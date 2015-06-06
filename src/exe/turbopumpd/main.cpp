@@ -44,6 +44,7 @@ int main(int argc, const char** argv)
 	opt.add("localhost:1592", false, 1, 0, "local server. File path (domain socket), or tcp bind address.", "-l", "--local-addr");
 	opt.add("1593", false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
+	opt.add(".", false, 1, 0, "Home directory for persistent data. Default is cwd.", "--home");
 
 	opt.add("2000", false, 1, 0, "sync interval (ms)", "--sync-interval");
 
@@ -89,6 +90,8 @@ int main(int argc, const char** argv)
 		options.sync_interval_ms = temp;
 	}
 
+	if ((og = opt.get("--home")) != NULL)
+		og->getString(options.home_dir);
 	if (opt.isSet("--clone"))
 		options.partition_keys = false;
 	if (opt.isSet("--no-write-chaining"))

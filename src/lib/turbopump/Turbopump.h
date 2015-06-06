@@ -32,8 +32,8 @@ public:
 		, reporter(ring, membership, state)
 		, keyLocator(ring, membership)
 		, keyTabulator(keyLocator)
-		, store(turbo::str::str(opts.internal_port) + "/store")
-		, membership("turbo_members.txt")
+		, store(opts.home_dir + "/store")
+		, membership(opts.home_dir + "/turbo_members.txt")
 		, corrector(keyTabulator, store, messenger, sender, logger)
 		, synchronizer(ring, membership, keyTabulator, messenger, corrector, logger)
 	{

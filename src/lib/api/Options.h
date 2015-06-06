@@ -2,6 +2,7 @@
 #pragma once
 
 #include "util/function_chain.h"
+#include <string>
 
 namespace Turbopump { class Drop; class Interface; }
 class WriteInstructions;
@@ -10,6 +11,7 @@ class readstream;
 namespace Turbopump {
 struct Options
 {
+	std::string home_dir = ".";
 	short internal_port = 9001;
 
 	bool partition_keys = true;
