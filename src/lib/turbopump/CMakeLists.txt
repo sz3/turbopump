@@ -12,8 +12,6 @@ include_directories(
 )
 
 add_library(turbopump STATIC ${SOURCES})
-add_library(turbopump_shared SHARED ${SOURCES})
-
 target_link_libraries(turbopump
 -Wl,--start-group
 	api
@@ -37,13 +35,16 @@ target_link_libraries(turbopump
 	tbb
 	udt
 )
-target_link_libraries(turbopump_shared turbopump)
 
-# rename turbopump_shared.so to turbopump.so
-set_target_properties(turbopump_shared PROPERTIES OUTPUT_NAME turbopump)
+## disable shared build for now, since clang is unhappy and I can't figure out why.
+#add_library(turbopump_shared SHARED ${SOURCES})
+#target_link_libraries(turbopump_shared turbopump)
+
+## rename turbopump_shared.so to turbopump.so
+#set_target_properties(turbopump_shared PROPERTIES OUTPUT_NAME turbopump)
 
 install(
-	TARGETS turbopump turbopump_shared
+	TARGETS turbopump #turbopump_shared
 	DESTINATION ${turboproj_SOURCE_DIR}/dist/lib
 )
 

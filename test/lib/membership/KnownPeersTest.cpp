@@ -10,9 +10,9 @@
 #include "file/FileRemover.h"
 #include "mock/MockStore.h"
 #include "serialize/str_join.h"
+#include <map>
 #include <memory>
 #include <string>
-#include <vector>
 using std::shared_ptr;
 
 namespace {
@@ -239,11 +239,11 @@ TEST_CASE( "KnownPeersTest/testForEachPeer", "[unit]" )
 	peers.update("barid");
 	peers.update("rabid");
 
-	std::vector<std::string> all;
-	auto fun = [&all] (const Peer& peer) { all.push_back(peer.uid); };
+	std::set<std::string> all;
+	auto fun = [&all] (const Peer& peer) { all.insert(peer.uid); };
 	peers.forEachPeer(fun);
 
-	assertStringsEqual("me fooid rabid barid", turbo::str::join(all));
+	assertStringsEqual("barid fooid me rabid", turbo::str::join(all));
 }
 
 TEST_CASE( "KnownPeersTest/testSyncToDataStore", "[unit]" )
