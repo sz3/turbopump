@@ -24,7 +24,7 @@ How to build
 1. System dependencies
 
  - Linux
- - clang >= 3.4 or gcc >= 4.9
+ - clang >= 3.4 or gcc >= 4.9 (need std::regex, among other C++11 features)
  - cmake
 
 2. Library dependencies [apt-get install ...]
@@ -47,7 +47,8 @@ How to build
 
 From within the "turbopump" directory, run:
   > cmake .
-  make
+  > make
+  > make install
 
 To run tests:
   > ctest
@@ -73,9 +74,9 @@ The built "turbopumpd" executable has a few toggles for modes of operation:
       a burst of packets from melting down your switches / routers, this may
       be semi-viable.
   - UDT is slightly slower, but does flow control, packet ordering, etc.
-      UDT is the default. It is is a user-space (D)ata (T)ransfer protocol 
-      written atop UDP. In turbopump, it enables the transfer of large contents
-      in a way that is reliable and non-destructive to the network.
+      UDT is the default. It is a user-space (D)ata (T)ransfer protocol
+      implemented atop UDP. In turbopump, it enables the transfer of large
+      contents in a way that is reliable and non-destructive to the network.
 
 * Partition vs Clone
   - _"Partition" mode._
@@ -95,24 +96,25 @@ The built "turbopumpd" executable has a few toggles for modes of operation:
     drives -- its thread scheduling is naive -- so this is best considered a
     beta feature. Right now, prefered operation is to use RAM, by way of ramfs.
     e.g. on debian-based Linux distros, you might set your data directory to
-    `/run/shm/turbopump`.
+    `/run/shm/turbopump`. SSD performance is best described as "survivable".
   - _RAM._
     A work in progress.
   - ...
     The storage interface in turbopump is meant to be generic. That is, whether
-    *sophia* or *sqlite*, or another local database solution, the desire is that
-    turbopump should only need a thin wrapper to use a local database for its
-    local storage.
+    *sophia* or *sqlite*, or another local database solution, the desire is
+    that turbopump should only need a thin wrapper to use a local database for
+    its local storage.
     There are two notable requirements for these wrapper implementations:
-      1. We expect to store multiple versions of the same file at any given time
-      2. We expect to store some metadata for each file.
+      1. We expect to store multiple versions of a key+value simultaneously.
+      2. We expect to store some metadata for each key+value.
 
 * Membership
-  - Cluster membership is currently initialized through a flat file. Each
-    line in the file corresponds to a member. Membership is symmetric -- for a
-    machine to join the cluster, it needs to add a member of the cluster to its
-    membership, *and* the cluster member in question needs to add the new
-    machine to its own membership.
+  - Cluster membership is currently initialized through a flat file. The first
+    line in the file is the local turbopump's identity. Each successive line
+    corresponds to a peer. Membership is symmetric -- for a machine to join the
+    cluster, it needs to add a member of the cluster to its membership, *and*
+    the cluster member in question needs to add the new machine to its own
+    membership.
   - While that is admittedly a bit clunky, the rest will happen auto-magically.
     Members will readily share their member lists with other members, so the new
     recruit will quickly be recognized by the entire group.
@@ -135,6 +137,8 @@ With all that said!
 
   > curl localhost:1592/list-keys
 
+  > curl localhost:1592/membership
+
 To try out the domain socket functionality (`./turbopump -l /tmp/turbopump`),
 you can use netcat:
 
@@ -143,6 +147,7 @@ you can use netcat:
 
 TODO (╯°□°）╯
 ===============================================================================
+* reliability...
 * get RAM storage operational again.
 * HTTP/2
 * encryption of socket layer via libsodium.
@@ -150,12 +155,13 @@ TODO (╯°□°）╯
   This is too complicated to describe in a todo. It will be cool though.
 * a "transient" mode, where keys are only kept until they have been
   successfully propagated to the destination.
-* API for function callbacks on key execution. Hook for arbitrary code
-  execution via system()?
+* API for function callbacks on key modification. Hook for arbitrary code
+  execution via fork/popen()?
 * dynamic membership -- authenticated (signed) peer removal.
 * libnice NAT traversal. Maybe. UDT is in the way.
 * deleted key cleanup (age-out of deleted metadata)
-* directory indexing. Somewhat intertwined with deleted key cleanup
+* directory indexing. Somewhat intertwined with deleted key cleanup, along with
+  a concept I call "collections".
 * windows support...?
 
 

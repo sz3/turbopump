@@ -31,5 +31,6 @@ target_link_libraries(standup_test
 
 	boost_filesystem
 	boost_system
+	pthread
 )
 

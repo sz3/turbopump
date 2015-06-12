@@ -112,6 +112,21 @@ std::map<std::string,std::string> TurboRunner::list_keys(std::string params) con
 	return list;
 }
 
+std::set<std::string> TurboRunner::membership() const
+{
+	string body = query("membership");
+	vector<string> files = turbo::str::split(body, '\n');
+
+	std::set<string> list;
+	for (auto line : files)
+	{
+		if (line.empty())
+			continue;
+		list.insert(line);
+	}
+	return list;
+}
+
 bool TurboRunner::waitForRunning(unsigned seconds) const
 {
 	return waitForState("running", seconds);

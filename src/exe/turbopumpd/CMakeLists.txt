@@ -19,6 +19,8 @@ target_link_libraries(turbopumpd
 	user_server
 
 	http
+
+	pthread
 )
 
 add_custom_command(

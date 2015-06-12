@@ -2,6 +2,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <string>
 
 class TurboRunner
@@ -20,6 +21,7 @@ public:
 	std::string post(std::string action, std::string params="", std::string body="") const;
 	std::string local_list(std::string params="") const; // old
 	std::map<std::string,std::string> list_keys(std::string params="") const;
+	std::set<std::string> membership() const;
 
 	bool waitForRunning(unsigned seconds=5) const;
 	bool waitForState(std::string state, unsigned seconds=5) const;

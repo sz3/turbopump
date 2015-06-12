@@ -28,13 +28,13 @@ TEST_CASE( "PartitionStoreTest/testFilePlacement", "[integration-udp]" )
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
-	string response = cluster[1].query("membership");
+	string response = str::join(cluster[1].membership(), '\n');
 	assertEquals( "1 127.0.0.1:9001\n"
 				  "2 127.0.0.1:9002\n"
 				  "3 127.0.0.1:9003\n"
 				  "4 127.0.0.1:9004\n"
 				  "5 127.0.0.1:9005\n"
-				  "6 127.0.0.1:9006\n"
+				  "6 127.0.0.1:9006"
 				  , response );
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.
@@ -108,13 +108,13 @@ TEST_CASE( "PartitionStoreTest/testVariableReplication", "[integration-udp]" )
 	cluster.start();
 	assertMsg( cluster.waitForRunning(), cluster.lastError() );
 
-	string response = cluster[1].query("membership");
+	string response = str::join(cluster[1].membership(), '\n');
 	assertEquals( "1 127.0.0.1:9001\n"
 				  "2 127.0.0.1:9002\n"
 				  "3 127.0.0.1:9003\n"
 				  "4 127.0.0.1:9004\n"
 				  "5 127.0.0.1:9005\n"
-				  "6 127.0.0.1:9006\n"
+				  "6 127.0.0.1:9006"
 				  , response );
 
 	// the hash ring order is 2, 6, 1, 5, 4, 3.

@@ -40,6 +40,7 @@ target_link_libraries(peer_server_test
 	socket
 -Wl,--end-group
 
+	pthread
 	msgpack
 	tbb
 )
