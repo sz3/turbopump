@@ -6,7 +6,7 @@
 #include "UniversalDigestIndexer.h"
 #include "hashing/IConsistentHashRing.h"
 
-#include "util/Random.h"
+#include "util/random.h"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -70,7 +70,7 @@ const IDigestKeys& KeyTabulator::randomTree() const
 	if (_forest.empty())
 		return DigestTree::null();
 
-	map_type::const_iterator it = Random::select(_forest.begin(), _forest.end(), _forest.size());
+	map_type::const_iterator it = turbo::random::select(_forest);
 	if (it->first == 1)
 	{
 		if (it == _forest.begin())
@@ -98,7 +98,7 @@ const IDigestKeys& KeyTabulator::unwantedTree() const
 	}
 	if (start == _forest.end())
 		return DigestTree::null();
-	map_type::const_iterator it = Random::select(start, _forest.end(), elems);
+	map_type::const_iterator it = turbo::random::select(start, elems);
 	return it->second->unwantedTree();
 }
 

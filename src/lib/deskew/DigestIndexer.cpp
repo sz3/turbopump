@@ -5,7 +5,7 @@
 #include "hashing/Hash.h"
 #include "hashing/ILocateKeys.h"
 
-#include "util/Random.h"
+#include "util/random.h"
 #include <algorithm>
 #include <endian.h>
 using std::string;
@@ -157,7 +157,7 @@ const IDigestKeys& DigestIndexer::randomTree() const
 {
 	if (_forest.empty())
 		return DigestTree::null();
-	std::set<string>::const_iterator it = Random::select(_wanted.begin(), _wanted.end(), _wanted.size());
+	std::set<string>::const_iterator it = turbo::random::select(_wanted);
 	if (it == _wanted.end())
 		return DigestTree::null();
 	return find(*it);
@@ -167,7 +167,7 @@ const IDigestKeys& DigestIndexer::unwantedTree() const
 {
 	if (_forest.empty())
 		return DigestTree::null();
-	std::set<string>::const_iterator it = Random::select(_unwanted.begin(), _unwanted.end(), _unwanted.size());
+	std::set<string>::const_iterator it = turbo::random::select(_unwanted);
 	if (it == _unwanted.end())
 		return DigestTree::null();
 	return find(*it);

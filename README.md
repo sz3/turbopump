@@ -29,14 +29,15 @@ How to build
 
 2. Library dependencies [apt-get install ...]
 
- - libudt
- - libtbb
  - libattr
  - libboostfilesystem
+ - libmsgpack
+ - libtbb
+ - libudt
 
 3. git clone turbolib
 
- - turbolib (github.com/sz3/turbolib) should be located adjacent to the
+ - [turbolib](https://github.com/sz3/turbolib) should be located adjacent to the
    turbopump code in the directory tree. That is:
     * /home/user/code/turbopump
     * /home/user/code/turbolib
@@ -47,7 +48,9 @@ How to build
 
 From within the "turbopump" directory, run:
   > cmake .
+
   > make
+
   > make install
 
 To run tests:

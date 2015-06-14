@@ -92,14 +92,14 @@ TEST_CASE( "KeyTabulatorTest/testRandomAndUnwanted", "[unit]" )
 	{
 		TreeId id = index.randomTree().id();
 		assertEquals( "me", id.id );
-		assertInRange( 2, 3, id.mirrors );
+		assertInRange( 2, id.mirrors, 3 );
 	}
 
 	for (unsigned i = 0; i < 10; ++i)
 	{
 		TreeId id = index.unwantedTree().id();
 		assertEquals( "fooid", id.id );
-		assertInRange( 1, 3, id.mirrors );
+		assertInRange( 1, id.mirrors, 3 );
 	}
 }
 
