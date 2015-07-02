@@ -24,13 +24,13 @@ void ConcurrentCommandCenter::run(const std::shared_ptr<Peer>& peer, const std::
 		_executor.execute(std::bind(&PeerCommandRunner::run, runner));
 
 	string fin;
-	while (_finished.try_pop(fin))
+	while (_finished.try_dequeue(fin))
 		_runners.erase(fin);
 }
 
 void ConcurrentCommandCenter::markFinished(const std::string& runner)
 {
-	_finished.push(runner);
+	_finished.enqueue(runner);
 }
 
 std::shared_ptr<Turbopump::Command> ConcurrentCommandCenter::command(int cid, const char* buff, unsigned size)

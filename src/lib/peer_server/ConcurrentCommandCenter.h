@@ -2,7 +2,7 @@
 #pragma once
 
 #include "IPeerCommandCenter.h"
-#include "tbb/concurrent_queue.h"
+#include "concurrentqueue/concurrentqueue.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -26,6 +26,6 @@ protected:
 	IExecutor& _executor;
 
 	std::unordered_map<std::string, std::shared_ptr<PeerCommandRunner>> _runners;
-	tbb::concurrent_queue<std::string> _finished;
+	moodycamel::ConcurrentQueue<std::string> _finished;
 };
 

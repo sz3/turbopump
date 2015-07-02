@@ -19,13 +19,13 @@ void PeerCommandRunner::run()
 		doWork();
 		_running.clear();
 	}
-	while (!_buffers.empty() && !_running.test_and_set());
+	while (_buffers.size_approx() > 0 && !_running.test_and_set());
 }
 
 void PeerCommandRunner::doWork()
 {
 	string buffer;
-	while (_buffers.try_pop(buffer))
+	while (_buffers.try_dequeue(buffer))
 		parseAndRun(buffer);
 	// if no more actions and no more buffers, _center.markFinished(_peer->uid)
 }
@@ -74,6 +74,6 @@ void PeerCommandRunner::parseAndRun(const std::string& buffer)
 
 bool PeerCommandRunner::addWork(std::string buff)
 {
-	_buffers.push(std::move(buff));
+	_buffers.enqueue(std::move(buff));
 	return !_running.test_and_set();
 }

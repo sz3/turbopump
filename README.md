@@ -32,7 +32,6 @@ How to build
  - libattr
  - libboostfilesystem
  - libmsgpack
- - libtbb
  - libudt
 
 3. git clone turbolib

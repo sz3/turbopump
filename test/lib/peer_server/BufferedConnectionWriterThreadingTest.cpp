@@ -102,6 +102,10 @@ TEST_CASE( "BufferedConnectionWriterThreadingTest/testMultiThreading", "[unit]" 
 	assertEquals( 0, writer._sock._blockingCollisions );
 	assertEquals( 0, writer._sock._asyncWriters );
 	assertEquals( 0, writer._sock._asyncCollisions );
-	assertEquals( (30*13*2), writer._sock._writeBytes );
+
+	// depending on the order of blocking + async calls, we can end up with slightly
+	// different packet boundaries. And a few extra bytes as a result.
+	unsigned expectedBytes = 30*13*2;
+	assertInRange( expectedBytes, writer._sock._writeBytes, (expectedBytes+2) );
 }
 

@@ -1,7 +1,7 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #pragma once
 
-#include "tbb/concurrent_queue.h"
+#include "concurrentqueue/concurrentqueue.h"
 #include <atomic>
 #include <memory>
 #include <string>
@@ -30,7 +30,7 @@ protected:
 
 	std::atomic_flag _running = ATOMIC_FLAG_INIT;
 	std::unordered_map<unsigned char,std::shared_ptr<Turbopump::Command>> _commands;
-	tbb::concurrent_queue<std::string> _buffers;
+	moodycamel::ConcurrentQueue<std::string> _buffers;
 };
 
 

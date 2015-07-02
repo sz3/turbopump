@@ -32,7 +32,6 @@ target_link_libraries(turbopump
 -Wl,--end-group
 
 	msgpack
-	tbb
 	udt
 )
 

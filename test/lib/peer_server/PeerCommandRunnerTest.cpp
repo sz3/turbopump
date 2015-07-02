@@ -36,11 +36,11 @@ TEST_CASE( "PeerCommandRunnerTest/testAddWork", "[unit]" )
 
 	assertTrue( runner.addWork("woohoo") );
 	assertFalse( runner.addWork("yippee") );
-	assertEquals( 2, runner._buffers.unsafe_size() );
+	assertEquals( 2, runner._buffers.size_approx() );
 
 	runner._running.clear();
 	assertTrue( runner.addWork("yee haw!") );
-	assertEquals( 3, runner._buffers.unsafe_size() );
+	assertEquals( 3, runner._buffers.size_approx() );
 }
 
 TEST_CASE( "PeerCommandRunnerTest/testRun", "[unit]" )
@@ -55,11 +55,11 @@ TEST_CASE( "PeerCommandRunnerTest/testRun", "[unit]" )
 	assertTrue( runner.addWork(_packer.package(33, commandEnc(87, "brooks"))) );
 	runner.addWork( _packer.package(33, "kaboom") + _packer.package(33, commandEnc(84, "sharpe")) );
 	runner.addWork( _packer.package(35, commandEnc(86, "freeman")) );
-	assertEquals( 3, runner._buffers.unsafe_size() );
+	assertEquals( 3, runner._buffers.size_approx() );
 
 	runner.run();
 
-	assertEquals( 0, runner._buffers.unsafe_size() );
+	assertEquals( 0, runner._buffers.size_approx() );
 	assertEquals( 0, runner._commands.size() );
 	assertEquals( "command(87,brooks)|command(84,sharpe)|command(86,freeman)", center._history.calls() );
 	assertEquals( "run()", (static_cast<MockCommand*>(center._commands[84].get()))->_history.calls() );
@@ -76,7 +76,7 @@ TEST_CASE( "PeerCommandRunnerTest/testRun.BadCommand", "[unit]" )
 	assertTrue( runner.addWork(_packer.package(37, commandEnc(85, "jennings"))) );
 	runner.run();
 
-	assertEquals( 0, runner._buffers.unsafe_size() );
+	assertEquals( 0, runner._buffers.size_approx() );
 	assertEquals( 0, runner._commands.size() );
 	assertEquals( "command(85,jennings)", center._history.calls() );
 }
@@ -90,7 +90,7 @@ TEST_CASE( "PeerCommandRunnerTest/testRun.BadParse", "[unit]" )
 	assertTrue( runner.addWork(_packer.package(37, "kaboom")) );
 	runner.run();
 
-	assertEquals( 0, runner._buffers.unsafe_size() );
+	assertEquals( 0, runner._buffers.size_approx() );
 	assertEquals( 0, runner._commands.size() );
 	assertEquals( "", center._history.calls() );
 }
@@ -111,7 +111,7 @@ TEST_CASE( "PeerCommandRunnerTest/testRun.Unfinished", "[unit]" )
 
 	runner.run();
 
-	assertEquals( 0, runner._buffers.unsafe_size() );
+	assertEquals( 0, runner._buffers.size_approx() );
 	assertEquals( 3, runner._commands.size() );
 	assertEquals( "command(100,header)|command(101,diffheader)|command(102,I'm new here)", center._history.calls() );
 	assertEquals( "run()|run(data)|run(moredata)", (static_cast<MockCommand*>(center._commands[100].get()))->_history.calls() );

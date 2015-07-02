@@ -97,7 +97,7 @@ TEST_CASE( "ConcurrentCommandCenterTest/testMarkFinished", "[unit]" )
 
 	center.markFinished("foo");
 	center.markFinished("bar");
-	assertEquals( 2, center._finished.unsafe_size() );
+	assertEquals( 2, center._finished.size_approx() );
 }
 
 TEST_CASE( "ConcurrentCommandCenterTest/testCommand", "[unit]" )
