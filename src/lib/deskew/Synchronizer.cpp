@@ -15,7 +15,7 @@
 #include "membership/Peer.h"
 #include "peer_client/IMessageSender.h"
 
-#include "util/Random.h"
+#include "util/random.h"
 #include <deque>
 #include <sstream>
 using std::shared_ptr;
@@ -146,7 +146,7 @@ shared_ptr<Peer> Synchronizer::randomPeerFromList(std::vector<string> locs) cons
 {
 	while (!locs.empty())
 	{
-		std::vector<string>::iterator it = Random::select(locs.begin(), locs.end(), locs.size());
+		std::vector<string>::iterator it = turbo::random::select(locs);
 		shared_ptr<Peer> peer = _membership.lookup(*it);
 		if (!!peer)
 			return peer;
