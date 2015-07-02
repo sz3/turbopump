@@ -39,6 +39,5 @@ target_link_libraries(peer_client_test
 -Wl,--end-group
 
 	msgpack
-	tbb
 )
 

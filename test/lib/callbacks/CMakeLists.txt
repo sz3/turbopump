@@ -39,7 +39,5 @@ target_link_libraries(callbacks_test
 	serialize
 	socket
 -Wl,--end-group
-
-	tbb
 )
 

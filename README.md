@@ -47,21 +47,27 @@ How to build
 4. Build commands
 
 From within the "turbopump" directory, run:
-  > cmake .
-
-  > make
-
-  > make install
+```
+cmake .
+make
+make install
+```
 
 To run tests:
-  > ctest
+```
+ctest
+```
 
 
 How to run
 ===============================================================================
-  > ./turbopumpd
+```
+./turbopumpd
+```
 
-  > ./turbopumpd -h
+```
+./turbopumpd -h
+```
 ...for some help.
 
 

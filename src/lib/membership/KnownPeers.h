@@ -13,16 +13,6 @@ class IStore;
 
 namespace std {
 	template <>
-	struct hash<socket_address>
-	{
-		std::size_t operator()(const socket_address& addr) const
-		{
-			using std::string;
-			return hash<string>()(addr.address()) xor hash<unsigned short>()(addr.port());
-		}
-	};
-
-	template <>
 	struct hash< std::shared_ptr<Peer> >
 	{
 		using result_type = size_t;
