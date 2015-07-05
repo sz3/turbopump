@@ -41,11 +41,11 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	});
 
 	expected = "deleteMe => 9:2,delete." + version + ",1." + version;
-	wait_for_equal(10, expected, [&]()
+	wait_for_equal(20, expected, [&]()
 	{
 		return cluster[1].local_list("deleted=1");
 	});
-	wait_for_equal(10, expected, [&]()
+	wait_for_equal(20, expected, [&]()
 	{
 		return cluster[2].local_list("deleted=1");
 	});

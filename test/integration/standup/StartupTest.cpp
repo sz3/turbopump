@@ -22,10 +22,7 @@
 #include <string>
 #include <thread>
 
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <signal.h>
-#include <unistd.h>
 using std::shared_ptr;
 using std::string;
 using turbo::stopwatch;
@@ -75,15 +72,9 @@ namespace {
 
 	int openStreamSocket(const string& where)
 	{
-		struct sockaddr_un address;
-		memset(&address, 0, sizeof(struct sockaddr_un));
-		address.sun_family = AF_UNIX;
-		snprintf(address.sun_path, where.size()+1, where.c_str());
-
-		int socket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
-		assertTrue( socket_fd >= 0 );
-		assertTrue( connect(socket_fd, (struct sockaddr*)&address, sizeof(struct sockaddr_un)) == 0 );
-		return socket_fd;
+		local_stream_socket sock;
+		assertTrue( sock.connect(socket_address(where)) );
+		return sock.handle();
 	}
 }
 
