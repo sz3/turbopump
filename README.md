@@ -34,7 +34,7 @@ How to build
  - libmsgpack
  - libudt
 
-3. git clone turbolib
+3. git clone https://github.com/sz3/turbolib
 
  - [turbolib](https://github.com/sz3/turbolib) should be located adjacent to the
    turbopump code in the directory tree. That is:
@@ -136,22 +136,19 @@ don't put it on the public internet (by default it binds to INADDR_LOOPBACK).
 Also, the API is not very mature and guaranteed to change. :|
 
 With all that said!
-
-  > curl localhost:1592/status
-
-  > echo "bytes" | curl -d @- localhost:1592/write?name=foo
-
-  > curl localhost:1592/read?name=foo
-
-  > curl localhost:1592/list-keys
-
-  > curl localhost:1592/membership
+```
+> curl localhost:1592/status
+> echo "bytes" | curl -d @- localhost:1592/write?name=foo
+> curl localhost:1592/read?name=foo
+> curl localhost:1592/list-keys
+> curl localhost:1592/membership
+```
 
 To try out the domain socket functionality (`./turbopump -l /tmp/turbopump`),
 you can use netcat:
-
-  > echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
-
+```
+> echo -e -n 'GET /status HTTP/1.1\r\n\r\n' | nc -U /tmp/turbopump
+```
 
 TODO (╯°□°）╯
 ===============================================================================
@@ -187,5 +184,5 @@ TODONE ᕕ(ᐛ)ᕗ
 	* cross-peer sync
 
 
-These are some of the things that key-value stores do.
+These are some of the things distributed key-value stores do.
 

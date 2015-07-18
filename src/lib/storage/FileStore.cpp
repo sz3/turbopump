@@ -214,11 +214,7 @@ bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 		else if (res == VectorClock::GREATER_THAN)
 			toDelete.insert(master.version.toString());
 	}
-	// TODO: optimize:
-	// if all.size() == deleted.size() + 1
-	//   shortcut digest computation (nothing to do)
-	// else
-	//   do what's below == compute writestream::digest() for each (name,vstr) and xor it into master.digest
+	// TODO: collections... different filenames, same hash
 
 	// then delete them
 	for (const std::string& vstr : toDelete)
