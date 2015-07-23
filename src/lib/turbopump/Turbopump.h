@@ -34,7 +34,7 @@ public:
 		, keyTabulator(keyLocator)
 		, store(opts.home_dir + "/store")
 		, membership(opts.home_dir + "/turbo_members.txt")
-		, corrector(keyTabulator, store, messenger, sender, logger)
+		, corrector(keyTabulator, store, messenger, sender, logger, opts)
 		, synchronizer(ring, membership, keyTabulator, messenger, corrector, logger)
 	{
 	}

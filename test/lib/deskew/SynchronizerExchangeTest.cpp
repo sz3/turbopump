@@ -28,9 +28,15 @@ namespace
 			: _index(index)
 		{}
 
-		void healKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+		bool dropKey(const std::string& name)
 		{
-			_history.call("healKey", treeid.id, key);
+			_history.call("pushKey", name);
+			return true;
+		}
+
+		void pushKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+		{
+			_history.call("pushKey", treeid.id, key);
 			deque<string> toHeal = _index.find(treeid.id, treeid.mirrors).enumerate(key, key);
 			_healed.insert(_healed.end(), toHeal.begin(), toHeal.end());
 		}
@@ -74,9 +80,9 @@ namespace
 			_corrector->pushKeyRange(peer, treeid, first, last);
 		}
 
-		void requestHealKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+		void requestKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
 		{
-			_corrector->healKey(peer, treeid, key);
+			_corrector->pushKey(peer, treeid, key);
 		}
 
 		void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)

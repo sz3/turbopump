@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	BuildCallbacks.cpp
-	BuildCallbacks.h
+	ComputedOptions.cpp
+	ComputedOptions.h
 
 	AddPeer.cpp
 	AddPeer.h

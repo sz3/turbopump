@@ -115,9 +115,9 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 			// if keys are equal, we need to heal
 			if (diff.location == point.location)
 			{
-				// send healKey packet to trigger complement check
-				_messenger.requestHealKey(peer, treeid, diff.location.key);
-				_corrector.healKey(peer, treeid, diff.location.key);
+				// try to push key, but also trigger complement check
+				_messenger.requestKey(peer, treeid, diff.location.key);
+				_corrector.pushKey(peer, treeid, diff.location.key);
 			}
 			else // we're missing a branch. This will try to send us one too many keys (the one already at diff.location) but the duplicate write will be rejected... so who cares?
 			{

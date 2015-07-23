@@ -62,6 +62,12 @@ std::vector<std::string> MockStore::versions(const std::string& name, bool inpro
 	return _versions;
 }
 
+bool MockStore::isExpired(const std::string& version) const
+{
+	_history.call("isExpired", version);
+	return false;
+}
+
 bool MockStore::remove(const std::string& name)
 {
 	_history.call("remove", name);

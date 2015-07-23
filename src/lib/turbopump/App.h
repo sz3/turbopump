@@ -3,7 +3,7 @@
 
 #include "Turbopump.h"
 #include "api/Api.h"
-#include "api/Options.h"
+#include "callbacks/ComputedOptions.h"
 #include "concurrent/DeadlineScheduler.h"
 #include "deskew/ThreadLockedKeyTabulator.h"
 #include "peer_client/MessagePacker.h"
@@ -33,7 +33,7 @@ protected:
 	turbo::monitor _shutdown;
 
 	// options
-	Options _opts;
+	ComputedOptions _opts;
 
 	// core app logic
 	Turbopump _turbopump;

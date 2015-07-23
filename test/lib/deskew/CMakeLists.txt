@@ -30,7 +30,7 @@ add_executable (
 add_test(deskew_test deskew_test)
 
 target_link_libraries(deskew_test
-
+-Wl,--start-group
 	deskew
 
 	common
@@ -40,5 +40,6 @@ target_link_libraries(deskew_test
 	peer_server
 
 	serialize
+-Wl,--end-group
 )
 

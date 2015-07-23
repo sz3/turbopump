@@ -9,6 +9,7 @@
 #include "common/turbopump_defaults.h"
 #include "common/KeyMetadata.h"
 #include "common/MyMemberId.h"
+#include "common/WallClock.h"
 #include "hashing/Hash.h"
 
 #include "file/File.h"
@@ -180,6 +181,20 @@ std::vector<std::string> FileStore::versions(const std::string& name, bool inpro
 		++it;
 	}
 	return versions;
+}
+
+bool FileStore::isExpired(const std::string& version) const
+{
+	VectorClock vc;
+	if ( !vc.fromString(version) )
+		return false;
+
+	if ( !vc.isDeleted() )
+		return false;
+
+	uint64_t expiry = vc.clocks().front().time + EXPIRY_TIMEOUT_SECONDS;
+	uint64_t now = WallClock::now();
+	return now >= expiry;
 }
 
 bool FileStore::remove(const std::string& name)

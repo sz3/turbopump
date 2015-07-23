@@ -4,7 +4,6 @@
 #include "IMessagePacker.h"
 #include "api/AckWrite.h"
 #include "api/DemandWrite.h"
-#include "api/HealKey.h"
 #include "api/KeyRequest.h"
 #include "api/OfferWrite.h"
 #include "api/Sync.h"
@@ -87,12 +86,13 @@ void MessageSender::requestKeyRange(const Peer& peer, const TreeId& treeid, unsi
 	sendMessage(peer, reqHeader(_packer, req));
 }
 
-void MessageSender::requestHealKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+void MessageSender::requestKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
 {
-	Turbopump::HealKey req;
+	Turbopump::KeyRequest req;
 	req.id = treeid.id;
 	req.mirrors = treeid.mirrors;
-	req.key = key;
+	req.first = key;
+	req.last = key;
 	sendMessage(peer, reqHeader(_packer, req));
 }
 

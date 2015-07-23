@@ -3,22 +3,22 @@
 #include "Drop.h"
 
 #include "Command.h"
-#include <functional>
+class ICorrectSkew;
 class ILocateKeys;
 class IStore;
 
 class DropCommand : public Turbopump::Command
 {
 public:
-	DropCommand(IStore& store, const ILocateKeys& locator, std::function<void(const Turbopump::Drop&)> onDrop);
+	DropCommand(ICorrectSkew& corrector, IStore& store, const ILocateKeys& locator);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
 
 protected:
+	ICorrectSkew& _corrector;
 	IStore& _store;
 	const ILocateKeys& _locator;
-	std::function<void(const Turbopump::Drop&)> _onDrop;
 
 public:
 	Turbopump::Drop params;

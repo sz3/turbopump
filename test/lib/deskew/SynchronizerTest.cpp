@@ -248,8 +248,8 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey", "default" )
 
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "diff(64 64 640)", index._tree._history.calls() );
-	assertEquals( "healKey(fooid,oak,64)", corrector._history.calls() );
-	assertEquals( "requestHealKey(fooid,oak,64)", messenger._history.calls() );
+	assertEquals( "pushKey(fooid,oak,64)", corrector._history.calls() );
+	assertEquals( "requestKey(fooid,oak,64)", messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 

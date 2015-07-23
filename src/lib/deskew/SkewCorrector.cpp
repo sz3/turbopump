@@ -3,6 +3,8 @@
 
 #include "IKeyTabulator.h"
 #include "IDigestKeys.h"
+#include "api/Drop.h"
+#include "api/Options.h"
 #include "api/WriteInstructions.h"
 #include "deskew/TreeId.h"
 #include "logging/ILog.h"
@@ -15,42 +17,43 @@
 #include "serialize/str.h"
 #include "serialize/str_join.h"
 #include <deque>
-#include <vector>
 #include <iostream>
 using std::string;
 
-SkewCorrector::SkewCorrector(const IKeyTabulator& index, const IStore& store, IMessageSender& messenger, ISuperviseWrites& sender, ILog& logger)
+SkewCorrector::SkewCorrector(const IKeyTabulator& index, IStore& store, IMessageSender& messenger,
+							 ISuperviseWrites& sender, ILog& logger, const Turbopump::Options& opts)
 	: _index(index)
 	, _messenger(messenger)
 	, _store(store)
 	, _sender(sender)
 	, _logger(logger)
+	, _opts(opts)
 {
 }
 
-// test this!
-void SkewCorrector::healKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+bool SkewCorrector::dropKey(const std::string& name)
 {
-	const IDigestKeys& tree = _index.find(treeid.id, treeid.mirrors);
+	readstream reader = _store.read(name);
+	if (!reader)
+		return false;
 
-	// need to find all files in the key ranges, and write them to peer.
-	std::deque<string> files = tree.enumerate(key, key);
-	if (files.empty())
-	{
-		std::cerr << "welp, healKey found nothing. :(" << std::endl;
-		return;
-	}
+	if (!_store.remove(name))
+		return false;
 
-	// we initiate the exchange:
-	// me: propose write action
-	// peer: response -> demand write action
-	// me: write / don't
-	for (std::deque<string>::const_iterator it = files.begin(); it != files.end(); ++it)
+	const std::function<void(const Turbopump::Drop&)>& onDrop = _opts.when_drop_finishes.fun();
+	if (onDrop)
 	{
-		std::vector<string> versions = _store.versions(*it);
-		for (const string& version : versions)
-			_messenger.offerWrite(peer, *it, version, "");
+		Turbopump::Drop req;
+		req.name = name;
+		req.copies = reader.mirrors();
+		onDrop(req);
 	}
+	return true;
+}
+
+void SkewCorrector::pushKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+{
+	pushKeyRange(peer, treeid, key, key);
 }
 
 void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
@@ -59,29 +62,25 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 
 	// need to find all files in the key ranges, and write them to peer.
 	std::deque<string> files = tree.enumerate(first, last);
+	if (files.empty())
+	{
+		std::cerr << "welp, pushKeyRange found nothing. :(" << std::endl;
+		return;
+	}
 
 	_logger.logDebug( "pushing " + turbo::str::str(files.size()) + " keys to peer " + peer.uid + ": " + turbo::str::join(files) );
 	for (const string& file : files)
 	{
-		std::vector<readstream> readers = _store.readAll(file);
-		for (readstream& read : readers)
+		// if file has expired, don't offer. drop instead.
+		std::vector<string> versions = _store.versions(file, true);
+		if ( versions.size() == 1 && _store.isExpired(versions.front()) )
 		{
-			// WriteInstructions sets mirror to totalCopies => "don't forward, and notify the source if there is one"
-			unsigned totalCopies = read.mirrors();
-			WriteInstructions write;
-			write.name = file;
-			write.copies = totalCopies;
-			write.mirror = totalCopies;
-			write.version = read.version();
-			if (!offloadFrom.empty())
-				write.source = offloadFrom;
-			write.isComplete = true;
-			if (!_sender.store(peer, write, read))
-			{
-				std::cout << "uh oh, pushKeyRange is having trouble" << std::endl;
-				return; // TODO: last error?
-			}
+			dropKey(file);
+			continue;
 		}
+
+		for (const string& version : versions)
+			_messenger.offerWrite(peer, file, version, offloadFrom);
 	}
 }
 

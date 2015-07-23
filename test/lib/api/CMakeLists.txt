@@ -10,7 +10,6 @@ set (SOURCES
 	DeleteCommandTest.cpp
 	DemandWriteCommandTest.cpp
 	DropCommandTest.cpp
-	HealKeyCommandTest.cpp
 	KeyRequestCommandTest.cpp
 	ListKeysTest.cpp
 	ListKeysCommandTest.cpp

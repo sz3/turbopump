@@ -5,14 +5,8 @@
 
 namespace Turbopump { class Interface; }
 
-class BuildCallbacks
+class ComputedOptions : public Turbopump::Options
 {
 public:
-	BuildCallbacks(Turbopump::Options& opts);
-
-	void build(const Turbopump::Interface& turbopump);
-
-protected:
-	Turbopump::Options& _opts;
+	ComputedOptions(const Turbopump::Options& opts, const Turbopump::Interface& turbopump);
 };
-

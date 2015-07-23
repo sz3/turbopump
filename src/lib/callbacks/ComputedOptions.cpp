@@ -1,5 +1,5 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
-#include "BuildCallbacks.h"
+#include "ComputedOptions.h"
 
 #include "AddPeer.h"
 #include "ChainWrite.h"
@@ -75,50 +75,47 @@ namespace
 	}
 }
 
-BuildCallbacks::BuildCallbacks(Turbopump::Options& opts)
-	: _opts(opts)
-{
-}
-
-void BuildCallbacks::build(const Turbopump::Interface& turbopump)
+// rename to AugmentedOptions, and inherit so we can do the spin up on construction..
+ComputedOptions::ComputedOptions(const Turbopump::Options& opts, const Turbopump::Interface& turbopump)
+	: Turbopump::Options(opts)
 {
 	// on local write
 	{
-		if (_opts.active_sync)
-			_opts.when_local_write_finishes.add( digestAddFunct(turbopump.keyTabulator) );
+		if (active_sync)
+			when_local_write_finishes.add( digestAddFunct(turbopump.keyTabulator) );
 
-		if (_opts.write_chaining)
+		if (write_chaining)
 		{
-			if (_opts.partition_keys)
-				_opts.when_local_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
+			if (partition_keys)
+				when_local_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
 			else
-				_opts.when_local_write_finishes.add( writeChainFunct_cloneMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
+				when_local_write_finishes.add( writeChainFunct_cloneMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
 		}
-		_opts.when_local_write_finishes.add( membershipAddFunct(turbopump.ring, turbopump.membership, turbopump.keyTabulator) );
+		when_local_write_finishes.add( membershipAddFunct(turbopump.ring, turbopump.membership, turbopump.keyTabulator) );
 	}
 
 	// on mirror write
 	{
-		if (_opts.active_sync)
-			_opts.when_mirror_write_finishes.add( digestAddFunct(turbopump.keyTabulator) );
+		if (active_sync)
+			when_mirror_write_finishes.add( digestAddFunct(turbopump.keyTabulator) );
 
-		if (_opts.write_chaining && _opts.partition_keys)
-			_opts.when_mirror_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, false) );
+		if (write_chaining && partition_keys)
+			when_mirror_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, false) );
 
-		_opts.when_mirror_write_finishes.add( notifyWriteComplete(turbopump.membership, turbopump.messenger) );
-		_opts.when_mirror_write_finishes.add( membershipAddFunct(turbopump.ring,turbopump. membership, turbopump.keyTabulator) );
+		when_mirror_write_finishes.add( notifyWriteComplete(turbopump.membership, turbopump.messenger) );
+		when_mirror_write_finishes.add( membershipAddFunct(turbopump.ring,turbopump. membership, turbopump.keyTabulator) );
 	}
 
 	// on drop
 	{
-		if (_opts.active_sync)
-			_opts.when_drop_finishes.add( digestDelFunct(turbopump.keyTabulator) );
+		if (active_sync)
+			when_drop_finishes.add( digestDelFunct(turbopump.keyTabulator) );
 	}
 
-	if (_opts.build_callbacks)
-		_opts.build_callbacks(_opts, turbopump);
+	if (build_callbacks)
+		build_callbacks(*this, turbopump);
 
-	_opts.when_local_write_finishes.finalize();
-	_opts.when_mirror_write_finishes.finalize();
-	_opts.when_drop_finishes.finalize();
+	when_local_write_finishes.finalize();
+	when_mirror_write_finishes.finalize();
+	when_drop_finishes.finalize();
 }

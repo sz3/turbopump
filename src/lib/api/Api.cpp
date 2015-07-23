@@ -12,7 +12,6 @@
 
 #include "AckWriteCommand.h"
 #include "DemandWriteCommand.h"
-#include "HealKeyCommand.h"
 #include "KeyRequestCommand.h"
 #include "OfferWriteCommand.h"
 #include "SyncCommand.h"
@@ -51,7 +50,7 @@ Command* Api::command_impl(int id) const
 	{
 		case AddPeer::_ID: return new AddPeerCommand(*this);
 		case Delete::_ID: return new DeleteCommand(*this);
-		case Drop::_ID: return new DropCommand(_store, _locator, _options.when_drop_finishes.fun());
+		case Drop::_ID: return new DropCommand(_corrector, _store, _locator);
 		case ListKeys::_ID: return new ListKeysCommand(_store);
 		case Read::_ID: return new ReadCommand(_store);
 		case Status::_ID: return new StatusCommand(_reporter);
@@ -60,9 +59,8 @@ Command* Api::command_impl(int id) const
 		case Write::_ID: return new WriteCommand(_store, _options.when_local_write_finishes.fun());
 		case Write::_INTERNAL_ID: return new WriteCommand(_store, _options.when_mirror_write_finishes.fun());
 
-		case AckWrite::_ID: return new AckWriteCommand(_store, _locator, _options.when_drop_finishes.fun());
+		case AckWrite::_ID: return new AckWriteCommand(_corrector, _store, _locator);
 		case DemandWrite::_ID: return new DemandWriteCommand(_corrector);
-		case HealKey::_ID: return new HealKeyCommand(_corrector);
 		case KeyRequest::_ID: return new KeyRequestCommand(_corrector);
 		case OfferWrite::_ID: return new OfferWriteCommand(_store, _messenger);
 		case Sync::_ID: return new SyncCommand(_sync);

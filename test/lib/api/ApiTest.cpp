@@ -61,7 +61,7 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "read(bomba,)|remove(bomba)", store._history.calls() );
+	assertEquals( "read(bomba,)", store._history.calls() );
 }
 
 TEST_CASE( "ApiTest/testDeserializeFromBinary.BadId", "[unit]" )
@@ -132,7 +132,7 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "read(bomba,)|remove(bomba)", store._history.calls() );
+	assertEquals( "read(bomba,)", store._history.calls() );
 }
 
 TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
@@ -159,5 +159,5 @@ TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "read(bomba,)|remove(bomba)", store._history.calls() );
+	assertEquals( "read(bomba,)", store._history.calls() );
 }

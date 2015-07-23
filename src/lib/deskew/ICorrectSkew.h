@@ -10,7 +10,9 @@ class ICorrectSkew
 public:
 	virtual ~ICorrectSkew() {}
 
-	virtual void healKey(const Peer& peer, const TreeId& treeid, unsigned long long key) = 0;
+	virtual bool dropKey(const std::string& name) = 0;
+
+	virtual void pushKey(const Peer& peer, const TreeId& treeid, unsigned long long key) = 0;
 	virtual void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="") = 0;
 	virtual bool sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source) = 0;
 };

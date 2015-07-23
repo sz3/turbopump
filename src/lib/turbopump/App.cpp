@@ -2,7 +2,7 @@
 #include "App.h"
 
 #include "Interface.h"
-#include "callbacks/BuildCallbacks.h"
+#include "callbacks/ComputedOptions.h"
 #include "peer_server/MultiplexedSocketPool.h"
 
 #include "socket/socket_address.h"
@@ -27,7 +27,9 @@ namespace {
 
 namespace Turbopump {
 App::App(const Options& opts)
-	: _opts(opts)
+	: _opts(opts, Interface{_turbopump.api, _turbopump.logger, _turbopump.store, _turbopump.membership,
+				   _turbopump.ring, _turbopump.keyLocator, _threadLockedKeyTabulator,
+				   _turbopump.corrector, _turbopump.synchronizer, _messenger, _writeSupervisor})
 	, _turbopump(_opts, _messenger, _writeSupervisor)
 	, _peerServer(peerServer(opts, socket_address("127.0.0.1", opts.internal_port), std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3), std::bind(&PartialTransfers::run, &_partialTransfers, _1)))
 	, _messenger(_packer, *_peerServer)
@@ -37,9 +39,6 @@ App::App(const Options& opts)
 	, _peerPacketHandler(_turbopump.membership, _peerCenter, _turbopump.logger)
 	, _threadLockedKeyTabulator(_turbopump.keyTabulator, _scheduler)
 {
-	Interface iface{_turbopump.api, _turbopump.logger, _turbopump.store, _turbopump.membership, _turbopump.ring,
-		_turbopump.keyLocator, _threadLockedKeyTabulator, _turbopump.corrector, _turbopump.synchronizer, _messenger, _writeSupervisor};
-	BuildCallbacks(_opts).build(iface);
 }
 
 bool App::run()

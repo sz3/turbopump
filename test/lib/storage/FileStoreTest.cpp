@@ -5,6 +5,7 @@
 
 #include "readstream.h"
 #include "writestream.h"
+#include "common/turbopump_defaults.h"
 #include "common/MyMemberId.h"
 #include "common/WallClock.h"
 #include "file/File.h"
@@ -388,6 +389,29 @@ TEST_CASE( "FileStoreTest/testRemove", "[unit]" )
 		readstream reader = store.read("myfile");
 		assertFalse( reader.good() );
 	}
+}
+
+TEST_CASE( "FileStoreTest/testIsExpired", "[unit]" )
+{
+	DirectoryCleaner cleaner;
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
+
+	FileStore store(_test_dir);
+
+	VectorClock v1;
+	assertFalse( store.isExpired(v1.toString()) );
+
+	v1.increment("foo");
+	assertFalse( store.isExpired(v1.toString()) );
+
+	v1.markDeleted();
+	assertFalse( store.isExpired(v1.toString()) );
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER + EXPIRY_TIMEOUT_SECONDS - 1);
+	assertFalse( store.isExpired(v1.toString()) );
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER + EXPIRY_TIMEOUT_SECONDS);
+	assertTrue( store.isExpired(v1.toString()) );
 }
 
 TEST_CASE( "FileStoreTest/testEnumerate", "[unit]" )

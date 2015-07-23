@@ -5,13 +5,15 @@
 
 #include "Drop.h"
 #include "mock/MockLocateKeys.h"
+#include "mock/MockSkewCorrector.h"
 #include "mock/MockStore.h"
 
 TEST_CASE( "AckWriteCommandTest/testAck.FileNotFound", "[unit]" )
 {
+	MockSkewCorrector corrector;
 	MockStore store;
 	MockLocateKeys locator;
-	AckWriteCommand command(store, locator);
+	AckWriteCommand command(corrector, store, locator);
 
 	command.params.name = "myfile";
 	command.params.version = "1,hi:1";
@@ -20,14 +22,16 @@ TEST_CASE( "AckWriteCommandTest/testAck.FileNotFound", "[unit]" )
 	assertFalse( command.run() );
 	assertEquals( "read(myfile,1,hi:1)", store._history.calls() );
 	assertEquals( "", locator._history.calls() );
+	assertEquals( "", corrector._history.calls() );
 }
 
 TEST_CASE( "AckWriteCommandTest/testAck.MismatchSize", "[unit]" )
 {
+	MockSkewCorrector corrector;
 	MockStore store;
 	store._reads["myfile"] = "foobar";
 	MockLocateKeys locator;
-	AckWriteCommand command(store, locator);
+	AckWriteCommand command(corrector, store, locator);
 
 	command.params.name = "myfile";
 	command.params.version = "1,hi:1";
@@ -36,15 +40,17 @@ TEST_CASE( "AckWriteCommandTest/testAck.MismatchSize", "[unit]" )
 	assertFalse( command.run() );
 	assertEquals( "read(myfile,1,hi:1)", store._history.calls() );
 	assertEquals( "", locator._history.calls() );
+	assertEquals( "", corrector._history.calls() );
 }
 
 TEST_CASE( "AckWriteCommandTest/testAck.FileIsMine", "[unit]" )
 {
+	MockSkewCorrector corrector;
 	MockStore store;
 	store._reads["myfile"] = "foobar";
 	MockLocateKeys locator;
 	locator._mine = true;
-	AckWriteCommand command(store, locator);
+	AckWriteCommand command(corrector, store, locator);
 
 	command.params.name = "myfile";
 	command.params.version = "1,hi:1";
@@ -53,41 +59,24 @@ TEST_CASE( "AckWriteCommandTest/testAck.FileIsMine", "[unit]" )
 	assertTrue( command.run() );
 	assertEquals( "read(myfile,1,hi:1)", store._history.calls() );
 	assertEquals( "keyIsMine(myfile,3)", locator._history.calls() );
+	assertEquals( "", corrector._history.calls() );
 }
 
 TEST_CASE( "AckWriteCommandTest/testAck.FileIsntMine", "[unit]" )
 {
+	MockSkewCorrector corrector;
 	MockStore store;
 	store._reads["myfile"] = "foobar";
 	MockLocateKeys locator;
 	locator._mine = false;
-	AckWriteCommand command(store, locator);
+	AckWriteCommand command(corrector, store, locator);
 
 	command.params.name = "myfile";
 	command.params.version = "1,hi:1";
 	command.params.size = 6;
 
 	assertTrue( command.run() );
-	assertEquals( "read(myfile,1,hi:1)|remove(myfile)", store._history.calls() );
+	assertEquals( "read(myfile,1,hi:1)", store._history.calls() );
 	assertEquals( "keyIsMine(myfile,3)", locator._history.calls() );
-}
-
-TEST_CASE( "AckWriteCommandTest/testAck.DropCallback", "[unit]" )
-{
-	CallHistory history;
-
-	MockStore store;
-	store._reads["myfile"] = "foobar";
-	MockLocateKeys locator;
-	locator._mine = false;
-	AckWriteCommand command(store, locator, [&](const Turbopump::Drop& md){ history.call("onDrop", md.name, md.copies); });
-
-	command.params.name = "myfile";
-	command.params.version = "1,hi:1";
-	command.params.size = 6;
-
-	assertTrue( command.run() );
-	assertEquals( "read(myfile,1,hi:1)|remove(myfile)", store._history.calls() );
-	assertEquals( "keyIsMine(myfile,3)", locator._history.calls() );
-	assertEquals( "onDrop(myfile,3)", history.calls() );
+	assertEquals( "dropKey(myfile)", corrector._history.calls() );
 }

@@ -24,6 +24,7 @@ public:
 
 	virtual bool exists(const std::string& name, const std::string& version) const = 0;
 	virtual std::vector<std::string> versions(const std::string& name, bool inprogress=false) const = 0;
+	virtual bool isExpired(const std::string& version) const = 0;
 	virtual bool remove(const std::string& name) = 0;
 
 	virtual void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const = 0;

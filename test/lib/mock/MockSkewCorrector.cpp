@@ -4,9 +4,15 @@
 #include "deskew/TreeId.h"
 #include "membership/Peer.h"
 
-void MockSkewCorrector::healKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+bool MockSkewCorrector::dropKey(const std::string& name)
 {
-	_history.call("healKey", peer.uid, treeid.id, key);
+	_history.call("dropKey", name);
+	return true;
+}
+
+void MockSkewCorrector::pushKey(const Peer& peer, const TreeId& treeid, unsigned long long key)
+{
+	_history.call("pushKey", peer.uid, treeid.id, key);
 }
 
 void MockSkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)

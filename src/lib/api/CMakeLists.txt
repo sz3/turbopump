@@ -24,9 +24,6 @@ set(SOURCES
 	Drop.h
 	DropCommand.cpp
 	DropCommand.h
-	HealKey.h
-	HealKeyCommand.cpp
-	HealKeyCommand.h
 	KeyRequest.h
 	KeyRequestCommand.cpp
 	KeyRequestCommand.h
