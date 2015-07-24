@@ -148,3 +148,24 @@ TEST_CASE( "VectorClockTest/testMarkDeleted", "[unit]" )
 		assertFalse( version.isDeleted() );
 	}
 }
+
+TEST_CASE( "VectorClockTest/testIsExpired", "[unit]" )
+{
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
+
+	VectorClock version;
+	assertFalse( version.isExpired(1000) );
+
+	version.increment("foo");
+	assertFalse( version.isExpired(1000) );
+
+	version.markDeleted();
+	assertFalse( version.isExpired(1000) );
+	assertTrue( version.isExpired(0) );
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER + 999);
+	assertFalse( version.isExpired(1000) );
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER + 1000);
+	assertTrue( version.isExpired(1000) );
+}

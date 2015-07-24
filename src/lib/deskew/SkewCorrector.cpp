@@ -21,7 +21,7 @@
 using std::string;
 
 SkewCorrector::SkewCorrector(const IKeyTabulator& index, IStore& store, IMessageSender& messenger,
-							 ISuperviseWrites& sender, ILog& logger, const Turbopump::Options& opts)
+                             ISuperviseWrites& sender, ILog& logger, const Turbopump::Options& opts)
 	: _index(index)
 	, _messenger(messenger)
 	, _store(store)

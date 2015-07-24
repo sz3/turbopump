@@ -189,12 +189,7 @@ bool FileStore::isExpired(const std::string& version) const
 	if ( !vc.fromString(version) )
 		return false;
 
-	if ( !vc.isDeleted() )
-		return false;
-
-	uint64_t expiry = vc.clocks().front().time + EXPIRY_TIMEOUT_SECONDS;
-	uint64_t now = WallClock::now();
-	return now >= expiry;
+	return vc.isExpired(EXPIRY_TIMEOUT_SECONDS);
 }
 
 bool FileStore::remove(const std::string& name)

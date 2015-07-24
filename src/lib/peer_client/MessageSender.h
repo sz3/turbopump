@@ -13,7 +13,7 @@ public:
 	// used by Synchronizer
 	void digestPing(const Peer& peer, const TreeId& treeid, const MerklePoint& point);
 	void digestPing(const Peer& peer, const TreeId& treeid, const std::deque<MerklePoint>& points);
-	void requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last);\
+	void requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last);
 	void requestKey(const Peer& peer, const TreeId& treeid, unsigned long long key);
 
 	// used by actions, SkewCorrector, Callbacks, etc

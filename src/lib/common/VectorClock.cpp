@@ -98,6 +98,15 @@ bool VectorClock::isDeleted() const
 	return _clocks.front().key == "delete";
 }
 
+bool VectorClock::isExpired(unsigned timeout) const
+{
+	if ( !isDeleted() )
+		return false;
+	uint64_t expiry = _clocks.front().time + timeout;
+	uint64_t now = WallClock::now();
+	return now >= expiry;
+}
+
 std::string VectorClock::toString() const
 {
 	std::stringstream ss;

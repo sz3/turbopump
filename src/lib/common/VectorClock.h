@@ -13,6 +13,7 @@ public:
 	VectorClock& increment(const std::string& key);
 	VectorClock& markDeleted();
 	bool isDeleted() const;
+	bool isExpired(unsigned timeout) const;
 
 	std::string toString() const;
 	bool fromString(std::string str);

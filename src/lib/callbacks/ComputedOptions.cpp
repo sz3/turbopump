@@ -75,7 +75,6 @@ namespace
 	}
 }
 
-// rename to AugmentedOptions, and inherit so we can do the spin up on construction..
 ComputedOptions::ComputedOptions(const Turbopump::Options& opts, const Turbopump::Interface& turbopump)
 	: Turbopump::Options(opts)
 {
