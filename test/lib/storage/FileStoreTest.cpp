@@ -144,6 +144,22 @@ TEST_CASE( "FileStoreTest/testWrite.RejectExisting", "[unit]" )
 	assertFalse( writer.good() );
 }
 
+TEST_CASE( "FileStoreTest/testWrite.RejectExpired", "[unit]" )
+{
+	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER - EXPIRY_TIMEOUT_SECONDS);
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	VectorClock version;
+	version.markDeleted();
+
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
+	writestream writer = store.write("myfile", version.toString());
+	assertFalse( writer.good() );
+}
+
 TEST_CASE( "FileStoreTest/testOverwrite", "[unit]" )
 {
 	MyMemberId("increment");

@@ -109,7 +109,7 @@ writestream FileStore::write(const std::string& name, const std::string& version
 		md.version = mergedVersion(name);
 		md.version.increment(MyMemberId());
 	}
-	else if ( exists(name, version) )
+	else if ( exists(name, version) || md.version.isExpired(EXPIRY_TIMEOUT_SECONDS) )
 		return writestream();
 	md.totalCopies = copies;
 
