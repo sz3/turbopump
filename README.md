@@ -160,13 +160,9 @@ TODO (╯°□°）╯
   This is too complicated to describe in a todo. It will be cool though.
 * a "transient" mode, where keys are only kept until they have been
   successfully propagated to the destination.
-* API for function callbacks on key modification. Hook for arbitrary code
-  execution via fork/popen()?
 * dynamic membership -- authenticated (signed) peer removal.
 * libnice NAT traversal. Maybe. UDT is in the way.
-* deleted key cleanup (age-out of deleted metadata)
-* directory indexing. Somewhat intertwined with deleted key cleanup, along with
-  a concept I call "collections".
+* directory indexing. Gated on a concept I call "collections".
 * windows support...?
 
 
@@ -175,7 +171,8 @@ TODONE ᕕ(ᐛ)ᕗ
 * versioned (vector clock'd) writes
 * key distribution/partitioning
 * cross-peer key sync
-* basic function callbacks on write completion
+* function callback hooks on write completion
+* deleted key cleanup (age-out of deleted metadata)
 * UDP, UDT internal communication
 * simple domain socket or TCP (HTTP) command server
 * basic load/latency testing

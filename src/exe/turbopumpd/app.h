@@ -17,18 +17,18 @@
 class TurboApp : public Turbopump::App
 {
 private:
-	inline static ISocketServer* localServer(const socket_address& addr, const std::function<void(int)>& onConnect, unsigned threads)
+	inline ISocketServer* localServer(const socket_address& addr)
 	{
 		if (addr.port() == 0)
-			return new StreamSocketAcceptorServer<local_stream_socket>(addr, onConnect, threads);
+			return new StreamSocketAcceptorServer<local_stream_socket>(addr, [this](local_stream_socket sock){this->onClientConnect(sock);});
 		else
-			return new StreamSocketAcceptorServer<tcp_socket>(addr, onConnect, threads);
+			return new StreamSocketAcceptorServer<tcp_socket>(addr, [this](tcp_socket sock){this->onClientConnect(sock);});
 	}
 
 public:
 	TurboApp(const Turbopump::Options& opts, const socket_address& controlAddr)
 		: Turbopump::App(opts)
-		, _localServer(localServer(controlAddr, [this](int fd){this->onClientConnect(fd);}, 2))
+		, _localServer(localServer(controlAddr))
 	{}
 
 	void run()
@@ -44,12 +44,18 @@ public:
 		_localServer->stop();
 	}
 
-	void onClientConnect(int fd)
+	template <typename Socket>
+	void onClientConnect(Socket& sock)
 	{
-		FileByteStream fileStream(fd);
-		HttpByteStream httpStream(fileStream);
-		UserPacketHandler handler(httpStream, api());
-		handler.run();
+		auto fun = [this, sock] () mutable
+		{
+			FileByteStream fileStream(sock.handle());
+			HttpByteStream httpStream(fileStream);
+			UserPacketHandler handler(httpStream, this->api());
+			handler.run();
+			sock.close();
+		};
+		std::thread(fun).detach();
 	}
 
 protected:
