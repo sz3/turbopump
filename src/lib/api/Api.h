@@ -31,7 +31,7 @@ public:
 		std::unique_ptr<Command> cmd(command_impl(req._ID));
 		if (!cmd)
 			return NULL;
-		*(Req*)cmd->request() = req;
+		*static_cast<Req*>(cmd->request()) = req;
 		return cmd;
 	}
 

@@ -56,11 +56,11 @@ const std::string& Hash::str() const
 unsigned long long Hash::integer() const
 {
 	/*unsigned long long result = 0;
-	unsigned char* arr = (unsigned char*)&result;
+	unsigned char* arr = reinterpret_cast<unsigned char*>(&result);
 	unsigned len = sizeof(unsigned long long);
 	for (int i = 0; i < len; ++i)
 		arr[i] |= _hash.data()[i];
 	return result;*/
 
-	return *(unsigned long long*)_hash.data();
+	return *reinterpret_cast<const unsigned long long*>(_hash.data());
 }

@@ -88,7 +88,7 @@ void DigestTree::forEachInRange(const std::function<bool(unsigned long long, uns
 void DigestTree::print(int keywidth) const
 {
 	auto printer = [=] (unsigned long long key, unsigned long long hash, const std::string& name) {
-		unsigned char* keybytes = (unsigned char*)&key;
+		unsigned char* keybytes = reinterpret_cast<unsigned char*>(&key);
 		std::cout << std::setfill(' ') << std::setw(keywidth) << name << ": ";
 		for (int i = 0; i < sizeof(key); ++i)
 		{

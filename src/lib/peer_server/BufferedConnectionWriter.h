@@ -55,8 +55,8 @@ template <typename Socket>
 void BufferedConnectionWriter<Socket>::pushBytes(unsigned char virtid, const char* buff, unsigned length)
 {
 	unsigned short netlen = htons(length+1);
-	_buffer.append( (const char*)&netlen, 2 );
-	_buffer.append( (const char*)&virtid, 1 );
+	_buffer.append( reinterpret_cast<const char*>(&netlen), 2 );
+	_buffer.append( reinterpret_cast<const char*>(&virtid), 1 );
 	_buffer.append(buff, length);
 }
 
@@ -151,7 +151,7 @@ unsigned BufferedConnectionWriter<Socket>::findFirstTruncatedPacket(const char* 
 	unsigned i = 0;
 	while (i < size)
 	{
-		unsigned short packetLen = htons( *(unsigned short*)(buff+i) );
+		unsigned short packetLen = htons( *reinterpret_cast<const unsigned short*>(buff+i) );
 		if (packetLen+i+2 > size)
 			return i;
 		i += 2+packetLen;

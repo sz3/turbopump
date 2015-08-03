@@ -16,8 +16,6 @@
 #include "OfferWriteCommand.h"
 #include "SyncCommand.h"
 
-// should have a map of commands to do string -> command lookup.
-// return copy of the op (refs, base type + params)
 namespace Turbopump {
 
 Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, IStore& store, ISynchronize& sync, const Options& options)
@@ -41,9 +39,6 @@ Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& me
 	_commands[Write::_NAME] = Write::_ID;
 }
 
-// IByteStream == local
-// Peer == remote
-// need context for each command request?
 Command* Api::command_impl(int id) const
 {
 	switch (id)

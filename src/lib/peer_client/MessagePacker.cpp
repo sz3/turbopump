@@ -7,7 +7,7 @@ using std::string;
 void MessagePacker::pack(char* buffer, unsigned char id, const char* packet, unsigned size) const
 {
 	unsigned short netlen = htons(size+1);
-	std::copy( (const char*)&netlen, (const char*)(&netlen)+2, buffer );
+	std::copy( reinterpret_cast<const char*>(&netlen), reinterpret_cast<const char*>(&netlen)+2, buffer );
 	std::copy( &id, (&id)+1, buffer+2 );
 	std::copy( packet, packet+size, buffer+3 );
 }
