@@ -21,8 +21,8 @@ bool DeleteCommand::run(const char*, unsigned)
 	req.version = version.toString();
 	std::unique_ptr<Turbopump::Command> cmd(_api.command(req));
 
-	std::string timestamp("timestamp");
-	if ( !cmd->run(timestamp.data(), timestamp.size()) )
+	// 0 byte file
+	if ( !cmd->run() )
 		return false;
 	return cmd->run(); // commit
 }

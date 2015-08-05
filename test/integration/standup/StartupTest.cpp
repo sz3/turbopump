@@ -27,8 +27,6 @@ using std::shared_ptr;
 using std::string;
 using turbo::stopwatch;
 using turbo::str::str;
-using turbo::wait_for_equal;
-using turbo::wait_for_match;
 
 class IntegratedTurboRunner : public TurboRunner
 {

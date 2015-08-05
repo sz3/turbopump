@@ -23,5 +23,5 @@ TEST_CASE( "DeleteCommandTest/testDelete", "[unit]" )
 
 	assertTrue( command.run() );
 	assertEquals( "write(deleted!,2,delete.UNIXSECONDS=,foo.UNIXSECONDS=,0)", api.store._history.calls() );
-	assertEquals( "write(timestamp)|flush()|close()|reader()", MockStoreWriter::calls() );
+	assertEquals( "flush()|close()|reader()", MockStoreWriter::calls() );
 }

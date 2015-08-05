@@ -6,8 +6,6 @@
 #include "integration/TurboRunner.h"
 #include "time/wait_for.h"
 using std::string;
-using turbo::wait_for_equal;
-using turbo::wait_for_match;
 
 TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 {
@@ -40,7 +38,7 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 		return cluster[2].local_list();
 	});
 
-	expected = "deleteMe => 9:2,delete." + version + ",1." + version;
+	expected = "deleteMe => 0:2,delete." + version + ",1." + version;
 	wait_for_equal(20, expected, [&]()
 	{
 		return cluster[1].local_list("deleted=1");

@@ -19,8 +19,6 @@
 #include <vector>
 using std::string;
 using turbo::stopwatch;
-using turbo::wait_for_equal;
-using turbo::wait_for_match;
 using namespace turbo::str;
 
 namespace {
