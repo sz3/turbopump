@@ -86,10 +86,10 @@ std::string FileStore::filepath(const std::string& name, const std::string& vers
 	return dirpath(name) + "/" + version;
 }
 
-VectorClock FileStore::mergedVersion(const std::string& name) const
+VectorClock FileStore::mergedVersion(const std::string& name, bool inprogress/*=true*/) const
 {
 	VectorClock version;
-	std::vector<std::string> vs(versions(name, true));
+	std::vector<std::string> vs(versions(name, inprogress));
 	for (auto it = vs.begin(); it != vs.end(); ++it)
 	{
 		VectorClock temp;
@@ -127,11 +127,11 @@ readstream FileStore::read(const std::string& name, const std::string& version, 
 	KeyMetadata md;
 	md.version.fromString(version);
 	if (md.version.empty())
-		md.version = mergedVersion(name);
+		md.version = mergedVersion(name, inprogress);
 
 	string filename(filepath(name, md.version.toString()));
 	FileReader* reader = new FileReader();
-	if (inprogress)
+	if (inprogress) // try inprogress first
 		reader->open(filename + "~");
 	if (!reader->good())
 		reader->open(filename);

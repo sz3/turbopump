@@ -307,6 +307,34 @@ TEST_CASE( "FileStoreTest/testReadInprogress", "[unit]" )
 	assertEquals( 10, reader.size() );
 }
 
+TEST_CASE( "FileStoreTest/testReadInprogressExisting", "[unit]" )
+{
+	MyMemberId("increment");
+	WallClock().freeze(WallClock::MAGIC_NUMBER);
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+	write_file(store, "myfile", "foo");
+
+	writestream writer = store.write("myfile");
+	assertTrue( writer.good() );
+
+	string bytes = "0123456789";
+	assertEquals( 10, writer.write(bytes.data(), bytes.size()) );
+
+	// default, only read finished versions
+	readstream reader = store.read("myfile");
+	assertTrue( reader );
+	assertEquals( "1,increment.UNIXSECONDS=", reader.version() );
+	assertEquals( 3, reader.size() );
+
+	// but how about an inprogress one?
+	reader = store.read("myfile", "", true);
+	assertTrue( reader );
+	assertEquals( "1,increment.UNIXSECONDS=.1", reader.version() );
+	assertEquals( 10, reader.size() );
+}
+
 TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 {
 	MyMemberId("increment");
