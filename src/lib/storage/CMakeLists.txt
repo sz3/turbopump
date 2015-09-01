@@ -13,6 +13,8 @@ set(SOURCES
 	FileWriter.cpp
 	FileWriter.h
 	StringReader.h
+	SimpleFileStore.cpp
+	SimpleFileStore.h
 )
 
 include_directories(

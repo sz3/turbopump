@@ -11,7 +11,9 @@ public:
 	VectorClock(const std::deque<VectorClock::clock>& clocks);
 
 	VectorClock& increment(const std::string& key);
+	VectorClock& increment(const std::string& key, uint64_t time);
 	VectorClock& markDeleted();
+	VectorClock& markDeleted(uint64_t time);
 	bool isDeleted() const;
 	bool isExpired(unsigned timeout) const;
 

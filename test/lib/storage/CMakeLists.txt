@@ -9,6 +9,7 @@ set (SOURCES
 	FileWriterTest.cpp
 	readstreamTest.cpp
 	StoreBenchmarkTest.cpp
+	SimpleFileStoreTest.cpp
 )
 
 include_directories(

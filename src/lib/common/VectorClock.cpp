@@ -81,13 +81,23 @@ namespace {
 
 VectorClock& VectorClock::increment(const std::string& key)
 {
-	base_class::increment(key, WallClock::now());
+	return increment(key, WallClock::now());
+}
+
+VectorClock& VectorClock::increment(const std::string& key, uint64_t time)
+{
+	base_class::increment(key, time);
 	return *this;
 }
 
 VectorClock& VectorClock::markDeleted()
 {
-	increment("delete");
+	return markDeleted(WallClock::now());
+}
+
+VectorClock& VectorClock::markDeleted(uint64_t time)
+{
+	increment("delete", time);
 	return *this;
 }
 
