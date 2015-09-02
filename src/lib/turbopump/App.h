@@ -12,6 +12,7 @@
 #include "peer_client/WriteSupervisor.h"
 #include "peer_server/ConcurrentCommandCenter.h"
 #include "peer_server/PeerPacketHandler.h"
+#include "storage/IStore.h"
 
 #include "concurrent/monitor.h"
 #include "concurrent/ThreadPoolExecutor.h"
@@ -31,6 +32,9 @@ public:
 protected:
 	// shutdown flag
 	turbo::monitor _shutdown;
+
+	// data store
+	std::unique_ptr<IStore> _store;
 
 	// options
 	ComputedOptions _opts;

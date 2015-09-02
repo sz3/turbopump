@@ -15,6 +15,7 @@
 #include "membership/KnownPeers.h"
 #include "membership/Peer.h"
 #include "storage/FileStore.h"
+#include "storage/SimpleFileStore.h"
 
 #include "socket/socket_address.h"
 #include "serialize/str.h"
@@ -26,13 +27,13 @@ namespace Turbopump {
 class Turbopump
 {
 public:
-	Turbopump(const Options& opts, IMessageSender& messenger, ISuperviseWrites& sender)
+	Turbopump(const Options& opts, IStore& store, IMessageSender& messenger, ISuperviseWrites& sender)
 		: api(corrector, keyLocator, messenger, reporter, store, synchronizer, opts)
 		, logger(socket_address("127.0.0.1", opts.internal_port).toString())
 		, reporter(ring, membership, state)
 		, keyLocator(ring, membership)
 		, keyTabulator(keyLocator)
-		, store(opts.home_dir + "/store")
+		, store(store)
 		, membership(opts.home_dir + "/turbo_members.txt")
 		, corrector(keyTabulator, store, messenger, sender, logger, opts)
 		, synchronizer(ring, membership, keyTabulator, messenger, corrector, logger)
@@ -84,7 +85,7 @@ public:
 	KeyTabulator keyTabulator;
 
 	// storage, membership
-	FileStore store;
+	IStore& store;
 	KnownPeers membership;
 
 	// sync, dependent on internal messaging

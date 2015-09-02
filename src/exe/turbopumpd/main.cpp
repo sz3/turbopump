@@ -26,7 +26,8 @@ namespace {
 	{
 		std::vector<string> ex = {
 			"./turbopumpd -l /tmp/turbopump -p 9001 --clone",
-			"./turbopumpd -l :1592"
+			"./turbopumpd -l :1592",
+			"./turbopumpd -l :1592 --store file"
 		};
 		return str::join(ex, '\n');
 	}
@@ -34,6 +35,8 @@ namespace {
 
 int main(int argc, const char** argv)
 {
+	Turbopump::Options options;
+
 	ezOptionParser opt;
 	opt.overview = "A high performance distributed key value store. 'high performance' is a relative term.";
 	opt.syntax = "./turbopumpd --dothething";
@@ -44,7 +47,8 @@ int main(int argc, const char** argv)
 	opt.add("localhost:1592", false, 1, 0, "local server. File path (domain socket), or tcp bind address.", "-l", "--local-addr");
 	opt.add("1593", false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
-	opt.add(".", false, 1, 0, "Home directory for persistent data. Default is cwd.", "--home");
+	opt.add(options.home_dir.c_str(), false, 1, 0, "Home directory for settings data. Default is cwd.", "--home");
+	opt.add(options.store.c_str(), false, 1, 0, "Data store backend. Default is file-system backed database at `--home`/store.", "--store");
 
 	opt.add("2000", false, 1, 0, "sync interval (ms)", "--sync-interval");
 
@@ -75,7 +79,7 @@ int main(int argc, const char** argv)
 			localAddr = socket_address(comps[0], std::stoi(comps[1]));
 	}
 
-	Turbopump::Options options;
+	// update Turbopump::Options
 	if ((og = opt.get("--port")) != NULL)
 	{
 		unsigned long temp;
@@ -92,6 +96,8 @@ int main(int argc, const char** argv)
 
 	if ((og = opt.get("--home")) != NULL)
 		og->getString(options.home_dir);
+	if ((og = opt.get("--store")) != NULL)
+		og->getString(options.store);
 	if (opt.isSet("--clone"))
 		options.partition_keys = false;
 	if (opt.isSet("--no-write-chaining"))
