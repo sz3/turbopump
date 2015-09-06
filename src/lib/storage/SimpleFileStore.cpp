@@ -102,10 +102,9 @@ writestream SimpleFileStore::write(const std::string& name, const std::string& v
 	if (md.version.empty())
 		md.version.increment("sec");
 
-	VectorClock merged = mergedVersion(name, true);
-	VectorClock current;
-	current.increment("sec", timeFromVersion(merged));
-	if ( md.version.compare(current) != VectorClock::GREATER_THAN || md.version.isExpired(EXPIRY_TIMEOUT_SECONDS) )
+	uint64_t current = timeFromVersion( mergedVersion(name, true) );
+	uint64_t prospective = timeFromVersion(md.version);
+	if ( prospective < current || (prospective == current && !md.version.isDeleted()) || md.version.isExpired(EXPIRY_TIMEOUT_SECONDS) )
 		return writestream();
 	// correct versions in the future back to now?
 

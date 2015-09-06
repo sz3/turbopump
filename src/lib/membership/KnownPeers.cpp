@@ -141,13 +141,16 @@ void KnownPeers::syncToDataStore(IStore& store) const
 {
 	auto fun = [&store] (const Peer& peer)
 	{
+		string addr = peer.address();
+		if (addr.empty())
+			return;
+
 		VectorClock version;
 		version.increment(peer.uid);
 		writestream writer = store.write(MEMBERSHIP_FILE_PREFIX + peer.uid, version.toString(), 0);
 		if (writer)
 		{
-			string data = peer.address();
-			writer.write(data.data(), data.size());
+			writer.write(addr.data(), addr.size());
 			writer.commit(true);
 		}
 	};

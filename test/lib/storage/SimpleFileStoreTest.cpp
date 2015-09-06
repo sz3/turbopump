@@ -202,6 +202,7 @@ TEST_CASE( "SimpleFileStoreTest/testWrite.Delete", "[unit]" )
 	vc.markDeleted();
 
 	writer = store.write("mydir/myfile", vc.toString());
+	assertTrue( writer.good() );
 	writer.commit(true);
 
 	readstream reader = store.read("mydir/myfile");
@@ -250,6 +251,24 @@ TEST_CASE( "SimpleFileStoreTest/testWrite.OverwriteDelete", "[unit]" )
 	reader = store.read("myfile");
 	assertTrue( reader.good() );
 	assertEquals( 7, reader.size() );
+}
+
+TEST_CASE( "SimpleFileStoreTest/testWrite.SpecificVersion", "[unit]" )
+{
+	WallClock().freeze(_magic_time);
+	DirectoryCleaner cleaner;
+	SimpleFileStore store(_test_dir);
+
+	VectorClock vc;
+	vc.increment("guid");
+
+	writestream writer = store.write("myfile", vc.toString());
+	assertTrue( writer.good() );
+	writer.commit(true);
+
+	readstream reader = store.read("myfile");
+	assertTrue( reader.good() );
+	assertEquals( 0, reader.size() );
 }
 
 TEST_CASE( "SimpleFileStoreTest/testWrite.RejectInprogress", "[unit]" )

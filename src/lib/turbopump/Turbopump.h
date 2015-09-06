@@ -14,8 +14,7 @@
 #include "logging/StderrLogger.h"
 #include "membership/KnownPeers.h"
 #include "membership/Peer.h"
-#include "storage/FileStore.h"
-#include "storage/SimpleFileStore.h"
+#include "storage/IStore.h"
 
 #include "socket/socket_address.h"
 #include "serialize/str.h"
