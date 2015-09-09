@@ -45,7 +45,7 @@ int main(int argc, const char** argv)
 
 	opt.add("", false, 0, 0, "Display usage instructions.", "-h", "--help");
 	opt.add("localhost:1592", false, 1, 0, "local server. File path (domain socket), or tcp bind address.", "-l", "--local-addr");
-	opt.add("1593", false, 1, 0, "udp port", "-p", "--port");
+	opt.add(str::str(options.internal_port).c_str(), false, 1, 0, "udp port", "-p", "--port");
 	opt.add("", false, 0, 0, "run cluster in clone mode", "-c", "--clone");
 	opt.add(options.home_dir.c_str(), false, 1, 0, "Home directory for settings data. Default is cwd.", "--home");
 	opt.add(options.store.c_str(), false, 1, 0, "Data store backend. Default is file-system backed database at `--home`/store.", "--store");

@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	readstream.h
-	writestream.h
 	IStore.h
 	IReader.h
 	IWriter.h
+	readstream.h
+	writestream.h
+
 	FileReader.cpp
 	FileReader.h
 	FileStore.cpp

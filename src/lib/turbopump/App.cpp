@@ -16,7 +16,7 @@
 using namespace std::placeholders;
 
 namespace {
-	// could be in a separate compilation unit. Point is: these are factory method.
+	// could be in a separate compilation unit. Point is: these are factory methods.
 
 	ISocketServer* peerServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket, std::function<bool(int)> onWriteReady)
 	{
@@ -28,16 +28,27 @@ namespace {
 
 	IStore* dataStore(const Turbopump::Options& opts)
 	{
+		std::string type;
+		std::string path;
+
 		std::vector<std::string> parts = turbo::str::split(opts.store, ':');
 		if ( !parts.empty() )
 		{
-			const std::string& type = parts.front();
-			if (type == "file")
-				return new SimpleFileStore(opts.home_dir + "/store");
+			type = parts.front();
+			if (parts.size() >= 2)
+				path = parts[1];
 		}
 
+		if (path.empty())
+			path = opts.home_dir + "/store";
+		else if (path.front() != '/')
+			path = opts.home_dir + "/" + path;
+
+		if (type == "file")
+			return new SimpleFileStore(path);
+
 		// default
-		return new FileStore(opts.home_dir + "/store");
+		return new FileStore(path);
 	}
 }
 

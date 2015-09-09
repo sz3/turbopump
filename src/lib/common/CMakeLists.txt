@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES
-	serializers.h
-	turbopump_defaults.h
-	DataBuffer.cpp
-	DataBuffer.h
 	IProcessState.h
 	IStatusReporter.h
+	serializers.h
+	turbopump_defaults.h
+
+	DataBuffer.cpp
+	DataBuffer.h
 	KeyMetadata.h
 	MerklePoint.cpp
 	MerklePoint.h

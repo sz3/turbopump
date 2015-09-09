@@ -12,8 +12,8 @@ namespace Turbopump {
 struct Options
 {
 	std::string home_dir = ".";
-	std::string store = "default:./store";
-	short internal_port = 9001;
+	std::string store = "default:store";
+	short internal_port = 1593;
 
 	bool partition_keys = true;
 	bool write_chaining = true;
