@@ -4,6 +4,7 @@
 
 #include "http/HttpResponse.h"
 #include "serialize/str.h"
+#include "system/env.h"
 #include "system/popen.h"
 #include "time/stopwatch.h"
 
@@ -36,6 +37,10 @@ TurboRunner::TurboRunner(short port, string programFlags)
 {
 	boost::filesystem::create_directory(_workingDir);
 	createMemberFile(_port);
+
+	string storePath = turbo::env::get("TURBO_STORE_PATH");
+	if ( !storePath.empty() )
+		_programFlags += " --store " + storePath;
 }
 
 TurboRunner::~TurboRunner()

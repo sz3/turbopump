@@ -92,8 +92,11 @@ int BufferedConnectionWriter<Socket>::write(unsigned char virtid, const char* bu
 		unsigned packetSize = _buffer.size() + remaining;
 		if (packetSize >= maxBufferSize)
 		{
-			packetSize = maxBufferSize;//-_buffer.size();
-			pushBytes(virtid, buff, packetSize);
+			if (_buffer.size() < maxBufferSize)
+			{
+				packetSize = maxBufferSize - _buffer.size();
+				pushBytes(virtid, buff, packetSize);
+			}
 			good = flush_internal(blocking);
 		}
 		else
