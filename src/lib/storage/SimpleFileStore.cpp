@@ -133,6 +133,8 @@ readstream SimpleFileStore::read(const std::string& name, const std::string& ver
 
 	string filename = md.version.isDeleted()? paths.deleted() : paths.current();
 	FileReader* reader = new FileReader(filename);
+	if (name.find(MEMBERSHIP_FILE_PREFIX) == 0)
+		md.totalCopies = 0;
 	return readstream(reader, md);
 }
 
@@ -274,6 +276,8 @@ void SimpleFileStore::enumerate(const std::function<bool(const std::string&, con
 		md.digest ^= writestream::digest(versionString, size);
 		report.insert(turbo::str::str(size) + ":" + versionString);
 
+		if (shortname.find(MEMBERSHIP_FILE_PREFIX) == 0)
+			md.totalCopies = 0;
 		callback(shortname, md, turbo::str::join(report));
 		if (++i >= limit)
 			break;

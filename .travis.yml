@@ -1,5 +1,9 @@
 language: cpp
 
+branches:
+  only:
+    - dev
+
 compiler:
   - clang
   - gcc
