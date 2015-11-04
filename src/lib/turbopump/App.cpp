@@ -18,12 +18,12 @@ using namespace std::placeholders;
 namespace {
 	// could be in a separate compilation unit. Point is: these are factory methods.
 
-	ISocketServer* peerServer(const Turbopump::Options& opts, const socket_address& addr, std::function<void(ISocketWriter&, const char*, unsigned)> onPacket, std::function<bool(int)> onWriteReady)
+	ISocketServer* peerServer(const Turbopump::Options& opts, const socket_address& addr)
 	{
 		if (opts.udt)
-			return new UdtServer(addr, onPacket, onWriteReady, new MultiplexedSocketPool<udt_socket>());
+			return new UdtServer(addr, new MultiplexedSocketPool<udt_socket>());
 		else
-			return new UdpServer(addr, onPacket, new MultiplexedSocketPool<udp_socket>());
+			return new UdpServer(addr, new MultiplexedSocketPool<udp_socket>());
 	}
 
 	IStore* dataStore(const Turbopump::Options& opts)
@@ -59,7 +59,7 @@ App::App(const Options& opts)
 				   _turbopump.ring, _turbopump.keyLocator, _threadLockedKeyTabulator,
 				   _turbopump.corrector, _turbopump.synchronizer, _messenger, _writeSupervisor})
 	, _turbopump(_opts, *_store, _messenger, _writeSupervisor)
-	, _peerServer(peerServer(opts, socket_address("127.0.0.1", opts.internal_port), std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3), std::bind(&PartialTransfers::run, &_partialTransfers, _1)))
+	, _peerServer(peerServer(opts, socket_address("127.0.0.1", opts.internal_port)))
 	, _messenger(_packer, *_peerServer)
 	, _partialTransfers(*_peerServer)
 	, _writeSupervisor(_packer, _partialTransfers, *_peerServer, _turbopump.store)
@@ -81,7 +81,7 @@ bool App::run()
 		return false;
 	}
 
-	if (!_peerServer->start())
+	if (!_peerServer->start(std::bind(&PeerPacketHandler::onPacket, &_peerPacketHandler, _1, _2, _3), std::bind(&PartialTransfers::run, &_partialTransfers, _1)))
 	{
 		_turbopump.logger.logError("failed to start wan server. Abort. " + _peerServer->lastError());
 		_peerExecutor.stop();
