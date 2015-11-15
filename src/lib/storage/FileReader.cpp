@@ -51,7 +51,7 @@ void FileReader::close()
 
 bool FileReader::open(const std::string& filename, unsigned long long offset)
 {
-	_fd = ::open(filename.c_str(), O_RDONLY | O_NOATIME);
+	_fd = ::open(filename.c_str(), O_RDONLY | O_NOATIME | O_LARGEFILE);
 	if ( !good() )
 		std::cout << "couldn't read file: " << filename << ", " << ::strerror(errno) << std::endl;
 	if ( offset != 0 && !setPosition(offset) )
