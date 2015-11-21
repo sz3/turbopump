@@ -3,6 +3,7 @@
 
 #include "Options.h"
 #include "AddPeerCommand.h"
+#include "CopyCommand.h"
 #include "DeleteCommand.h"
 #include "DropCommand.h"
 #include "ListKeysCommand.h"
@@ -30,6 +31,7 @@ Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& me
 {
 	// local commands: in this list.
 	_commands[AddPeer::_NAME] = AddPeer::_ID;
+	_commands[Copy::_NAME] = Copy::_ID;
 	_commands[Delete::_NAME] = Delete::_ID;
 	_commands[Drop::_NAME] = Drop::_ID;
 	_commands[ListKeys::_NAME] = ListKeys::_ID;
@@ -46,6 +48,7 @@ Command* Api::command_impl(int id) const
 	switch (id)
 	{
 		case AddPeer::_ID: return new AddPeerCommand(*this);
+		case Copy::_ID: return new CopyCommand(_store, _options.when_local_write_finishes.fun());
 		case Delete::_ID: return new DeleteCommand(*this);
 		case Drop::_ID: return new DropCommand(_corrector, _store, _locator);
 		case ListKeys::_ID: return new ListKeysCommand(_store);

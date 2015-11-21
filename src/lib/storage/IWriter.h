@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 class IReader;
 
 class IWriter
@@ -16,4 +17,6 @@ public:
 	virtual bool close() = 0;
 
 	virtual IReader* reader() const = 0;
+
+	virtual bool link(const std::string& source) { return false; }
 };

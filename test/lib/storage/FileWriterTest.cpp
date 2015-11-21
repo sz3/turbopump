@@ -63,3 +63,35 @@ TEST_CASE( "FileWriterTest/testMultiReader", "[unit]" )
 	assertEquals( 16, reader->size() );
 }
 
+TEST_CASE( "FileWriterTest/testLink", "[unit]" )
+{
+	UseTempDirectory temp;
+
+	{
+		FileWriter writer("myfile");
+		assertTrue( writer.good() );
+
+		assertEquals( 10, writer.write("0123456789", 10) );
+		assertEquals( 6, writer.write("abcdef", 6) );
+	}
+
+	{
+		FileWriter writer("a_new_file");
+		assertTrue( writer.good() );
+
+		assertTrue( writer.link("myfile") );
+		assertFalse( writer.good() );
+	}
+
+	{
+		std::string contents;
+		assertTrue( File::load("a_new_file", contents) );
+		assertEquals( "0123456789abcdef", contents );
+	}
+
+	{
+		std::string contents;
+		assertTrue( File::load("myfile", contents) );
+		assertEquals( "0123456789abcdef", contents );
+	}
+}

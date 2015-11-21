@@ -22,7 +22,12 @@ public:
 	int write(const char* buffer, unsigned length);
 	readstream commit(bool close=false);
 
+	readstream copy(const std::string& source);
+
 	static unsigned long long digest(const std::string& version, unsigned long long size);
+
+protected:
+	readstream do_commit(bool close);
 
 protected:
 	std::shared_ptr<IWriter> _writer;
@@ -66,6 +71,16 @@ inline int writestream::write(const char* buffer, unsigned length)
 	return _writer->write(buffer, length);
 }
 
+inline readstream writestream::do_commit(bool close)
+{
+	IReader* reader = _writer->reader();
+	// TODO: _writer should compute size himself, rather than us going to reader->size()
+	_md.digest = digest(_md.version.toString(), reader->size());
+	if (close && _onClose)
+		_onClose(_md);
+	return readstream(reader, _md);
+}
+
 // always flush. Sometimes close. If we're trying to close, the onClose callback is fired.
 // _onClose *MAY* augment the _md.digest, if the close operation results in removing other versions of this key.
 inline readstream writestream::commit(bool close)
@@ -74,13 +89,16 @@ inline readstream writestream::commit(bool close)
 		return readstream();
 	if (close && !_writer->close() )
 		return readstream();
+	return do_commit(close);
+}
 
-	IReader* reader = _writer->reader();
-	// TODO: _writer should compute size himself, rather than us going to reader->size()
-	_md.digest = digest(_md.version.toString(), reader->size());
-	if (close && _onClose)
-		_onClose(_md);
-	return readstream(reader, _md);
+inline readstream writestream::copy(const std::string& source)
+{
+	// TODO: do a manual copy if this fails?
+	// then again, maybe that lives in CopyCommand...
+	if ( !_writer->link(source) )
+		return readstream();
+	return do_commit(true);
 }
 
 // used by the merkle/digest tree to determine if we have this file or not.

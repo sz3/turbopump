@@ -13,6 +13,7 @@ public:
 	bool good() const;
 	unsigned long long position() const;
 	bool setAttribute(const char* key, const std::string& value);
+	bool link(const std::string& source);
 
 	int write(const char* buffer, unsigned length);
 	bool flush();
@@ -21,7 +22,7 @@ public:
 	IReader* reader() const;
 
 protected:
-	bool open(const std::string& filename); //TODO: offset
+	bool open(); //TODO: offset
 
 protected:
 	int _fd;

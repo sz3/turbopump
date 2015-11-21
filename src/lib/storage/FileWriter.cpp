@@ -2,6 +2,8 @@
 #include "FileWriter.h"
 
 #include "FileReader.h"
+#include <cstdio>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <attr/attributes.h>
@@ -12,7 +14,7 @@ FileWriter::FileWriter(const std::string& filename)
 	: _fd(-1)
 	, _filename(filename)
 {
-	open(filename);
+	open();
 }
 
 FileWriter::~FileWriter()
@@ -20,9 +22,9 @@ FileWriter::~FileWriter()
 	close();
 }
 
-bool FileWriter::open(const std::string& filename)
+bool FileWriter::open()
 {
-	_fd = ::open(filename.c_str(), O_WRONLY | O_CREAT | O_NOATIME, S_IRWXU);
+	_fd = ::open(_filename.c_str(), O_WRONLY | O_CREAT | O_NOATIME, S_IRWXU);
 	return good();
 }
 
@@ -39,6 +41,25 @@ unsigned long long FileWriter::position() const
 bool FileWriter::setAttribute(const char* key, const std::string& value)
 {
 	return ::attr_setf(_fd, key, value.data(), value.size(), 0) == 0;
+}
+
+bool FileWriter::link(const std::string& source)
+{
+	// obviously, it's optimal to call this without opening the file...
+	if (good())
+	{
+		close();
+		remove(_filename.c_str());
+	}
+
+	int res = ::link(source.c_str(), _filename.c_str());
+	if (res != 0)
+	{
+		open();
+		return false;
+	}
+
+	return true;
 }
 
 int FileWriter::write(const char* buffer, unsigned length)
@@ -64,7 +85,7 @@ bool FileWriter::close()
 
 IReader* FileWriter::reader() const
 {
-	// TODO: would like to do this once, or at the very least not need to save the _filename...
+	// TODO: what are the tradeoffs of using _fd?
 	return new FileReader(_filename);
 }
 

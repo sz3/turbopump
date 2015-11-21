@@ -15,6 +15,9 @@ set(SOURCES
 	AddPeer.h
 	AddPeerCommand.cpp
 	AddPeerCommand.h
+	Copy.h
+	CopyCommand.cpp
+	CopyCommand.h
 	Delete.h
 	DeleteCommand.cpp
 	DeleteCommand.h
