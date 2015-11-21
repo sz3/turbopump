@@ -7,6 +7,7 @@
 #include "DropCommand.h"
 #include "ListKeysCommand.h"
 #include "ReadCommand.h"
+#include "RemovePeerCommand.h"
 #include "StatusCommand.h"
 #include "WriteCommand.h"
 
@@ -33,6 +34,7 @@ Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& me
 	_commands[Drop::_NAME] = Drop::_ID;
 	_commands[ListKeys::_NAME] = ListKeys::_ID;
 	_commands[Read::_NAME] = Read::_ID;
+	_commands[RemovePeer::_NAME] = RemovePeer::_ID;
 	_commands[Status::_NAME] = Status::_ID;
 	_commands["membership"] = Status::_ID2;
 	_commands["ring"] = Status::_ID3;
@@ -48,6 +50,7 @@ Command* Api::command_impl(int id) const
 		case Drop::_ID: return new DropCommand(_corrector, _store, _locator);
 		case ListKeys::_ID: return new ListKeysCommand(_store);
 		case Read::_ID: return new ReadCommand(_store);
+		case RemovePeer::_ID: return new RemovePeerCommand(*this);
 		case Status::_ID: return new StatusCommand(_reporter);
 		case Status::_ID2: return new StatusCommand(_reporter, "membership");
 		case Status::_ID3: return new StatusCommand(_reporter, "ring");

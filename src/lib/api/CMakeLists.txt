@@ -36,6 +36,9 @@ set(SOURCES
 	Read.h
 	ReadCommand.cpp
 	ReadCommand.h
+	RemovePeer.h
+	RemovePeerCommand.cpp
+	RemovePeerCommand.h
 	Status.h
 	StatusCommand.cpp
 	StatusCommand.h

@@ -1,9 +1,9 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "ComputedOptions.h"
 
-#include "AddPeer.h"
 #include "ChainWrite.h"
 #include "MirrorToPeer.h"
+#include "ModifyPeer.h"
 #include "NotifyWriteComplete.h"
 #include "RandomizedMirrorToPeer.h"
 
@@ -22,12 +22,12 @@ using namespace std::placeholders;
 // TODO: rather than anonymous namespace, should split these functions out somewhere else...
 namespace
 {
-	std::function<void(WriteInstructions&, readstream&)> membershipAddFunct(IConsistentHashRing& ring, IKnowPeers& membership, IKeyTabulator& keyTabulator)
+	std::function<void(WriteInstructions&, readstream&)> membershipFunct(IConsistentHashRing& ring, IKnowPeers& membership, IKeyTabulator& keyTabulator)
 	{
 		return [&] (WriteInstructions& params, readstream& contents)
 		{
-			AddPeer adder(ring, membership, keyTabulator);
-			adder.run(params, contents);
+			ModifyPeer peerer(ring, membership, keyTabulator);
+			peerer.run(params, contents);
 		};
 	}
 
@@ -90,7 +90,7 @@ ComputedOptions::ComputedOptions(const Turbopump::Options& opts, const Turbopump
 			else
 				when_local_write_finishes.add( writeChainFunct_cloneMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
 		}
-		when_local_write_finishes.add( membershipAddFunct(turbopump.ring, turbopump.membership, turbopump.keyTabulator) );
+		when_local_write_finishes.add( membershipFunct(turbopump.ring, turbopump.membership, turbopump.keyTabulator) );
 	}
 
 	// on mirror write
@@ -102,7 +102,7 @@ ComputedOptions::ComputedOptions(const Turbopump::Options& opts, const Turbopump
 			when_mirror_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, false) );
 
 		when_mirror_write_finishes.add( notifyWriteComplete(turbopump.membership, turbopump.messenger) );
-		when_mirror_write_finishes.add( membershipAddFunct(turbopump.ring,turbopump. membership, turbopump.keyTabulator) );
+		when_mirror_write_finishes.add( membershipFunct(turbopump.ring,turbopump. membership, turbopump.keyTabulator) );
 	}
 
 	// on drop

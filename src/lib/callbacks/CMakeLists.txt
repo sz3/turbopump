@@ -4,11 +4,11 @@ set(SOURCES
 	ComputedOptions.cpp
 	ComputedOptions.h
 
-	AddPeer.cpp
-	AddPeer.h
 	ChainWrite.h
 	MirrorToPeer.cpp
 	MirrorToPeer.h
+	ModifyPeer.cpp
+	ModifyPeer.h
 	NotifyWriteComplete.cpp
 	NotifyWriteComplete.h
 	RandomizedMirrorToPeer.cpp

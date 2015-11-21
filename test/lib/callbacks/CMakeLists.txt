@@ -4,9 +4,9 @@ project(callbacks_test)
 
 set (SOURCES
 	test.cpp
-	AddPeerTest.cpp
 	ChainWriteTest.cpp
 	MirrorToPeerTest.cpp
+	ModifyPeerTest.cpp
 	NotifyWriteCompleteTest.cpp
 	RandomizedMirrorToPeerTest.cpp
 )

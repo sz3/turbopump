@@ -15,6 +15,7 @@ set (SOURCES
 	ListKeysCommandTest.cpp
 	OfferWriteCommandTest.cpp
 	ReadCommandTest.cpp
+	RemovePeerCommandTest.cpp
 	SyncCommandTest.cpp
 	WriteTest.cpp
 	WriteCommandTest.cpp
