@@ -94,3 +94,35 @@ TEST_CASE( "UserPacketHandlerTest/testBadCommand", "[unit]" )
 	}
 }
 
+TEST_CASE( "UserPacketHandlerTest/testMultipleRequests", "[unit]" )
+{
+	Turbopump::Options options;
+	MockSkewCorrector corrector;
+	MockLocateKeys locator;
+	MockMessageSender messenger;
+	MockStatusReporter reporter;
+	MockStore store;
+	MockSynchronize sync;
+
+	reporter._status = "dancing";
+
+	{
+		StringByteStream stream("GET /status HTTP/1.1\r\n\r\n"
+								"GET /foofoofoo HTTP/1.1\r\n\r\n");
+		HttpByteStream httpStream(stream);
+		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+		UserPacketHandler handler(httpStream, api);
+		handler.run();
+
+		assertEquals( "HTTP/1.1 200 Success\r\n"
+					  "transfer-encoding: chunked\r\n\r\n"
+					  "7\r\n"
+					  "dancing\r\n"
+					  "0\r\n\r\n"
+					  "HTTP/1.1 400 Bad Request\r\n"
+					  "transfer-encoding: chunked\r\n\r\n"
+					  "0\r\n\r\n", stream.writeBuffer() );
+		assertEquals( "", stream.readBuffer() );
+	}
+}
+

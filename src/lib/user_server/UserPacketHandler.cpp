@@ -35,6 +35,7 @@ void UserPacketHandler::sendResponse(StatusCode status)
 {
 	_stream.setStatus(status.integer());
 	_stream.write(NULL, 0);
+	_stream.reset();
 }
 
 std::unique_ptr<Turbopump::Command> UserPacketHandler::command(const string& cmd, const std::unordered_map<string,string>& params) const
