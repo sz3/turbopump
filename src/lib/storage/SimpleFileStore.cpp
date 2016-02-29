@@ -253,9 +253,6 @@ void SimpleFileStore::enumerate(const std::function<bool(const std::string&, con
 		if ( boost::filesystem::is_directory(pa) )
 			continue;
 
-		KeyMetadata md;
-		std::set<string> report;
-
 		string filename = pa.string();
 		if (filename.back() == '~')
 			continue; // inprogress file
@@ -270,15 +267,17 @@ void SimpleFileStore::enumerate(const std::function<bool(const std::string&, con
 		if (isDeleted)
 			shortname = shortname.substr(9);
 
+		KeyMetadata md;
 		md.version = lookupVersion(filename, isDeleted);
 		string versionString = md.version.toString();
 		unsigned long long size = File::size(filename);
 		md.digest ^= writestream::digest(versionString, size);
-		report.insert(turbo::str::str(size) + ":" + versionString);
 
+		string report = turbo::str::str(size) + ":" + versionString;
 		if (shortname.find(MEMBERSHIP_FILE_PREFIX) == 0)
 			md.totalCopies = 0;
-		callback(shortname, md, turbo::str::join(report));
+
+		callback(shortname, md, report);
 		if (++i >= limit)
 			break;
 	}

@@ -48,13 +48,13 @@ TEST_CASE( "WriteTest/testLoadMap", "[unit]" )
 	Turbopump::Write req;
 
 	unordered_map<string,string> vals;
-	vals["name"] = "foo";
+	vals["name"] = "foo bar";
 	vals["version"] = "v2";
 	vals["mirror"] = "2";
 	vals["copies"] = "5";
 	req.load(vals);
 
-	assertEquals( "foo", req.name );
+	assertEquals( "foo bar", req.name );
 	assertEquals( "v2", req.version );
 	assertEquals( 2, req.mirror );
 	assertEquals( 5, req.copies );
