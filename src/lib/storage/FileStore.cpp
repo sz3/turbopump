@@ -239,9 +239,7 @@ bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 void FileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const
 {
 	unsigned long long i = 0;
-	boost::filesystem::recursive_directory_iterator end;
-	boost::filesystem::directory_iterator dend;
-	for (boost::filesystem::recursive_directory_iterator it(_homedir); it != end; ++it)
+	for (boost::filesystem::recursive_directory_iterator it(_homedir, boost::filesystem::symlink_option::recurse), end; it != end; ++it)
 	{
 		boost::filesystem::path pa = it->path();
 		if ( !boost::filesystem::is_directory(pa) )
@@ -249,7 +247,7 @@ void FileStore::enumerate(const std::function<bool(const std::string&, const Key
 
 		KeyMetadata md;
 		std::set<string> report;
-		for (boost::filesystem::directory_iterator version_it(pa); version_it != dend; ++version_it)
+		for (boost::filesystem::directory_iterator version_it(pa), dend; version_it != dend; ++version_it)
 		{
 			boost::filesystem::path vpath = version_it->path();
 			if ( !boost::filesystem::is_directory(vpath) )

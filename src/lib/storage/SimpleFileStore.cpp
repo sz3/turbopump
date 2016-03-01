@@ -246,8 +246,7 @@ void SimpleFileStore::enumerate(const std::function<bool(const std::string&, con
 	// ignore in-progress versions
 	// treat deleted versions as independent. We can clean up (probably) if/when we hit the real one.
 	unsigned long long i = 0;
-	boost::filesystem::recursive_directory_iterator end;
-	for (boost::filesystem::recursive_directory_iterator it(_homedir); it != end; ++it)
+	for (boost::filesystem::recursive_directory_iterator it(_homedir, boost::filesystem::symlink_option::recurse), end; it != end; ++it)
 	{
 		boost::filesystem::path pa = it->path();
 		if ( boost::filesystem::is_directory(pa) )
