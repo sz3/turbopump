@@ -31,7 +31,7 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	command->setWriter(&stream);
 
 	assertTrue( command->run() );
-	assertEquals( "enumerate(1000)", store._history.calls() );
+	assertEquals( "enumerate(1000,)", store._history.calls() );
 }
 
 TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )

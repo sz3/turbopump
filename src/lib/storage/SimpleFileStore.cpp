@@ -241,15 +241,24 @@ bool SimpleFileStore::onDeleteComplete(const std::string& name, KeyMetadata& md)
 	return true;
 }
 
-void SimpleFileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const
+void SimpleFileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback,
+								unsigned long long limit, const std::string& prefix) const
 {
 	// ignore in-progress versions
 	// treat deleted versions as independent. We can clean up (probably) if/when we hit the real one.
+	namespace bfs = boost::filesystem;
+	bfs::path basedir(_homedir);
+	basedir /= prefix;
+
+	boost::system::error_code ec;
 	unsigned long long i = 0;
-	for (boost::filesystem::recursive_directory_iterator it(_homedir, boost::filesystem::symlink_option::recurse), end; it != end; ++it)
+	for (bfs::recursive_directory_iterator it(basedir, bfs::symlink_option::recurse, ec), end; it != end; it.increment(ec))
 	{
-		boost::filesystem::path pa = it->path();
-		if ( boost::filesystem::is_directory(pa) )
+		if (ec)
+			break;
+
+		bfs::path pa = it->path();
+		if ( bfs::is_directory(pa) )
 			continue;
 
 		string filename = pa.string();

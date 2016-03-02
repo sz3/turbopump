@@ -630,3 +630,43 @@ TEST_CASE( "SimpleFileStoreTest/testEnumerate", "[unit]" )
 	assertEquals( join(expected, '\n'), join(files, '\n') );
 	assertEquals( join(digests), join(actualDigests) );
 }
+
+TEST_CASE( "SimpleFileStoreTest/testEnumerate.Prefix", "[unit]" )
+{
+	DirectoryCleaner cleaner;
+	SimpleFileStore store(_test_dir);
+
+	write_file(store, "fo", "0123456789");
+	write_file(store, "foo/foo", "0123456789");
+	write_file(store, "foo/bar", "0123456789");
+	write_file(store, "potato", "0123456789");
+
+	std::vector<string> files;
+	auto fun = [&files] (const std::string& name, const KeyMetadata& md, const std::string& summary)
+	{
+		files.push_back(name);
+		return true;
+	};
+	store.enumerate(fun, 100, "foo");
+
+	std::sort(files.begin(), files.end());
+	assertEquals( "foo/bar foo/foo", join(files, ' ') );
+}
+
+TEST_CASE( "SimpleFileStoreTest/testEnumerate.BadPrefix", "[unit]" )
+{
+	DirectoryCleaner cleaner;
+	SimpleFileStore store(_test_dir);
+
+	std::vector<string> files;
+	auto fun = [&files] (const std::string& name, const KeyMetadata& md, const std::string& summary)
+	{
+		files.push_back(name + " => " + summary);
+		return true;
+	};
+	store.enumerate(fun, 100, "evil path");
+
+	assertEquals( "", join(files, '\n') );
+}
+
+

@@ -15,7 +15,19 @@ TEST_CASE( "ListKeysCommandTest/testDefault", "[unit]" )
 	command.setWriter(&stream);
 
 	assertTrue( command.run() );
-	assertEquals( "enumerate(1000)", store._history.calls() );
+	assertEquals( "enumerate(1000,)", store._history.calls() );
+}
+
+TEST_CASE( "ListKeysCommandTest/testPrefix", "[unit]" )
+{
+	MockStore store;
+	StringByteStream stream;
+	ListKeysCommand command(store);
+	command.setWriter(&stream);
+	command.params.prefix = "foo/bar";
+
+	assertTrue( command.run() );
+	assertEquals( "enumerate(1000,foo/bar)", store._history.calls() );
 }
 
 TEST_CASE( "ListKeysCommandTest/testNullWriter", "[unit]" )

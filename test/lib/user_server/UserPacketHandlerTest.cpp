@@ -58,7 +58,7 @@ TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 		UserPacketHandler handler(httpStream, api);
 		handler.run();
 
-		assertEquals( "enumerate(1000)", store._history.calls() );
+		assertEquals( "enumerate(1000,)", store._history.calls() );
 		assertEquals( "HTTP/1.1 200 Success\r\n"
 					  "transfer-encoding: chunked\r\n\r\n"
 					  "2\r\n"

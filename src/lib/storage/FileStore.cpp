@@ -30,7 +30,6 @@ using namespace std::placeholders;
 
 namespace {
 	// used to get all versions of a file == list all files in a file's directory.
-	// names will likely be base85 encoded, but for now it's a simple VectorClock::toString().
 	std::vector<std::string> list(const std::string& dir)
 	{
 		std::vector<std::string> entries;
@@ -236,24 +235,33 @@ bool FileStore::purgeObsolete(const std::string& name, KeyMetadata& master)
 	return true;
 }
 
-void FileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const
+void FileStore::enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback,
+						  unsigned long long limit, const std::string& prefix) const
 {
+	namespace bfs = boost::filesystem;
+	bfs::path basedir(_homedir);
+	basedir /= prefix;
+
+	boost::system::error_code ec;
 	unsigned long long i = 0;
-	for (boost::filesystem::recursive_directory_iterator it(_homedir, boost::filesystem::symlink_option::recurse), end; it != end; ++it)
+	for (bfs::recursive_directory_iterator it(basedir, bfs::symlink_option::recurse, ec), end; it != end; it.increment(ec))
 	{
-		boost::filesystem::path pa = it->path();
-		if ( !boost::filesystem::is_directory(pa) )
+		if (ec)
+			break;
+
+		bfs::path pa = it->path();
+		if ( !bfs::is_directory(pa) )
 			continue;
 
 		KeyMetadata md;
 		std::set<string> report;
-		for (boost::filesystem::directory_iterator version_it(pa), dend; version_it != dend; ++version_it)
+		for (bfs::directory_iterator version_it(pa), dend; version_it != dend; ++version_it)
 		{
-			boost::filesystem::path vpath = version_it->path();
-			if ( !boost::filesystem::is_directory(vpath) )
+			bfs::path vpath = version_it->path();
+			if ( !bfs::is_directory(vpath) )
 			{
 				string vstr = vpath.filename().string();
-				unsigned long long size = boost::filesystem::file_size(vpath);
+				unsigned long long size = bfs::file_size(vpath);
 				if (report.empty())
 				{
 					FileReader reader(vpath.string());

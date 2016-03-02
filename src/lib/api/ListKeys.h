@@ -14,7 +14,8 @@ public:
 public:
 	bool all = false;
 	bool deleted = false;
+	std::string prefix = "";
 
-	SERIALIZE(all, deleted);
+	SERIALIZE(all, deleted, prefix);
 };
 }//namespace

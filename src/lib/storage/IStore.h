@@ -27,5 +27,6 @@ public:
 	virtual bool isExpired(const std::string& version) const = 0;
 	virtual bool remove(const std::string& name) = 0;
 
-	virtual void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const = 0;
+	virtual void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback,
+						   unsigned long long limit, const std::string& prefix="") const = 0;
 };

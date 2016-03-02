@@ -61,7 +61,8 @@ public:
 	bool isExpired(const std::string& version) const;
 	bool remove(const std::string& name);
 
-	void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback, unsigned long long limit) const;
+	void enumerate(const std::function<bool(const std::string&, const KeyMetadata&, const std::string&)> callback,
+				   unsigned long long limit, const std::string& prefix="") const;
 
 protected:
 	FilePaths filepath(const std::string& name) const;
