@@ -11,6 +11,7 @@
 #include "mock/MockStatusReporter.h"
 #include "mock/MockStore.h"
 #include "mock/MockSynchronize.h"
+#include "mock/MockWatches.h"
 #include "socket/StringByteStream.h"
 
 TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
@@ -22,13 +23,14 @@ TEST_CASE( "UserPacketHandlerTest/testDefault", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 
 	reporter._status = "dancing";
 
 	{
 		StringByteStream stream("GET /status HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 		UserPacketHandler handler(httpStream, api);
 		handler.run();
 
@@ -50,11 +52,12 @@ TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 
 	{
 		StringByteStream stream("GET /list-keys?deleted=1&all=1 HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 		UserPacketHandler handler(httpStream, api);
 		handler.run();
 
@@ -79,11 +82,12 @@ TEST_CASE( "UserPacketHandlerTest/testBadCommand", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 
 	{
 		StringByteStream stream("GET /foofoofoo HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 		UserPacketHandler handler(httpStream, api);
 		handler.run();
 
@@ -103,6 +107,7 @@ TEST_CASE( "UserPacketHandlerTest/testMultipleRequests", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 
 	reporter._status = "dancing";
 
@@ -110,7 +115,7 @@ TEST_CASE( "UserPacketHandlerTest/testMultipleRequests", "[unit]" )
 		StringByteStream stream("GET /status HTTP/1.1\r\n\r\n"
 								"GET /foofoofoo HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
-		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 		UserPacketHandler handler(httpStream, api);
 		handler.run();
 

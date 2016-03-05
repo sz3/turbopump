@@ -20,7 +20,8 @@
 
 namespace Turbopump {
 
-Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, IStore& store, ISynchronize& sync, const Options& options)
+Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter,
+		 IStore& store, ISynchronize& sync, IWatches& watches, const Options& options)
 	: _corrector(corrector)
 	, _locator(locator)
 	, _messenger(messenger)
@@ -28,6 +29,7 @@ Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& me
 	, _store(store)
 	, _sync(sync)
 	, _options(options)
+	, _watches(watches)
 {
 	// local commands: in this list.
 	_commands[AddPeer::_NAME] = AddPeer::_ID;
@@ -52,7 +54,7 @@ Command* Api::command_impl(int id) const
 		case Delete::_ID: return new DeleteCommand(*this);
 		case Drop::_ID: return new DropCommand(_corrector, _store, _locator);
 		case ListKeys::_ID: return new ListKeysCommand(_store);
-		case Read::_ID: return new ReadCommand(_store);
+		case Read::_ID: return new ReadCommand(_store, _watches);
 		case RemovePeer::_ID: return new RemovePeerCommand(*this);
 		case Status::_ID: return new StatusCommand(_reporter);
 		case Status::_ID2: return new StatusCommand(_reporter, "membership");

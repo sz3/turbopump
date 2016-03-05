@@ -3,6 +3,7 @@
 
 #include "api/Api.h"
 #include "api/Options.h"
+#include "callbacks/Watches.h"
 #include "common/KeyMetadata.h"
 #include "common/ProcessState.h"
 #include "common/StatusReporter.h"
@@ -27,7 +28,7 @@ class Turbopump
 {
 public:
 	Turbopump(const Options& opts, IStore& store, IMessageSender& messenger, ISuperviseWrites& sender)
-		: api(corrector, keyLocator, messenger, reporter, store, synchronizer, opts)
+		: api(corrector, keyLocator, messenger, reporter, store, synchronizer, watches, opts)
 		, logger(socket_address("127.0.0.1", opts.internal_port).toString())
 		, reporter(ring, membership, state)
 		, keyLocator(ring, membership)
@@ -90,5 +91,8 @@ public:
 	// sync, dependent on internal messaging
 	SkewCorrector corrector;
 	Synchronizer synchronizer;
+
+	// watches
+	Watches watches;
 };
 }//namespace

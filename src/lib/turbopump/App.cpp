@@ -57,7 +57,8 @@ App::App(const Options& opts)
 	: _store(dataStore(opts))
 	, _opts(opts, Interface{_turbopump.api, _turbopump.logger, *_store, _turbopump.membership,
 				   _turbopump.ring, _turbopump.keyLocator, _threadLockedKeyTabulator,
-				   _turbopump.corrector, _turbopump.synchronizer, _messenger, _writeSupervisor})
+				   _turbopump.corrector, _turbopump.synchronizer, _messenger, _writeSupervisor,
+				   _turbopump.watches})
 	, _turbopump(_opts, *_store, _messenger, _writeSupervisor)
 	, _peerServer(peerServer(opts, socket_address("127.0.0.1", opts.internal_port)))
 	, _messenger(_packer, *_peerServer)

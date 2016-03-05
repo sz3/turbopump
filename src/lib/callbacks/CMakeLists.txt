@@ -5,6 +5,7 @@ set(SOURCES
 	ComputedOptions.h
 
 	ChainWrite.h
+	IWatches.h
 	MirrorToPeer.cpp
 	MirrorToPeer.h
 	ModifyPeer.cpp
@@ -13,6 +14,8 @@ set(SOURCES
 	NotifyWriteComplete.h
 	RandomizedMirrorToPeer.cpp
 	RandomizedMirrorToPeer.h
+	Watches.cpp
+	Watches.h
 )
 
 include_directories(

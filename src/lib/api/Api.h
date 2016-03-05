@@ -13,6 +13,7 @@ class IMessageSender;
 class IStatusReporter;
 class IStore;
 class ISynchronize;
+class IWatches;
 
 namespace Turbopump {
 class Options;
@@ -20,7 +21,8 @@ class Options;
 class Api
 {
 public:
-	Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter, IStore& store, ISynchronize& sync, const Options& options);
+	Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& messenger, IStatusReporter& reporter,
+		IStore& store, ISynchronize& sync, IWatches& watches, const Options& options);
 
 	std::unique_ptr<Command> command(int id, const char* buff, unsigned size) const;
 	std::unique_ptr<Command> command(const std::string& name, const std::unordered_map<std::string,std::string>& params) const;
@@ -48,6 +50,7 @@ protected:
 	IStatusReporter& _reporter;
 	IStore& _store;
 	ISynchronize& _sync;
+	IWatches& _watches;
 	const Options& _options;
 };
 }//namespace

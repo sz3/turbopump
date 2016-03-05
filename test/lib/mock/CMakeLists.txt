@@ -45,6 +45,7 @@ set(SOURCES
 	MockSynchronize.h
 	MockUserPacketHandler.cpp
 	MockUserPacketHandler.h
+	MockWatches.h
 	MockWriteSupervisor.cpp
 	MockWriteSupervisor.h
 )

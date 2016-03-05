@@ -8,6 +8,7 @@
 #include "RandomizedMirrorToPeer.h"
 
 #include "api/Drop.h"
+#include "callbacks/IWatches.h"
 #include "deskew/IKeyTabulator.h"
 #include "storage/readstream.h"
 #include "turbopump/Interface.h"
@@ -73,6 +74,14 @@ namespace
 			cmd->run(params, contents);
 		};
 	}
+
+	std::function<void(WriteInstructions&, readstream&)> notifyWatches(const IWatches& watches)
+	{
+		return [&] (WriteInstructions& params, readstream&)
+		{
+			watches.notify(params.name);
+		};
+	}
 }
 
 ComputedOptions::ComputedOptions(const Turbopump::Options& opts, const Turbopump::Interface& turbopump)
@@ -90,6 +99,7 @@ ComputedOptions::ComputedOptions(const Turbopump::Options& opts, const Turbopump
 			else
 				when_local_write_finishes.add( writeChainFunct_cloneMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, true) );
 		}
+		when_local_write_finishes.add( notifyWatches(turbopump.watches) );
 		when_local_write_finishes.add( membershipFunct(turbopump.ring, turbopump.membership, turbopump.keyTabulator) );
 	}
 
@@ -102,6 +112,7 @@ ComputedOptions::ComputedOptions(const Turbopump::Options& opts, const Turbopump
 			when_mirror_write_finishes.add( writeChainFunct_partitionMode(turbopump.keyLocator, turbopump.membership, turbopump.writer, false) );
 
 		when_mirror_write_finishes.add( notifyWriteComplete(turbopump.membership, turbopump.messenger) );
+		when_mirror_write_finishes.add( notifyWatches(turbopump.watches) );
 		when_mirror_write_finishes.add( membershipFunct(turbopump.ring,turbopump. membership, turbopump.keyTabulator) );
 	}
 

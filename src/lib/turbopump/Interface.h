@@ -14,6 +14,7 @@ class ICorrectSkew;
 class ISynchronize;
 class IMessageSender;
 class ISuperviseWrites;
+class IWatches;
 
 namespace Turbopump {
 class Interface
@@ -32,5 +33,6 @@ public:
 	ISynchronize& synchronizer;
 	IMessageSender& messenger;
 	ISuperviseWrites& writer;
+	IWatches& watches;
 };
 }//namespace

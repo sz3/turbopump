@@ -10,12 +10,13 @@
 #include "MockStatusReporter.h"
 #include "MockStore.h"
 #include "MockSynchronize.h"
+#include "MockWatches.h"
 
 class DummyTurbopumpApi : public Turbopump::Api
 {
 public:
 	DummyTurbopumpApi()
-		: Turbopump::Api(corrector, locator, messenger, reporter, store, sync, options)
+		: Turbopump::Api(corrector, locator, messenger, reporter, store, sync, watches, options)
 	{}
 
 public:
@@ -26,4 +27,5 @@ public:
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 };

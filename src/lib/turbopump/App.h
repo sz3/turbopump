@@ -4,6 +4,7 @@
 #include "Turbopump.h"
 #include "api/Api.h"
 #include "callbacks/ComputedOptions.h"
+#include "callbacks/Watches.h"
 #include "concurrent/DeadlineScheduler.h"
 #include "deskew/ThreadLockedKeyTabulator.h"
 #include "peer_client/MessagePacker.h"

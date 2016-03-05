@@ -19,10 +19,6 @@ bool DropCommand::run(const char*, unsigned)
 		readstream reader = _store.read(params.name);
 		if (!reader)
 			return setStatus(404);
-
-		params.copies = reader.mirrors();
-		if (_locator.keyIsMine(params.name, params.copies))
-			return setStatus(400);
 	}
 
 	if (!_corrector.dropKey(params.name))

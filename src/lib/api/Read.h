@@ -14,7 +14,8 @@ public:
 public:
 	std::string name;
 	std::string version;
+	bool wait = false;
 
-	SERIALIZE(name, version);
+	SERIALIZE(name, version, wait);
 };
 }//namespace

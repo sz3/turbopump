@@ -10,6 +10,7 @@
 #include "mock/MockStatusReporter.h"
 #include "mock/MockStore.h"
 #include "mock/MockSynchronize.h"
+#include "mock/MockWatches.h"
 #include "socket/NullByteStream.h"
 #include <memory>
 
@@ -21,8 +22,9 @@ TEST_CASE( "ApiTest/testDefault", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 
 	std::unique_ptr<Turbopump::Command> command = api.command("list-keys", std::unordered_map<std::string,std::string>());
 	assertFalse( !command );
@@ -42,8 +44,9 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 
 	locator._mine = false;
 	store._reads["bomba"] = "yep";
@@ -72,8 +75,9 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary.BadId", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 
 	locator._mine = false;
 	store._reads["bomba"] = "yep";
@@ -96,8 +100,9 @@ TEST_CASE( "ApiTest/testDeserializeFromBinary.DeserializeGarbage", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 
 	locator._mine = false;
 	store._reads["bomba"] = "yep";
@@ -115,8 +120,9 @@ TEST_CASE( "ApiTest/testDeserializeFromMap", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 
 	locator._mine = false;
 	store._reads["bomba"] = "yep";
@@ -143,8 +149,9 @@ TEST_CASE( "ApiTest/testFromRequest", "[unit]" )
 	MockStatusReporter reporter;
 	MockStore store;
 	MockSynchronize sync;
+	MockWatches watches;
 	Turbopump::Options options;
-	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, options);
+	Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 
 	locator._mine = false;
 	store._reads["bomba"] = "yep";
