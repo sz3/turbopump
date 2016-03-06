@@ -8,6 +8,7 @@
 class MockScheduler : public IScheduler
 {
 public:
+	void execute(const std::function<void()>& fun);
 	void schedule(const std::function<void()>& fun, unsigned ms);
 	void schedule_repeat(const std::function<void()>& fun, unsigned ms);
 

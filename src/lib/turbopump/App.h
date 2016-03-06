@@ -6,7 +6,7 @@
 #include "callbacks/ComputedOptions.h"
 #include "callbacks/Watches.h"
 #include "concurrent/DeadlineScheduler.h"
-#include "deskew/ThreadLockedKeyTabulator.h"
+#include "deskew/SynchronizedKeyTabulator.h"
 #include "peer_client/MessagePacker.h"
 #include "peer_client/MessageSender.h"
 #include "peer_client/PartialTransfers.h"
@@ -47,7 +47,7 @@ protected:
 	DeadlineScheduler _scheduler;
 
 	// sync
-	ThreadLockedKeyTabulator _threadLockedKeyTabulator;
+	SynchronizedKeyTabulator _synchronizedKeyTabulator;
 
 	// internal comm helpers
 	MessagePacker _packer;

@@ -16,10 +16,10 @@ set(SOURCES
 	KeyTabulator.h
 	SkewCorrector.cpp
 	SkewCorrector.h
+	SynchronizedKeyTabulator.cpp
+	SynchronizedKeyTabulator.h
 	Synchronizer.cpp
 	Synchronizer.h
-	ThreadLockedKeyTabulator.cpp
-	ThreadLockedKeyTabulator.h
 	TreeId.h
 	UniversalDigestIndexer.cpp
 	UniversalDigestIndexer.h

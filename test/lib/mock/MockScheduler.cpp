@@ -1,6 +1,12 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "MockScheduler.h"
 
+void MockScheduler::execute(const std::function<void()>& fun)
+{
+	_history.call("execute");
+	_funs.push_back(fun);
+}
+
 void MockScheduler::schedule(const std::function<void()>& fun, unsigned ms)
 {
 	_history.call("schedule", ms);

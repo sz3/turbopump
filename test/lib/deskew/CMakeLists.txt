@@ -12,7 +12,7 @@ set (SOURCES
 	SkewCorrectorTest.cpp
 	SynchronizerTest.cpp
 	SynchronizerExchangeTest.cpp
-	ThreadLockedKeyTabulatorTest.cpp
+	SynchronizedKeyTabulatorTest.cpp
 	UniversalDigestIndexerTest.cpp
 )
 

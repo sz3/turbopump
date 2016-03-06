@@ -4,10 +4,10 @@
 #include "IKeyTabulator.h"
 class IScheduler;
 
-class ThreadLockedKeyTabulator : public IKeyTabulator
+class SynchronizedKeyTabulator : public IKeyTabulator
 {
 public:
-	ThreadLockedKeyTabulator(IKeyTabulator& index, IScheduler& scheduler);
+	SynchronizedKeyTabulator(IKeyTabulator& index, IScheduler& scheduler);
 
 	void update(const std::string& key, unsigned long long value, unsigned mirrors);
 	void remove(const std::string& key, unsigned mirrors);
