@@ -4,13 +4,12 @@
 
 #include "Command.h"
 class ICorrectSkew;
-class ILocateKeys;
 class IStore;
 
 class DropCommand : public Turbopump::Command
 {
 public:
-	DropCommand(ICorrectSkew& corrector, IStore& store, const ILocateKeys& locator);
+	DropCommand(ICorrectSkew& corrector, IStore& store);
 
 	bool run(const char* buff=NULL, unsigned size=0);
 	Turbopump::Request* request();
@@ -18,7 +17,6 @@ public:
 protected:
 	ICorrectSkew& _corrector;
 	IStore& _store;
-	const ILocateKeys& _locator;
 
 public:
 	Turbopump::Drop params;

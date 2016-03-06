@@ -6,39 +6,17 @@
 #include "mock/MockSkewCorrector.h"
 #include "mock/MockStore.h"
 
-TEST_CASE( "DropCommandTest/testKeyIsMine", "[unit]" )
+TEST_CASE( "DropCommandTest/testDrop", "[unit]" )
 {
 	MockSkewCorrector corrector;
 	MockStore store;
 	store._reads["mine"] = "foo";
-	MockLocateKeys locator;
-	locator._mine = true;
 
-	DropCommand command(corrector, store, locator);
+	DropCommand command(corrector, store);
 	command.params.name = "mine";
-	assertFalse( command.run() );
-
-	assertEquals( "read(mine,)", store._history.calls() );
-	assertEquals( "keyIsMine(mine,3)", locator._history.calls() );
-	assertEquals( "", corrector._history.calls() );
-	assertEquals( 400, command.status() );
-}
-
-TEST_CASE( "DropCommandTest/testKeyIsntMine", "[unit]" )
-{
-	MockSkewCorrector corrector;
-	MockStore store;
-	store._reads["notmine"] = "foo";
-	MockLocateKeys locator;
-	locator._mine = false;
-
-	DropCommand command(corrector, store, locator);
-	command.params.name = "notmine";
-
 	assertTrue( command.run() );
 
-	assertEquals( "read(notmine,)", store._history.calls() );
-	assertEquals( "keyIsMine(notmine,3)", locator._history.calls() );
-	assertEquals( "dropKey(notmine)", corrector._history.calls() );
+	assertEquals( "read(mine,)", store._history.calls() );
+	assertEquals( "dropKey(mine)", corrector._history.calls() );
 	assertEquals( 200, command.status() );
 }

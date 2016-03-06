@@ -6,10 +6,9 @@
 #include "storage/IStore.h"
 #include "storage/readstream.h"
 
-DropCommand::DropCommand(ICorrectSkew& corrector, IStore& store, const ILocateKeys& locator)
+DropCommand::DropCommand(ICorrectSkew& corrector, IStore& store)
 	: _corrector(corrector)
 	, _store(store)
-	, _locator(locator)
 {
 }
 

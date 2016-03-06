@@ -52,7 +52,7 @@ Command* Api::command_impl(int id) const
 		case AddPeer::_ID: return new AddPeerCommand(*this);
 		case Copy::_ID: return new CopyCommand(_store, _options.when_local_write_finishes.fun());
 		case Delete::_ID: return new DeleteCommand(*this);
-		case Drop::_ID: return new DropCommand(_corrector, _store, _locator);
+		case Drop::_ID: return new DropCommand(_corrector, _store);
 		case ListKeys::_ID: return new ListKeysCommand(_store);
 		case Read::_ID: return new ReadCommand(_store, _watches);
 		case RemovePeer::_ID: return new RemovePeerCommand(*this);
