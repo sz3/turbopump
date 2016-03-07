@@ -26,7 +26,7 @@ bool ReadCommand::run(const char*, unsigned)
 		{
 			waiter.signal_all();
 		};
-		_watches.watch(params.name, waitFun);
+		std::string wid = _watches.watch(params.name, waitFun);
 
 		bool res = tryRead();
 		if (!res)
@@ -36,7 +36,7 @@ bool ReadCommand::run(const char*, unsigned)
 			res = tryRead();
 		}
 
-		_watches.unwatch(params.name);
+		_watches.unwatch(params.name, wid);
 		return res;
 	}
 	else

@@ -2,7 +2,7 @@
 #include "MyMemberId.h"
 
 #include "serialize/base64.h"
-#include <random>
+#include "util/random.h"
 #include <string>
 using std::string;
 
@@ -46,14 +46,7 @@ MyMemberId MyMemberId::generate()
 	// eventually there will be crypto involved...
 	// and this might need to be split out into a different class to avoid linker stupidity.
 	constexpr int ID_BYTES = 16;
-
-	std::random_device rd;
-	std::string raw_id;
-	for (int bits = 0; bits < ID_BYTES; bits += sizeof(unsigned int))
-	{
-		unsigned int entropy = rd();
-		raw_id += std::string( reinterpret_cast<char*>(&entropy), sizeof(unsigned int) );
-	}
+	std::string raw_id = turbo::random::bytes(ID_BYTES);
 	return MyMemberId(base64::encode(raw_id));
 }
 

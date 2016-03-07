@@ -9,6 +9,7 @@ set (SOURCES
 	ModifyPeerTest.cpp
 	NotifyWriteCompleteTest.cpp
 	RandomizedMirrorToPeerTest.cpp
+	WatchesTest.cpp
 )
 
 include_directories(

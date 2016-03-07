@@ -1,22 +1,34 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "Watches.h"
+#include "util/random.h"
 
-void Watches::watch(const std::string& name, std::function<void()> onNotify)
+// hey now, what about this idea?????
+// what about using a "strand"-style synchronized access pattern + a regular unordered_map?
+
+std::string Watches::watch(const std::string& name, std::function<void()> onNotify)
 {
-	_watches.insert(name, onNotify);
+	watch_key_type key = {name, turbo::random::bytes(16)};
+	_watches[key] = onNotify;
+	return key.id;
 }
 
-bool Watches::unwatch(const std::string& name)
+bool Watches::unwatch(const std::string& name, const std::string& id)
 {
-	return _watches.erase(name);
+	watch_key_type key = {name, id};
+	return _watches.erase(key);
 }
 
 bool Watches::notify(const std::string& name) const
 {
-	std::function<void()> onNotify;
-	if (!_watches.find(name, onNotify))
+	watch_key_type key = {name, ""};
+	size_t bucketIdx = _watches.bucket(key);
+	map_type::const_local_iterator it = _watches.begin(bucketIdx);
+	map_type::const_local_iterator end = _watches.end(bucketIdx);
+	if (it == end)
 		return false;
 
-	onNotify();
+	for (; it != end; ++it)
+		if (it->first.name == name)
+			it->second();
 	return true;
 }
