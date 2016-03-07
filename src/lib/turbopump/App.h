@@ -4,7 +4,7 @@
 #include "Turbopump.h"
 #include "api/Api.h"
 #include "callbacks/ComputedOptions.h"
-#include "callbacks/Watches.h"
+#include "callbacks/SynchronizedWatches.h"
 #include "concurrent/DeadlineScheduler.h"
 #include "deskew/SynchronizedKeyTabulator.h"
 #include "peer_client/MessagePacker.h"
@@ -46,8 +46,9 @@ protected:
 	// background thread
 	DeadlineScheduler _scheduler;
 
-	// sync
+	// synchronized objects on the _scheduler
 	SynchronizedKeyTabulator _synchronizedKeyTabulator;
+	SynchronizedWatches _synchronizedWatches;
 
 	// internal comm helpers
 	MessagePacker _packer;

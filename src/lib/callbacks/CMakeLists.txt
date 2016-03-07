@@ -14,6 +14,8 @@ set(SOURCES
 	NotifyWriteComplete.h
 	RandomizedMirrorToPeer.cpp
 	RandomizedMirrorToPeer.h
+	SynchronizedWatches.cpp
+	SynchronizedWatches.h
 	Watches.cpp
 	Watches.h
 )

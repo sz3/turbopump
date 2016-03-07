@@ -10,7 +10,7 @@ class IWatches
 public:
 	virtual ~IWatches() {}
 
-	virtual std::string watch(const std::string& name, std::function<void()> onNotify) = 0;
+	virtual void watch(const std::string& name, const std::string& id, std::function<void()> onNotify) = 0;
 	virtual bool unwatch(const std::string& name, const std::string& id) = 0;
 
 	virtual bool notify(const std::string& name) const = 0;

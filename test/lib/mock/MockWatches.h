@@ -7,7 +7,7 @@
 class MockWatches : public IWatches
 {
 public:
-	std::string watch(const std::string& name, std::function<void()> onNotify);
+	void watch(const std::string& name, const std::string& id, std::function<void()> onNotify);
 	bool unwatch(const std::string& name, const std::string& id);
 
 	bool notify(const std::string& name) const;
@@ -16,10 +16,9 @@ public:
 	mutable CallHistory _history;
 };
 
-inline std::string MockWatches::watch(const std::string& name, std::function<void()> onNotify)
+inline void MockWatches::watch(const std::string& name, const std::string& id, std::function<void()> onNotify)
 {
-	_history.call("watch", name);
-	return "some-watch-id";
+	_history.call("watch", name, id);
 }
 
 inline bool MockWatches::unwatch(const std::string& name, const std::string& id)

@@ -2,14 +2,10 @@
 #include "Watches.h"
 #include "util/random.h"
 
-// hey now, what about this idea?????
-// what about using a "strand"-style synchronized access pattern + a regular unordered_map?
-
-std::string Watches::watch(const std::string& name, std::function<void()> onNotify)
+void Watches::watch(const std::string& name, const std::string& id, std::function<void()> onNotify)
 {
-	watch_key_type key = {name, turbo::random::bytes(16)};
+	watch_key_type key = {name, id};
 	_watches[key] = onNotify;
-	return key.id;
 }
 
 bool Watches::unwatch(const std::string& name, const std::string& id)

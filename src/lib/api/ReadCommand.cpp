@@ -7,6 +7,7 @@
 
 #include "concurrent/monitor.h"
 #include "socket/IByteStream.h"
+#include "util/random.h"
 
 ReadCommand::ReadCommand(const IStore& store, IWatches& watches)
 	: _store(store)
@@ -26,7 +27,8 @@ bool ReadCommand::run(const char*, unsigned)
 		{
 			waiter.signal_all();
 		};
-		std::string wid = _watches.watch(params.name, waitFun);
+		std::string wid = turbo::random::bytes(16); // instead of generating this here, tie it to the HTTP connection somehow?
+		_watches.watch(params.name, wid, waitFun);
 
 		bool res = tryRead();
 		if (!res)

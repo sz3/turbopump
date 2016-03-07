@@ -32,7 +32,7 @@ protected:
 	using map_type = std::unordered_map<watch_key_type, std::function<void()>>;
 
 public:
-	std::string watch(const std::string& name, std::function<void()> onNotify);
+	void watch(const std::string& name, const std::string& id, std::function<void()> onNotify);
 	bool unwatch(const std::string& name, const std::string& id);
 
 	bool notify(const std::string& name) const;

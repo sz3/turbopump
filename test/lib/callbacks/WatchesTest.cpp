@@ -29,7 +29,8 @@ TEST_CASE( "WatchesTest/testNotify", "[unit]" )
 	{
 		calls++;
 	};
-	std::string watchId = watches.watch("foo", callback);
+	std::string watchId = "012345";
+	watches.watch("foo", watchId, callback);
 	assertEquals(0, calls);
 
 	assertFalse( watches.notify("bar") );
@@ -63,7 +64,10 @@ TEST_CASE( "WatchesTest/testLoad", "[unit]" )
 
 		unsigned howmany = (i % 4) + 1;
 		for (unsigned count = 0; count < howmany; ++count)
-			watches.watch(w, fun);
+		{
+			string watchId = fmt::format("watch{}:{}", i, count);
+			watches.watch(w, watchId, fun);
+		}
 	}
 
 	watches.notify("bar");
