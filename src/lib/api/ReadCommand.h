@@ -3,6 +3,7 @@
 #include "Read.h"
 
 #include "StreamingCommand.h"
+#include "concurrent/monitor.h"
 class IStore;
 class IWatches;
 
@@ -12,6 +13,7 @@ public:
 	ReadCommand(const IStore& store, IWatches& watches);
 
 	bool run(const char* buff=NULL, unsigned size=0);
+	void cancel();
 	Turbopump::Request* request();
 
 protected:
@@ -20,6 +22,8 @@ protected:
 protected:
 	const IStore& _store;
 	IWatches& _watches;
+	std::string _watchId;
+	turbo::monitor _waiter;
 
 public:
 	Turbopump::Read params;

@@ -16,9 +16,9 @@ UserPacketHandler::UserPacketHandler(IHttpByteStream& stream, const Turbopump::A
 
 void UserPacketHandler::run()
 {
-	UserCommandContext context(*this);
 	std::vector<char> buff;
 	buff.resize(8192);
+	UserCommandContext context(*this);
 
 	while (1)
 	{

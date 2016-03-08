@@ -22,23 +22,22 @@ bool ReadCommand::run(const char*, unsigned)
 
 	if (params.wait)
 	{
-		turbo::monitor waiter;
-		auto waitFun = [&waiter] ()
+		_watchId = turbo::random::bytes(16);
+		auto waitFun = [this] ()
 		{
-			waiter.signal_all();
+			this->_waiter.signal_all();
 		};
-		std::string wid = turbo::random::bytes(16); // instead of generating this here, tie it to the HTTP connection somehow?
-		_watches.watch(params.name, wid, waitFun);
+		_watches.watch(params.name, _watchId, waitFun);
 
 		bool res = tryRead();
 		if (!res)
 		{
 			setStatus(0);
-			waiter.wait();
-			res = tryRead();
+			if (_waiter.wait())
+				res = tryRead();
 		}
 
-		_watches.unwatch(params.name, wid);
+		_watches.unwatch(params.name, _watchId);
 		return res;
 	}
 	else
@@ -52,6 +51,12 @@ bool ReadCommand::tryRead()
 		return setStatus(404);
 	while (reader.stream(*_stream) > 0);
 	return setStatus(200);
+}
+
+void ReadCommand::cancel()
+{
+	_watches.unwatch(params.name, _watchId);
+	_waiter.cancel();
 }
 
 Turbopump::Request* ReadCommand::request()

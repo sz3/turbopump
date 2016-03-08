@@ -19,6 +19,12 @@ UserCommandContext::UserCommandContext(IUserPacketHandler& handler)
 	_parser.setOnMessageComplete( std::bind(&UserCommandContext::onComplete, this) );
 }
 
+UserCommandContext::~UserCommandContext()
+{
+	if (!!_command)
+		_command->cancel();
+}
+
 bool UserCommandContext::feed(const char* buff, unsigned len)
 {
 	return _parser.parseBuffer(buff, len);

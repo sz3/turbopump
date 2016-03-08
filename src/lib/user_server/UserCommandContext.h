@@ -13,6 +13,7 @@ class UserCommandContext
 {
 public:
 	UserCommandContext(IUserPacketHandler& handler);
+	~UserCommandContext();
 
 	bool feed(const char* buff, unsigned len);
 	StatusCode status() const;
