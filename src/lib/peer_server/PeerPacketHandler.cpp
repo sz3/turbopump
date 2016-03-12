@@ -25,6 +25,12 @@ void PeerPacketHandler::onPacket(ISocketWriter& writer, const char* buff, unsign
 		return;
 	}
 
+	if (buff == NULL)
+	{
+		_center.dismiss(peer);
+		return;
+	}
+
 	if (size == 0)
 		return;
 

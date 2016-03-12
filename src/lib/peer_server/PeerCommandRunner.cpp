@@ -27,7 +27,6 @@ void PeerCommandRunner::doWork()
 	string buffer;
 	while (_buffers.try_dequeue(buffer))
 		parseAndRun(buffer);
-	// if no more actions and no more buffers, _center.markFinished(_peer->uid)
 }
 
 void PeerCommandRunner::parseAndRun(const std::string& buffer)

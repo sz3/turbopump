@@ -9,7 +9,7 @@ class MockPeerCommandCenter : public IPeerCommandCenter
 {
 public:
 	void run(const std::shared_ptr<Peer>& peer, const std::string& buffer);
-	void markFinished(const std::string& id);
+	void dismiss(const std::shared_ptr<Peer>& peer);
 
 	std::shared_ptr<Turbopump::Command> command(int cid, const char* buff, unsigned size);
 

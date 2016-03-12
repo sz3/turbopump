@@ -2,7 +2,6 @@
 #pragma once
 
 #include "IPeerCommandCenter.h"
-#include "concurrentqueue/concurrentqueue.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -17,7 +16,7 @@ public:
 	ConcurrentCommandCenter(Turbopump::Api& api, IExecutor& executor);
 
 	void run(const std::shared_ptr<Peer>& peer, const std::string& buffer);
-	void markFinished(const std::string& id);
+	void dismiss(const std::shared_ptr<Peer>& peer);
 
 	std::shared_ptr<Turbopump::Command> command(int cid, const char* buff, unsigned size);
 
@@ -26,6 +25,5 @@ protected:
 	IExecutor& _executor;
 
 	std::unordered_map<std::string, std::shared_ptr<PeerCommandRunner>> _runners;
-	moodycamel::ConcurrentQueue<std::string> _finished;
 };
 

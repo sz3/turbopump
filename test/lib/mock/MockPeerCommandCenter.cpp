@@ -8,9 +8,9 @@ void MockPeerCommandCenter::run(const std::shared_ptr<Peer>& peer, const std::st
 	_history.call("run", peer->uid, buffer);
 }
 
-void MockPeerCommandCenter::markFinished(const std::string& id)
+void MockPeerCommandCenter::dismiss(const std::shared_ptr<Peer>& peer)
 {
-	_history.call("markFinished", id);
+	_history.call("dismiss", peer->uid);
 }
 
 std::shared_ptr<Turbopump::Command> MockPeerCommandCenter::command(int cid, const char* buff, unsigned size)

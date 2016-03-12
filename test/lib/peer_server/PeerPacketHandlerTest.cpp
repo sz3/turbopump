@@ -55,6 +55,6 @@ TEST_CASE( "PeerPacketHandlerTest/testOnPacket.Empty", "[unit]" )
 	handler.onPacket(writer, NULL, 0);
 
 	assertEquals( "lookupAddr(8.8.8.8:12)", membership._history.calls() );
+	assertEquals( "dismiss(fooid)", center._history.calls() );
 	assertEquals( "", logger._history.calls() );
-	assertEquals( "", center._history.calls() );
 }

@@ -43,7 +43,6 @@ namespace {
 	{
 	public:
 		using ConcurrentCommandCenter::ConcurrentCommandCenter;
-		using ConcurrentCommandCenter::_finished;
 		using ConcurrentCommandCenter::_runners;
 	};
 }
@@ -69,35 +68,6 @@ TEST_CASE( "ConcurrentCommandCenterTest/testRun", "[unit]" )
 	assertTrue( !!center._runners["hi"] );
 	assertEquals( ptr, center._runners["hi"].get() );
 	assertEquals( "sendKey(hi,foo,,)", api.corrector._history.calls() );
-}
-
-TEST_CASE( "ConcurrentCommandCenterTest/testRun.ClearFinished", "[unit]" )
-{
-	DummyTurbopumpApi api;
-	SimpleExecutor executor;
-	TestableConcurrentCommandCenter center(api, executor);
-	center._runners["finito"];
-	assertEquals( 1, center._runners.size() );
-
-	center.markFinished("finito");
-	center.markFinished("hi");
-
-	std::shared_ptr<Peer> peer(new Peer("hi"));
-	center.run(peer, demand_write("foo"));
-
-	assertEquals( 0, center._runners.size() );
-	assertEquals( "sendKey(hi,foo,,)", api.corrector._history.calls() );
-}
-
-TEST_CASE( "ConcurrentCommandCenterTest/testMarkFinished", "[unit]" )
-{
-	DummyTurbopumpApi api;
-	SimpleExecutor executor;
-	TestableConcurrentCommandCenter center(api, executor);
-
-	center.markFinished("foo");
-	center.markFinished("bar");
-	assertEquals( 2, center._finished.size_approx() );
 }
 
 TEST_CASE( "ConcurrentCommandCenterTest/testCommand", "[unit]" )
