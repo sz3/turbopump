@@ -10,6 +10,7 @@
 #include "ReadCommand.h"
 #include "RemovePeerCommand.h"
 #include "StatusCommand.h"
+#include "WaitCommand.h"
 #include "WriteCommand.h"
 
 #include "AckWriteCommand.h"
@@ -42,6 +43,7 @@ Api::Api(ICorrectSkew& corrector, const ILocateKeys& locator, IMessageSender& me
 	_commands[Status::_NAME] = Status::_ID;
 	_commands["membership"] = Status::_ID2;
 	_commands["ring"] = Status::_ID3;
+	_commands[Wait::_NAME] = Wait::_ID;
 	_commands[Write::_NAME] = Write::_ID;
 }
 
@@ -54,11 +56,12 @@ Command* Api::command_impl(int id) const
 		case Delete::_ID: return new DeleteCommand(*this);
 		case Drop::_ID: return new DropCommand(_corrector, _store);
 		case ListKeys::_ID: return new ListKeysCommand(_store);
-		case Read::_ID: return new ReadCommand(_store, _watches);
+		case Read::_ID: return new ReadCommand(_store);
 		case RemovePeer::_ID: return new RemovePeerCommand(*this);
 		case Status::_ID: return new StatusCommand(_reporter);
 		case Status::_ID2: return new StatusCommand(_reporter, "membership");
 		case Status::_ID3: return new StatusCommand(_reporter, "ring");
+		case Wait::_ID: return new WaitCommand(_store, _watches);
 		case Write::_ID: return new WriteCommand(_store, _options.when_local_write_finishes.fun());
 		case Write::_INTERNAL_ID: return new WriteCommand(_store, _options.when_mirror_write_finishes.fun());
 

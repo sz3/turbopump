@@ -48,6 +48,9 @@ set(SOURCES
 	Sync.h
 	SyncCommand.cpp
 	SyncCommand.h
+	Wait.h
+	WaitCommand.cpp
+	WaitCommand.h
 	Write.h
 	WriteCommand.cpp
 	WriteCommand.h

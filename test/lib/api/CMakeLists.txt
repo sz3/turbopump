@@ -17,6 +17,7 @@ set (SOURCES
 	ReadCommandTest.cpp
 	RemovePeerCommandTest.cpp
 	SyncCommandTest.cpp
+	WaitCommandTest.cpp
 	WriteTest.cpp
 	WriteCommandTest.cpp
 )

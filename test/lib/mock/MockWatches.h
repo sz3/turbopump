@@ -18,12 +18,13 @@ public:
 
 inline void MockWatches::watch(const std::string& name, const std::string& id, std::function<void()> onNotify)
 {
-	_history.call("watch", name, id);
+	_history.call("watch", name);
+	onNotify();
 }
 
 inline bool MockWatches::unwatch(const std::string& name, const std::string& id)
 {
-	_history.call("unwatch", name, id);
+	_history.call("unwatch", name);
 	return true;
 }
 

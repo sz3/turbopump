@@ -3,17 +3,15 @@
 
 #include "ReadCommand.h"
 #include "mock/MockStore.h"
-#include "mock/MockWatches.h"
 #include "socket/StringByteStream.h"
 
 TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 {
 	MockStore store;
 	store._reads["myfile"] = "foo";
-	MockWatches watches;
 	StringByteStream stream;
 
-	ReadCommand command(store, watches);
+	ReadCommand command(store);
 	command.setWriter(&stream);
 	command.params.name = "myfile";
 	assertTrue( command.run() );
@@ -26,8 +24,7 @@ TEST_CASE( "ReadCommandTest/testRead", "[unit]" )
 TEST_CASE( "ReadCommandTest/testNullWriter", "[unit]" )
 {
 	MockStore store;
-	MockWatches watches;
-	ReadCommand command(store, watches);
+	ReadCommand command(store);
 	command.params.name = "myfile";
 	assertFalse( command.run() );
 
@@ -39,10 +36,9 @@ TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
 {
 	MockStore store;
 	store._reads["myfile"] = "foo";
-	MockWatches watches;
 	StringByteStream stream;
 
-	ReadCommand command(store, watches);
+	ReadCommand command(store);
 	command.setWriter(&stream);
 	command.params.name = "myfile";
 	command.params.version = "v2";
@@ -56,10 +52,9 @@ TEST_CASE( "ReadCommandTest/testReadSpecificVersion", "[unit]" )
 TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
 {
 	MockStore store;
-	MockWatches watches;
 	StringByteStream stream;
 
-	ReadCommand command(store, watches);
+	ReadCommand command(store);
 	command.setWriter(&stream);
 	command.params.name = "myfile";
 	assertFalse( command.run() );
@@ -68,3 +63,4 @@ TEST_CASE( "ReadCommandTest/testReadNothing", "[unit]" )
 	assertEquals( "", stream.writeBuffer() );
 	assertEquals( 404, command.status() );
 }
+
