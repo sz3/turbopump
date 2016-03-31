@@ -24,6 +24,11 @@ void ConcurrentCommandCenter::run(const std::shared_ptr<Peer>& peer, const std::
 		_executor.execute(std::bind(&PeerCommandRunner::run, runner));
 }
 
+// may eventually want the markFinished() back.
+// have two cleanup cases:
+//  1. socket disconnects... can clean up...
+//  2. once all inflight PeerCommands are finished.
+// right now we don't clean up #2 at all. Also, should #1 wait for inflights to finish? Probably.
 void ConcurrentCommandCenter::dismiss(const std::shared_ptr<Peer>& peer)
 {
 	_runners.erase(peer->uid);

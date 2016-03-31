@@ -11,7 +11,7 @@
 using std::deque;
 using namespace turbo;
 
-using base_class = vector_clock::bounded_time_vector<std::string,10>;
+using base_class = vector_clock::bounded_time_vector<std::string,6>;
 
 VectorClock::VectorClock()
 	: base_class()

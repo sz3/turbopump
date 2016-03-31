@@ -4,7 +4,7 @@
 #include "vector_clock/bounded_time_vector.h"
 #include <string>
 
-class VectorClock : public vector_clock::bounded_time_vector<std::string,10>
+class VectorClock : public vector_clock::bounded_time_vector<std::string,6>
 {
 public:
 	VectorClock();

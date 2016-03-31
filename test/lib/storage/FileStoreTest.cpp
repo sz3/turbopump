@@ -10,6 +10,7 @@
 #include "common/WallClock.h"
 #include "file/File.h"
 #include "serialize/str.h"
+#include "socket/StringByteStream.h"
 
 #include <boost/filesystem.hpp>
 #include <algorithm>
@@ -226,7 +227,25 @@ TEST_CASE( "FileStoreTest/testUnderwrite", "[unit]" )
 	write_file(store, "myfile", "ignore me :(", vnew.toString());
 
 	assertEquals( "1,increment.UNIXSECONDS=", join(store.versions("myfile")) );
+}
 
+TEST_CASE( "FileStoreTest/testManyWrites", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	for (unsigned i = 0; i < 50; ++i)
+		write_file(store, "myfile", turbo::str::str(i));
+
+
+	StringByteStream stream;
+	readstream reader = store.read("myfile");
+	assertTrue( reader );
+	assertEquals( 2, reader.stream(stream) );
+
+	assertEquals( "49", stream.writeBuffer() );
 }
 
 TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
@@ -243,6 +262,10 @@ TEST_CASE( "FileStoreTest/testReadNewest", "[unit]" )
 		assertTrue( reader.good() );
 		assertEquals( "1,increment.UNIXSECONDS=", reader.version() );
 		assertEquals( 10, reader.size() );
+
+		StringByteStream stream;
+		assertEquals( 10, reader.stream(stream) );
+		assertEquals( "0123456789", stream.writeBuffer() );
 	}
 
 	write_file(store, "myfile", "abcdef");
