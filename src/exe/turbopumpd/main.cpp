@@ -36,12 +36,13 @@ namespace {
 int main(int argc, const char** argv)
 {
 	Turbopump::Options options;
+	string versionStr = "0.1." + string(__DATE__) + " " + string(__TIME__);
 
 	ezOptionParser opt;
 	opt.overview = "A high performance distributed key value store. 'high performance' is a relative term.";
 	opt.syntax = "./turbopumpd --dothething";
 	opt.example = examples();
-	opt.footer = "\n\n***version 0.01";
+	opt.footer = "\n\n***version " + versionStr;
 
 	opt.add("", false, 0, 0, "Display usage instructions.", "-h", "--help");
 	opt.add("localhost:1592", false, 1, 0, "local server. File path (domain socket), or tcp bind address.", "-l", "--local-addr");
