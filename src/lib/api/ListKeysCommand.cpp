@@ -44,7 +44,7 @@ bool ListKeysCommand::run(const char*, unsigned)
 	auto fun = [this] (const std::string& name, const KeyMetadata& md, const std::string& report) {
 		return this->print_key(name, md, report);
 	};
-	_store.enumerate(fun, 1000, params.prefix);
+	_store.enumerate(fun, params.limit, params.prefix);
 	_stream->write("}", 1);
 	return true;
 }

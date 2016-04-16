@@ -15,7 +15,7 @@ TEST_CASE( "ListKeysCommandTest/testDefault", "[unit]" )
 	command.setWriter(&stream);
 
 	assertTrue( command.run() );
-	assertEquals( "enumerate(1000,)", store._history.calls() );
+	assertEquals( "enumerate(18446744073709551615,)", store._history.calls() );
 }
 
 TEST_CASE( "ListKeysCommandTest/testPrefix", "[unit]" )
@@ -25,6 +25,7 @@ TEST_CASE( "ListKeysCommandTest/testPrefix", "[unit]" )
 	ListKeysCommand command(store);
 	command.setWriter(&stream);
 	command.params.prefix = "foo/bar";
+	command.params.limit = 1000;
 
 	assertTrue( command.run() );
 	assertEquals( "enumerate(1000,foo/bar)", store._history.calls() );

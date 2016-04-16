@@ -14,8 +14,9 @@ public:
 public:
 	bool all = false;
 	bool deleted = false;
+	unsigned long long limit = ~0ULL;
 	std::string prefix = "";
 
-	SERIALIZE(all, deleted, prefix);
+	SERIALIZE(all, deleted, limit, prefix);
 };
 }//namespace

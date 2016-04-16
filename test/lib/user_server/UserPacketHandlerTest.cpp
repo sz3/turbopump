@@ -55,7 +55,7 @@ TEST_CASE( "UserPacketHandlerTest/testQueryParam", "[unit]" )
 	MockWatches watches;
 
 	{
-		StringByteStream stream("GET /list-keys?deleted=1&all=1 HTTP/1.1\r\n\r\n");
+		StringByteStream stream("GET /list-keys?deleted=1&all=1&limit=1000 HTTP/1.1\r\n\r\n");
 		HttpByteStream httpStream(stream);
 		Turbopump::Api api(corrector, locator, messenger, reporter, store, sync, watches, options);
 		UserPacketHandler handler(httpStream, api);
