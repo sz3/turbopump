@@ -58,9 +58,13 @@ void SkewCorrector::pushKey(const Peer& peer, const TreeId& treeid, unsigned lon
 
 void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom)
 {
+	// need to find all files in the key ranges, and write them to peer.
 	const IDigestKeys& tree = _index.find(treeid.id, treeid.mirrors);
 
-	// need to find all files in the key ranges, and write them to peer.
+	// TODO: enumerate() has a default limit of 50 -- and no resume functionality. This is the most glaring flaw in the sync subsystem I currently know of.
+	//  because the order is deterministic, there may be cases where we fail to sync (because we can never "reach" those files).
+	//  Perhaps we should use forEachInRange() instead?
+	//  alternatively, introduce some randomness or state.
 	std::deque<string> files = tree.enumerate(first, last);
 	if (files.empty())
 	{
