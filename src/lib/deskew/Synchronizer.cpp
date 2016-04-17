@@ -77,7 +77,7 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 		return;
 	}
 
-	std::deque<MerklePoint> diffs = tree.diff(point);
+	MerkleDiffResult diffs = tree.diff(point);
 
 	/*std::stringstream ss;
 	ss << " Synchronizer compare from " << peer.uid << " on tree " << treeid.id << ":" << treeid.mirrors << ". Point is " << MerklePointSerializer::toString(point) << ". Diffs are : ";
@@ -85,60 +85,51 @@ void Synchronizer::compare(const Peer& peer, const TreeId& treeid, const MerkleP
 		ss << MerklePointSerializer::toString(*it) << " , ";
 	_logger.logDebug(ss.str());*/
 
-	// 0 == no diff
-	if (diffs.empty())
+	if (diffs.no_difference())
 		return;
 
-	/*_logger.logDebug("diff count for " + MerklePointSerializer::toString(point) + ": " + turbo::str::str(diffs.size()));
-	for (const MerklePoint& diff : diffs)
-		_logger.logDebug(MerklePointSerializer::toString(diff));*/
-	if (diffs.size() == 1)
-	{
-		MerklePoint& diff = diffs.front();
-		/*
-		 * TODO:
-		 *  what we know here is that we did a diff and got a mismatched leaf back. It might
-		 *  1) be a missing branch (empty hash), matching the keybits in point.location. This is the standard requestKeyRange case.
-		 *  OR
-		 *  2) be a leaf node, meaning returned keybits is maxkeybits
-		 *     a) we have the nearest match -- i.e, point location doesn't match
-		 *     OR
-		 *     b) we have an incomplete range because there are many keys and we only have the one
-		 *     OR
-		 *     c) we have conflicting values for the same key
-		 */
-
-		if (diff == MerklePoint::null())
-			_messenger.requestKeyRange(peer, treeid, 0, ~0ULL);
-		else if (diff.location.keybits == 64)
-		{
-			// if keys are equal, we need to heal
-			if (diff.location == point.location)
-			{
-				// try to push key, but also trigger complement check
-				_messenger.requestKey(peer, treeid, diff.location.key);
-				_corrector.pushKey(peer, treeid, diff.location.key);
-			}
-			else // we're missing a branch. This will try to send us one too many keys (the one already at diff.location) but the duplicate write will be rejected... so who cares?
-			{
-				KeyRange range(point.location);
-				_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
-			}
-		}
-		else
-		{
-			KeyRange range(diff.location);
-			_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
-		}
-	}
-
-	else //if (diffs.size() >= 2)
+	else if (diffs.traverse())
 	{
 		if (isSyncResponse)
-			diffs.pop_back();
+			diffs.points().pop_back();
 
 		// respond!
-		_messenger.digestPing(peer, treeid, diffs);
+		_messenger.digestPing(peer, treeid, diffs.points());
+	}
+
+	else if (diffs.need_range())
+	{
+		KeyRange range(point);
+		_messenger.requestKeyRange(peer, treeid, range.first(), range.last());
+	}
+
+	else if (diffs.need_partial_range())
+	{
+		// this is confusing, but the gist is that we want to narrow down the range we request from
+		// the other side. If the "inner" range is outside the bounds of the "outer" range or they are equal,
+		// the best we can do is ask for the entire outer range.
+		// but if the inner range is actually a subset of the outer range, we can focus on the ranges
+		// that the inner range (that's us!) doesn't have any information on.
+		KeyRange outer(point);
+		KeyRange inner(diffs[0]);
+		if (outer.first() > inner.first() || inner.first() > outer.last() || (outer.first() == inner.first() && outer.last() == inner.last()))
+			_messenger.requestKeyRange(peer, treeid, outer.first(), outer.last());
+		else
+		{
+			if (outer.first() < inner.first())
+				_messenger.requestKeyRange(peer, treeid, outer.first(), inner.first());
+			if (inner.last() < outer.last())
+				_messenger.requestKeyRange(peer, treeid, inner.last(), outer.last());
+		}
+
+	}
+
+	else if (diffs.need_exchange())
+	{
+		// try to push key, but also trigger complement check
+		const MerklePoint& diff = diffs[0];
+		_messenger.requestKey(peer, treeid, diff.key);
+		_corrector.pushKey(peer, treeid, diff.key);
 	}
 }
 

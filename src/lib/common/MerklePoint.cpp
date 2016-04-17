@@ -6,7 +6,7 @@
 std::string MerklePointSerializer::toString(const MerklePoint& point)
 {
 	std::stringstream ss;
-	ss << point.location.key << " " << point.location.keybits << " " << point.hash;
+	ss << point.key << " " << point.keybits << " " << point.hash;
 	return ss.str();
 }
 
@@ -14,8 +14,8 @@ bool MerklePointSerializer::fromString(MerklePoint& point, const std::string& st
 {
 	std::istringstream iss(str);
 	//iss >> std::noskipws;
-	iss >> point.location.key;
-	iss >> point.location.keybits;
+	iss >> point.key;
+	iss >> point.keybits;
 	iss >> point.hash;
 	return !!iss;
 }

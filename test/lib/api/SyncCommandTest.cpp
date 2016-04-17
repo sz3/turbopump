@@ -17,8 +17,8 @@ TEST_CASE( "SyncCommandTest/testOne", "[unit]" )
 	command.params.mirrors = 5;
 
 	MerklePoint point;
-	point.location.key = 1337;
-	point.location.keybits = 32;
+	point.key = 1337;
+	point.keybits = 32;
 	point.hash = 8000;
 
 	string data = MerklePointSerializer::toString(point);
@@ -40,8 +40,8 @@ TEST_CASE( "SyncCommandTest/testMany", "[unit]" )
 		if (i != 1)
 			data += "|";
 		MerklePoint point;
-		point.location.key = i;
-		point.location.keybits = i;
+		point.key = i;
+		point.keybits = i;
 		point.hash = i*10;
 		data += MerklePointSerializer::toString(point);
 	}

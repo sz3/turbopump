@@ -64,9 +64,9 @@ MerklePoint DigestTree::top() const
 	return _tree.top();
 }
 
-std::deque<MerklePoint> DigestTree::diff(const MerklePoint& point) const
+MerkleDiffResult DigestTree::diff(const MerklePoint& point) const
 {
-	return _tree.diff(point.location, point.hash);
+	return _tree.diff(point);
 }
 
 // TODO: unsigned long long& start?

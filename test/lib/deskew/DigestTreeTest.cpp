@@ -125,21 +125,21 @@ TEST_CASE( "DigestTreeTest/testTraverse_Case1", "[unit]" )
 	std::cout << " treeOne.top = " << MerklePointSerializer::toString(p2) << std::endl;
 
 	// request diffs from two
-	deque<MerklePoint> diffsTwo = treeTwo.diff(p2);
-	for (deque<MerklePoint>::const_iterator it = diffsTwo.begin(); it != diffsTwo.end(); ++it)
+	MerkleDiffResult diffsTwo = treeTwo.diff(p2);
+	for (deque<MerklePoint>::const_iterator it = diffsTwo.points().begin(); it != diffsTwo.points().end(); ++it)
 		std::cout << " diffsTwo = " << MerklePointSerializer::toString(*it) << std::endl;
 
 	// request diffs from one
-	deque<MerklePoint> diffsOne = treeOne.diff(diffsTwo[0]);
-	for (deque<MerklePoint>::const_iterator it = diffsOne.begin(); it != diffsOne.end(); ++it)
+	MerkleDiffResult diffsOne = treeOne.diff(diffsTwo[0]);
+	for (deque<MerklePoint>::const_iterator it = diffsOne.points().begin(); it != diffsOne.points().end(); ++it)
 		std::cout << " diffsOne = " << MerklePointSerializer::toString(*it) << std::endl;
+	assertTrue( diffsOne.need_partial_range() );
 
 	/*diffsOne = treeOne.diff(diffsTwo[0]);
 	for (deque<MerklePoint>::const_iterator it = diffsOne.begin(); it != diffsOne.end(); ++it)
 		std::cout << " diffsOne = " << MerklePointSerializer::toString(*it) << std::endl;
 	//*/
 
-	KeyRange range(diffsOne[0].location);
 
 	// one0: 0001 0011 | 0110 1101 | 0100 1011 | 1101 0000 | 1011 0111 | 1101 0101 | 1110 1111 | 1101 0100
 	// one1: 0011 0001 | 0111 1011 | 1100 0001 | 0001 1101 | 1010 1110 | 0001 1111 | 0000 0111 | 1110 1010
@@ -152,8 +152,10 @@ TEST_CASE( "DigestTreeTest/testTraverse_Case1", "[unit]" )
 	// one4: 1110 1000 | 1011 1011 | 0110 1001 | 1011 1001 | 0001 1010 | 0100 0001 | 1111 1000 | 0000 0011
 	// two1: 1111 0101 | 1100 0011 | 0011 0110 | 0011 0001 | 0100 1111 | 0101 0001 | 0100 1011 | 1010 0010
 
-	assertEquals(64, range.first());
-	assertEquals(0xFFFFFFFFFFFFFF7FULL, range.last());
-	assertEquals( "two0", turbo::str::join(treeTwo.enumerate(range.first(), range.last())) );
+	KeyRange r1(diffsOne[0]);
+	deque<string> have = treeOne.enumerate(r1.first(), r1.last());
+	KeyRange r2(diffsTwo[0]);
+	deque<string> all = treeTwo.enumerate(r2.first(), r2.last());
+	assertIn( "two0", all );
 }
 

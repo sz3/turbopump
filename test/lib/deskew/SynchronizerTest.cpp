@@ -3,6 +3,7 @@
 
 #include "Synchronizer.h"
 
+#include "KeyRange.h"
 #include "common/MerklePoint.h"
 #include "membership/Peer.h"
 #include "mock/MockConsistentHashRing.h"
@@ -12,6 +13,7 @@
 #include "mock/MockMessageSender.h"
 #include "mock/MockSkewCorrector.h"
 
+#include "serialize/format.h"
 #include "serialize/str.h"
 using turbo::str::str;
 
@@ -19,8 +21,8 @@ namespace {
 	MerklePoint whatsThePoint(unsigned key, unsigned short keybits=0)
 	{
 		MerklePoint point;
-		point.location.key = key;
-		point.location.keybits = (keybits == 0)? key : keybits;
+		point.key = key;
+		point.keybits = (keybits == 0)? key : keybits;
 		point.hash = key * 10;
 		return point;
 	}
@@ -160,15 +162,17 @@ TEST_CASE( "SynchronizerTest/testCompare.OurSideEmpty", "default" )
 	MockSkewCorrector corrector;
 	MockLogger logger;
 
-	index._tree._diff.push_back( MerklePoint::null() );
+	index._tree._diff = {{MerklePoint::null()}, true};
 
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
-	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
+	MerklePoint point = whatsThePoint(10);
+	sinkro.compare(Peer("fooid"), TreeId("oak"), point);
 
+	KeyRange range(point);
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( ("requestKeyRange(fooid,oak,0," + str(~0ULL) + ")"), messenger._history.calls() );
+	assertEquals( ("requestKeyRange(fooid,oak,10," + str(range.last()) + ")"), messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
@@ -220,7 +224,7 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiff", "default" )
 	MockSkewCorrector corrector;
 	MockLogger logger;
 
-	index._tree._diff.push_back( whatsThePoint(10) );
+	index._tree._diff = {{whatsThePoint(10)}, true};
 
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
@@ -241,7 +245,7 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey", "default" )
 	MockSkewCorrector corrector;
 	MockLogger logger;
 
-	index._tree._diff.push_back( whatsThePoint(64) );
+	index._tree._diff = {{whatsThePoint(64)}};
 
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(64));
@@ -262,7 +266,7 @@ TEST_CASE( "SynchronizerTest/testCompare.LeafDiffSameKey.Almost", "default" )
 	MockSkewCorrector corrector;
 	MockLogger logger;
 
-	index._tree._diff.push_back( whatsThePoint(64) );
+	index._tree._diff = {{whatsThePoint(64)}, true};
 
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(64, 5));
@@ -283,15 +287,20 @@ TEST_CASE( "SynchronizerTest/testCompare.Missing", "default" )
 	MockSkewCorrector corrector;
 	MockLogger logger;
 
-	index._tree._diff.push_back( whatsThePoint(32) );
+	index._tree._diff = {{whatsThePoint(32)}, true};
 
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
 
+	// desired range is them.first() -> us.first() and us.last() -> them.last()
+	KeyRange us(whatsThePoint(32));
+	KeyRange them(whatsThePoint(10));
+
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "diff(10 10 100)", index._tree._history.calls() );
 	assertEquals( "", corrector._history.calls() );
-	assertEquals( "requestKeyRange(fooid,oak,32,18446744069414584352)", messenger._history.calls() );
+	assertEquals( fmt::format("requestKeyRange(fooid,oak,10,32)|requestKeyRange(fooid,oak,{},{})", us.last(), them.last()),
+				  messenger._history.calls() );
 	assertEquals( "", membership._history.calls() );
 }
 
@@ -304,8 +313,7 @@ TEST_CASE( "SynchronizerTest/testCompare.Climb", "default" )
 	MockSkewCorrector corrector;
 	MockLogger logger;
 
-	index._tree._diff.push_back( whatsThePoint(1) );
-	index._tree._diff.push_back( whatsThePoint(2) );
+	index._tree._diff = {{whatsThePoint(1), whatsThePoint(2)}};
 
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10));
@@ -326,9 +334,8 @@ TEST_CASE( "SynchronizerTest/testCompare.Climb.isSyncResponse", "default" )
 	MockSkewCorrector corrector;
 	MockLogger logger;
 
-	index._tree._diff.push_back( whatsThePoint(1) );
-	index._tree._diff.push_back( whatsThePoint(2) );
-	index._tree._diff.push_back( whatsThePoint(3) ); // should be discarded
+	// last should be discarded
+	index._tree._diff = {{whatsThePoint(1), whatsThePoint(2), whatsThePoint(3)}};
 
 	Synchronizer sinkro(ring, membership, index, messenger, corrector, logger);
 	sinkro.compare(Peer("fooid"), TreeId("oak"), whatsThePoint(10), true);

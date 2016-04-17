@@ -3,14 +3,13 @@
 
 #include <endian.h>
 #include <iostream>
-using turbo::merkle_location;
 
-KeyRange::KeyRange(const merkle_location<unsigned long long>& location)
+KeyRange::KeyRange(const MerklePoint& location)
 {
 	fromLocation(location);
 }
 
-void KeyRange::fromLocation(const merkle_location<unsigned long long>& location)
+void KeyRange::fromLocation(const MerklePoint& location)
 {
 	if (location.keybits >= 64)
 	{

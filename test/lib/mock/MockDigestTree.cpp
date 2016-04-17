@@ -7,6 +7,7 @@
 MockDigestTree::MockDigestTree()
 	: _empty(false)
 	, _id("tim", 3)
+	, _diff({})
 {
 }
 
@@ -37,7 +38,7 @@ MerklePoint MockDigestTree::top() const
 	return _top;
 }
 
-std::deque<MerklePoint> MockDigestTree::diff(const MerklePoint& point) const
+MerkleDiffResult MockDigestTree::diff(const MerklePoint& point) const
 {
 	_history.call("diff", MerklePointSerializer::toString(point));
 	return _diff;

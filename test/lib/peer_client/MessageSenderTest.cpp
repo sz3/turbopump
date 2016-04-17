@@ -29,8 +29,8 @@ TEST_CASE( "MessageSenderTest/testDigestPing", "[unit]" )
 	MessageSender messenger(packer, server);
 
 	MerklePoint point;
-	point.location.key = 1;
-	point.location.keybits = 2;
+	point.key = 1;
+	point.keybits = 2;
 	point.hash = 3;
 	messenger.digestPing(mockPeer("1.2.3.4:80"), TreeId("oak"), point);
 
@@ -67,8 +67,8 @@ TEST_CASE( "MessageSenderTest/testDigestPing.Many", "[unit]" )
 	for (int i = 1; i <= 3; ++i)
 	{
 		MerklePoint point;
-		point.location.key = i;
-		point.location.keybits = i;
+		point.key = i;
+		point.keybits = i;
 		point.hash = i*10;
 		points.push_back(point);
 	}

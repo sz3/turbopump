@@ -2,15 +2,14 @@
 #include "unittest.h"
 
 #include "KeyRange.h"
-#include "merkle_tree/merkle_location.h"
-using turbo::merkle_location;
+#include "common/MerklePoint.h"
 
 // big endian!!!
 
 TEST_CASE( "KeyRangeTest/testMaxBits", "[unit]" )
 {
 	{
-		merkle_location<unsigned long long> loc(1455069594437219180ULL, 64);
+		MerklePoint loc(1234, 1455069594437219180ULL, 64);
 		KeyRange range(loc);
 		assertEquals( loc.key, range.first() );
 		assertEquals( loc.key, range.last() );
@@ -20,70 +19,70 @@ TEST_CASE( "KeyRangeTest/testMaxBits", "[unit]" )
 TEST_CASE( "KeyRangeTest/testDefault", "[unit]" )
 {
 	{
-		merkle_location<unsigned long long> loc(~0ULL, 1);
+		MerklePoint loc(1234, ~0ULL, 1);
 		KeyRange range(loc);
 		assertEquals( 128, range.first() );
 		assertEquals( ~0ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(~0ULL, 2);
+		MerklePoint loc(1234, ~0ULL, 2);
 		KeyRange range(loc);
 		assertEquals( 192, range.first() );
 		assertEquals( ~0ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(~0ULL, 5);
+		MerklePoint loc(1234, ~0ULL, 5);
 		KeyRange range(loc);
 		assertEquals( 248, range.first() );
 		assertEquals( ~0ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(~0ULL, 0);
+		MerklePoint loc(1234, ~0ULL, 0);
 		KeyRange range(loc);
 		assertEquals( 0, range.first() );
 		assertEquals( ~0ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(0, 0);
+		MerklePoint loc(1234, 0, 0);
 		KeyRange range(loc);
 		assertEquals( 0, range.first() );
 		assertEquals( ~0ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(0, 1);
+		MerklePoint loc(1234, 0, 1);
 		KeyRange range(loc);
 		assertEquals( 0, range.first() );
 		assertEquals( 0xFFFFFFFFFFFFFF7FULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(0, 2);
+		MerklePoint loc(1234, 0, 2);
 		KeyRange range(loc);
 		assertEquals( 0, range.first() );
 		assertEquals( 0xFFFFFFFFFFFFFF3FULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(0, 63);
+		MerklePoint loc(1234, 0, 63);
 		KeyRange range(loc);
 		assertEquals( 0, range.first() );
 		assertEquals( 0x100000000000000ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(0, 62);
+		MerklePoint loc(1234, 0, 62);
 		KeyRange range(loc);
 		assertEquals( 0, range.first() );
 		assertEquals( 0x300000000000000ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(0, 60);
+		MerklePoint loc(1234, 0, 60);
 		KeyRange range(loc);
 		assertEquals( 0, range.first() );
 		assertEquals( 0xF00000000000000ULL, range.last() );
@@ -91,14 +90,14 @@ TEST_CASE( "KeyRangeTest/testDefault", "[unit]" )
 
 
 	{
-		merkle_location<unsigned long long> loc(128, 1);
+		MerklePoint loc(1234, 128, 1);
 		KeyRange range(loc);
 		assertEquals( 128, range.first() );
 		assertEquals( ~0ULL, range.last() );
 	}
 
 	{
-		merkle_location<unsigned long long> loc(2112, 2);
+		MerklePoint loc(1234, 2112, 2);
 		KeyRange range(loc);
 		assertEquals( 64, range.first() );
 		assertEquals( 0xFFFFFFFFFFFFFF7FUL, range.last() );
@@ -106,7 +105,7 @@ TEST_CASE( "KeyRangeTest/testDefault", "[unit]" )
 
 
 	{
-		merkle_location<unsigned long long> loc(0x84315, 56);
+		MerklePoint loc(1234, 0x84315, 56);
 		KeyRange range(loc);
 		assertEquals( 0x84315, range.first() );
 		assertEquals( 0xFF00000000084315ULL, range.last() );

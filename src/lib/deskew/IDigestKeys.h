@@ -20,6 +20,6 @@ public:
 
 	virtual bool empty() const = 0;
 	virtual MerklePoint top() const = 0;
-	virtual std::deque<MerklePoint> diff(const MerklePoint& point) const = 0;
+	virtual MerkleDiffResult diff(const MerklePoint& point) const = 0;
 	virtual std::deque<std::string> enumerate(unsigned long long first, unsigned long long last, unsigned limit=50) const = 0;
 };

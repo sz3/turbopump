@@ -216,8 +216,8 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 
 	//std::cout << "correctorOne says : " << correctorOne._history.calls() << std::endl;
 	//std::cout << "correctorTwo says : " << correctorTwo._history.calls() << std::endl;
-	assertEquals( "36 79 68 75 44 92 11 77 51 24 16 52 91 23 87 38 30 39 93 45 35 3 70 15 37 18"
-				  " 19 73 42 72 80 12 78 84 96 76 89 31 43 50 82 81 85 98 22", turbo::str::join(correctorOne._corrected) );
+	assertEquals( "59 36 79 68 75 44 92 11 77 51 24 16 52 91 23 87 38 30 39 93 45 35 3 70 15 37 18 "
+				  "19 73 42 72 80 12 78 84 96 76 89 31 43 50 82 81 85 98 22", turbo::str::join(correctorOne._corrected) );
 	assertEquals( "", turbo::str::join(correctorTwo._corrected) );
 
 	for (deque<string>::const_iterator it = correctorOne._corrected.begin(); it != correctorOne._corrected.end(); ++it)
@@ -226,7 +226,9 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case2", "[integration]"
 	deque<string> filesOne = indexOne.find("fooid").enumerate(0,~0ULL,100);
 	deque<string> filesTwo = indexTwo.find("fooid").enumerate(0,~0ULL,100);
 	//assertEquals( turbo::str::join(filesOne), turbo::str::join(filesTwo) );
-	assertEquals( 95, filesTwo.size() );
+
+	// we're 4 files short. Not enough round trips.
+	assertEquals( 96, filesTwo.size() );
 }
 
 TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case3", "[integration]" )
@@ -274,10 +276,10 @@ TEST_CASE( "SynchronizerExchangeTest/testCompareExchange.Case3", "[integration]"
 
 	// the compare is still too heavy-handed for my liking
 	// 1. We ask for the whole subtree that's in disagreement ("/1" and "foo"), even though we already have "/1"
-	// 2. Because the symmetric exchange hack, we end up double-healing in many cases, including this one. (why there are 4 instead of two entries in _corrected)
+	// 2. Because the symmetric exchange hack, we end up double-healing in many cases, including this one. (extra entries in _corrected)
 	one.compare(Peer("dummy"), TreeId("", 0), indexTwo.randomTree().top());
 	assertEquals( "", turbo::str::join(correctorOne._healed) );
-	assertEquals( ".membership/1 foo .membership/1 foo", turbo::str::join(correctorOne._corrected) );
+	assertEquals( ".membership/1 .membership/1 foo .membership/1 .membership/1 foo", turbo::str::join(correctorOne._corrected) );
 	assertEquals( "", turbo::str::join(correctorTwo._healed) );
 	assertEquals( "", turbo::str::join(correctorTwo._corrected) );
 }

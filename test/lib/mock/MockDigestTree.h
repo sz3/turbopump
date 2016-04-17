@@ -17,7 +17,7 @@ public:
 
 	bool empty() const;
 	MerklePoint top() const;
-	std::deque<MerklePoint> diff(const MerklePoint& point) const;
+	MerkleDiffResult diff(const MerklePoint& point) const;
 	std::deque<std::string> enumerate(unsigned long long first, unsigned long long last, unsigned limit) const;
 
 public:
@@ -26,6 +26,6 @@ public:
 
 	bool _empty;
 	MerklePoint _top;
-	std::deque<MerklePoint> _diff;
+	MerkleDiffResult _diff;
 	std::deque<std::string> _enumerate;
 };
