@@ -10,11 +10,11 @@ namespace Turbopump { class Command; }
 class IPeerCommandCenter;
 class Peer;
 
-// maybe split into a subclass that just handles the simple stuff?
 class PeerCommandRunner
 {
 public:
 	PeerCommandRunner(const std::shared_ptr<Peer>& peer, IPeerCommandCenter& center);
+	void shutdown();
 
 	void run();
 	void parseAndRun(const std::string& buffer);

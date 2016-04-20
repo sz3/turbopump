@@ -26,7 +26,7 @@ public:
 	void close_all();
 
 protected:
-	map_type _connections;
+	mutable map_type _connections;
 };
 
 template <typename Socket>
@@ -58,6 +58,11 @@ std::shared_ptr<ISocketWriter> MultiplexedSocketPool<Socket>::find(const socket_
 	std::shared_ptr<BufferedConnectionWriter<Socket>> conn;
 	if (!_connections.find(addr, conn))
 		return NULL;
+	if (conn->handle() < 0)
+	{
+		_connections.erase(addr);
+		return NULL;
+	}
 	// increment here
 	return std::shared_ptr<ISocketWriter>(new MultiplexedSocketWriter(conn));
 }

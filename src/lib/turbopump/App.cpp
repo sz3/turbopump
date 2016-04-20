@@ -101,6 +101,7 @@ bool App::run()
 
 	_scheduler.shutdown();
 	_peerServer->stop();
+	_peerCenter.shutdown();
 	_peerExecutor.stop();
 
 	return true;

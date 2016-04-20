@@ -13,6 +13,13 @@ PeerCommandRunner::PeerCommandRunner(const std::shared_ptr<Peer>& peer, IPeerCom
 {
 }
 
+void PeerCommandRunner::shutdown()
+{
+	string sink;
+	while (_buffers.try_dequeue(sink))
+		;
+}
+
 void PeerCommandRunner::run()
 {
 	do {
