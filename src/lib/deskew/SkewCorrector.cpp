@@ -76,19 +76,19 @@ void SkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, unsigne
 	for (const string& file : files)
 	{
 		// if file has expired, don't offer. drop instead.
-		std::vector<string> versions = _store.versions(file, true);
-		if ( versions.size() == 1 && _store.isExpired(versions.front()) )
+		std::vector<readstream> streams = _store.readAll(file);
+		if ( streams.size() == 1 && _store.isExpired(streams.front().version()) )
 		{
 			dropKey(file);
 			continue;
 		}
 
-		for (const string& version : versions)
-			_messenger.offerWrite(peer, file, version, offloadFrom);
+		for (const readstream& stream : streams)
+			_messenger.offerWrite(peer, file, stream.version(), stream.size(), offloadFrom);
 	}
 }
 
-bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
+bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std::string& version, unsigned long long offset, const std::string& source)
 {
 	readstream reader = _store.read(name, version);
 	if (!reader)
@@ -100,6 +100,7 @@ bool SkewCorrector::sendKey(const Peer& peer, const std::string& name, const std
 	write.copies = totalCopies;
 	write.mirror = totalCopies;
 	write.version = version;
+	write.offset = offset;
 	write.source = source;
 	write.isComplete = true;
 

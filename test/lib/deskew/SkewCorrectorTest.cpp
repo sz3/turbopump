@@ -6,6 +6,7 @@
 #include "TreeId.h"
 #include "api/Drop.h"
 #include "api/Options.h"
+#include "common/VectorClock.h"
 #include "membership/Peer.h"
 #include "mock/MockKeyTabulator.h"
 #include "mock/MockLogger.h"
@@ -78,17 +79,24 @@ TEST_CASE( "SkewCorrectorTest/testPushKey", "[unit]" )
 
 	index._tree._enumerate.push_back("file1");
 	index._tree._enumerate.push_back("file2");
-	store._versions.push_back("v1");
-	store._versions.push_back("v2");
+	store._reads["file1"] = "contents";
+	store._reads["file2"] = "contents2";
+
+	VectorClock v1;
+	v1.increment("v1", 12345678);
+	VectorClock v2;
+	v2.increment("v2", 12345678);
+	store._versions.push_back(v1.toString());
+	store._versions.push_back(v2.toString());
 
 	corrector.pushKey(Peer("fooid"), TreeId("oak",2), 12345678);
 
 	assertEquals( "find(oak,2)", index._history.calls() );
 	assertEquals( "enumerate(12345678,12345678)", index._tree._history.calls() );
-	assertEquals( "offerWrite(fooid,file1,v1,)|offerWrite(fooid,file1,v2,)"
-				  "|offerWrite(fooid,file2,v1,)|offerWrite(fooid,file2,v2,)", messenger._history.calls() );
+	assertEquals( "offerWrite(fooid,file1," + v1.toString() + ",8,)|offerWrite(fooid,file1," + v2.toString() + ",8,)"
+				  "|offerWrite(fooid,file2," + v1.toString() + ",9,)|offerWrite(fooid,file2," + v2.toString() + ",9,)", messenger._history.calls() );
 	assertEquals( "", writer._history.calls() );
-	assertEquals( "versions(file1,1)|versions(file2,1)", store._history.calls() );
+	assertEquals( "readAll(file1)|readAll(file2)", store._history.calls() );
 	assertEquals( "logDebug(pushing 2 keys to peer fooid: file1 file2)", logger._history.calls() );
 }
 
@@ -132,11 +140,11 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange", "[unit]" )
 
 	assertEquals( "find(oak,2)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "offerWrite(fooid,file1,1,version.UNIXSECONDS=,)"
-				  "|offerWrite(fooid,file3,1,version.UNIXSECONDS=,)", messenger._history.calls() );
+	assertEquals( "offerWrite(fooid,file1,1,version.UNIXSECONDS=,11,)"
+				  "|offerWrite(fooid,file3,1,version.UNIXSECONDS=,11,)", messenger._history.calls() );
 	assertEquals( "", writer._history.calls() );
-	assertEquals( "versions(file1,1)|isExpired(1,version.UNIXSECONDS=)"
-				  "|versions(file3,1)|isExpired(1,version.UNIXSECONDS=)", store._history.calls() );
+	assertEquals( "readAll(file1)|isExpired(1,version.UNIXSECONDS=)"
+				  "|readAll(file3)|isExpired(1,version.UNIXSECONDS=)", store._history.calls() );
 	assertEquals( "logDebug(pushing 2 keys to peer fooid: file1 file3)", logger._history.calls() );
 }
 
@@ -160,11 +168,11 @@ TEST_CASE( "SkewCorrectorTest/testPushKeyRange.Offload", "[unit]" )
 
 	assertEquals( "find(oak,3)", index._history.calls() );
 	assertEquals( "enumerate(0,1234567890)", index._tree._history.calls() );
-	assertEquals( "offerWrite(fooid,file1,1,version.UNIXSECONDS=,offloadFrom)"
-				  "|offerWrite(fooid,file3,1,version.UNIXSECONDS=,offloadFrom)", messenger._history.calls() );
+	assertEquals( "offerWrite(fooid,file1,1,version.UNIXSECONDS=,11,offloadFrom)"
+				  "|offerWrite(fooid,file3,1,version.UNIXSECONDS=,11,offloadFrom)", messenger._history.calls() );
 	assertEquals( "", writer._history.calls() );
-	assertEquals( "versions(file1,1)|isExpired(1,version.UNIXSECONDS=)"
-				  "|versions(file3,1)|isExpired(1,version.UNIXSECONDS=)", store._history.calls() );
+	assertEquals( "readAll(file1)|isExpired(1,version.UNIXSECONDS=)"
+				  "|readAll(file3)|isExpired(1,version.UNIXSECONDS=)", store._history.calls() );
 	assertEquals( "logDebug(pushing 2 keys to peer fooid: file1 file3)", logger._history.calls() );
 }
 
@@ -200,7 +208,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey", "[unit]" )
 
 	store._reads["file1"] = "I am file 1";
 
-	assertTrue( corrector.sendKey(Peer("fooid"), "file1", "v1", "sauce") );
+	assertTrue( corrector.sendKey(Peer("fooid"), "file1", "v1", 123, "sauce") );
 
 	assertEquals( "read(file1,v1)", store._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -219,7 +227,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey.Empty", "[unit]" )
 	Turbopump::Options opts;
 	SkewCorrector corrector(index, store, messenger, writer, logger, opts);
 
-	assertFalse( corrector.sendKey(Peer("fooid"), "no file", "v1", "sauce") );
+	assertFalse( corrector.sendKey(Peer("fooid"), "no file", "v1", 321, "sauce") );
 
 	assertEquals( "read(no file,v1)", store._history.calls() );
 	assertEquals( "", messenger._history.calls() );
@@ -241,7 +249,7 @@ TEST_CASE( "SkewCorrectorTest/testSendKey.ConnectionExplodes", "[unit]" )
 	writer._storeFails = true;
 	store._reads["file1"] = "I am file 1";
 
-	assertFalse( corrector.sendKey(Peer("fooid"), "file1", "v1", "sauce") );
+	assertFalse( corrector.sendKey(Peer("fooid"), "file1", "v1", 21, "sauce") );
 
 	assertEquals( "read(file1,v1)", store._history.calls() );
 	assertEquals( "", messenger._history.calls() );

@@ -13,10 +13,11 @@ TEST_CASE( "DemandWriteCommandTest/testRun", "[unit]" )
 	command.setPeer( std::shared_ptr<Peer>(new Peer("peer")) );
 	command.params.name = "foo";
 	command.params.version = "28";
+	command.params.offset = 123;
 	command.params.source = "sangra";
 
 	assertTrue( command.run() );
-	assertEquals( "sendKey(peer,foo,28,sangra)", corrector._history.calls() );
+	assertEquals( "sendKey(peer,foo,28,123,sangra)", corrector._history.calls() );
 }
 
 TEST_CASE( "DemandWriteCommandTest/testReject", "[unit]" )
@@ -39,5 +40,5 @@ TEST_CASE( "DemandWriteCommandTest/testDefaults", "[unit]" )
 	command.params.name = "foo";
 
 	assertTrue( command.run() );
-	assertEquals( "sendKey(peer,foo,,)", corrector._history.calls() );
+	assertEquals( "sendKey(peer,foo,,0,)", corrector._history.calls() );
 }

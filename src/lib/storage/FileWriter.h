@@ -7,7 +7,7 @@
 class FileWriter : public IWriter
 {
 public:
-	FileWriter(const std::string& filename);
+	FileWriter(const std::string& filename, bool append=false);
 	~FileWriter();
 
 	bool good() const;
@@ -22,7 +22,7 @@ public:
 	IReader* reader() const;
 
 protected:
-	bool open(); //TODO: offset
+	bool open(bool append=false);
 
 protected:
 	int _fd;

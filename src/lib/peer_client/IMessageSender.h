@@ -16,7 +16,7 @@ public:
 	virtual void requestKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last) = 0;
 	virtual void requestKey(const Peer& peer, const TreeId& treeid, unsigned long long key) = 0;
 
-	virtual void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source) = 0;
-	virtual void demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source) = 0;
+	virtual void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size, const std::string& source) = 0;
+	virtual void demandWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long offset, const std::string& source) = 0;
 	virtual void acknowledgeWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size) = 0;
 };

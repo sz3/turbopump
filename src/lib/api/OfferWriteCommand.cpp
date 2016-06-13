@@ -3,6 +3,7 @@
 
 #include "peer_client/IMessageSender.h"
 #include "storage/IStore.h"
+#include "storage/readstream.h"
 
 OfferWriteCommand::OfferWriteCommand(const IStore& store, IMessageSender& messenger)
 	: _store(store)
@@ -13,12 +14,16 @@ OfferWriteCommand::OfferWriteCommand(const IStore& store, IMessageSender& messen
 bool OfferWriteCommand::run(const char*, unsigned)
 {
 	// we only respond to a write offer if we need it.
-	if ( !_store.exists(params.name, params.version) )
-	{
-		_messenger.demandWrite(*_peer, params.name, params.version, params.source);
-		return true;
-	}
-	return false;
+	unsigned long long offset = 0;
+	readstream reader = _store.read(params.name, params.version, true);
+	if (!!reader)
+		offset = reader.size();
+
+	if (offset >= params.size)
+		return false;
+
+	_messenger.demandWrite(*_peer, params.name, params.version, offset, params.source);
+	return true;
 }
 
 Turbopump::Request* OfferWriteCommand::request()

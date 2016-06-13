@@ -100,22 +100,26 @@ VectorClock FileStore::mergedVersion(const std::string& name, bool inprogress/*=
 
 writestream FileStore::write(const std::string& name, const std::string& version, unsigned short copies, unsigned long long offset)
 {
-	// just version it at the outset! Why not?
+	bool append = offset > 0;
+
 	KeyMetadata md;
 	md.version.fromString(version);
 	if (md.version.empty())
 	{
+		// just version it at the outset! Why not?
 		md.version = mergedVersion(name);
 		md.version.increment(MyMemberId());
 	}
-	else if ( exists(name, version) || md.version.isExpired(EXPIRY_TIMEOUT_SECONDS) )
+	else if ( (!append && exists(name, version)) || md.version.isExpired(EXPIRY_TIMEOUT_SECONDS) )
 		return writestream();
 	md.totalCopies = copies;
 
 	string tempname(filepath(name, md.version.toString()) + "~");
-	boost::filesystem::create_directories(dirpath(name));
+	if (append && File::size(tempname) != offset)
+		return writestream();
 
-	FileWriter* writer = new FileWriter(tempname);
+	boost::filesystem::create_directories(dirpath(name));
+	FileWriter* writer = new FileWriter(tempname, append);
 	if (writer->good())
 		writer->setAttribute("user.md", mdToString(md));
 	return writestream(writer, md, std::bind(&FileStore::onWriteComplete, this, name, _1));

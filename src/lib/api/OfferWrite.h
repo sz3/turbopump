@@ -15,7 +15,8 @@ public:
 	std::string name;
 	std::string version;
 	std::string source;
+	uint64_t size;
 
-	SERIALIZE(name, version, source);
+	SERIALIZE(name, version, source, size);
 };
 }//namespace

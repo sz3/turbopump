@@ -59,7 +59,7 @@ TEST_CASE( "ConcurrentCommandCenterTest/testRun", "[unit]" )
 	assertEquals( 1, center._runners.size() );
 	assertTrue( !!center._runners["hi"] );
 	void* ptr = center._runners["hi"].get();
-	assertEquals( "sendKey(hi,foo,,)", api.corrector._history.calls() );
+	assertEquals( "sendKey(hi,foo,,0,)", api.corrector._history.calls() );
 
 	api.corrector._history.clear();
 	center.run(peer, demand_write("foo"));
@@ -67,7 +67,7 @@ TEST_CASE( "ConcurrentCommandCenterTest/testRun", "[unit]" )
 	assertEquals( 1, center._runners.size() );
 	assertTrue( !!center._runners["hi"] );
 	assertEquals( ptr, center._runners["hi"].get() );
-	assertEquals( "sendKey(hi,foo,,)", api.corrector._history.calls() );
+	assertEquals( "sendKey(hi,foo,,0,)", api.corrector._history.calls() );
 }
 
 TEST_CASE( "ConcurrentCommandCenterTest/testCommand", "[unit]" )

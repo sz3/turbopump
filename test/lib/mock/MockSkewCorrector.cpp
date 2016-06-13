@@ -20,8 +20,8 @@ void MockSkewCorrector::pushKeyRange(const Peer& peer, const TreeId& treeid, uns
 	_history.call("pushKeyRange", peer.uid, treeid.id, treeid.mirrors, first, last, offloadFrom);
 }
 
-bool MockSkewCorrector::sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
+bool MockSkewCorrector::sendKey(const Peer& peer, const std::string& name, const std::string& version, unsigned long long offset, const std::string& source)
 {
-	_history.call("sendKey", peer.uid, name, version, source);
+	_history.call("sendKey", peer.uid, name, version, offset, source);
 	return true;
 }

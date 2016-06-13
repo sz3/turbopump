@@ -30,14 +30,14 @@ void MockMessageSender::requestKey(const Peer& peer, const TreeId& treeid, unsig
 	_history.call("requestKey", peer.uid, treeid.id, key);
 }
 
-void MockMessageSender::offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+void MockMessageSender::offerWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size, const std::string& source)
 {
-	_history.call("offerWrite", peer.uid, filename, version, source);
+	_history.call("offerWrite", peer.uid, filename, version, size, source);
 }
 
-void MockMessageSender::demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+void MockMessageSender::demandWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long offset, const std::string& source)
 {
-	_history.call("demandWrite", peer.uid, filename, version, source);
+	_history.call("demandWrite", peer.uid, filename, version, offset, source);
 }
 
 void MockMessageSender::acknowledgeWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size)

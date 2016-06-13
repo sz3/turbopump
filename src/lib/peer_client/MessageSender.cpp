@@ -96,21 +96,23 @@ void MessageSender::requestKey(const Peer& peer, const TreeId& treeid, unsigned 
 	sendMessage(peer, reqHeader(_packer, req));
 }
 
-void MessageSender::offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+void MessageSender::offerWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size, const std::string& source)
 {
 	Turbopump::OfferWrite req;
 	req.name = filename;
 	req.version = version;
 	req.source = source;
+	req.size = size;
 	sendMessage(peer, reqHeader(_packer, req));
 }
 
-void MessageSender::demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+void MessageSender::demandWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long offset, const std::string& source)
 {
 	Turbopump::DemandWrite req;
 	req.name = filename;
 	req.version = version;
 	req.source = source;
+	req.offset = offset;
 	sendMessage(peer, reqHeader(_packer, req));
 }
 

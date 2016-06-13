@@ -48,9 +48,9 @@ namespace
 			_corrected.insert(_corrected.end(), toPush.begin(), toPush.end());
 		}
 
-		bool sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source)
+		bool sendKey(const Peer& peer, const std::string& name, const std::string& version, unsigned long long offset, const std::string& source)
 		{
-			_history.call("sendKey", name, version, source);
+			_history.call("sendKey", name, version, offset, source);
 			return true;
 		}
 
@@ -85,11 +85,11 @@ namespace
 			_corrector->pushKey(peer, treeid, key);
 		}
 
-		void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+		void offerWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long size, const std::string& source)
 		{
 		}
 
-		void demandWrite(const Peer& peer, const std::string& filename, const std::string& version, const std::string& source)
+		void demandWrite(const Peer& peer, const std::string& filename, const std::string& version, unsigned long long offset, const std::string& source)
 		{
 		}
 

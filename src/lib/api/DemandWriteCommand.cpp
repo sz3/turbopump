@@ -14,7 +14,8 @@ bool DemandWriteCommand::run(const char*, unsigned)
 	if (params.name.empty())
 		return false;
 
-	_corrector.sendKey(*_peer, params.name, params.version, params.source);
+	// TODO: sendKey should fail if offset >= length... or any other error, tbh
+	_corrector.sendKey(*_peer, params.name, params.version, params.offset, params.source);
 	return true;
 }
 

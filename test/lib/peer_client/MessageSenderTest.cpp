@@ -102,11 +102,11 @@ TEST_CASE( "MessageSenderTest/testOfferWrite", "[unit]" )
 	server._sock.reset(writer);
 
 	MessageSender messenger(packer, server);
-	messenger.offerWrite(mockPeer("1.2.3.4:80"), "file1", "version1", "source1");
+	messenger.offerWrite(mockPeer("1.2.3.4:80"), "file1", "version1", 123, "source1");
 
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(105)", packer._history.calls() );
-	assertEquals( "try_send({105 name=file1 source=source1 version=version1})|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({105 name=file1 size=123 source=source1 version=version1})|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
@@ -117,11 +117,11 @@ TEST_CASE( "MessageSenderTest/testDemandWrite", "[unit]" )
 	server._sock.reset(writer);
 
 	MessageSender messenger(packer, server);
-	messenger.demandWrite(mockPeer("1.2.3.4:80"), "file1", "version1", "source1");
+	messenger.demandWrite(mockPeer("1.2.3.4:80"), "file1", "version1", 21, "source1");
 
 	assertEquals( "getWriter(1.2.3.4:80)", server._history.calls() );
 	assertEquals( "package(106)", packer._history.calls() );
-	assertEquals( "try_send({106 name=file1 source=source1 version=version1})|flush(false)", writer->_history.calls() );
+	assertEquals( "try_send({106 name=file1 offset=21 source=source1 version=version1})|flush(false)", writer->_history.calls() );
 }
 
 TEST_CASE( "MessageSenderTest/testAcknowledgeWrite", "[unit]" )

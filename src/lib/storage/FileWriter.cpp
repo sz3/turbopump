@@ -10,11 +10,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-FileWriter::FileWriter(const std::string& filename)
+FileWriter::FileWriter(const std::string& filename, bool append)
 	: _fd(-1)
 	, _filename(filename)
 {
-	open();
+	open(append);
 }
 
 FileWriter::~FileWriter()
@@ -22,9 +22,13 @@ FileWriter::~FileWriter()
 	close();
 }
 
-bool FileWriter::open()
+bool FileWriter::open(bool append)
 {
-	_fd = ::open(_filename.c_str(), O_WRONLY | O_CREAT | O_NOATIME, S_IRWXU);
+	int flags = O_WRONLY | O_CREAT | O_NOATIME;
+	if (append)
+		flags |= O_APPEND;
+
+	_fd = ::open(_filename.c_str(), flags, S_IRWXU);
 	return good();
 }
 

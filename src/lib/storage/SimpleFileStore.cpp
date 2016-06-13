@@ -97,6 +97,8 @@ VectorClock SimpleFileStore::mergedVersion(const std::string& name, bool inprogr
 
 writestream SimpleFileStore::write(const std::string& name, const std::string& version, unsigned short, unsigned long long offset)
 {
+	bool append = offset > 0;
+
 	KeyMetadata md;
 	md.version.fromString(version);
 	if (md.version.empty())
@@ -104,15 +106,17 @@ writestream SimpleFileStore::write(const std::string& name, const std::string& v
 
 	uint64_t current = timeFromVersion( mergedVersion(name, true) );
 	uint64_t prospective = timeFromVersion(md.version);
-	if ( prospective < current || (prospective == current && !md.version.isDeleted()) || md.version.isExpired(EXPIRY_TIMEOUT_SECONDS) )
+	if ( prospective < current || (prospective == current && !append && !md.version.isDeleted()) || md.version.isExpired(EXPIRY_TIMEOUT_SECONDS) )
 		return writestream();
 	// correct versions in the future back to now?
 
 	FilePaths paths = filepath(name);
 	string tempname(paths.inprogress());
-	boost::filesystem::create_directories(boost::filesystem::path(tempname).parent_path());
+	if (append && File::size(tempname) != offset)
+		return writestream();
 
-	FileWriter* writer = new FileWriter(tempname);
+	boost::filesystem::create_directories(boost::filesystem::path(tempname).parent_path());
+	FileWriter* writer = new FileWriter(tempname, append);
 	return writestream(writer, md, std::bind(&SimpleFileStore::onWriteComplete, this, name, _1));
 }
 

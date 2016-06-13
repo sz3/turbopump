@@ -21,7 +21,7 @@ public:
 
 	void pushKey(const Peer& peer, const TreeId& treeid, unsigned long long key);
 	void pushKeyRange(const Peer& peer, const TreeId& treeid, unsigned long long first, unsigned long long last, const std::string& offloadFrom="");
-	bool sendKey(const Peer& peer, const std::string& name, const std::string& version, const std::string& source);
+	bool sendKey(const Peer& peer, const std::string& name, const std::string& version, unsigned long long offset, const std::string& source);
 
 protected:
 	const IKeyTabulator& _index;
