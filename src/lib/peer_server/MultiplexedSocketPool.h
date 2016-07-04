@@ -77,9 +77,12 @@ void MultiplexedSocketPool<Socket>::close(Socket& sock)
 template <typename Socket>
 void MultiplexedSocketPool<Socket>::close_all()
 {
-	for (typename map_type::iterator conn = _connections.begin(); !conn.is_end(); ++conn)
-		if (!!conn->second)
-			conn->second->close();
+	{
+		auto lock = _connections.lock_table();
+		for (const auto& conn : lock)
+			if (!!conn.second)
+				conn.second->close();
+	}
 	_connections.clear();
 }
 

@@ -14,7 +14,7 @@ bool PacketParser::getNext(unsigned char& virtid, DataBuffer& next)
 	if (_buff.size() < 3)
 		return false;
 
-	unsigned short length = ntohs(*reinterpret_cast<const unsigned short*>(_buff.buffer()))-1;
+	unsigned short length = ntohs( (*(_buff.buffer()+1) << 8) | *_buff.buffer()) - 1;
 	_buff.skip(2);
 	virtid = *_buff.buffer();
 	_buff.skip(1);

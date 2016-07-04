@@ -154,7 +154,7 @@ unsigned BufferedConnectionWriter<Socket>::findFirstTruncatedPacket(const char* 
 	unsigned i = 0;
 	while (i < size)
 	{
-		unsigned short packetLen = htons( *reinterpret_cast<const unsigned short*>(buff+i) );
+		unsigned short packetLen = ntohs( (*(buff+i+1) << 8) | *(buff+i) );
 		if (packetLen+i+2 > size)
 			return i;
 		i += 2+packetLen;
