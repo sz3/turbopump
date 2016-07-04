@@ -10,11 +10,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-FileWriter::FileWriter(const std::string& filename, bool append)
+FileWriter::FileWriter(const std::string& filename, unsigned long long offset)
 	: _fd(-1)
 	, _filename(filename)
 {
-	open(append);
+	this->open(offset);
 }
 
 FileWriter::~FileWriter()
@@ -22,13 +22,13 @@ FileWriter::~FileWriter()
 	close();
 }
 
-bool FileWriter::open(bool append)
+bool FileWriter::open(unsigned long long offset)
 {
-	int flags = O_WRONLY | O_CREAT | O_NOATIME;
-	if (append)
-		flags |= O_APPEND;
-
-	_fd = ::open(_filename.c_str(), flags, S_IRWXU);
+	_fd = ::open(_filename.c_str(), O_WRONLY | O_CREAT | O_NOATIME, S_IRWXU);
+	if (!good())
+		return false;
+	if (offset > 0)
+		::lseek64(_fd, offset, SEEK_SET);
 	return good();
 }
 

@@ -124,7 +124,7 @@ writestream FileStore::write(const std::string& name, const std::string& version
 		return writestream();
 
 	boost::filesystem::create_directories(dirpath(name));
-	FileWriter* writer = new FileWriter(tempname, append);
+	FileWriter* writer = new FileWriter(tempname, offset);
 	if (writer->good())
 		writer->setAttribute("user.md", mdToString(md));
 	return writestream(writer, md, std::bind(&FileStore::onWriteComplete, this, name, _1));

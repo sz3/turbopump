@@ -116,7 +116,7 @@ writestream SimpleFileStore::write(const std::string& name, const std::string& v
 		return writestream();
 
 	boost::filesystem::create_directories(boost::filesystem::path(tempname).parent_path());
-	FileWriter* writer = new FileWriter(tempname, append);
+	FileWriter* writer = new FileWriter(tempname, offset);
 	return writestream(writer, md, std::bind(&SimpleFileStore::onWriteComplete, this, name, _1));
 }
 
