@@ -108,6 +108,54 @@ TEST_CASE( "FileStoreTest/testWrite", "[unit]" )
 	assertEquals( 10, reader.size() );
 }
 
+TEST_CASE( "FileStoreTest/testWrite.ResumeInprogress", "[unit]" )
+{
+	MyMemberId("increment");
+	DirectoryCleaner cleaner;
+
+	FileStore store(_test_dir);
+
+	VectorClock version;
+	version.increment("jordy");
+	version.increment("randall");
+
+	{
+		writestream writer = store.write("myfile", version.toString());
+		assertTrue( writer.good() );
+		assertEquals(10, writer.write("0123456789", 10));
+		assertTrue( writer.commit() );
+	}
+
+	{
+		// can't resume the default offset (0)
+		writestream nope = store.write("myfile", version.toString());
+		assertFalse( nope.good() );
+
+		// nor something less
+		writestream nope2 = store.write("myfile", version.toString(), 3, 2);
+		assertFalse( nope2.good() );
+
+		// nor something larger than the file
+		writestream nope3 = store.write("myfile", version.toString(), 3, 200);
+		assertFalse( nope3.good() );
+	}
+
+	{
+		writestream resume = store.write("myfile", version.toString(), 3, 10);
+		assertTrue( resume.good() );
+		resume.write("abcdefg", 7);
+		assertTrue( resume.commit(true) );
+	}
+
+	readstream reader = store.read("myfile");
+	assertTrue( reader.good() );
+	assertEquals( 17, reader.size() );
+
+	StringByteStream stream;
+	assertEquals( 17, reader.stream(stream) );
+	assertEquals( "0123456789abcdefg", stream.writeBuffer() );
+}
+
 TEST_CASE( "FileStoreTest/testWrite.RejectInprogress", "[unit]" )
 {
 	MyMemberId("increment");

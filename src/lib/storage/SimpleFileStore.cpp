@@ -266,7 +266,7 @@ void SimpleFileStore::enumerate(const std::function<bool(const std::string&, con
 			continue;
 
 		string filename = pa.string();
-		if (filename.back() == '~')
+		if (filename.back() == '~' && pa.filename().native().front() == '.')
 			continue; // inprogress file
 
 		string shortname;

@@ -28,6 +28,7 @@ public:
 protected:
 	std::string dirpath(const std::string& name) const;
 	std::string filepath(const std::string& name, const std::string& version) const;
+	std::string temppath(const std::string& name, const std::string& version) const;
 	VectorClock mergedVersion(const std::string& filename, bool inprogress=true) const;
 
 	bool onWriteComplete(const std::string& name, KeyMetadata& md);

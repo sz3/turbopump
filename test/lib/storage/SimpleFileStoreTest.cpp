@@ -10,6 +10,7 @@
 #include "file/File.h"
 #include "serialize/str.h"
 #include "serialize/str_join.h"
+#include "socket/StringByteStream.h"
 
 #include <boost/filesystem.hpp>
 #include <map>
@@ -269,6 +270,52 @@ TEST_CASE( "SimpleFileStoreTest/testWrite.SpecificVersion", "[unit]" )
 	readstream reader = store.read("myfile");
 	assertTrue( reader.good() );
 	assertEquals( 0, reader.size() );
+}
+
+TEST_CASE( "SimpleFileStoreTest/testWrite.ResumeInprogress", "[unit]" )
+{
+	WallClock().unfreeze();
+	DirectoryCleaner cleaner;
+	SimpleFileStore store(_test_dir);
+
+	VectorClock vc;
+	vc.increment("sec");
+
+	{
+		writestream writer = store.write("myfile", vc.toString());
+		assertTrue( writer.good() );
+		assertEquals(10, writer.write("0123456789", 10));
+		assertTrue( writer.commit() );
+	}
+
+	{
+		// can't resume the default offset (0)
+		writestream nope = store.write("myfile", vc.toString());
+		assertFalse( nope.good() );
+
+		// nor something less
+		writestream nope2 = store.write("myfile", vc.toString(), 3, 2);
+		assertFalse( nope2.good() );
+
+		// nor something larger than the file
+		writestream nope3 = store.write("myfile", vc.toString(), 3, 200);
+		assertFalse( nope3.good() );
+	}
+
+	{
+		writestream resume = store.write("myfile", vc.toString(), 3, 10);
+		assertTrue( resume.good() );
+		resume.write("abcdefg", 7);
+		assertTrue( resume.commit(true) );
+	}
+
+	readstream reader = store.read("myfile");
+	assertTrue( reader.good() );
+	assertEquals( 17, reader.size() );
+
+	StringByteStream stream;
+	assertEquals( 17, reader.stream(stream) );
+	assertEquals( "0123456789abcdefg", stream.writeBuffer() );
 }
 
 TEST_CASE( "SimpleFileStoreTest/testWrite.RejectInprogress", "[unit]" )

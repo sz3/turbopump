@@ -85,6 +85,11 @@ std::string FileStore::filepath(const std::string& name, const std::string& vers
 	return dirpath(name) + "/" + version;
 }
 
+std::string FileStore::temppath(const std::string& name, const std::string& version) const
+{
+	return filepath(name, version) + "~";
+}
+
 VectorClock FileStore::mergedVersion(const std::string& name, bool inprogress/*=true*/) const
 {
 	VectorClock version;
@@ -114,7 +119,7 @@ writestream FileStore::write(const std::string& name, const std::string& version
 		return writestream();
 	md.totalCopies = copies;
 
-	string tempname(filepath(name, md.version.toString()) + "~");
+	string tempname = temppath(name, md.version.toString());
 	if (append && File::size(tempname) != offset)
 		return writestream();
 
@@ -204,8 +209,8 @@ bool FileStore::remove(const std::string& name)
 
 bool FileStore::onWriteComplete(const std::string& name, KeyMetadata& md)
 {
-	string filename(filepath(name, md.version.toString()));
-	string tempname = filename + "~";
+	string filename = filepath(name, md.version.toString());
+	string tempname = temppath(name, md.version.toString());
 	if ( !File::rename(tempname, filename) )
 		return false;
 
