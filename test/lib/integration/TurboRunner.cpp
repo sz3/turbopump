@@ -4,6 +4,7 @@
 
 #include "http/HttpResponse.h"
 #include "serialize/str.h"
+#include "serialize/format.h"
 #include "system/env.h"
 #include "system/popen.h"
 #include "time/stopwatch.h"
@@ -46,7 +47,8 @@ TurboRunner::TurboRunner(short port, string programFlags)
 TurboRunner::~TurboRunner()
 {
 	stop();
-	boost::filesystem::remove_all(_workingDir);
+	boost::system::error_code ec;
+	boost::filesystem::remove_all(_workingDir, ec);
 }
 
 short TurboRunner::port() const
@@ -61,21 +63,29 @@ string TurboRunner::dataChannel() const
 
 void TurboRunner::start()
 {
-	string command = ("cd " + _workingDir + " && " + exePath + " -p " + str(_port) + " -l " + _dataChannel + " " + _programFlags + " &");
+	string command = fmt::format("cd {0} && {1} -p {2} -l {3} {4} > {2}.out 2>&1 &"
+								 , _workingDir, exePath, _port, _dataChannel, _programFlags);
 	//std::cout << " starting " << command << std::endl;
 	int res = system(command.c_str());
 }
 
-bool TurboRunner::stop(unsigned retries)
+bool TurboRunner::stop(unsigned retries, bool kill)
 {
-	string command = "kill `ps faux | grep 'turbopumpd ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
+	string command = "`ps faux | grep 'turbopumpd ' | grep -v grep | grep '" + _dataChannel + "'" + " | awk '{print $2}'`";
 	for (unsigned i = 0; i < retries; ++i)
 	{
-		int res = system(command.c_str());
+		string stop_command = "/bin/bash -c \"kill " + command + "\"";
+		int res = system(stop_command.c_str());
 		if (res == 0)
 			return true;
 		//std::cout << "stop " << i << " (" << command << ") returned " << res << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
+	if (kill)
+	{
+		string kill_command = "/bin/bash -c \"kill -9 " + command + "\"";
+		std::cerr << "kill result: " << system(kill_command.c_str()) << std::endl;
 	}
 	return false;
 }

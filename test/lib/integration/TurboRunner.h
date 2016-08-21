@@ -15,7 +15,7 @@ public:
 	std::string dataChannel() const;
 
 	void start();
-	bool stop(unsigned retries=1);
+	bool stop(unsigned retries=1, bool kill=false);
 
 	std::string query(std::string action, std::string params="") const;
 	std::string post(std::string action, std::string params="", std::string body="") const;

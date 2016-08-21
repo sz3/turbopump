@@ -4,13 +4,17 @@
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
 #include "storage/FileReader.h"
+#include "storage/FileWriter.h"
 
+#include "serialize/format.h"
 #include "serialize/str.h"
 #include "socket/FileByteStream.h"
 #include "socket/local_stream_socket.h"
 #include "socket/socket_address.h"
 #include "time/stopwatch.h"
 #include "time/wait_for.h"
+
+#include <iostream>
 using std::string;
 using namespace turbo;
 
@@ -37,10 +41,6 @@ TEST_CASE( "BigFileTest/testDiskWrite", "disk" )
 	assertTrue( reader.good() );
 	unsigned long long originalSize = reader.size();
 
-	const unsigned bufsize = 65536;
-	char buffer[bufsize];
-	char readBuff[100];
-
 	stopwatch elapsed;
 	{
 		FileByteStream out(openStreamSocket(cluster[1].dataChannel()));
@@ -50,6 +50,7 @@ TEST_CASE( "BigFileTest/testDiskWrite", "disk" )
 
 		while (reader.stream(out) > 0);
 
+		char readBuff[100];
 		size_t bytesRead = out.read(readBuff, 100);
 		out.close();
 
@@ -68,4 +69,53 @@ TEST_CASE( "BigFileTest/testDiskWrite", "disk" )
 		return cluster[3].local_list();
 	});
 }
+
+TEST_CASE( "BigFileTest/testFinishPartialWrite", "[integration]" )
+{
+	TurboCluster cluster(2);
+	cluster.start();
+	assertMsg( cluster.waitForRunning(), cluster.lastError() );
+
+	// shut down second worker
+	cluster[2].stop(10, true);
+
+	unsigned ONE_GB = 100000000;
+	{
+		FileWriter writer("hugefile");
+		for (unsigned i = 0; i < (ONE_GB / 20); ++i)
+			writer.write("0123456789abcdefghij", 20);
+	}
+
+	// write files to running worker
+	stopwatch elapsed;
+	{
+		string response = cluster[1].post("copy", "name=hugefile&path=../hugefile");
+		assertEquals( "200", response );
+	}
+
+	// inexact science. Start up second worker, hope it begins transfer, bounce it
+	cluster[2].start();
+	assertMsg( cluster[2].waitForRunning(), cluster.lastError() );
+	cluster[2].stop(0, true);
+	cluster[2].start();
+	assertMsg( cluster[2].waitForRunning(), cluster.lastError() );
+
+	// wait for files to propagate
+	string expected = fmt::format(
+		"hugefile => {0}:1,1.{1}"
+		, ONE_GB
+		, "[^\\. ]+"
+	);
+	string response = wait_for_match(5, expected, [&]()
+	{
+		string res = cluster[1].local_list();
+		return res;
+	});
+
+	wait_for_equal(30, response, [&]()
+	{
+		return cluster[2].local_list();
+	});
+}
+
 
