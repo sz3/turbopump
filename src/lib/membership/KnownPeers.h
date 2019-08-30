@@ -8,6 +8,7 @@
 #include "socket/socket_address.h"
 
 #include <deque>
+#include <functional>
 #include <unordered_map>
 class IStore;
 

@@ -36,6 +36,6 @@ target_link_libraries(user_server_test
 	socket
 -Wl,--end-group
 
-	msgpack
+	msgpackc
 )
 

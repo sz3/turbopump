@@ -31,7 +31,7 @@ target_link_libraries(turbopump
 	udt_socket
 -Wl,--end-group
 
-	msgpack
+	msgpackc
 	udt
 )
 

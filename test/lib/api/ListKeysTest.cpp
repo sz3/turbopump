@@ -26,9 +26,8 @@ TEST_CASE( "ListKeysTest/testSerialization", "[unit]" )
 	msgpack::pack(&sbuf, req);
 
 	Turbopump::ListKeys actual;
-	msgpack::unpacked msg;
-	msgpack::unpack(&msg, sbuf.data(), sbuf.size());
-	msg.get().convert(&actual);
+	msgpack::object_handle oh = msgpack::unpack(sbuf.data(), sbuf.size());
+	oh.get().convert(actual);
 
 	assertEquals( req.all, actual.all );
 	assertEquals( req.deleted, actual.deleted );

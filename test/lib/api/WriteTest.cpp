@@ -31,9 +31,8 @@ TEST_CASE( "WriteTest/testSerialization", "[unit]" )
 	msgpack::pack(&sbuf, req);
 
 	Turbopump::Write actual;
-	msgpack::unpacked msg;
-	msgpack::unpack(&msg, sbuf.data(), sbuf.size());
-	msg.get().convert(&actual);
+	msgpack::object_handle oh = msgpack::unpack(sbuf.data(), sbuf.size());
+	oh.get().convert(actual);
 
 	assertEquals( req.name, actual.name );
 	assertEquals( req.version, actual.version );

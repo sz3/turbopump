@@ -46,6 +46,6 @@ target_link_libraries(api_test
 	serialize
 	socket
 
-	msgpack
+	msgpackc
 )
 

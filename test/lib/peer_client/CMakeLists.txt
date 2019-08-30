@@ -38,6 +38,6 @@ target_link_libraries(peer_client_test
 	socket
 -Wl,--end-group
 
-	msgpack
+	msgpackc
 )
 

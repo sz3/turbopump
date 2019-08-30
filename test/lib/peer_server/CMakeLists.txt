@@ -41,6 +41,6 @@ target_link_libraries(peer_server_test
 -Wl,--end-group
 
 	pthread
-	msgpack
+	msgpackc
 )
 
