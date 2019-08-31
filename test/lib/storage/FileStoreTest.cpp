@@ -349,7 +349,9 @@ TEST_CASE( "FileStoreTest/testReadCantDecide", "[unit]" )
 
 	reader = store.read("myfile");
 	assertTrue( reader );
-	assertEquals( "3,increment.UNIXSECONDS=,foo.UNIXSECONDS=,bar.UNIXSECONDS=", reader.version() );
+	assertStringContains( "3,increment.UNIXSECONDS=", reader.version() );
+	assertStringContains( "foo.UNIXSECONDS=", reader.version() );
+	assertStringContains( "bar.UNIXSECONDS=", reader.version() );
 	assertEquals( 4, reader.size() );
 }
 
@@ -438,12 +440,12 @@ TEST_CASE( "FileStoreTest/testReadAll", "[unit]" )
 	assertEquals( 2, readers.size() );
 
 	assertTrue( readers[0] );
-	assertEquals( "1,foo.UNIXSECONDS=", readers[0].version() );
-	assertEquals( 10, readers[0].size() );
+	assertEquals( "1,bar.UNIXSECONDS=", readers[0].version() );
+	assertEquals( 6, readers[0].size() );
 
 	assertTrue( readers[1] );
-	assertEquals( "1,bar.UNIXSECONDS=", readers[1].version() );
-	assertEquals( 6, readers[1].size() );
+	assertEquals( "1,foo.UNIXSECONDS=", readers[1].version() );
+	assertEquals( 10, readers[1].size() );
 }
 
 TEST_CASE( "FileStoreTest/testReadWriteVariantCopies", "[unit]" )

@@ -5,6 +5,9 @@
 #include "Write.h"
 #include "common/VectorClock.h"
 
+#include "serialize/format.h"
+#include <iostream>
+
 DeleteCommand::DeleteCommand(const Turbopump::Api& api)
 	: _api(api)
 {
@@ -12,6 +15,8 @@ DeleteCommand::DeleteCommand(const Turbopump::Api& api)
 
 bool DeleteCommand::run(const char*, unsigned)
 {
+	std::cerr << fmt::format("logger: DeleteCommand {} : {}", params.name, params.version) << std::endl;
+
 	VectorClock version;
 	version.fromString(params.version);
 	version.markDeleted();

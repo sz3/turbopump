@@ -92,14 +92,14 @@ bool TurboRunner::stop(unsigned retries, bool kill)
 
 std::string TurboRunner::query(std::string action, std::string params) const
 {
-	string response = turbo::popen("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -U " + dataChannel()).read();
+	string response = turbo::popen("echo 'GET /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n\r\n' | nc -q 0 -U " + dataChannel()).read();
 	return HttpResponse().parse(response).body();
 }
 
 std::string TurboRunner::post(std::string action, std::string params, std::string body) const
 {
 	string response = turbo::popen("echo 'POST /" + action + (params.empty()? "" : "?" + params) + " HTTP/1.1\r\n"
-		   "content-length:" + str(body.size()) + "\r\n" + body + "' | nc -U " + dataChannel()).read();
+	       "content-length:" + str(body.size()) + "\r\n" + body + "' | nc -q 0 -U " + dataChannel()).read();
 	return HttpResponse().parse(response).status().str();
 }
 
@@ -175,7 +175,7 @@ std::string TurboRunner::headerForRead(std::string name, std::string params/*=""
 std::string TurboRunner::write(std::string name, std::string data, std::string params/*=""*/)
 {
 	string req = headerForWrite(name, data.size(), params) + data;
-	string res = turbo::popen("echo '" + req + "' | nc -U " + dataChannel()).read();
+	string res = turbo::popen("echo '" + req + "' | nc -q 0 -U " + dataChannel()).read();
 	return HttpResponse().parse(res).status().str();
 }
 

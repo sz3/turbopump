@@ -2,6 +2,9 @@
 #include "WriteCommand.h"
 
 #include "storage/IStore.h"
+
+#include "serialize/format.h"
+#include <iostream>
 #include <map>
 #include <string>
 using std::map;
@@ -76,6 +79,7 @@ bool WriteCommand::run(const char* buff, unsigned size)
 
 	if (!_started)
 	{
+		std::cerr << fmt::format("logger: WriteCommand {} : {} : {} : {}", _instructions.name, _instructions.version, _instructions.copies, _instructions.offset) << std::endl;
 		if (_instructions.name.empty())
 		{
 			_finished = true;

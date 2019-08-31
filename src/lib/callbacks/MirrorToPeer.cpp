@@ -5,6 +5,9 @@
 #include "hashing/ILocateKeys.h"
 #include "membership/IKnowPeers.h"
 #include "membership/Peer.h"
+
+#include "serialize/format.h"
+#include <iostream>
 using std::shared_ptr;
 using std::string;
 
@@ -42,6 +45,7 @@ bool MirrorToPeer::chooseMirror(WriteInstructions& params, std::shared_ptr<Peer>
 	if (!peer || peer == self || peer->uid == params.source)
 		return false;
 
+	std::cerr << fmt::format("logger: MirrorToPeer choosing {} for file {}:{}", peer->uid, params.name, params.version) << std::endl;
 	params.mirror = next+1;
 	return true;
 }

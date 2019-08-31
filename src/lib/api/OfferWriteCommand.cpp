@@ -5,6 +5,9 @@
 #include "storage/IStore.h"
 #include "storage/readstream.h"
 
+#include "serialize/format.h"
+#include <iostream>
+
 OfferWriteCommand::OfferWriteCommand(const IStore& store, IMessageSender& messenger)
 	: _store(store)
 	, _messenger(messenger)
@@ -13,6 +16,8 @@ OfferWriteCommand::OfferWriteCommand(const IStore& store, IMessageSender& messen
 
 bool OfferWriteCommand::run(const char*, unsigned)
 {
+	std::cout << fmt::format("logger OfferWriteCommand {} {}", params.name, params.version) << std::endl;
+
 	// we only respond to a write offer if we need it.
 	unsigned long long offset = 0;
 	readstream reader = _store.read(params.name, params.version, true);

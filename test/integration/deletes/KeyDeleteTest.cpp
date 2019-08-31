@@ -1,9 +1,11 @@
 /* This code is subject to the terms of the Mozilla Public License, v.2.0. http://mozilla.org/MPL/2.0/. */
 #include "unittest.h"
 
-#include "system/popen.h"
 #include "integration/TurboCluster.h"
 #include "integration/TurboRunner.h"
+
+#include "serialize/format.h"
+#include "system/popen.h"
 #include "time/wait_for.h"
 using std::string;
 
@@ -28,6 +30,16 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 
 	// delete file
 	response = cluster[1].query("delete", "name=deleteMe&version=1,1." + version);
+	expected = fmt::format("deleteMe => 0:2,delete.{},1.{}", "([^\\. ]+)", version);
+	wait_for_match(20, expected, [&]()
+	{
+		return cluster[1].local_list("deleted=1");
+	});
+	wait_for_match(20, expected, [&]()
+	{
+		return cluster[2].local_list("deleted=1");
+	});
+
 	expected = "";
 	wait_for_equal(10, expected, [&]()
 	{
@@ -36,15 +48,5 @@ TEST_CASE( "KeyDeleteTest/testDelete", "[integration-udp]" )
 	wait_for_equal(10, expected, [&]()
 	{
 		return cluster[2].local_list();
-	});
-
-	expected = "deleteMe => 0:2,delete." + version + ",1." + version;
-	wait_for_equal(20, expected, [&]()
-	{
-		return cluster[1].local_list("deleted=1");
-	});
-	wait_for_equal(20, expected, [&]()
-	{
-		return cluster[2].local_list("deleted=1");
 	});
 }
